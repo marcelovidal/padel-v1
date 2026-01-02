@@ -1,63 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useFormState, useFormStatus } from "react-dom";
+import { signInAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? "Iniciando sesión..." : "Iniciar Sesión"}
+    </Button>
+  );
+}
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      // Verificar que el usuario tenga rol admin
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profileError || !profile || profile.role !== "admin") {
-        await supabase.auth.signOut();
-        throw new Error("No tienes permisos de administrador");
-      }
-
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: "Redirigiendo...",
-      });
-
-      router.push("/admin/users");
-      router.refresh();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Error al iniciar sesión",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [state, formAction] = useFormState(signInAction, { error: undefined });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -69,33 +29,32 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form action={formAction} className="space-y-4">
+            {state && state.error && (
+              <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded">
+                {state.error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </Button>
+            <SubmitButton />
           </form>
         </CardContent>
       </Card>

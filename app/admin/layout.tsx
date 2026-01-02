@@ -1,20 +1,36 @@
-import { requireAdmin } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
+import type { Database } from "@/types/database";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  await requireAdmin();
-
   const supabase = await createClient();
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/login");
+  }
+
+  // Verificar que el usuario tenga rol admin
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single<Profile>();
+
+  if (profileError || !profile || profile.role !== "admin") {
+    redirect("/login");
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
