@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { upsertMatchResultAction } from "../../actions";
 import { Button } from "@/components/ui/button";
@@ -22,54 +23,66 @@ function SubmitButton() {
 export function ResultForm({
   matchId,
   existingResult,
+  onSaved,
 }: {
   matchId: string;
   existingResult: MatchResult | null;
+  onSaved?: () => void;
 }) {
-  const [state, formAction] = useFormState(upsertMatchResultAction, {
+  const router = useRouter();
+  // TODO: refine server action typings to avoid `as any`
+  const [state, formAction] = useFormState(upsertMatchResultAction as any, {
+    ok: false,
     error: undefined,
   });
-  const [setsCount, setSetsCount] = useState(
-    existingResult && Array.isArray(existingResult.sets)
-      ? (existingResult.sets as Array<{ a: number; b: number }>).length
-      : 3
-  );
 
-  const sets = existingResult && Array.isArray(existingResult.sets)
+  // TODO: narrow `existingResult.sets` type instead of casting
+  const initialSets = existingResult && Array.isArray(existingResult.sets)
     ? (existingResult.sets as Array<{ a: number; b: number }>)
-    : null;
+    : [{ a: 0, b: 0 }, { a: 0, b: 0 }, { a: 0, b: 0 }];
 
-  const winnerTeam = existingResult?.winner_team || "A";
+  const [sets, setSets] = useState(initialSets.slice(0, 3));
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // TODO: avoid `as any` by providing proper form state types
+    if ((state as any)?.ok) {
+      router.refresh();
+      if (onSaved) onSaved();
+    }
+  }, [state, router, onSaved]);
+
+  const handleSetChange = (index: number, side: "a" | "b", value: string) => {
+    const v = value === "" ? "0" : value;
+    const num = parseInt(v, 10);
+    const copy = [...sets];
+    copy[index] = { ...copy[index], [side]: isNaN(num) ? 0 : num };
+    setSets(copy);
+    // basic validation: no ties
+    const hasTie = copy.slice(0, 2).some((s) => s.a === s.b);
+    if (hasTie) setError("Los sets no pueden terminar en empate");
+    else setError(null);
+  };
+
+  // determine if early winner (2-0)
+  const perSetWinners = sets.slice(0, 2).map((s) => (s.a > s.b ? "A" : s.b > s.a ? "B" : null));
+  const earlyWinner = perSetWinners[0] && perSetWinners[0] === perSetWinners[1] ? perSetWinners[0] : null;
 
   return (
     <form action={formAction} className="space-y-6">
       <input type="hidden" name="match_id" value={matchId} />
 
-      {state && state.error && (
+      {state && (state as any).error && (
         <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded">
-          {state.error}
+          {(state as any).error}
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="sets_count">Número de Sets</Label>
-        <select
-          id="sets_count"
-          name="sets_count"
-          value={setsCount}
-          onChange={(e) => setSetsCount(parseInt(e.target.value))}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          <option value="1">1 Set</option>
-          <option value="2">2 Sets</option>
-          <option value="3">3 Sets</option>
-          <option value="4">4 Sets</option>
-          <option value="5">5 Sets</option>
-        </select>
-        <p className="text-sm text-gray-500">
-          Selecciona cuántos sets se jugaron (máximo 5)
-        </p>
-      </div>
+      {error && (
+        <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Puntuación por Set</h3>
@@ -78,9 +91,9 @@ export function ResultForm({
           <div className="font-medium text-center">Equipo A</div>
           <div className="font-medium text-center">Equipo B</div>
         </div>
-        {Array.from({ length: setsCount }).map((_, index) => {
+
+        {sets.slice(0, 2).map((s, index) => {
           const setNumber = index + 1;
-          const existingSet = sets?.[index];
           return (
             <div key={setNumber} className="grid grid-cols-3 gap-4 items-center">
               <Label>Set {setNumber}</Label>
@@ -88,33 +101,47 @@ export function ResultForm({
                 type="number"
                 name={`set_${setNumber}_a`}
                 min="0"
-                defaultValue={existingSet?.a || 0}
+                value={String(s.a)}
+                onChange={(e) => handleSetChange(index, "a", e.target.value)}
                 required
               />
               <Input
                 type="number"
                 name={`set_${setNumber}_b`}
                 min="0"
-                defaultValue={existingSet?.b || 0}
+                value={String(s.b)}
+                onChange={(e) => handleSetChange(index, "b", e.target.value)}
                 required
               />
             </div>
           );
         })}
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="winner_team">Equipo Ganador</Label>
-        <select
-          id="winner_team"
-          name="winner_team"
-          defaultValue={winnerTeam}
-          required
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          <option value="A">Equipo A</option>
-          <option value="B">Equipo B</option>
-        </select>
+        {!earlyWinner && (
+          <div className="grid grid-cols-3 gap-4 items-center">
+            <Label>Set 3</Label>
+            <Input
+              type="number"
+              name={`set_3_a`}
+              min="0"
+              value={String(sets[2].a)}
+              onChange={(e) => handleSetChange(2, "a", e.target.value)}
+            />
+            <Input
+              type="number"
+              name={`set_3_b`}
+              min="0"
+              value={String(sets[2].b)}
+              onChange={(e) => handleSetChange(2, "b", e.target.value)}
+            />
+          </div>
+        )}
+
+        {earlyWinner && (
+          <div className="p-2 text-sm text-gray-700 bg-gray-50 border border-gray-100 rounded">
+            Ganador definido (2–0) — no es necesario completar el tercer set
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end space-x-2">

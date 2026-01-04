@@ -17,7 +17,8 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
-  const [state, formAction] = useFormState(signInAction, { error: undefined });
+  // TODO: tighten the action type to avoid `as any` when possible
+  const [state, formAction] = useFormState(signInAction as any, { ok: false, error: undefined });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">

@@ -4,6 +4,7 @@ import { PlayerRepository } from "@/repositories/player.repository";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResultInline } from "./result-inline";
 import { AddPlayerForm } from "./add-player-form";
 import { RemovePlayerButton } from "./remove-player-button";
 
@@ -135,20 +136,27 @@ export default async function MatchDetailPage({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isFull ? (
-              <p className="text-sm text-gray-500">
-                El partido ya tiene el máximo de jugadores permitidos.
-              </p>
-            ) : unassignedPlayers.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                No hay jugadores disponibles para agregar.
-              </p>
+            {unassignedPlayers.length === 0 ? (
+              <p className="text-sm text-gray-500">No hay jugadores disponibles para agregar.</p>
             ) : (
               <AddPlayerForm
                 matchId={match.id}
                 availablePlayers={unassignedPlayers}
+                teamACount={teamA.length}
+                teamBCount={teamB.length}
+                maxPlayers={match.max_players}
               />
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Resultado</CardTitle>
+            <CardDescription>Resultado del partido</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResultInline matchId={match.id} existingResult={match.match_results} />
           </CardContent>
         </Card>
       </div>

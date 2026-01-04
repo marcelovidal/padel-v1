@@ -58,9 +58,11 @@ export class MatchRepository {
 
   async create(match: MatchInsert): Promise<Match> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by switching to a properly typed Supabase server client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("matches")
-      .insert(match)
+      .insert(match as any)
       .select()
       .single();
 
@@ -70,9 +72,11 @@ export class MatchRepository {
 
   async update(id: string, updates: MatchUpdate): Promise<Match> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by switching to a properly typed Supabase server client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("matches")
-      .update(updates)
+      .update(updates as any)
       .eq("id", id)
       .select()
       .single();
@@ -94,9 +98,11 @@ export class MatchRepository {
 
   async addPlayerToMatch(input: MatchPlayerInsert): Promise<MatchPlayer> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by switching to a properly typed Supabase server client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("match_players")
-      .insert(input)
+      .insert(input as any)
       .select()
       .single();
 
@@ -137,18 +143,21 @@ export class MatchRepository {
 
   async upsertMatchResult(input: MatchResultInsert): Promise<MatchResult> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by switching to a properly typed Supabase server client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("match_results")
-      .upsert(input, { onConflict: "match_id" })
+      .upsert(input as any, { onConflict: "match_id" })
       .select()
       .single();
 
     if (error) throw error;
 
     // Si el trigger no existe, actualizar status manualmente
-    await supabase
+    // TODO: remove `as any` here once Database types flow through the Supabase client
+    await sb
       .from("matches")
-      .update({ status: "completed" })
+      .update({ status: "completed" } as any)
       .eq("id", input.match_id);
 
     return data;

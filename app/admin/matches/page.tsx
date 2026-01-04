@@ -13,22 +13,22 @@ export default async function MatchesPage() {
   const matchesWithCounts = await Promise.all(
     matches.map(async (match) => {
       const players = await matchRepository.getMatchPlayers(match.id);
+      const result = await matchRepository.getMatchResult(match.id);
       return {
         ...match,
         playersCount: players.length,
+        match_results: result,
       };
     })
   );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat("es-ES", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${dd}/${mm} ${hh}:${min}`;
   };
 
   const getStatusBadge = (status: string) => {
@@ -79,6 +79,9 @@ export default async function MatchesPage() {
                       Estado
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Resultado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Jugadores
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -103,6 +106,15 @@ export default async function MatchesPage() {
                           >
                             {statusBadge.label}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {(() => {
+                            // TODO: narrow match_results.sets type instead of casting to `any[]`
+                            const sets = Array.isArray(match.match_results?.sets)
+                              ? (match.match_results!.sets as any[])
+                              : [];
+                            return sets.length > 0 ? sets.map((s: any) => `${s.a}-${s.b}`).join(", ") : "—";
+                          })()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {match.playersCount} / {match.max_players}

@@ -6,6 +6,7 @@ import {
   CreateMatchResultInput,
 } from "@/schemas/match.schema";
 import { createClient } from "@/lib/supabase/server";
+import { computeWinner } from "@/lib/match/computeWinner";
 
 export class MatchService {
   private repository: MatchRepository;
@@ -80,22 +81,23 @@ export class MatchService {
       throw new Error("Debe haber entre 1 y 5 sets");
     }
 
-    // Validar que winner_team coincide con los sets ganados
-    // En pádel, un equipo gana si gana más sets que el otro
-    const setsWonByA = input.sets.filter((set) => set.a > set.b).length;
-    const setsWonByB = input.sets.filter((set) => set.b > set.a).length;
+    // Compute winner from provided sets (do not trust form winner_team)
+    // TODO: narrow types so this cast is unnecessary when Supabase/DB types are fixed
+    const computed = computeWinner(input.sets as any[]);
 
-    if (input.winner_team === "A" && setsWonByA <= setsWonByB) {
-      throw new Error("El equipo A debe haber ganado más sets para ser el ganador");
+    if (computed.errors.length > 0) {
+      throw new Error(computed.errors.join("; "));
     }
-    if (input.winner_team === "B" && setsWonByB <= setsWonByA) {
-      throw new Error("El equipo B debe haber ganado más sets para ser el ganador");
+
+    if (!computed.winnerTeam) {
+      throw new Error("No se pudo determinar el ganador a partir de los sets proporcionados");
     }
 
     return this.repository.upsertMatchResult({
       match_id: input.match_id,
-      sets: input.sets as any,
-      winner_team: input.winner_team,
+      // TODO: remove `as any` once repository typings align with Database types
+      sets: computed.normalizedSets as any,
+      winner_team: computed.winnerTeam,
     });
   }
 }

@@ -19,7 +19,8 @@ export async function requireAdmin() {
     .eq("id", user.id)
     .single();
 
-  if (profileError || !profile || profile.role !== "admin") {
+  // TODO: narrow `profile` type instead of using `as any` once Database types are aligned
+  if (profileError || !profile || (profile as any).role !== "admin") {
     redirect("/login");
   }
 

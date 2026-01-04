@@ -58,9 +58,11 @@ export class PlayerRepository {
 
   async create(player: PlayerInsert): Promise<Player> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by using a properly typed Supabase client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("players")
-      .insert(player)
+      .insert(player as any)
       .select()
       .single();
 
@@ -70,9 +72,11 @@ export class PlayerRepository {
 
   async update(id: string, updates: PlayerUpdate): Promise<Player> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // TODO: remove `as any` by using a properly typed Supabase client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { data, error } = await sb
       .from("players")
-      .update(updates)
+      .update(updates as any)
       .eq("id", id)
       .select()
       .single();
@@ -87,9 +91,11 @@ export class PlayerRepository {
 
   async softDelete(id: string): Promise<void> {
     const supabase = await this.getClient();
-    const { error } = await supabase
+    // TODO: remove `as any` by using a properly typed Supabase client (createServerClient<Database>)
+    const sb: any = supabase as any;
+    const { error } = await sb
       .from("players")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ deleted_at: new Date().toISOString() } as any)
       .eq("id", id);
 
     if (error) throw error;

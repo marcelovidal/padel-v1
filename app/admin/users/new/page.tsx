@@ -26,6 +26,7 @@ export default function NewPlayerPage() {
     defaultValues: {
       position: "cualquiera",
       status: "active",
+      category: "5",
     },
   });
 
@@ -188,6 +189,30 @@ export default function NewPlayerPage() {
                   <p className="text-sm text-red-500">
                     {errors.status.message}
                   </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">Categoría</Label>
+                <select
+                  id="category"
+                  {...register("category")}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={isLoading}
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                </select>
+                <p className="text-sm text-muted-foreground">Selecciona la categoría (1–7)</p>
+                {errors.category && (
+                  <p className="text-sm text-red-500">{errors.category.message}</p>
                 )}
               </div>
             </div>

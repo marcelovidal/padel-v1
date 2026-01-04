@@ -140,30 +140,33 @@ export async function upsertMatchResultAction(
 ) {
   try {
     const matchId = formData.get("match_id") as string;
-    const winnerTeam = formData.get("winner_team") as "A" | "B";
-    const setsCount = parseInt(formData.get("sets_count") as string) || 1;
 
-    const sets = [];
-    for (let i = 1; i <= setsCount; i++) {
-      const setA = parseInt(formData.get(`set_${i}_a`) as string);
-      const setB = parseInt(formData.get(`set_${i}_b`) as string);
-      if (!isNaN(setA) && !isNaN(setB)) {
-        sets.push({ a: setA, b: setB });
+    const sets: Array<{ a: number; b: number }> = [];
+    for (let i = 1; i <= 3; i++) {
+      const rawA = formData.get(`set_${i}_a`);
+      const rawB = formData.get(`set_${i}_b`);
+      if (rawA !== null && rawB !== null) {
+        const setA = parseInt(String(rawA));
+        const setB = parseInt(String(rawB));
+        if (!isNaN(setA) && !isNaN(setB)) {
+          sets.push({ a: setA, b: setB });
+        }
       }
     }
 
+    // For schema validation, include a placeholder winner (service will compute the real one)
     const data = {
       match_id: matchId,
       sets,
-      winner_team: winnerTeam,
+      winner_team: "A" as "A" | "B",
     };
 
     const validated = createMatchResultSchema.parse(data);
     await matchService.upsertMatchResult(validated);
 
-    // Importante: NO redirect acá (useFormState lo interpreta como NEXT_REDIRECT)
-    // Si querés revalidar caché, podés agregar revalidatePath si ya lo importaste.
-    // revalidatePath(`/admin/matches/${matchId}`);
+    // Revalidate relevant paths so server components show updated data
+    revalidatePath(`/admin/matches/${matchId}`);
+    revalidatePath(`/admin/matches`);
 
     return { ok: true };
   } catch (error: any) {

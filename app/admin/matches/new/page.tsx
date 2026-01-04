@@ -18,7 +18,8 @@ function SubmitButton() {
 }
 
 export default function NewMatchPage() {
-  const [state, formAction] = useFormState(createMatchAction, { error: undefined });
+  // TODO: refine action typings to avoid `as any` here
+  const [state, formAction] = useFormState(createMatchAction as any, { ok: false, error: undefined });
 
   // Obtener fecha/hora actual en formato datetime-local
   const now = new Date();
