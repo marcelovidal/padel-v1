@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { Database } from "@/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
-export async function createClient() {
-  const cookieStore = await cookies();
+export type DatabaseSupabaseClient = SupabaseClient<Database, "public">;
+
+export function createClient(): DatabaseSupabaseClient {
+  const cookieStore = cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,14 +22,15 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // setAll can be called from a Server Component; ignore if middleware handles session refresh.
           }
         },
       },
     }
-  );
+  ) as unknown as DatabaseSupabaseClient;
 }
 
-
+// Alias para compatibilidad con imports existentes
+export function createTypedClient(): DatabaseSupabaseClient {
+  return createClient();
+}

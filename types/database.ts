@@ -11,7 +11,7 @@ export type PlayerStatus = "active" | "inactive";
 export type MatchStatus = "scheduled" | "completed" | "cancelled";
 export type TeamType = "A" | "B";
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: {
@@ -33,14 +33,16 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
+
       players: {
         Row: {
           id: string;
           first_name: string;
           last_name: string;
           email: string | null;
-          phone: string; // NOT NULL en el schema corregido
+          phone: string;
           category: string | null;
           position: PlayerPosition;
           status: PlayerStatus;
@@ -53,7 +55,7 @@ export interface Database {
           first_name: string;
           last_name: string;
           email?: string | null;
-          phone: string; // NOT NULL
+          phone: string;
           category?: string | null;
           position?: PlayerPosition;
           status?: PlayerStatus;
@@ -74,49 +76,52 @@ export interface Database {
           updated_at?: string;
           deleted_at?: string | null;
         };
+        Relationships: [];
       };
+
       matches: {
         Row: {
           id: string;
-          match_at: string; // Cambió de datetime a match_at
+          match_at: string;
           club_name: string;
           max_players: number;
           notes: string | null;
           status: MatchStatus;
-          created_by: string | null; // Nuevo campo
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          match_at: string; // Cambió de datetime a match_at
+          match_at: string;
           club_name: string;
           max_players?: number;
           notes?: string | null;
           status?: MatchStatus;
-          created_by?: string | null; // Nuevo campo
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          match_at?: string; // Cambió de datetime a match_at
+          match_at?: string;
           club_name?: string;
           max_players?: number;
           notes?: string | null;
           status?: MatchStatus;
-          created_by?: string | null; // Nuevo campo
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
+
       match_players: {
         Row: {
           id: string;
           match_id: string;
           player_id: string;
           team: TeamType;
-          // position_in_match eliminado en el schema corregido
           created_at: string;
         };
         Insert: {
@@ -133,7 +138,9 @@ export interface Database {
           team?: TeamType;
           created_at?: string;
         };
+        Relationships: [];
       };
+
       match_results: {
         Row: {
           id: string;
@@ -162,8 +169,14 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
-  };
-}
 
+    // Claves requeridas por supabase-js para inferencia tipada (aunque estén vacías)
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
