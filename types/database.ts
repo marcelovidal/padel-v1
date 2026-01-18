@@ -163,6 +163,56 @@ export interface Database {
           updated_at?: string;
         };
       };
+      player_match_assessments: {
+        Row: {
+          id: string;
+          match_id: string;
+          player_id: string;
+          volea: number | null;
+          globo: number | null;
+          remate: number | null;
+          bandeja: number | null;
+          vibora: number | null;
+          bajada_pared: number | null;
+          saque: number | null;
+          recepcion_saque: number | null;
+          comments: string | null;
+          submitted_by: string | null; // references profiles.id
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          player_id: string;
+          volea: number | null;
+          globo: number | null;
+          remate: number | null;
+          bandeja: number | null;
+          vibora: number | null;
+          bajada_pared: number | null;
+          saque: number | null;
+          recepcion_saque: number | null;
+          comments?: string | null;
+          submitted_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          player_id?: string;
+          volea?: number | null;
+          globo?: number | null;
+          remate?: number | null;
+          bandeja?: number | null;
+          vibora?: number | null;
+          bajada_pared?: number | null;
+          saque?: number | null;
+          recepcion_saque?: number | null;
+          comments?: string | null;
+          submitted_by?: string | null;
+          created_at?: string;
+        };
+      };
     };
   };
 }

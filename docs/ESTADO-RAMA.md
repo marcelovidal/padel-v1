@@ -38,4 +38,15 @@ Próximos pasos sugeridos (rápidos)
 Notas
 - No se cambiaron contratos externos ni migraciones de DB en este parche; si vas a desplegar, valida la presencia de la nueva columna `players.category` en la base de datos.
 
+Autoevaluación (player_match_assessments)
+
+- Modelo actualizado para permitir autoevaluaciones parciales: los campos de golpes (`volea`, `globo`, `remate`, `bandeja`, `vibora`, `bajada_pared`, `saque`, `recepcion_saque`) son ahora `NULLABLE` y `comments` también puede ser `NULL`.
+- Se agregó una constraint a nivel tabla para evitar filas totalmente vacías: al menos un golpe no nulo o un `comments` no vacío.
+- El SQL definitivo está en `scripts/sql/create-player-match-assessments.sql`. Se aplicó una migración correctiva documentada en `scripts/sql/migrate-player-match-assessments-nullable.sql` y ya se actualizó el entorno de desarrollo/staging.
+
+Notas operativas:
+
+- La validación se realiza en cliente (formulario) y en servidor (Zod refine), además del CHECK en BD para robustez.
+- Revisar políticas RLS/roles si se va a habilitar acceso player-first en un futuro.
+
 Fecha: (auto) rama trabajada por el agente
