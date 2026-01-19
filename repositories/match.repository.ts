@@ -184,7 +184,7 @@ export class MatchRepository {
         match_results:matches!match_id(match_results (*))
       `)
       .eq("player_id", playerId)
-      .order("matches.match_at", { ascending: false });
+      .order("match_at", { ascending: false, foreignTable: "matches" as any });
 
     if (error) throw error;
 
