@@ -84,11 +84,16 @@ export default async function UsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/admin/users/${player.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            Editar
-                          </Button>
-                        </Link>
+                        <div className="flex space-x-2">
+                          <Link href={`/admin/users/${player.id}`}>
+                            <Button size="sm">Ver perfil</Button>
+                          </Link>
+                          <Link href={`/admin/users/${player.id}/edit`}>
+                            <Button variant="outline" size="sm">
+                              Editar
+                            </Button>
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}

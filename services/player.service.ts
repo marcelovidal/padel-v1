@@ -1,11 +1,77 @@
 import { PlayerRepository } from "@/repositories/player.repository";
 import { CreatePlayerInput, UpdatePlayerInput } from "@/schemas/player.schema";
+import { MatchRepository } from "@/repositories/match.repository";
+import { AssessmentRepository } from "@/repositories/assessment.repository";
 
 export class PlayerService {
   private repository: PlayerRepository;
 
   constructor() {
     this.repository = new PlayerRepository();
+    this.matchRepository = new MatchRepository();
+    this.assessmentRepository = new AssessmentRepository();
+  }
+
+  private matchRepository: MatchRepository;
+  private assessmentRepository: AssessmentRepository;
+
+  async getPlayerMatchSummary(playerId: string) {
+    const matches = await this.matchRepository.findByPlayerId(playerId);
+    let wins = 0;
+    let losses = 0;
+    let totalWithResult = 0;
+
+    for (const m of matches) {
+      if (m.match_results && m.match_results.winner_team) {
+        totalWithResult++;
+        if (m.match_results.winner_team === m.team) wins++;
+        else losses++;
+      }
+    }
+
+    return { wins, losses, totalWithResult };
+  }
+
+  async getPlayerShotAverages(playerId: string) {
+    const assessments = await this.assessmentRepository.findByPlayer(playerId);
+    const fields = [
+      'volea','globo','remate','bandeja','vibora','bajada_pared','saque','recepcion_saque'
+    ];
+    const sums: Record<string, number> = {};
+    const counts: Record<string, number> = {};
+    for (const f of fields) { sums[f] = 0; counts[f] = 0; }
+
+    for (const a of assessments) {
+      for (const f of fields) {
+        const v = (a as any)[f];
+        if (v !== null && v !== undefined) {
+          sums[f] += Number(v);
+          counts[f] += 1;
+        }
+      }
+    }
+
+    const averages: Record<string, number | null> = {};
+    for (const f of fields) {
+      averages[f] = counts[f] > 0 ? Number((sums[f] / counts[f]).toFixed(1)) : null;
+    }
+    return averages;
+  }
+
+  async getPlayerMatches(playerId: string) {
+    const matches = await this.matchRepository.findByPlayerId(playerId);
+    const assessments = await this.assessmentRepository.findByPlayer(playerId);
+    const assessmentsMap = new Map(assessments.map((a) => [a.match_id, a]));
+
+    return matches.map((m) => ({
+      id: m.id,
+      match_at: m.match_at,
+      club_name: m.club_name,
+      status: m.status,
+      team: (m as any).team,
+      winner_team: m.match_results ? m.match_results.winner_team : null,
+      hasAssessment: assessmentsMap.has(m.id),
+    }));
   }
 
   async getAllPlayers() {

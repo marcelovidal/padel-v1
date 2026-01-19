@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Database } from "@/types/database";
+import { Database, TeamType } from "@/types/database";
 
 type Match = Database["public"]["Tables"]["matches"]["Row"];
 type MatchInsert = Database["public"]["Tables"]["matches"]["Insert"];
@@ -161,6 +161,45 @@ export class MatchRepository {
       .eq("id", input.match_id);
 
     return data;
+  }
+
+  async findByPlayerId(playerId: string): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null }>> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from("match_players")
+      .select(`
+        match_id,
+        team,
+        matches (
+          id,
+          match_at,
+          club_name,
+          max_players,
+          notes,
+          status,
+          created_by,
+          created_at,
+          updated_at
+        ),
+        match_results:matches!match_id(match_results (*))
+      `)
+      .eq("player_id", playerId)
+      .order("matches.match_at", { ascending: false });
+
+    if (error) throw error;
+
+    // Normalize results: supabase returns nested structures; map to desired shape
+    const items = (data || []).map((row: any) => {
+      const match = row.matches as Match;
+      const mr = Array.isArray(row.match_results) && row.match_results.length > 0 ? row.match_results[0] : null;
+      return {
+        ...match,
+        team: row.team as TeamType,
+        match_results: mr as MatchResult | null,
+      };
+    });
+
+    return items;
   }
 }
 
