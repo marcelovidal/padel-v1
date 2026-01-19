@@ -179,9 +179,9 @@ export class MatchRepository {
           status,
           created_by,
           created_at,
-          updated_at
-        ),
-        match_results:matches!match_id(match_results (*))
+          updated_at,
+          match_results (*)
+        )
       `)
       .eq("player_id", playerId)
       .order("match_at", { ascending: false, foreignTable: "matches" as any });
@@ -190,8 +190,8 @@ export class MatchRepository {
 
     // Normalize results: supabase returns nested structures; map to desired shape
     const items = (data || []).map((row: any) => {
-      const match = row.matches as Match;
-      const mr = Array.isArray(row.match_results) && row.match_results.length > 0 ? row.match_results[0] : null;
+      const match = row.matches as Match & { match_results?: any[] };
+      const mr = Array.isArray(match.match_results) && match.match_results.length > 0 ? match.match_results[0] : null;
       return {
         ...match,
         team: row.team as TeamType,
