@@ -62,13 +62,7 @@ export class PlayerService {
     const matches = await this.matchRepository.findByPlayerId(playerId);
     const assessments = await this.assessmentRepository.findByPlayer(playerId);
     const assessmentsMap = new Map(assessments.map((a) => [a.match_id, a]));
-    // DEBUG: log raw matches retrieved from repository for inspection
-    try {
-      // eslint-disable-next-line no-console
-      console.log("DEBUG: raw matches for player", playerId, JSON.stringify(matches, null, 2));
-    } catch (e) {
-      // ignore
-    }
+    // (debug logs removed)
     function formatSets(sets: any): string | null {
       if (!sets) return null;
       if (!Array.isArray(sets)) return null;
@@ -105,12 +99,7 @@ export class PlayerService {
       };
     });
 
-    try {
-      // eslint-disable-next-line no-console
-      console.log("DEBUG: mapped matches for player", playerId, JSON.stringify(mapped, null, 2));
-    } catch (e) {
-      // ignore
-    }
+    // (debug logs removed)
 
     return mapped;
   }
