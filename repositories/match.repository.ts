@@ -165,40 +165,59 @@ export class MatchRepository {
 
   async findByPlayerId(playerId: string): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null }>> {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    // First, get match_ids and teams from match_players
+    const { data: mpData, error: mpError } = await supabase
       .from("match_players")
+      .select("match_id, team")
+      .eq("player_id", playerId);
+
+    if (mpError) throw mpError;
+
+    const players = mpData || [];
+    const matchIds = players.map((p: any) => p.match_id);
+    if (matchIds.length === 0) return [];
+
+    // Fetch matches directly, including match_results
+    const { data: matchesData, error: matchesError } = await supabase
+      .from("matches")
       .select(`
-        match_id,
-        team,
-        matches (
-          id,
-          match_at,
-          club_name,
-          max_players,
-          notes,
-          status,
-          created_by,
-          created_at,
-          updated_at,
-          match_results (*)
-        ),
-        match_results:matches!match_id(match_results (*))
+        id,
+        match_at,
+        club_name,
+        max_players,
+        notes,
+        status,
+        created_by,
+        created_at,
+        updated_at,
+        match_results (*)
       `)
-      .eq("player_id", playerId)
-      .order("match_at", { ascending: false, foreignTable: "matches" as any });
+      .in("id", matchIds)
+      .order("match_at", { ascending: false });
 
-    if (error) throw error;
+    if (matchesError) throw matchesError;
 
-    // Normalize results: supabase returns nested structures; map to desired shape
-    const items = (data || []).map((row: any) => {
-      const match = row.matches as Match & { match_results?: any[] };
-      // Normalize match_results: prefer explicit top-level alias if present
-      const topLevel = Array.isArray(row.match_results) && row.match_results.length > 0 ? row.match_results[0] : null;
-      const nested = Array.isArray(match?.match_results) && match.match_results.length > 0 ? match.match_results[0] : null;
-      const mr = topLevel ?? nested ?? null;
+    const matchesArr = matchesData || [];
+
+    // Fetch match_results explicitly to avoid nested-relation inconsistencies
+    const { data: resultsData, error: resultsError } = await supabase
+      .from("match_results")
+      .select("*")
+      .in("match_id", matchIds);
+
+    if (resultsError) throw resultsError;
+
+    const resultsArr = resultsData || [];
+    const resultByMatch = new Map(resultsArr.map((r: any) => [r.match_id, r]));
+
+    // Map team from match_players to each match
+    const teamByMatch = new Map(players.map((p: any) => [p.match_id, p.team]));
+
+    const items = matchesArr.map((match: any) => {
+      const mr = resultByMatch.get(match.id) ?? null;
       return {
         ...match,
-        team: row.team as TeamType,
+        team: teamByMatch.get(match.id) as TeamType,
         match_results: mr as MatchResult | null,
       };
     });
