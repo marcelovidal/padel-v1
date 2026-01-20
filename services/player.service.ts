@@ -62,16 +62,41 @@ export class PlayerService {
     const matches = await this.matchRepository.findByPlayerId(playerId);
     const assessments = await this.assessmentRepository.findByPlayer(playerId);
     const assessmentsMap = new Map(assessments.map((a) => [a.match_id, a]));
+    function formatSets(sets: any): string | null {
+      if (!sets) return null;
+      if (!Array.isArray(sets)) return null;
+      try {
+        return sets
+          .map((s: any) => {
+            const a = s.a ?? s.A ?? s.teamA ?? s[0];
+            const b = s.b ?? s.B ?? s.teamB ?? s[1];
+            return `${a ?? ""}-${b ?? ""}`;
+          })
+          .join(", ");
+      } catch (e) {
+        return null;
+      }
+    }
 
-    return matches.map((m) => ({
-      id: m.id,
-      match_at: m.match_at,
-      club_name: m.club_name,
-      status: m.status,
-      team: (m as any).team,
-      winner_team: m.match_results ? m.match_results.winner_team : null,
-      hasAssessment: assessmentsMap.has(m.id),
-    }));
+    return matches.map((m) => {
+      const team = (m as any).team as any;
+      const matchResults = (m as any).match_results ?? null;
+      const winner_team = matchResults ? matchResults.winner_team : null;
+      const setsFormatted = matchResults ? formatSets(matchResults.sets) : null;
+      const winnerLabel = winner_team == null ? "-" : winner_team === team ? "Sí" : "No";
+
+      return {
+        id: m.id,
+        match_at: m.match_at,
+        club_name: m.club_name,
+        status: m.status,
+        team,
+        winner_team: winner_team as any,
+        setsFormatted: setsFormatted ?? "-",
+        winnerLabel,
+        hasAssessment: assessmentsMap.has(m.id),
+      };
+    });
   }
 
   async getAllPlayers() {

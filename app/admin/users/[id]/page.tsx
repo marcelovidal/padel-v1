@@ -74,6 +74,7 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipo</th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ganador</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resultado</th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Autoevaluación</th>
                   </tr>
                 </thead>
@@ -84,7 +85,8 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.club_name}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.status}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.team}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.winner_team ?? '-'}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{(m as any).winnerLabel ?? '-'}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{(m as any).setsFormatted ?? '-'}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.hasAssessment ? 'Sí' : 'No'}</td>
                     </tr>
                   ))}
