@@ -13,12 +13,16 @@ export default function PlayerLoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const { error } = await supabase.auth.signInWithPassword({
+    const result = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) {
-      setError(error.message);
+    // client-side diagnostic log to help debug cookie/session behaviour
+    // (will appear in browser console)
+    // eslint-disable-next-line no-console
+    console.log("[PLAYER_LOGIN] signInWithPassword result:", result);
+    if (result.error) {
+      setError(result.error.message);
       return;
     }
     router.push("/player");
