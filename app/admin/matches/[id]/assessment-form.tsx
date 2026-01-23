@@ -19,7 +19,7 @@ function SubmitButton() {
   );
 }
 
-export function AssessmentForm({ matchId, playerId }: { matchId: string; playerId: string }) {
+export function AssessmentForm({ matchId, playerId, playerIdFromRoute }: { matchId: string; playerId: string; playerIdFromRoute?: string | null }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(createAssessmentAction as any, { ok: false, error: undefined });
@@ -54,6 +54,7 @@ export function AssessmentForm({ matchId, playerId }: { matchId: string; playerI
     <form ref={formRef} action={formAction} className="space-y-2" onSubmit={handleSubmit}>
       <input type="hidden" name="match_id" value={matchId} />
       <input type="hidden" name="player_id" value={playerId} />
+      {playerIdFromRoute && <input type="hidden" name="player_id_from_route" value={playerIdFromRoute} />}
 
       {(localError || (state && (state as any).error)) && (
         <div className="p-2 text-sm text-red-500 bg-red-50 border border-red-200 rounded">

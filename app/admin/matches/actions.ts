@@ -11,6 +11,7 @@ import {
 } from "@/schemas/match.schema";
 import { createAssessmentSchema } from "@/schemas/assessment.schema";
 import { AssessmentService } from "@/services/assessment.service";
+import { createClient } from "@/lib/supabase/server";
 
 const assessmentService = new AssessmentService();
 
@@ -211,6 +212,29 @@ export async function createAssessmentAction(
     };
 
     const validated = createAssessmentSchema.parse(data);
+
+    // Guardrail: if caller provided allowed player id from route, validate it matches
+    const allowedFromRoute = (formData.get("player_id_from_route") as string) || null;
+    if (allowedFromRoute && validated.player_id !== allowedFromRoute) {
+      throw new Error("No autorizado para crear autoevaluación para este jugador");
+    }
+
+    // Verify match exists and is completed, and that player belongs to match
+    const match = await matchService.getMatchById(validated.match_id);
+    if (!match) throw new Error("Partido no encontrado");
+    const isCompleted = match.status === "completed" || !!match.match_results?.winner_team;
+    if (!isCompleted) throw new Error("No se puede crear autoevaluación: el partido no tiene resultado");
+    const belongs = (match.match_players || []).some((mp: any) => mp.player_id === validated.player_id);
+    if (!belongs) throw new Error("El jugador no pertenece a este partido");
+
+    // Prefer submitted_by from authenticated user if available
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      data.submitted_by = user.id;
+    }
 
     // Normalize optional fields to explicit nulls so they match DB Insert shape
     const payload = {
