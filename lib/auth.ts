@@ -27,4 +27,46 @@ export async function requireAdmin() {
   return { user, profile };
 }
 
+export async function requirePlayer() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/login");
+  }
+
+  const { data: player, error: playerError } = await supabase
+    .from("players")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (playerError || !player) {
+    // If there's no linked player yet, redirect to a page explaining how to link or deny
+    redirect("/login");
+  }
+
+  return { user, playerId: (player as any).id };
+}
+
+export async function getOptionalPlayer() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { user: null, playerId: null };
+
+  const { data: player } = await supabase
+    .from("players")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return { user, playerId: (player as any)?.id ?? null };
+}
+
 
