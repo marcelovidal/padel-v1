@@ -9,7 +9,7 @@ export async function requireAdmin() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/login");
+    redirect("/player/login");
   }
 
   // Verificar que el usuario tenga rol admin
@@ -45,8 +45,8 @@ export async function requirePlayer() {
     .maybeSingle();
 
   if (playerError || !player) {
-    // If there's no linked player yet, redirect to a page explaining how to link or deny
-    redirect("/login");
+    // If there's no linked player yet, redirect to the player login flow
+    redirect("/player/login");
   }
 
   return { user, playerId: (player as any).id };
