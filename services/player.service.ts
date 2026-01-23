@@ -85,6 +85,8 @@ export class PlayerService {
       const winner_team = matchResults ? matchResults.winner_team : null;
       const setsFormatted = matchResults ? formatSets(matchResults.sets) : null;
       const winnerLabel = winner_team == null ? "-" : winner_team === team ? "Sí" : "No";
+      const playersByTeam = (m as any).playersByTeam ?? { A: [], B: [] };
+      const setsRaw = matchResults ? matchResults.sets : null;
 
       return {
         id: m.id,
@@ -93,8 +95,10 @@ export class PlayerService {
         status: m.status,
         team,
         winner_team: winner_team as any,
+        sets: setsRaw,
         setsFormatted: setsFormatted ?? "-",
         winnerLabel,
+        playersByTeam,
         hasAssessment: assessmentsMap.has(m.id),
       };
     });

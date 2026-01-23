@@ -210,15 +210,107 @@ export class MatchRepository {
     const resultsArr = resultsData || [];
     const resultByMatch = new Map(resultsArr.map((r: any) => [r.match_id, r]));
 
-    // Map team from match_players to each match
+    // Fetch all match_players for these matches, including player basic info
+    const { data: allMatchPlayers, error: mpAllError } = await supabase
+      .from("match_players")
+      .select(`match_id, team, players ( id, first_name, last_name )`)
+      .in("match_id", matchIds);
+
+    if (mpAllError) throw mpAllError;
+
+    const playersArr = (allMatchPlayers || []) as any[];
+
+    // Build playersByMatch: { matchId: { A: [...], B: [...] } }
+    const playersByMatch = new Map<string, { A: any[]; B: any[] }>();
+    for (const p of playersArr) {
+      const mid = p.match_id;
+      if (!playersByMatch.has(mid)) playersByMatch.set(mid, { A: [], B: [] });
+      const bucket = playersByMatch.get(mid)!;
+      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name } : null;
+      if (p.team === "A") bucket.A.push(playerInfo);
+      else bucket.B.push(playerInfo);
+    }
+
+    // Map team from match_players (original query) to each match
     const teamByMatch = new Map(players.map((p: any) => [p.match_id, p.team]));
 
     const items = matchesArr.map((match: any) => {
       const mr = resultByMatch.get(match.id) ?? null;
+      const playersByTeam = playersByMatch.get(match.id) ?? { A: [], B: [] };
       return {
         ...match,
         team: teamByMatch.get(match.id) as TeamType,
         match_results: mr as MatchResult | null,
+        playersByTeam,
+      };
+    });
+
+    return items;
+  }
+
+  async findAllWithPlayersAndResults(opts?: { limit?: number; offset?: number }) {
+    const supabase = await this.getClient();
+    let q: any = supabase
+      .from("matches")
+      .select(`
+        id,
+        match_at,
+        club_name,
+        max_players,
+        notes,
+        status,
+        created_by,
+        created_at,
+        updated_at
+      `)
+      .order("match_at", { ascending: false });
+
+    if (opts?.limit && typeof opts.offset === "number") {
+      const from = opts.offset;
+      const to = opts.offset + opts.limit - 1;
+      q = q.range(from, to);
+    } else if (opts?.limit) {
+      q = q.limit(opts.limit);
+    }
+
+    const { data: matchesData, error: matchesError } = await q;
+    if (matchesError) throw matchesError;
+    const matchesArr = matchesData || [];
+    const matchIds = matchesArr.map((m: any) => m.id);
+    if (matchIds.length === 0) return [];
+
+    // Fetch match_results
+    const { data: resultsData, error: resultsError } = await supabase
+      .from("match_results")
+      .select("*")
+      .in("match_id", matchIds);
+    if (resultsError) throw resultsError;
+    const resultsArr = resultsData || [];
+    const resultByMatch = new Map(resultsArr.map((r: any) => [r.match_id, r]));
+
+    // Fetch match_players with player basic info
+    const { data: allMatchPlayers, error: mpAllError } = await supabase
+      .from("match_players")
+      .select(`match_id, team, players ( id, first_name, last_name )`)
+      .in("match_id", matchIds);
+    if (mpAllError) throw mpAllError;
+    const playersArr = (allMatchPlayers || []) as any[];
+
+    const playersByMatch = new Map<string, { A: any[]; B: any[] }>();
+    for (const p of playersArr) {
+      const mid = p.match_id;
+      if (!playersByMatch.has(mid)) playersByMatch.set(mid, { A: [], B: [] });
+      const bucket = playersByMatch.get(mid)!;
+      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name } : null;
+      if (p.team === "A") bucket.A.push(playerInfo);
+      else bucket.B.push(playerInfo);
+    }
+
+    const items = matchesArr.map((match: any) => {
+      return {
+        ...match,
+        match_results: resultByMatch.get(match.id) ?? null,
+        playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
       };
     });
 

@@ -19,6 +19,10 @@ export class MatchService {
     return this.repository.findAll();
   }
 
+  async getMatchesList(opts?: { limit?: number; offset?: number }) {
+    return this.repository.findAllWithPlayersAndResults(opts);
+  }
+
   async getMatchById(id: string) {
     return this.repository.findById(id);
   }
