@@ -21,12 +21,31 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // Refresca sesión/cookies si hace falta
-  await supabase.auth.getUser();
+  // Refresh session if needed
+  const { data } = await supabase.auth.getUser();
+  const pathname = req.nextUrl.pathname;
+
+  // Protect /player routes
+  if (pathname.startsWith("/player")) {
+    const isLogin = pathname === "/player/login";
+    const user = data?.user ?? null;
+
+    if (!user && !isLogin) {
+      // redirect to login
+      const url = new URL("/player/login", req.url);
+      return NextResponse.redirect(url);
+    }
+
+    if (user && isLogin) {
+      // already logged in -> redirect to /player
+      const url = new URL("/player", req.url);
+      return NextResponse.redirect(url);
+    }
+  }
 
   return res;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/login", "/player/:path*", "/player"],
 };
