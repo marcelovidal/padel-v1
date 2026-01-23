@@ -40,6 +40,7 @@ export interface Database {
           first_name: string;
           last_name: string;
           email: string | null;
+          user_id: string | null;
           phone: string; // NOT NULL en el schema corregido
           category: string | null;
           position: PlayerPosition;
@@ -53,6 +54,7 @@ export interface Database {
           first_name: string;
           last_name: string;
           email?: string | null;
+          user_id?: string | null;
           phone: string; // NOT NULL
           category?: string | null;
           position?: PlayerPosition;
@@ -66,6 +68,7 @@ export interface Database {
           first_name?: string;
           last_name?: string;
           email?: string | null;
+          user_id?: string | null;
           phone?: string;
           category?: string | null;
           position?: PlayerPosition;
