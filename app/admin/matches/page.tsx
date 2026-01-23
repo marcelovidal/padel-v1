@@ -1,26 +1,12 @@
 import { MatchService } from "@/services/match.service";
-import { MatchRepository } from "@/repositories/match.repository";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import MatchCard from "@/components/matches/MatchCard";
 
 export default async function MatchesPage() {
   const matchService = new MatchService();
-  const matches = await matchService.getAllMatches();
-  const matchRepository = new MatchRepository();
-
-  // Obtener conteo de jugadores para cada partido
-  const matchesWithCounts = await Promise.all(
-    matches.map(async (match) => {
-      const players = await matchRepository.getMatchPlayers(match.id);
-      const result = await matchRepository.getMatchResult(match.id);
-      return {
-        ...match,
-        playersCount: players.length,
-        match_results: result,
-      };
-    })
-  );
+  const matchesWithCounts = await matchService.getMatchesList();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -65,85 +51,24 @@ export default async function MatchesPage() {
           {matchesWithCounts.length === 0 ? (
             <p className="text-gray-500">No hay partidos registrados</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha/Hora
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Club
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Resultado
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Jugadores
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {matchesWithCounts.map((match) => {
-                    const statusBadge = getStatusBadge(match.status);
-                    return (
-                      <tr key={match.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatDate(match.match_at)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {match.club_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge.className}`}
-                          >
-                            {statusBadge.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            // TODO: narrow match_results.sets type instead of casting to `any[]`
-                            const sets = Array.isArray(match.match_results?.sets)
-                              ? (match.match_results!.sets as any[])
-                              : [];
-                            return sets.length > 0 ? sets.map((s: any) => `${s.a}-${s.b}`).join(", ") : "—";
-                          })()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {match.playersCount} / {match.max_players}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <Link href={`/admin/matches/${match.id}`}>
-                            <Button variant="outline" size="sm">
-                              Ver/Editar
-                            </Button>
-                          </Link>
-                          {match.status === "scheduled" ? (
-                            <Link href={`/admin/matches/${match.id}/result`}>
-                              <Button variant="outline" size="sm">
-                                Cargar Resultado
-                              </Button>
-                            </Link>
-                          ) : match.status === "completed" ? (
-                            <Link href={`/admin/matches/${match.id}/result`}>
-                              <Button variant="outline" size="sm">
-                                Editar Resultado
-                              </Button>
-                            </Link>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {matchesWithCounts.map((match: any) => {
+                const hasSets = Array.isArray(match.match_results?.sets) && match.match_results.sets.length > 0;
+                const primary = hasSets ? { label: "Ver detalle", href: `/admin/matches/${match.id}` } : { label: "Cargar resultado", href: `/admin/matches/${match.id}/result` };
+                return (
+                  <MatchCard
+                    key={match.id}
+                    matchId={match.id}
+                    clubName={match.club_name}
+                    matchAt={match.match_at}
+                    status={match.status}
+                    sets={hasSets ? (match.match_results.sets as any[]) : null}
+                    playersByTeam={match.playersByTeam ?? { A: [], B: [] }}
+                    hasAssessment={false}
+                    primaryAction={primary}
+                  />
+                );
+              })}
             </div>
           )}
         </CardContent>

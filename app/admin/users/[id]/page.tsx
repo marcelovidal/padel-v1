@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import MatchCard from "@/components/matches/MatchCard";
 
 export default async function PlayerProfilePage({ params }: { params: { id: string } }) {
   await requireAdmin();
@@ -65,33 +66,21 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
           {matches.length === 0 ? (
             <p className="text-sm text-gray-500">No hay partidos para este jugador</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Club</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipo</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ganador</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resultado</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Autoevaluación</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {matches.map((m) => (
-                    <tr key={m.id}>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short'}).format(new Date(m.match_at))}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.club_name}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.status}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.team}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{(m as any).winnerLabel ?? '-'}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{(m as any).setsFormatted ?? '-'}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{m.hasAssessment ? 'Sí' : 'No'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div>
+              {matches.map((m) => (
+                <MatchCard
+                  key={m.id}
+                  matchId={m.id}
+                  clubName={m.club_name}
+                  matchAt={m.match_at}
+                  status={m.status}
+                  sets={(m as any).sets ?? null}
+                  playersByTeam={(m as any).playersByTeam ?? { A: [], B: [] }}
+                  profilePlayerId={params.id}
+                  hasAssessment={m.hasAssessment}
+                  primaryAction={{ label: (m as any).setsFormatted === '-' ? 'Cargar resultado' : 'Ver detalle', href: `/admin/matches/${m.id}` }}
+                />
+              ))}
             </div>
           )}
         </CardContent>

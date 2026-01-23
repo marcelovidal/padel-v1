@@ -10,8 +10,10 @@ import { RemovePlayerButton } from "./remove-player-button";
 
 export default async function MatchDetailPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const matchService = new MatchService();
   const match = await matchService.getMatchById(params.id);
@@ -64,6 +66,9 @@ export default async function MatchDetailPage({
   const statusBadge = getStatusBadge(match.status);
   const totalPlayers = match.match_players.length;
   const isFull = totalPlayers >= match.max_players;
+
+  const selfAssessmentParam = typeof searchParams?.selfAssessment !== 'undefined';
+  const playerIdFromRoute = typeof searchParams?.player_id_from_route === 'string' ? String(searchParams?.player_id_from_route) : undefined;
 
   return (
     <div className="space-y-6">
@@ -157,6 +162,21 @@ export default async function MatchDetailPage({
           </CardHeader>
           <CardContent>
             <ResultInline matchId={match.id} existingResult={match.match_results} />
+
+            {/* Render self assessment form when requested via query and player belongs to match */}
+            {selfAssessmentParam && playerIdFromRoute ? (
+              // ensure the player belongs to this match
+              match.match_players.some((mp) => mp.player_id === playerIdFromRoute) ? (
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold">Mi autoevaluación</h3>
+                  {/* Client component */}
+                  {/* @ts-ignore Server -> Client prop */}
+                  <AssessmentForm matchId={match.id} playerId={playerIdFromRoute} playerIdFromRoute={playerIdFromRoute} />
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-red-500">El jugador no pertenece a este partido</div>
+              )
+            ) : null}
           </CardContent>
         </Card>
       </div>
