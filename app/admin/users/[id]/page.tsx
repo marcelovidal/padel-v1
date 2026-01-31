@@ -4,6 +4,8 @@ import { PlayerService } from "@/services/player.service";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import MatchCard from "@/components/matches/MatchCard";
 
+import { toMatchCardModel } from "@/components/matches/matchCard.model";
+
 export default async function PlayerProfilePage({ params }: { params: { id: string } }) {
   await requireAdmin();
 
@@ -44,8 +46,8 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
           <CardContent>
             <div className="grid grid-cols-2 gap-2">
               {[
-                ['Volea','volea'],['Globo','globo'],['Remate','remate'],['Bandeja','bandeja'],
-                ['Vibora','vibora'],['Bajada pared','bajada_pared'],['Saque','saque'],['Recepción saque','recepcion_saque']
+                ['Volea', 'volea'], ['Globo', 'globo'], ['Remate', 'remate'], ['Bandeja', 'bandeja'],
+                ['Vibora', 'vibora'], ['Bajada pared', 'bajada_pared'], ['Saque', 'saque'], ['Recepción saque', 'recepcion_saque']
               ].map(([label, key]) => (
                 <div key={String(key)} className="flex justify-between border-b py-2">
                   <div className="text-sm text-gray-700">{label}</div>
@@ -66,21 +68,21 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
           {matches.length === 0 ? (
             <p className="text-sm text-gray-500">No hay partidos para este jugador</p>
           ) : (
-            <div>
-              {matches.map((m) => (
-                <MatchCard
-                  key={m.id}
-                  matchId={m.id}
-                  clubName={m.club_name}
-                  matchAt={m.match_at}
-                  status={m.status}
-                  sets={(m as any).sets ?? null}
-                  playersByTeam={(m as any).playersByTeam ?? { A: [], B: [] }}
-                  profilePlayerId={params.id}
-                  hasAssessment={m.hasAssessment}
-                  primaryAction={{ label: (m as any).setsFormatted === '-' ? 'Cargar resultado' : 'Ver detalle', href: `/admin/matches/${m.id}` }}
-                />
-              ))}
+            <div className="space-y-4">
+              {matches.map((m) => {
+                const model = toMatchCardModel(m);
+                return (
+                  <MatchCard
+                    key={m.id}
+                    model={model}
+                    variant="admin"
+                    primaryAction={{
+                      label: m.sets === null ? 'Cargar resultado' : 'Ver detalle',
+                      href: `/admin/matches/${m.id}`
+                    }}
+                  />
+                );
+              })}
             </div>
           )}
         </CardContent>

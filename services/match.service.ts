@@ -8,11 +8,15 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { computeWinner } from "@/lib/match/computeWinner";
 
+import { AssessmentRepository } from "@/repositories/assessment.repository";
+
 export class MatchService {
   private repository: MatchRepository;
+  private assessmentRepository: AssessmentRepository;
 
   constructor() {
     this.repository = new MatchRepository();
+    this.assessmentRepository = new AssessmentRepository();
   }
 
   async getAllMatches() {
@@ -104,5 +108,18 @@ export class MatchService {
       winner_team: computed.winnerTeam,
     });
   }
-}
 
+  async getPlayerMatches(playerId: string) {
+    const [matches, assessments] = await Promise.all([
+      this.repository.findByPlayerId(playerId),
+      this.assessmentRepository.findByPlayer(playerId),
+    ]);
+
+    const assessmentMatchIds = new Set(assessments.map((a) => a.match_id));
+
+    return matches.map((m) => ({
+      ...m,
+      hasAssessment: assessmentMatchIds.has(m.id),
+    }));
+  }
+}

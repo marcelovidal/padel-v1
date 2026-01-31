@@ -163,7 +163,7 @@ export class MatchRepository {
     return data;
   }
 
-  async findByPlayerId(playerId: string): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null }>> {
+  async findByPlayerId(playerId: string): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null; playersByTeam: { A: any[]; B: any[] } }>> {
     const supabase = await this.getClient();
     // First, get match_ids and teams from match_players
     const { data: mpData, error: mpError } = await supabase
@@ -213,7 +213,7 @@ export class MatchRepository {
     // Fetch all match_players for these matches, including player basic info
     const { data: allMatchPlayers, error: mpAllError } = await supabase
       .from("match_players")
-      .select(`match_id, team, players ( id, first_name, last_name )`)
+      .select(`match_id, team, player_id, players ( id, first_name, last_name )`)
       .in("match_id", matchIds);
 
     if (mpAllError) throw mpAllError;

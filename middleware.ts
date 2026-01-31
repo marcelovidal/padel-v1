@@ -23,15 +23,7 @@ export async function middleware(req: NextRequest) {
 
   // Refresh session if needed
   const { data } = await supabase.auth.getUser();
-  // Diagnostic logs: show whether cookie header is present and truncated
-  try {
-    const cookieHeader = req.headers.get("cookie") ?? "";
-    // limit size to 1000 chars
-    console.log("[MW] cookie header (truncated):", cookieHeader.substring(0, 1000));
-  } catch (e) {
-    console.log("[MW] error reading cookie header", e);
-  }
-  console.log("[MW] supabase.auth.getUser result user id:", data?.user?.id ?? null);
+
   const pathname = req.nextUrl.pathname;
 
   // Protect /player routes
@@ -42,24 +34,15 @@ export async function middleware(req: NextRequest) {
     if (!user && !isLogin) {
       // If there is an sb-* cookie present but Supabase returned no user,
       // avoid redirecting immediately so the client can try to complete the
-      // auth handshake. This is a conservative fallback for dev environments
-      // where cookies may arrive but server-side session parsing fails.
+      // auth handshake.
       const cookieHeader = req.headers.get("cookie") ?? "";
       const hasSbCookie = /\bsb-[^=]+=/.test(cookieHeader);
-      console.log("[MW] no user on getUser(), hasSbCookie:", hasSbCookie);
 
       if (!hasSbCookie) {
         // redirect to login when no cookie present
         const url = new URL("/player/login", req.url);
         return NextResponse.redirect(url);
       }
-      // otherwise continue and let the page/client handle finalizing session
-    }
-
-    if (user && isLogin) {
-      // already logged in -> redirect to /player
-      const url = new URL("/player", req.url);
-      return NextResponse.redirect(url);
     }
   }
 

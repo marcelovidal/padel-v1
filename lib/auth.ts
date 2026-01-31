@@ -8,8 +8,6 @@ export async function requireAdmin() {
     error: authError,
   } = await supabase.auth.getUser();
 
-  console.log("[AUTH] requireAdmin getUser result user id:", user?.id ?? null, "error:", authError ?? null);
-
   if (authError || !user) {
     redirect("/player/login");
   }
@@ -36,8 +34,6 @@ export async function requirePlayer() {
     error: authError,
   } = await supabase.auth.getUser();
 
-  console.log("[AUTH] requirePlayer getUser user id:", user?.id ?? null, "authError:", authError ?? null);
-
   if (authError || !user) {
     // redirect to player login (admins use /login)
     redirect("/player/login");
@@ -48,8 +44,6 @@ export async function requirePlayer() {
     .select("id")
     .eq("user_id", user.id)
     .maybeSingle();
-
-  console.log("[AUTH] requirePlayer players select result:", player ?? null, "playerError:", playerError ?? null);
 
   if (playerError || !player) {
     // If there's no linked player yet, redirect to the player login flow
@@ -65,8 +59,6 @@ export async function getOptionalPlayer() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log("[AUTH] getOptionalPlayer getUser user id:", user?.id ?? null);
-
   if (!user) return { user: null, playerId: null };
 
   const { data: player } = await supabase
@@ -74,8 +66,6 @@ export async function getOptionalPlayer() {
     .select("id")
     .eq("user_id", user.id)
     .maybeSingle();
-
-  console.log("[AUTH] getOptionalPlayer players select result:", player ?? null);
 
   return { user, playerId: (player as any)?.id ?? null };
 }

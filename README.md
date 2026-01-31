@@ -118,16 +118,26 @@ El proyecto estará disponible en `http://localhost:3000`
 4. **RLS Activo**: Row Level Security habilitado desde el inicio
 5. **Capa de Repositorios**: No se acopla la UI directamente a Supabase
 
-## Estado Actual
+## Funcionalidades Portal Jugadores (v1.0.0-player-read)
 
-- ✅ Login de admin
-- ✅ CRUD completo de jugadores
-- 🚧 Creación de partidos (estructura lista, UI pendiente)
-- 🚧 Carga de resultados (estructura lista, UI pendiente)
+### ✅ Lectura de Partidos
+- Listado de "Mis Partidos" con diseño premium y unificado con admin.
+- Visibilidad total de equipos (4 jugadores con formato inicial + apellido).
+- Marcador detallado por sets y equipo ganador resaltado.
 
-## Notas Importantes
+### ✅ Autoevaluaciones
+- Estado de evaluación dinámico (Completa/Pendiente).
+- Consulta on-demand detallada de golpes y comentarios mediante panel expandible.
 
-- **Solo admin**: No existe login para jugadores en V1
-- **Clubes**: `club_name` es un campo de texto, NO existe tabla de clubes
-- **Soft delete**: Los registros se marcan como inactivos, no se borran físicamente
+## Próximos Pasos (Next Steps) 🚀
+
+- [ ] **Cargar autoevaluaciones**: Permitir que el jugador complete su evaluación si está pendiente.
+- [ ] **Creación de partidos**: Permitir que los jugadores propongan nuevos partidos.
+- [ ] **Buscador de Jugadores**: Para facilitar el armado de nuevos partidos.
+- [ ] **Estadísticas**: Gráficos basados en el desempeño histórico.
+
+## Fuera de Alcance Actual
+- ❌ Clubes como entidad (solo `club_name` como texto).
+- ❌ Notificaciones push/email.
+- ❌ Edición de partidos por parte de jugadores.
 
