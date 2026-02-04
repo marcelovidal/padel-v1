@@ -5,6 +5,7 @@ import MatchCard from "@/components/matches/MatchCard";
 import { toMatchCardModel } from "@/components/matches/matchCard.model";
 import { Suspense } from "react";
 import MatchCardSkeleton from "@/components/matches/MatchCardSkeleton";
+import { PlayerMatches } from "@/components/player/PlayerMatches";
 
 export const dynamic = "force-dynamic";
 
@@ -61,24 +62,8 @@ export default async function PlayerMatchesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {matches.map((match: any) => {
-            const model = toMatchCardModel(match, {
-              playerTeam: match.team,
-              hasAssessment: match.hasAssessment,
-            });
-            return (
-              <MatchCard
-                key={match.id}
-                model={model}
-                variant="player"
-                primaryAction={{
-                  label: "Ver detalle",
-                  href: `/player/matches/${match.id}`,
-                  disabled: true, // Upcoming feature
-                }}
-              />
-            );
-          })}
+          {/* Reusing shared component */}
+          <PlayerMatches matches={matches} />
 
           <div className="pt-6 text-center">
             <button
