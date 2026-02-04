@@ -21,11 +21,18 @@ export default async function PlayerMatchesPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 ml-1">
-          Mis Partidos
-        </h1>
-        <div className="text-sm text-gray-500">
+      <div className="container mx-auto p-4 max-w-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Mis Partidos</h1>
+          <a
+            href="/player/matches/new"
+            className="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded hover:bg-blue-700 transition-colors"
+          >
+            + Nuevo Partido
+          </a>
+        </div>
+
+        <div className="text-sm text-gray-500 mb-6">
           Hola, {player?.first_name}
         </div>
       </div>

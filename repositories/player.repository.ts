@@ -22,6 +22,19 @@ export class PlayerRepository {
     return data || [];
   }
 
+  async findAllActive(): Promise<Player[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from("players")
+      .select("*")
+      .is("deleted_at", null)
+      .eq("status", "active")
+      .order("first_name", { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  }
+
   async findById(id: string): Promise<Player | null> {
     const supabase = await this.getClient();
     const { data, error } = await supabase
