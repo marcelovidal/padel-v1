@@ -5,6 +5,7 @@ import { AssessmentService } from "@/services/assessment.service";
 import { PlayerStatsCards } from "@/components/player/PlayerStatsCards";
 import { PlayerAttributesChart } from "@/components/player/PlayerAttributesChart";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
+import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -17,12 +18,13 @@ export default async function PlayerDashboard() {
   const matchSvc = new MatchService();
   const assessmentSvc = new AssessmentService();
 
-  // Fetch all data in parallel to avoid waterfalls
-  const [player, stats, averages, recentMatches] = await Promise.all([
+  // Fetch all data in parallel
+  const [player, stats, averages, recentMatches, pendingAssessments] = await Promise.all([
     playerAuthSvc.getPlayerByUserId(user.id),
     matchSvc.getPlayerStats(playerId),
     assessmentSvc.getPlayerAverages(playerId),
     matchSvc.getPlayerMatches(playerId, { limit: 5 }),
+    assessmentSvc.getPendingAssessments(playerId),
   ]);
 
   return (
@@ -37,6 +39,24 @@ export default async function PlayerDashboard() {
           ID: {playerId.split('-')[0]}...
         </div>
       </div>
+
+      {/* Pending Assessments Alert */}
+      {pendingAssessments.length > 0 && (
+        <section className="bg-orange-50 border border-orange-200 rounded-xl p-6">
+          <h2 className="text-lg font-bold text-orange-800 mb-4 flex items-center gap-2">
+            ⚠️ Evaluaciones Pendientes ({pendingAssessments.length})
+          </h2>
+          <div className="space-y-4">
+            {pendingAssessments.map((match) => (
+              <PendingAssessmentCard
+                key={match.id}
+                match={match}
+                playerId={playerId}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Stats Overview */}
       <section>
