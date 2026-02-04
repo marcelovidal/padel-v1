@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { MatchService } from "@/services/match.service";
 import { PlayerStatsCards } from "@/components/player/PlayerStatsCards";
+import { PlayerAttributesChart } from "@/components/player/PlayerAttributesChart";
 
 export default async function PlayerProfilePage() {
     const supabase = await createClient();
@@ -36,9 +37,10 @@ export default async function PlayerProfilePage() {
     const assessmentService = new AssessmentService();
     const matchService = new MatchService();
 
-    const [pendingAssessments, stats] = await Promise.all([
+    const [pendingAssessments, stats, averages] = await Promise.all([
         assessmentService.getPendingAssessments(player.id),
-        matchService.getPlayerStats(player.id)
+        matchService.getPlayerStats(player.id),
+        assessmentService.getPlayerAverages(player.id)
     ]);
 
     return (
@@ -48,6 +50,11 @@ export default async function PlayerProfilePage() {
             <div className="mb-8">
                 <h2 className="text-lg font-semibold border-b pb-2 mb-4">Resumen</h2>
                 <PlayerStatsCards stats={stats} />
+            </div>
+
+            <div className="mb-8">
+                <h2 className="text-lg font-semibold border-b pb-2 mb-4">Mis Atributos</h2>
+                <PlayerAttributesChart data={averages} />
             </div>
 
             <div className="space-y-4 mb-8">

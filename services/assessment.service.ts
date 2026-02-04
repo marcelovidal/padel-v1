@@ -69,4 +69,35 @@ export class AssessmentService {
     // 4. Return matches without assessments
     return completedMatches.filter((m) => !assessmentMatchIds.has(m.id));
   }
+
+  async getPlayerAverages(playerId: string) {
+    const assessments = await this.repository.findByPlayer(playerId);
+
+    const strokes = [
+      'volea', 'globo', 'remate', 'bandeja', 'vibora',
+      'bajada_pared', 'saque', 'recepcion_saque'
+    ] as const;
+
+    const totals: Record<string, { sum: number; count: number }> = {};
+    strokes.forEach(s => totals[s] = { sum: 0, count: 0 });
+
+    assessments.forEach(a => {
+      strokes.forEach(s => {
+        const val = a[s];
+        if (val !== null && val !== undefined) {
+          totals[s].sum += val;
+          totals[s].count++;
+        }
+      });
+    });
+
+    const averages = strokes.map(s => ({
+      attribute: s,
+      label: s.replace('_', ' '), // simple format
+      value: totals[s].count > 0 ? parseFloat((totals[s].sum / totals[s].count).toFixed(1)) : 0,
+      count: totals[s].count
+    }));
+
+    return averages;
+  }
 }
