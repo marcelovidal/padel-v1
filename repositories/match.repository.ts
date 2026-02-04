@@ -163,22 +163,11 @@ export class MatchRepository {
     return data;
   }
 
-  async findByPlayerId(playerId: string): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null; playersByTeam: { A: any[]; B: any[] } }>> {
+  async findByPlayerId(playerId: string, opts?: { limit?: number }): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null; playersByTeam: { A: any[]; B: any[] } }>> {
     const supabase = await this.getClient();
-    // First, get match_ids and teams from match_players
-    const { data: mpData, error: mpError } = await supabase
-      .from("match_players")
-      .select("match_id, team")
-      .eq("player_id", playerId);
 
-    if (mpError) throw mpError;
-
-    const players = mpData || [];
-    const matchIds = players.map((p: any) => p.match_id);
-    if (matchIds.length === 0) return [];
-
-    // Fetch matches directly, including match_results
-    const { data: matchesData, error: matchesError } = await supabase
+    // 1. Efficiently find matches for player (pagination ready)
+    let query = supabase
       .from("matches")
       .select(`
         id,
@@ -190,27 +179,26 @@ export class MatchRepository {
         created_by,
         created_at,
         updated_at,
-        match_results (*)
+        match_results (*),
+        match_players!inner (team, player_id)
       `)
-      .in("id", matchIds)
+      .eq("match_players.player_id", playerId)
       .order("match_at", { ascending: false });
 
+    if (opts?.limit) {
+      query = query.limit(opts.limit);
+    }
+
+    const { data: matchesData, error: matchesError } = await query;
     if (matchesError) throw matchesError;
 
     const matchesArr = matchesData || [];
+    if (matchesArr.length === 0) return [];
 
-    // Fetch match_results explicitly to avoid nested-relation inconsistencies
-    const { data: resultsData, error: resultsError } = await supabase
-      .from("match_results")
-      .select("*")
-      .in("match_id", matchIds);
+    const matchIds = matchesArr.map((m: any) => m.id);
 
-    if (resultsError) throw resultsError;
-
-    const resultsArr = resultsData || [];
-    const resultByMatch = new Map(resultsArr.map((r: any) => [r.match_id, r]));
-
-    // Fetch all match_players for these matches, including player basic info
+    // 2. Fetch full roster (match_players) for these matches
+    // (The previous query only got the specific player's entry due to !inner)
     const { data: allMatchPlayers, error: mpAllError } = await supabase
       .from("match_players")
       .select(`match_id, team, player_id, players ( id, first_name, last_name )`)
@@ -220,7 +208,7 @@ export class MatchRepository {
 
     const playersArr = (allMatchPlayers || []) as any[];
 
-    // Build playersByMatch: { matchId: { A: [...], B: [...] } }
+    // 3. Build playersByMatch map
     const playersByMatch = new Map<string, { A: any[]; B: any[] }>();
     for (const p of playersArr) {
       const mid = p.match_id;
@@ -231,17 +219,33 @@ export class MatchRepository {
       else bucket.B.push(playerInfo);
     }
 
-    // Map team from match_players (original query) to each match
-    const teamByMatch = new Map(players.map((p: any) => [p.match_id, p.team]));
-
+    // 4. Map results
     const items = matchesArr.map((match: any) => {
-      const mr = resultByMatch.get(match.id) ?? null;
-      const playersByTeam = playersByMatch.get(match.id) ?? { A: [], B: [] };
+      // 'match_players' in 'match' object is an array because of the join, but it only contains our player
+      // We need to extract the team from it.
+      const myPlayerEntry = match.match_players && match.match_players[0];
+      const team = myPlayerEntry ? myPlayerEntry.team : null;
+
+      // match_results is already fetched
+      const mr = (match.match_results && match.match_results) || null;
+
+      // Remove the inner join temp property to clean up object if needed, 
+      // but returning it is also fine as long as we satisfy the type interface.
+      // We'll construct a clean object.
+
       return {
-        ...match,
-        team: teamByMatch.get(match.id) as TeamType,
+        id: match.id,
+        match_at: match.match_at,
+        club_name: match.club_name,
+        max_players: match.max_players,
+        notes: match.notes,
+        status: match.status,
+        created_by: match.created_by,
+        created_at: match.created_at,
+        updated_at: match.updated_at,
+        team: team as TeamType,
         match_results: mr as MatchResult | null,
-        playersByTeam,
+        playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
       };
     });
 

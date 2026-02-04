@@ -109,9 +109,9 @@ export class MatchService {
     });
   }
 
-  async getPlayerMatches(playerId: string) {
+  async getPlayerMatches(playerId: string, opts?: { limit?: number }) {
     const [matches, assessments] = await Promise.all([
-      this.repository.findByPlayerId(playerId),
+      this.repository.findByPlayerId(playerId, opts),
       this.assessmentRepository.findByPlayer(playerId),
     ]);
 
