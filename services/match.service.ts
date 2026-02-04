@@ -122,4 +122,31 @@ export class MatchService {
       hasAssessment: assessmentMatchIds.has(m.id),
     }));
   }
+
+  async getPlayerStats(playerId: string) {
+    const matches = await this.repository.findByPlayerId(playerId);
+
+    let played = 0;
+    let wins = 0;
+    let losses = 0;
+
+    for (const m of matches) {
+      // Only count completed matches with a valid result
+      if (m.status === "completed" || m.match_results?.winner_team) {
+        played++;
+        if (m.match_results?.winner_team === m.team) {
+          wins++;
+        } else {
+          losses++;
+        }
+      }
+    }
+
+    return {
+      played,
+      wins,
+      losses,
+      balance: wins - losses
+    };
+  }
 }

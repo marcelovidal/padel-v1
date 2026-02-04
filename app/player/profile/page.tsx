@@ -4,6 +4,9 @@ import { AssessmentService } from "@/services/assessment.service";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import { redirect } from "next/navigation";
 
+import { MatchService } from "@/services/match.service";
+import { PlayerStatsCards } from "@/components/player/PlayerStatsCards";
+
 export default async function PlayerProfilePage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -30,16 +33,25 @@ export default async function PlayerProfilePage() {
         );
     }
 
-    // Get Pending Assessments
     const assessmentService = new AssessmentService();
-    const pendingAssessments = await assessmentService.getPendingAssessments(player.id);
+    const matchService = new MatchService();
+
+    const [pendingAssessments, stats] = await Promise.all([
+        assessmentService.getPendingAssessments(player.id),
+        matchService.getPlayerStats(player.id)
+    ]);
 
     return (
         <div className="container mx-auto p-4 max-w-2xl">
             <h1 className="text-2xl font-bold mb-6">Mi Perfil</h1>
 
+            <div className="mb-8">
+                <h2 className="text-lg font-semibold border-b pb-2 mb-4">Resumen</h2>
+                <PlayerStatsCards stats={stats} />
+            </div>
+
             <div className="space-y-4 mb-8">
-                <h2 className="text-lg font-semibold border-b pb-2">Partidos sin evaluar</h2>
+                <h2 className="text-lg font-semibold border-b pb-2">Evaluaciones Pendientes</h2>
                 {pendingAssessments.length === 0 ? (
                     <p className="text-sm text-gray-500 italic">No tienes partidos pendientes de evaluación.</p>
                 ) : (
