@@ -38,6 +38,22 @@ export class PlayerRepository {
     return data;
   }
 
+  async findByUserId(userId: string): Promise<Player | null> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from("players")
+      .select("*")
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+    return data;
+  }
+
   async search(query: string): Promise<Player[]> {
     const supabase = await this.getClient();
     const searchTerm = `%${query}%`;

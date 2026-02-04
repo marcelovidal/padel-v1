@@ -50,4 +50,23 @@ export class AssessmentService {
   async getAssessmentsByMatch(matchId: string) {
     return this.repository.findByMatch(matchId);
   }
+
+  async getPendingAssessments(playerId: string) {
+    // 1. Get all matches for the player
+    const matches = await this.matchRepository.findByPlayerId(playerId);
+
+    // 2. Filter for completed matches
+    const completedMatches = matches.filter(
+      (m) => m.status === "completed" || !!m.match_results // status might not be synced if trigger failed, fallback
+    );
+
+    if (completedMatches.length === 0) return [];
+
+    // 3. Get existing assessments for this player
+    const assessments = await this.repository.findByPlayer(playerId);
+    const assessmentMatchIds = new Set(assessments.map((a) => a.match_id));
+
+    // 4. Return matches without assessments
+    return completedMatches.filter((m) => !assessmentMatchIds.has(m.id));
+  }
 }

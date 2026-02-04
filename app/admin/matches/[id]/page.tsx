@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ResultInline } from "./result-inline";
 import { AddPlayerForm } from "./add-player-form";
 import { RemovePlayerButton } from "./remove-player-button";
+import { AssessmentForm } from "@/components/assessments/AssessmentForm";
+
 
 export default async function MatchDetailPage({
   params,

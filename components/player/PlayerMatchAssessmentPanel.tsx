@@ -85,7 +85,7 @@ export default function PlayerMatchAssessmentPanel({
                                         Comentarios
                                     </div>
                                     <p className="text-sm text-gray-700 whitespace-pre-wrap italic">
-                                        "{assessment.comments}"
+                                        &quot;{assessment.comments}&quot;
                                     </p>
                                 </div>
                             )}
