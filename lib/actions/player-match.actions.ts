@@ -13,22 +13,14 @@ const createMatchSchema = z.object({
     partner_id: z.string().uuid("Selecciona un compañero"),
     opponent1_id: z.string().uuid("Selecciona rival 1"),
     opponent2_id: z.string().uuid("Selecciona rival 2"),
+    notes: z.string().optional().nullable(),
 });
 
 export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const supabase = await createClient();
 
-    // 1. Auth check & Session Logging
+    // 1. Auth check
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-
-    console.log("[DEBUG] createMatchAsPlayer - Auth Context Check:");
-    console.log("  - User exists:", !!user);
-    console.log("  - User ID:", user?.id);
-    console.log("  - Auth Error:", authError);
-    console.log("  - Session exists:", !!sessionData?.session);
-    console.log("  - Session Error:", sessionErr);
-
     if (authError || !user) {
         return { error: "No estás autenticado o tu sesión ha expirado" };
     }
@@ -42,6 +34,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
         partner_id: formData.get("partner_id"),
         opponent1_id: formData.get("opponent1_id"),
         opponent2_id: formData.get("opponent2_id"),
+        notes: formData.get("notes"),
     };
 
     const validated = createMatchSchema.safeParse(rawData);
@@ -49,7 +42,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
         return { error: validated.error.errors[0].message };
     }
 
-    const { date, time, club_name, player_id, partner_id, opponent1_id, opponent2_id } = validated.data;
+    const { date, time, club_name, player_id, partner_id, opponent1_id, opponent2_id, notes } = validated.data;
 
     // 3. Logic Validation
     const allPlayers = [player_id, partner_id, opponent1_id, opponent2_id];
@@ -61,14 +54,26 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const matchTimestamp = `${date}T${time}:00`;
 
     try {
-        // 4. Insert Match via RPC
-        console.log("[DEBUG] Calling player_create_match RPC...");
         const sb = supabase as any;
+
+        // 🔍 DIAGNOSTIC: Debug Auth Context
+        const { data: debugAuth, error: debugError } = await sb.rpc("debug_auth_context");
+        console.log("[DEBUG] Auth Context Diagnostic:");
+        if (debugError) {
+            console.error("  - RPC Error:", debugError);
+        } else {
+            console.log("  - SQL Result:", debugAuth);
+        }
+
+        // 4. Insert Match via SECURITY DEFINER RPC
+        console.log("[DEBUG] Calling player_create_match SECURITY DEFINER RPC...");
+
         const { data: matchId, error: matchError } = await sb.rpc("player_create_match", {
             p_match_at: matchTimestamp,
             p_club_name: club_name,
-            p_max_players: 4,
-            p_status: "scheduled"
+            p_status: "scheduled",
+            p_notes: notes || null,
+            p_max_players: 4
         });
 
         if (matchError) {
@@ -86,7 +91,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
             { match_id: matchId, player_id: opponent2_id, team: "B" },
         ];
 
-        const { error: playersError } = await (supabase as any)
+        const { error: playersError } = await sb
             .from("match_players")
             .insert(playersToInsert);
 
