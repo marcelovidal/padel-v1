@@ -18,8 +18,17 @@ const createMatchSchema = z.object({
 export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const supabase = await createClient();
 
-    // 1. Auth check
+    // 1. Auth check & Session Logging
     const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+
+    console.log("[DEBUG] createMatchAsPlayer - Auth Context Check:");
+    console.log("  - User exists:", !!user);
+    console.log("  - User ID:", user?.id);
+    console.log("  - Auth Error:", authError);
+    console.log("  - Session exists:", !!sessionData?.session);
+    console.log("  - Session Error:", sessionErr);
+
     if (authError || !user) {
         return { error: "No estás autenticado o tu sesión ha expirado" };
     }
@@ -52,46 +61,44 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const matchTimestamp = `${date}T${time}:00`;
 
     try {
-        // 4. Insert Match
-        // IMPORTANT: We OMIT created_by from the payload to rely on DATABASE DEFAULT auth.uid().
-        // This allows the RLS 'WITH CHECK' (coalesce(created_by, auth.uid()) = auth.uid()) to pass.
+        // 4. Insert Match via RPC
+        console.log("[DEBUG] Calling player_create_match RPC...");
         const sb = supabase as any;
-        const { data: match, error: matchError } = await sb
-            .from("matches")
-            .insert({
-                match_at: matchTimestamp,
-                club_name: club_name,
-                max_players: 4,
-                status: "scheduled"
-            })
-            .select("id, created_by")
-            .single();
+        const { data: matchId, error: matchError } = await sb.rpc("player_create_match", {
+            p_match_at: matchTimestamp,
+            p_club_name: club_name,
+            p_max_players: 4,
+            p_status: "scheduled"
+        });
 
         if (matchError) {
-            console.error("Match Insert Error:", matchError);
+            console.error("[DEBUG] RPC Error:", matchError);
             throw matchError;
         }
 
+        console.log(`[INFO] RPC Success! Match ID: ${matchId}`);
+
         // 5. Insert Players
         const playersToInsert = [
-            { match_id: match.id, player_id: player_id, team: "A" },
-            { match_id: match.id, player_id: partner_id, team: "A" },
-            { match_id: match.id, player_id: opponent1_id, team: "B" },
-            { match_id: match.id, player_id: opponent2_id, team: "B" },
+            { match_id: matchId, player_id: player_id, team: "A" },
+            { match_id: matchId, player_id: partner_id, team: "A" },
+            { match_id: matchId, player_id: opponent1_id, team: "B" },
+            { match_id: matchId, player_id: opponent2_id, team: "B" },
         ];
 
-        const { error: playersError } = await sb
+        const { error: playersError } = await (supabase as any)
             .from("match_players")
             .insert(playersToInsert);
 
         if (playersError) {
+            console.error("[DEBUG] Players Insert Error:", playersError);
             throw playersError;
         }
 
     } catch (err: any) {
         console.error("Error creating match:", err);
         if (err.code === '42501') {
-            return { error: "Permiso denegado por políticas RLS. Contacta al admin." };
+            return { error: "Permiso denegado (42501). Verifica políticas RLS." };
         }
         return { error: err.message || "Error al crear el partido" };
     }
