@@ -21,7 +21,7 @@ CREATE POLICY "player_matches_insert_own"
 ON public.matches
 FOR INSERT
 TO authenticated
-WITH CHECK (created_by = auth.uid());
+WITH CHECK (coalesce(created_by, auth.uid()) = auth.uid());
 
 -- Match players: allow player to add players to matches they created
 DROP POLICY IF EXISTS "player_match_players_insert_for_own_match" ON public.match_players;

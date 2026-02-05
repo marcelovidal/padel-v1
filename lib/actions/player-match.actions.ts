@@ -18,10 +18,9 @@ const createMatchSchema = z.object({
 export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const supabase = await createClient();
 
-    // 1. Auth check: Ensure we have a valid session
+    // 1. Auth check
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-        console.error("Auth Error:", authError);
         return { error: "No estás autenticado o tu sesión ha expirado" };
     }
 
@@ -54,8 +53,8 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
 
     try {
         // 4. Insert Match
-        // Note: We REMOVED created_by from the payload to rely on DEFAULT auth.uid()
-        // and avoid RLS policy violations during explicit assignment.
+        // IMPORTANT: We OMIT created_by from the payload to rely on DATABASE DEFAULT auth.uid().
+        // This allows the RLS 'WITH CHECK' (coalesce(created_by, auth.uid()) = auth.uid()) to pass.
         const sb = supabase as any;
         const { data: match, error: matchError } = await sb
             .from("matches")
@@ -73,8 +72,6 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
             throw matchError;
         }
 
-        console.log(`[INFO] Match created successfully: ${match.id} (Owner: ${match.created_by})`);
-
         // 5. Insert Players
         const playersToInsert = [
             { match_id: match.id, player_id: player_id, team: "A" },
@@ -88,14 +85,13 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
             .insert(playersToInsert);
 
         if (playersError) {
-            console.error("Match Players Insert Error:", playersError);
             throw playersError;
         }
 
     } catch (err: any) {
         console.error("Error creating match:", err);
         if (err.code === '42501') {
-            return { error: "No tienes permisos para crear este partido. Verifica la política RLS." };
+            return { error: "Permiso denegado por políticas RLS. Contacta al admin." };
         }
         return { error: err.message || "Error al crear el partido" };
     }
