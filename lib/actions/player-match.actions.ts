@@ -18,10 +18,11 @@ const createMatchSchema = z.object({
 export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const supabase = await createClient();
 
-    // 1. Auth check
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        return { error: "No estás autenticado" };
+    // 1. Auth check: Ensure we have a valid session
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        console.error("Auth Error:", authError);
+        return { error: "No estás autenticado o tu sesión ha expirado" };
     }
 
     // 2. Validate Input
@@ -53,6 +54,8 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
 
     try {
         // 4. Insert Match
+        // Note: We REMOVED created_by from the payload to rely on DEFAULT auth.uid()
+        // and avoid RLS policy violations during explicit assignment.
         const sb = supabase as any;
         const { data: match, error: matchError } = await sb
             .from("matches")
@@ -60,13 +63,17 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
                 match_at: matchTimestamp,
                 club_name: club_name,
                 max_players: 4,
-                status: "scheduled",
-                created_by: user.id
+                status: "scheduled"
             })
-            .select()
+            .select("id, created_by")
             .single();
 
-        if (matchError) throw matchError;
+        if (matchError) {
+            console.error("Match Insert Error:", matchError);
+            throw matchError;
+        }
+
+        console.log(`[INFO] Match created successfully: ${match.id} (Owner: ${match.created_by})`);
 
         // 5. Insert Players
         const playersToInsert = [
@@ -81,13 +88,15 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
             .insert(playersToInsert);
 
         if (playersError) {
-            // Rollback logic would go here ideally, but for MVP we rely on transaction or manual cleanup if possible.
-            // Since supabase-js doesn't support complex transactions easily without RPC, we assume success or fail.
+            console.error("Match Players Insert Error:", playersError);
             throw playersError;
         }
 
     } catch (err: any) {
         console.error("Error creating match:", err);
+        if (err.code === '42501') {
+            return { error: "No tienes permisos para crear este partido. Verifica la política RLS." };
+        }
         return { error: err.message || "Error al crear el partido" };
     }
 
