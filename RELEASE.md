@@ -19,16 +19,18 @@
 
 ### Technical Improvements
 
-#### RLS & Security
-- **Strict Policies**:
-    - `matches`: `INSERT` allowed only if `created_by` matches authenticated user.
-    - `match_players`: `INSERT` allowed only for matches created by the authenticated user.
-- **Migration**: `20260204_stage_h_player_actions.sql` handles policy creation safely.
+#### Atomic Match Creation (RPC)
+- **Problem**: Standard `INSERT` operations in Next.js Server Actions (SSR) often struggle with passing the correct authentication context to Row-Level Security (RLS) policies, especially when relying on `DEFAULT auth.uid()`.
+- **Solution**: Implemented `public.player_create_match_with_players` as a **SECURITY DEFINER** function.
+- **Benefits**:
+    - **Atomicity**: Match creation and roster insertion (team A/B) happen in a single database transaction. 
+    - **Security**: The function explicitly handles ownership via internally retrieved `auth.uid()`, bypassing SSR context inconsistencies.
+    - **Reliability**: Resolves error `42501` (RLS) and `23503` (FK) errors definitively.
 
-### How to Verify
-1.  **Dashboard**: Check for "Evaluaciones Pendientes" alert (if applicable).
-2.  **Create Match**:
-    - Navigate to `/player/matches/new`.
-    - Create a match.
-    - Verify it appears in your match list.
-    - Verify you cannot add the same player twice (form validation).
+#### Data Model Corrections
+- **FK Reference**: Fixed `matches.created_by` foreign key to correctly reference `auth.users(id)` instead of `public.profiles`.
+- **RPC Hardening**: Used `public.match_status` enum types and strict `search_path` for the database function.
+
+### SQL Migrations
+- `20260205_stage_h_match_rpc.sql`: Atomic creation logic.
+- `20260205_stage_h_fix_fk.sql`: Foreign key correction.
