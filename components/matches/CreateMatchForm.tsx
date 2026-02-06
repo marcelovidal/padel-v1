@@ -1,25 +1,18 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useState, useMemo } from "react";
+import { useFormStatus } from "react-dom";
 import { createMatchAsPlayer } from "@/lib/actions/player-match.actions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface PlayerOption {
     id: string;
     first_name: string;
     last_name: string;
-}
-
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Creando partido..." : "Crear Partido"}
-        </Button>
-    );
 }
 
 export function CreateMatchForm({
@@ -29,89 +22,180 @@ export function CreateMatchForm({
     currentPlayerId: string;
     availablePlayers: PlayerOption[]
 }) {
-    const [state, formAction] = useFormState(createMatchAsPlayer as any, { error: null });
+    const router = useRouter();
+    const [partnerId, setPartnerId] = useState("");
+    const [opp1Id, setOpp1Id] = useState("");
+    const [opp2Id, setOpp2Id] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Filter out current player from selection lists
+    // Selected IDs excluding the current field being changed
+    const selectedIds = useMemo(() => {
+        const ids = new Set([currentPlayerId]);
+        if (partnerId) ids.add(partnerId);
+        if (opp1Id) ids.add(opp1Id);
+        if (opp2Id) ids.add(opp2Id);
+        return ids;
+    }, [partnerId, opp1Id, opp2Id, currentPlayerId]);
+
+    const handleSelectChange = (setter: (val: string) => void, currentVal: string, otherSetter1?: (val: string) => void, otherVal1?: string, otherSetter2?: (val: string) => void, otherVal2?: string) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newVal = e.target.value;
+
+        // Reset if duplicate elsewhere (shouldn't happen with filtering but for safety)
+        if (newVal === otherVal1) otherSetter1?.("");
+        if (newVal === otherVal2) otherSetter2?.("");
+
+        setter(newVal);
+    };
+
+    const isFormValid = partnerId && opp1Id && opp2Id &&
+        partnerId !== opp1Id && partnerId !== opp2Id && opp1Id !== opp2Id;
+
     const otherPlayers = availablePlayers.filter(p => p.id !== currentPlayerId);
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!isFormValid) return;
+
+        setIsSubmitting(true);
+        setError(null);
+
+        const formData = new FormData(e.currentTarget);
+        try {
+            const result = await createMatchAsPlayer(null, formData);
+            if (result?.error) {
+                setError(result.error);
+                setIsSubmitting(false);
+            } else {
+                router.push("/player/matches");
+                router.refresh();
+            }
+        } catch (err) {
+            setError("Ocurrió un error inesperado");
+            setIsSubmitting(false);
+        }
+    };
+
     return (
-        <form action={formAction} className="space-y-6 max-w-lg mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto bg-white p-6 rounded-3xl shadow-xl shadow-blue-900/5 border border-gray-100">
             <input type="hidden" name="player_id" value={currentPlayerId} />
 
-            {state?.error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
-                    {state.error}
+            {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm border border-red-100 animate-in fade-in zoom-in duration-300">
+                    <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-bold">{error}</span>
+                    </div>
                 </div>
             )}
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="date">Fecha</Label>
-                    <Input type="date" id="date" name="date" required className="w-full" />
+                    <Label htmlFor="date" className="text-xs font-black uppercase tracking-widest text-gray-400">Fecha</Label>
+                    <Input type="date" id="date" name="date" required className="rounded-xl border-gray-200 focus:ring-blue-500" />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="time">Hora</Label>
-                    <Input type="time" id="time" name="time" required className="w-full" />
+                    <Label htmlFor="time" className="text-xs font-black uppercase tracking-widest text-gray-400">Hora</Label>
+                    <Input type="time" id="time" name="time" required className="rounded-xl border-gray-200 focus:ring-blue-500" />
                 </div>
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="club_name">Club / Lugar</Label>
+                <Label htmlFor="club_name" className="text-xs font-black uppercase tracking-widest text-gray-400">Club / Lugar</Label>
                 <Input
                     type="text"
                     id="club_name"
                     name="club_name"
                     placeholder="Ej: El Padel Club"
                     required
+                    className="rounded-xl border-gray-200 focus:ring-blue-500"
                 />
             </div>
 
-            <div className="border-t pt-4 mt-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Jugadores</h3>
+            <div className="space-y-6 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 pb-3">Formación de Equipos</h3>
 
                 <div className="space-y-4">
-                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                        <Label className="text-blue-800">Tu Compañero (Equipo A)</Label>
-                        <select name="partner_id" className="w-full mt-1 p-2 bg-white rounded border border-blue-200" required defaultValue="">
-                            <option value="" disabled>Selecciona compañero</option>
-                            {otherPlayers.map(p => (
-                                <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
-                            ))}
+                    <div className="p-4 bg-white rounded-2xl border border-blue-100 shadow-sm">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-blue-600 block mb-2">Tu Compañero (Equipo A)</Label>
+                        <select
+                            name="partner_id"
+                            className="w-full p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-blue-500 focus:border-blue-500"
+                            required
+                            value={partnerId}
+                            onChange={(e) => setPartnerId(e.target.value)}
+                        >
+                            <option value="">Selecciona compañero</option>
+                            {otherPlayers
+                                .filter(p => !selectedIds.has(p.id) || p.id === partnerId)
+                                .map(p => (
+                                    <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
+                                ))}
                         </select>
                     </div>
 
-                    <div className="p-3 bg-red-50 rounded-lg border border-red-100 space-y-3">
-                        <Label className="text-red-800">Rivales (Equipo B)</Label>
+                    <div className="p-4 bg-white rounded-2xl border border-red-100 shadow-sm space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-red-600 block mb-2">Rivales (Equipo B)</Label>
 
-                        <div>
-                            <Label className="text-xs text-red-600">Rival 1</Label>
-                            <select name="opponent1_id" className="w-full mt-1 p-2 bg-white rounded border border-red-200" required defaultValue="">
-                                <option value="" disabled>Selecciona rival 1</option>
-                                {otherPlayers.map(p => (
-                                    <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <Label className="text-[10px] font-bold text-gray-400 uppercase">Rival 1</Label>
+                                <select
+                                    name="opponent1_id"
+                                    className="w-full mt-1 p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-red-500 focus:border-red-500"
+                                    required
+                                    value={opp1Id}
+                                    onChange={(e) => setOpp1Id(e.target.value)}
+                                >
+                                    <option value="">Selecciona rival 1</option>
+                                    {otherPlayers
+                                        .filter(p => !selectedIds.has(p.id) || p.id === opp1Id)
+                                        .map(p => (
+                                            <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
+                                        ))}
+                                </select>
+                            </div>
 
-                        <div>
-                            <Label className="text-xs text-red-600">Rival 2</Label>
-                            <select name="opponent2_id" className="w-full mt-1 p-2 bg-white rounded border border-red-200" required defaultValue="">
-                                <option value="" disabled>Selecciona rival 2</option>
-                                {otherPlayers.map(p => (
-                                    <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
-                                ))}
-                            </select>
+                            <div>
+                                <Label className="text-[10px] font-bold text-gray-400 uppercase">Rival 2</Label>
+                                <select
+                                    name="opponent2_id"
+                                    className="w-full mt-1 p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-red-500 focus:border-red-500"
+                                    required
+                                    value={opp2Id}
+                                    onChange={(e) => setOpp2Id(e.target.value)}
+                                >
+                                    <option value="">Selecciona rival 2</option>
+                                    {otherPlayers
+                                        .filter(p => !selectedIds.has(p.id) || p.id === opp2Id)
+                                        .map(p => (
+                                            <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
+                                        ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="pt-4 flex flex-col gap-3">
-                <SubmitButton />
-                <Link href="/player/matches" className="text-center text-sm text-gray-500 hover:text-gray-700">
+            <div className="pt-4 flex flex-col gap-4">
+                <Button
+                    type="submit"
+                    className="w-full py-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                    disabled={!isFormValid || isSubmitting}
+                >
+                    {isSubmitting ? "Creando..." : "Crear Partido"}
+                </Button>
+                <Link
+                    href="/player/matches"
+                    className="text-center text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                >
                     Cancelar
                 </Link>
             </div>
         </form>
     );
 }
+

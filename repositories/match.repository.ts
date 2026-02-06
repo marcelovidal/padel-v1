@@ -179,7 +179,7 @@ export class MatchRepository {
         created_by,
         created_at,
         updated_at,
-        match_results (*),
+        match_results (id),
         match_players!inner (team, player_id)
       `)
       .eq("match_players.player_id", playerId)
@@ -226,12 +226,8 @@ export class MatchRepository {
       const myPlayerEntry = match.match_players && match.match_players[0];
       const team = myPlayerEntry ? myPlayerEntry.team : null;
 
-      // match_results is already fetched
-      const mr = (match.match_results && match.match_results) || null;
-
-      // Remove the inner join temp property to clean up object if needed, 
-      // but returning it is also fine as long as we satisfy the type interface.
-      // We'll construct a clean object.
+      // Check if it has results (we only selected the ID)
+      const hasResults = !!(match.match_results && match.match_results.length > 0);
 
       return {
         id: match.id,
@@ -244,7 +240,8 @@ export class MatchRepository {
         created_at: match.created_at,
         updated_at: match.updated_at,
         team: team as TeamType,
-        match_results: mr as MatchResult | null,
+        match_results: (match.match_results?.[0] as any) || null,
+        hasResults: hasResults,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
       };
     });
@@ -311,9 +308,11 @@ export class MatchRepository {
     }
 
     const items = matchesArr.map((match: any) => {
+      const matchResult = resultByMatch.get(match.id) ?? null;
       return {
         ...match,
-        match_results: resultByMatch.get(match.id) ?? null,
+        match_results: matchResult,
+        hasResults: !!matchResult,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
       };
     });

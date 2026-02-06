@@ -4,6 +4,8 @@ import { es } from "date-fns/locale";
 import Link from "next/link";
 import { MatchCardModel } from "./matchCard.model";
 import PlayerMatchAssessmentPanel from "../player/PlayerMatchAssessmentPanel";
+import { MatchScore } from "./MatchScore";
+
 
 interface MatchCardProps {
   model: MatchCardModel;
@@ -66,79 +68,17 @@ export default function MatchCard({
           </div>
         </div>
 
-        {/* Results Table */}
-        <div className="mb-6 overflow-hidden rounded-lg border border-gray-100">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-[10px] text-gray-400 uppercase font-bold">
-              <tr>
-                <th className="px-4 py-2 text-left font-bold w-1/2">Equipos</th>
-                {results?.sets.map((_, idx) => (
-                  <th key={idx} className="px-2 py-2 text-center">Set {idx + 1}</th>
-                )) || (
-                    <th className="px-2 py-2 text-center">Sets</th>
-                  )}
-                {isCompleted && <th className="px-4 py-2 text-right">Ganador</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {/* Equipo A */}
-              <tr className={results?.winnerTeam === "A" ? "bg-blue-50/30" : ""}>
-                <td className="px-4 py-3 font-medium text-gray-900 truncate">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 uppercase font-bold mb-0.5">Equipo A</span>
-                    <span className="truncate">{getTeamLabel(playersByTeam.A)}</span>
-                  </div>
-                </td>
-                {results ? (
-                  results.sets.map((s, idx) => (
-                    <td key={idx} className={`px-2 py-3 text-center font-bold ${results.winnerTeam === "A" ? "text-blue-700" : "text-gray-500"}`}>
-                      {s.a ?? "-"}
-                    </td>
-                  ))
-                ) : (
-                  <td className="px-2 py-3 text-center text-gray-400 italic">--</td>
-                )}
-                {isCompleted && (
-                  <td className="px-4 py-3 text-right">
-                    {results?.winnerTeam === "A" && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-600 text-white">SI</span>
-                    )}
-                  </td>
-                )}
-              </tr>
-              {/* Equipo B */}
-              <tr className={results?.winnerTeam === "B" ? "bg-blue-50/30" : ""}>
-                <td className="px-4 py-3 font-medium text-gray-900 truncate">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 uppercase font-bold mb-0.5">Equipo B</span>
-                    <span className="truncate">{getTeamLabel(playersByTeam.B)}</span>
-                  </div>
-                </td>
-                {results ? (
-                  results.sets.map((s, idx) => (
-                    <td key={idx} className={`px-2 py-3 text-center font-bold ${results.winnerTeam === "B" ? "text-blue-700" : "text-gray-500"}`}>
-                      {s.b ?? "-"}
-                    </td>
-                  ))
-                ) : (
-                  <td className="px-2 py-3 text-center text-gray-400 italic">--</td>
-                )}
-                {isCompleted && (
-                  <td className="px-4 py-3 text-right">
-                    {results?.winnerTeam === "B" && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-600 text-white">SI</span>
-                    )}
-                  </td>
-                )}
-              </tr>
-            </tbody>
-          </table>
-          {!results && (
-            <div className="bg-gray-50 p-4 text-center text-xs text-gray-500 italic">
-              {isCompleted ? "Resultado no registrado" : "Pendiente de juego"}
-            </div>
-          )}
+        {/* Results / Roster */}
+        <div className="mb-6">
+          <MatchScore
+            variant={status === "completed" ? "result" : "scheduled"}
+            results={results || null}
+            playersByTeam={playersByTeam}
+            showPlayers={true}
+          />
         </div>
+
+
 
         {/* Footer / Actions */}
         <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm">
@@ -170,6 +110,19 @@ export default function MatchCard({
                 </>
               )}
             </div>
+            {isCompleted && !model.hasResults && playerTeam && (
+              <div className="mt-2">
+                <Link
+                  href={`/player/matches/${model.id}/result`}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-2 py-1 rounded border border-red-100 transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Cargar resultado
+                </Link>
+              </div>
+            )}
           </div>
 
           {primaryAction && (

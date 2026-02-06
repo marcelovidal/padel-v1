@@ -22,11 +22,12 @@ export interface MatchCardModel {
     } | null;
     playerTeam?: TeamType; // Context for the current player
     hasAssessment?: boolean;
+    hasResults?: boolean;
 }
 
 export function toMatchCardModel(
     match: any, // Can be improved with better types if available
-    ctx?: { playerTeam?: TeamType; hasAssessment?: boolean }
+    ctx?: { playerTeam?: TeamType; hasAssessment?: boolean; hasResults?: boolean }
 ): MatchCardModel {
     const statusLabels: Record<string, string> = {
         scheduled: "Programado",
@@ -50,5 +51,6 @@ export function toMatchCardModel(
             : null,
         playerTeam: ctx?.playerTeam,
         hasAssessment: ctx?.hasAssessment ?? match.hasAssessment,
+        hasResults: ctx?.hasResults ?? match.hasResults,
     };
 }

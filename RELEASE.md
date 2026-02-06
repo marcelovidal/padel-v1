@@ -13,3 +13,7 @@ Any new release tag must pass:
 - SemVer `v1.x.y` for patches and features.
 - Tags must be immutable.
 - Failed builds must not be tagged.
+## Release History
+
+- **v1.2.0-player-actions** (Stable): Player write operations via SECURITY DEFINER. Atomic match creation.
+- **Stage I - Match Lifecycle** (Completed): Match detail, edit, and cancel for players. Categorized listings. Build OK.

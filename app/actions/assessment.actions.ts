@@ -16,7 +16,6 @@ export async function getPlayerMatchAssessmentAction(matchId: string) {
 
         return { success: true, data: assessment };
     } catch (error: any) {
-        console.error(`[getPlayerMatchAssessmentAction] Error:`, error);
         return { success: false, error: error?.message || "Error al obtener la autoevaluación" };
     }
 }

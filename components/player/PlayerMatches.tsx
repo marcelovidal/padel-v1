@@ -30,8 +30,8 @@ export function PlayerMatches({ matches }: PlayerMatchesProps) {
                         primaryAction={{
                             label: "Ver detalle",
                             href: `/player/matches/${match.id}`,
-                            disabled: true, // Upcoming feature
                         }}
+
                     />
                 );
             })}

@@ -51,6 +51,11 @@ export class AssessmentService {
     return this.repository.findByMatch(matchId);
   }
 
+  async getPlayerAssessmentInMatch(matchId: string, playerId: string) {
+    return this.repository.findByMatchAndPlayer(matchId, playerId);
+  }
+
+
   async getPendingAssessments(playerId: string) {
     // 1. Get all matches for the player
     const matches = await this.matchRepository.findByPlayerId(playerId);

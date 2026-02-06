@@ -39,52 +39,48 @@ export default async function PlayerMatchesPage() {
 
       {matches.length === 0 ? (
         <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
-          <div className="mx-auto w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-            <svg
-              className="w-6 h-6 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">
-            Todavía no tenés partidos registrados
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Cuando participes en un partido, aparecerá listado acá.
-          </p>
-          <button
-            disabled
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-400 cursor-not-allowed"
-          >
-            Cargar nuevo partido (Próximamente)
-          </button>
+          <p className="text-gray-500">Todavía no tenés partidos registrados.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Reusing shared component */}
-          <PlayerMatches matches={matches} />
+        <div className="space-y-12">
+          {/* Section: Scheduled */}
+          {matches.filter(m => m.status === 'scheduled').length > 0 && (
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Próximos Partidos</h2>
+              <PlayerMatches matches={matches
+                .filter(m => m.status === 'scheduled')
+                .sort((a, b) => new Date(a.match_at).getTime() - new Date(b.match_at).getTime())}
+              />
+            </div>
+          )}
 
-          <div className="pt-6 text-center">
-            <button
-              disabled
-              className="text-sm font-medium text-gray-400 cursor-not-allowed hover:text-gray-500 flex items-center justify-center mx-auto"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Cargar nuevo partido (Próximamente)
-            </button>
-          </div>
+          {/* Section: Completed */}
+          {matches.filter(m => m.status === 'completed').length > 0 && (
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Finalizados</h2>
+              <PlayerMatches matches={matches
+                .filter(m => m.status === 'completed')
+                .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+              />
+            </div>
+          )}
+
+          {/* Section: Cancelled */}
+          {matches.filter(m => m.status === 'cancelled').length > 0 && (
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Cancelados</h2>
+              <div className="opacity-75">
+                <PlayerMatches matches={matches
+                  .filter(m => m.status === 'cancelled')
+                  .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+
     </div>
   );
 }

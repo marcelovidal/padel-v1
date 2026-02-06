@@ -52,42 +52,32 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     const matchTimestamp = `${date}T${time}:00`;
 
     try {
-        // 4. Insert Match
         const sb = supabase as any;
-        const { data: match, error: matchError } = await sb
-            .from("matches")
-            .insert({
-                match_at: matchTimestamp,
-                club_name: club_name,
-                max_players: 4,
-                status: "scheduled",
-                created_by: user.id
-            })
-            .select()
-            .single();
 
-        if (matchError) throw matchError;
+        // 4. Atomic Creation via SECURITY DEFINER RPC
+        const { data: matchId, error: matchError } = await sb.rpc("player_create_match_with_players", {
+            p_match_at: matchTimestamp,
+            p_club_name: club_name,
+            p_partner_id: partner_id,
+            p_opp1_id: opponent1_id,
+            p_opp2_id: opponent2_id,
+            p_notes: null, // Notes not supported in form yet, but handled by RPC
+            p_max_players: 4
+        });
 
-        // 5. Insert Players
-        const playersToInsert = [
-            { match_id: match.id, player_id: player_id, team: "A" },
-            { match_id: match.id, player_id: partner_id, team: "A" },
-            { match_id: match.id, player_id: opponent1_id, team: "B" },
-            { match_id: match.id, player_id: opponent2_id, team: "B" },
-        ];
-
-        const { error: playersError } = await sb
-            .from("match_players")
-            .insert(playersToInsert);
-
-        if (playersError) {
-            // Rollback logic would go here ideally, but for MVP we rely on transaction or manual cleanup if possible.
-            // Since supabase-js doesn't support complex transactions easily without RPC, we assume success or fail.
-            throw playersError;
+        if (matchError) {
+            throw matchError;
         }
 
     } catch (err: any) {
-        console.error("Error creating match:", err);
+        // Map common errors
+        if (err.message?.includes('PLAYER_PROFILE_NOT_FOUND')) {
+            return { error: "Tu usuario no tiene un perfil de jugador vinculado." };
+        }
+        if (err.message?.includes('DUPLICATE_PLAYERS')) {
+            return { error: "No puedes repetir jugadores en el partido." };
+        }
+
         return { error: err.message || "Error al crear el partido" };
     }
 
@@ -95,3 +85,59 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     revalidatePath("/player");
     redirect("/player/matches");
 }
+
+export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "No autenticado" };
+
+    const date = formData.get("date") as string;
+    const time = formData.get("time") as string;
+    const club_name = formData.get("club_name") as string;
+    const notes = formData.get("notes") as string;
+
+    const matchTimestamp = `${date}T${time}:00`;
+
+    try {
+        const { error } = await (supabase as any).rpc("player_update_match", {
+            p_match_id: matchId,
+            p_match_at: matchTimestamp,
+            p_club_name: club_name,
+            p_notes: notes || null
+        });
+
+        if (error) throw error;
+
+    } catch (err: any) {
+        return { error: err.message || "Error al actualizar el partido" };
+    }
+
+    revalidatePath("/player/matches");
+    revalidatePath(`/player/matches/${matchId}`);
+    redirect(`/player/matches/${matchId}`);
+}
+
+export async function cancelMatchAsPlayer(matchId: string) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "No autenticado" };
+
+    try {
+        const { error } = await (supabase as any).rpc("player_cancel_match", {
+            p_match_id: matchId
+        });
+
+        if (error) throw error;
+
+    } catch (err: any) {
+        return { error: err.message || "Error al cancelar el partido" };
+    }
+
+    revalidatePath("/player/matches");
+    revalidatePath(`/player/matches/${matchId}`);
+    revalidatePath("/player");
+    redirect("/player/matches");
+}
+
