@@ -179,7 +179,7 @@ export class MatchRepository {
         created_by,
         created_at,
         updated_at,
-        match_results (id),
+        match_results (*),
         match_players!inner (team, player_id)
       `)
       .eq("match_players.player_id", playerId)

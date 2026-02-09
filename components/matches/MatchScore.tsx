@@ -66,7 +66,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     </div>
                 </div>
                 <div className="bg-gray-50 p-4 text-center rounded-xl border border-gray-100 italic text-sm text-gray-500">
-                    Pendiente de juego
+                    Sin resultado (Pendiente de carga)
                 </div>
             </div>
         );

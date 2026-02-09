@@ -1,4 +1,5 @@
 import { Database, TeamType } from "@/types/database";
+import { hasMatchResult } from "@/lib/match/matchUtils";
 
 export type Match = Database["public"]["Tables"]["matches"]["Row"];
 export type MatchResult = Database["public"]["Tables"]["match_results"]["Row"];
@@ -35,6 +36,8 @@ export function toMatchCardModel(
         cancelled: "Cancelado",
     };
 
+    const calculatedHasResults = hasMatchResult(match);
+
     return {
         id: match.id,
         clubName: match.club_name,
@@ -43,14 +46,14 @@ export function toMatchCardModel(
         statusLabel: statusLabels[match.status] || match.status,
         maxPlayers: match.max_players,
         playersByTeam: match.playersByTeam || { A: [], B: [] },
-        results: match.match_results
+        results: calculatedHasResults
             ? {
-                sets: match.match_results.sets,
-                winnerTeam: match.match_results.winner_team,
+                sets: Array.isArray(match.match_results) ? match.match_results[0].sets : match.match_results.sets,
+                winnerTeam: Array.isArray(match.match_results) ? match.match_results[0].winner_team : match.match_results.winner_team,
             }
             : null,
         playerTeam: ctx?.playerTeam,
         hasAssessment: ctx?.hasAssessment ?? match.hasAssessment,
-        hasResults: ctx?.hasResults ?? match.hasResults,
+        hasResults: ctx?.hasResults ?? calculatedHasResults,
     };
 }
