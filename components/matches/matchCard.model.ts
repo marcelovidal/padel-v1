@@ -48,8 +48,8 @@ export function toMatchCardModel(
         playersByTeam: match.playersByTeam || { A: [], B: [] },
         results: calculatedHasResults
             ? {
-                sets: Array.isArray(match.match_results) ? match.match_results[0].sets : match.match_results.sets,
-                winnerTeam: Array.isArray(match.match_results) ? match.match_results[0].winner_team : match.match_results.winner_team,
+                sets: match.match_results.sets,
+                winnerTeam: match.match_results.winner_team,
             }
             : null,
         playerTeam: ctx?.playerTeam,

@@ -78,7 +78,7 @@ export async function submitMatchResultAsPlayer(prevState: any, formData: FormDa
     }
 
     revalidatePath("/player/matches");
-    revalidatePath(`/player/matches/${match_id}`);
     revalidatePath("/player");
+    revalidatePath(`/player/matches/${match_id}`);
     redirect(`/player/matches/${match_id}`);
 }

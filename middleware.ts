@@ -45,8 +45,30 @@ export async function middleware(req: NextRequest) {
       }
     }
   }
+  console.log("[MIDDLEWARE]", pathname, "isLogin:", pathname === "/player/login", "user:", !!data?.user);
 
+  if (pathname.startsWith("/player")) {
+    const isLogin = pathname === "/player/login";
+    const user = data?.user ?? null;
+
+    if (!user && !isLogin) {
+      const cookieHeader = req.headers.get("cookie") ?? "";
+      const hasSbCookie = /\bsb-[^=]+=/.test(cookieHeader);
+      console.log("[MIDDLEWARE] unauth player route", pathname, "hasSbCookie:", hasSbCookie);
+
+      if (!hasSbCookie) {
+        console.log("[MIDDLEWARE] redirecting to /player/login from", pathname);
+        const url = new URL("/player/login", req.url);
+        return NextResponse.redirect(url);
+      }
+    }
+  }
+
+  console.log("[MIDDLEWARE] allow", pathname);
   return res;
+
+
+
 }
 
 export const config = {

@@ -49,11 +49,11 @@ export class MatchRepository {
       .eq("id", id)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw error;
-    }
-    return data as MatchWithPlayers;
+    const match = data as any;
+    return {
+      ...match,
+      match_results: (match.match_results?.[0] as any) || null
+    } as MatchWithPlayers;
   }
 
   async create(match: MatchInsert): Promise<Match> {
