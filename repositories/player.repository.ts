@@ -129,5 +129,90 @@ export class PlayerRepository {
 
     if (error) throw error;
   }
+  async createGuestPlayer(input: {
+    display_name: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    position?: "drive" | "reves" | "cualquiera";
+    city?: string;
+    city_id?: string;
+    region_code?: string;
+    region_name?: string;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_create_guest_player", {
+      p_display_name: input.display_name,
+      p_first_name: input.first_name,
+      p_last_name: input.last_name,
+      p_phone: input.phone,
+      p_position: input.position,
+      p_city: input.city,
+      p_city_id: input.city_id,
+      p_region_code: input.region_code,
+      p_region_name: input.region_name,
+      p_country_code: 'AR'
+    });
+
+    if (error) throw error;
+    return data; // returns the new player_id
+  }
+
+  async findSimilarPlayers(query: string): Promise<Player[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_find_similar_players", {
+      p_query: query,
+    });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async claimProfile(playerId: string): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_claim_profile", {
+      p_target_player_id: playerId,
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  async searchPlayersWeighted(query: string, limit: number = 20): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_search_players", {
+      p_query: query,
+      p_limit: limit,
+    });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async updatePlayerProfile(input: {
+    player_id: string;
+    display_name: string;
+    position: "drive" | "reves" | "cualquiera";
+    city?: string;
+    city_id?: string;
+    region_code?: string;
+    region_name?: string;
+    country_code?: string;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_update_profile", {
+      p_player_id: input.player_id,
+      p_display_name: input.display_name,
+      p_position: input.position,
+      p_city: input.city,
+      p_city_id: input.city_id,
+      p_region_code: input.region_code,
+      p_region_name: input.region_name,
+      p_country_code: input.country_code || 'AR'
+    });
+
+    if (error) throw error;
+    return data;
+  }
 }
 

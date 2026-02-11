@@ -11,6 +11,10 @@ export type PlayerStatus = "active" | "inactive";
 export type MatchStatus = "scheduled" | "completed" | "cancelled";
 export type TeamType = "A" | "B";
 
+export type Player = Database["public"]["Tables"]["players"]["Row"];
+export type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
+export type PlayerUpdate = Database["public"]["Tables"]["players"]["Update"];
+
 export interface Database {
   public: {
     Tables: {
@@ -45,6 +49,16 @@ export interface Database {
           category: string | null;
           position: PlayerPosition;
           status: PlayerStatus;
+          display_name: string;
+          normalized_name: string;
+          created_by: string;
+          is_guest: boolean;
+          country_code: string;
+          region_code: string | null;
+          city: string | null;
+          city_normalized: string | null;
+          city_id: string | null;
+          region_name: string | null;
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
@@ -59,6 +73,16 @@ export interface Database {
           category?: string | null;
           position?: PlayerPosition;
           status?: PlayerStatus;
+          display_name: string;
+          normalized_name: string;
+          created_by: string;
+          is_guest?: boolean;
+          country_code?: string;
+          region_code?: string | null;
+          city?: string | null;
+          city_normalized?: string | null;
+          city_id?: string | null;
+          region_name?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
@@ -73,6 +97,16 @@ export interface Database {
           category?: string | null;
           position?: PlayerPosition;
           status?: PlayerStatus;
+          display_name?: string;
+          normalized_name?: string;
+          created_by?: string;
+          is_guest?: boolean;
+          country_code?: string;
+          region_code?: string | null;
+          city?: string | null;
+          city_normalized?: string | null;
+          city_id?: string | null;
+          region_name?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;

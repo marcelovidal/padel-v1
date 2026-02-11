@@ -5,7 +5,10 @@ import { CreateMatchForm } from "@/components/matches/CreateMatchForm";
 export default async function CreateMatchPage() {
     const { playerId } = await requirePlayer();
     const playerRepo = new PlayerRepository();
-    const players = await playerRepo.findAllActive();
+    const [players, currentPlayer] = await Promise.all([
+        playerRepo.findAllActive(),
+        playerRepo.findById(playerId)
+    ]);
 
     return (
         <div className="container mx-auto p-4 max-w-2xl">
@@ -15,6 +18,12 @@ export default async function CreateMatchPage() {
             </div>
             <CreateMatchForm
                 currentPlayerId={playerId}
+                currentPlayerLocation={{
+                    city: currentPlayer?.city || undefined,
+                    city_id: currentPlayer?.city_id || undefined,
+                    region_code: currentPlayer?.region_code || undefined,
+                    region_name: currentPlayer?.region_name || undefined
+                }}
                 availablePlayers={players}
             />
         </div>

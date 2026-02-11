@@ -83,22 +83,25 @@ El proyecto estará disponible en `http://localhost:3000`
 - Middleware de verificación de rol admin
 
 ### ✅ Gestión de Jugadores (CRUD completo)
-- Crear jugadores
-- Listar jugadores
-- Editar jugadores
-- Inactivar jugadores (soft delete)
-- Búsqueda por nombre, email, teléfono
+- Crear jugadores registrados y perfiles invitados (`is_guest`).
+- Listar jugadores con filtros avanzados.
+- Editar e inactivar jugadores (soft delete).
+- Búsqueda por nombre, email, teléfono.
 
 ### ✅ Gestión de Partidos
-- Crear partidos
-- Asignar jugadores a equipos (A/B)
-- Listar partidos
-- Nota: `club_name` es texto simple, NO existe entidad Club
+- Crear partidos y asignar jugadores a equipos (A/B).
+- Listado de partidos filtrado por perfil de jugador.
+- Restricciones de co-participación para evitar duplicados en el mismo partido.
 
-### ✅ Resultados
-- Cargar resultados de partidos
-- Estructura de sets en JSONB: `[{a: 6, b: 4}, ...]`
-- Marca automáticamente el partido como 'completed'
+### ✅ Resultados y Autoevaluaciones
+- Carga de resultados con estructura de sets en JSONB.
+- Sistema de autoevaluación dinámico (Completa/Pendiente).
+- Visualización inline detallada de golpes y comentarios.
+
+### ✅ Localización y Búsqueda Ponderada (Stage K2)
+- Ranking de jugadores basado en proximidad geográfica (Ciudad/Región/País).
+- Etiquetas de jugador enriquecidas: `Inicial.Apellido — Ciudad (Región)`.
+- Normalización automática de ciudades para búsquedas eficientes.
 
 ## Fuera de Alcance V1
 
@@ -110,13 +113,14 @@ El proyecto estará disponible en `http://localhost:3000`
 - ❌ Login de jugadores (solo admin)
 - ❌ Panel de jugadores
 
-## Principios de Diseño
+## Arquitectura y Principios de Diseño
 
-1. **Separación Cuenta/Jugador**: Los jugadores son entidades de negocio independientes de `auth.users`
-2. **Soft Delete**: No se borran registros físicamente, se usa `deleted_at`
-3. **Resultados Estructurados**: Los sets se guardan en JSONB para facilitar estadísticas futuras
-4. **RLS Activo**: Row Level Security habilitado desde el inicio
-5. **Capa de Repositorios**: No se acopla la UI directamente a Supabase
+1. **Separación Cuenta/Jugador**: Los jugadores son entidades de negocio (`players`). Pueden ser invitados (`is_guest: true`) o usuarios vinculados (`user_id`).
+2. **Sistema de Reclamo (Claim Profile)**: Permite que un usuario registrado reclame un perfil de invitado pre-existente, unificando su historial.
+3. **Búsqueda Ponderada**: Implementada vía RPC (`player_search_players`) que otorga puntajes por coincidencia de ciudad (+100), provincia (+50) y país (+10).
+4. **Soft Delete**: No se borran registros físicamente, se usa `deleted_at`.
+5. **Resultados Estructurados**: Los sets se guardan en JSONB para estadísticas.
+6. **RLS Activo**: Row Level Security basado en roles y vinculación de perfiles.
 
 ## Funcionalidades Portal Jugadores (v1.0.0-player-read)
 

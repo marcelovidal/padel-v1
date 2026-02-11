@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { MatchService } from "@/services/match.service";
 import { PlayerStatsCards } from "@/components/player/PlayerStatsCards";
 import { PlayerAttributesChart } from "@/components/player/PlayerAttributesChart";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function PlayerProfilePage() {
     const supabase = await createClient();
@@ -45,7 +47,14 @@ export default async function PlayerProfilePage() {
 
     return (
         <div className="container mx-auto p-4 max-w-2xl">
-            <h1 className="text-2xl font-bold mb-6">Mi Perfil</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Mi Perfil</h1>
+                <Link href={`/player/players/${player.id}/edit`}>
+                    <Button variant="outline" className="rounded-2xl border-gray-200 font-bold hover:bg-gray-50 transition-all active:scale-95">
+                        Editar Perfil
+                    </Button>
+                </Link>
+            </div>
 
             <div className="mb-8">
                 <h2 className="text-lg font-semibold border-b pb-2 mb-4">Resumen</h2>

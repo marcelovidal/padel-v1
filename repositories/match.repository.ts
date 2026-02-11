@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Database, TeamType } from "@/types/database";
+import { normalizeMatchResult } from "@/lib/match/matchUtils";
 
 type Match = Database["public"]["Tables"]["matches"]["Row"];
 type MatchInsert = Database["public"]["Tables"]["matches"]["Insert"];
@@ -49,10 +50,24 @@ export class MatchRepository {
       .eq("id", id)
       .single();
 
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+
+    if (!data) return null;
+
     const match = data as any;
+    const normalizedResult = Array.isArray(match.match_results)
+      ? (match.match_results[0] || null)
+      : (match.match_results || null);
+
+    // Apply normalization to sets
+    const finalResult = normalizeMatchResult(normalizedResult);
+
     return {
       ...match,
-      match_results: (match.match_results?.[0] as any) || null
+      match_results: finalResult
     } as MatchWithPlayers;
   }
 
@@ -138,7 +153,9 @@ export class MatchRepository {
       if (error.code === "PGRST116") return null;
       throw error;
     }
-    return data;
+
+    // Apply normalization
+    return normalizeMatchResult(data) as any;
   }
 
   async upsertMatchResult(input: MatchResultInsert): Promise<MatchResult> {
@@ -160,7 +177,8 @@ export class MatchRepository {
       .update({ status: "completed" } as any)
       .eq("id", input.match_id);
 
-    return data;
+    // Apply normalization
+    return normalizeMatchResult(data) as any;
   }
 
   async findByPlayerId(playerId: string, opts?: { limit?: number }): Promise<Array<Match & { team: TeamType; match_results: MatchResult | null; playersByTeam: { A: any[]; B: any[] } }>> {
@@ -179,7 +197,7 @@ export class MatchRepository {
         created_by,
         created_at,
         updated_at,
-        match_results (*),
+        match_results ( match_id, sets, winner_team, recorded_at ),
         match_players!inner (team, player_id)
       `)
       .eq("match_players.player_id", playerId)
@@ -226,8 +244,13 @@ export class MatchRepository {
       const myPlayerEntry = match.match_players && match.match_players[0];
       const team = myPlayerEntry ? myPlayerEntry.team : null;
 
-      // Check if it has results (we only selected the ID)
-      const hasResults = !!(match.match_results && match.match_results.length > 0);
+      // Normalización del resultado (Array -> Objeto)
+      const rawResult = Array.isArray(match.match_results)
+        ? match.match_results[0] ?? null
+        : match.match_results ?? null;
+
+      // Apply normalization to sets
+      const normalizedResult = normalizeMatchResult(rawResult);
 
       return {
         id: match.id,
@@ -240,8 +263,7 @@ export class MatchRepository {
         created_at: match.created_at,
         updated_at: match.updated_at,
         team: team as TeamType,
-        match_results: (match.match_results?.[0] as any) || null,
-        hasResults: hasResults,
+        match_results: normalizedResult as any,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
       };
     });
@@ -283,11 +305,15 @@ export class MatchRepository {
     // Fetch match_results
     const { data: resultsData, error: resultsError } = await supabase
       .from("match_results")
-      .select("*")
+      .select("match_id, sets, winner_team, recorded_at")
       .in("match_id", matchIds);
     if (resultsError) throw resultsError;
     const resultsArr = resultsData || [];
-    const resultByMatch = new Map(resultsArr.map((r: any) => [r.match_id, r]));
+
+    // Build results map with normalization
+    const resultByMatch = new Map(
+      resultsArr.map((r: any) => [r.match_id, normalizeMatchResult(r)])
+    );
 
     // Fetch match_players with player basic info
     const { data: allMatchPlayers, error: mpAllError } = await supabase

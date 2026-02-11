@@ -79,6 +79,9 @@ export async function createAssessmentAction(
         await assessmentService.createAssessment(payload as any);
 
         revalidatePath(`/admin/matches/${validated.match_id}`);
+        revalidatePath(`/player/matches/${validated.match_id}`);
+        revalidatePath(`/player/matches`);
+        revalidatePath(`/player`);
         revalidatePath(`/player/profile`); // Revalidate player profile too
 
         return { ok: true };

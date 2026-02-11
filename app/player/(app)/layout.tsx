@@ -24,6 +24,9 @@ export default async function PlayerLayout({
                             <Link href="/player/matches" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
                                 Partidos
                             </Link>
+                            <Link href="/player/players" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                                Jugadores
+                            </Link>
                             <Link href="/player/profile" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
                                 Perfil
                             </Link>
@@ -45,6 +48,7 @@ export default async function PlayerLayout({
                 <div className="md:hidden border-t px-4 py-3 flex gap-6 overflow-x-auto bg-gray-50/50">
                     <Link href="/player" className="text-sm font-medium text-gray-600 whitespace-nowrap">Dashboard</Link>
                     <Link href="/player/matches" className="text-sm font-medium text-gray-600 whitespace-nowrap">Partidos</Link>
+                    <Link href="/player/players" className="text-sm font-medium text-gray-600 whitespace-nowrap">Jugadores</Link>
                     <Link href="/player/profile" className="text-sm font-medium text-gray-600 whitespace-nowrap">Perfil</Link>
                 </div>
             </header>

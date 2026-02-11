@@ -2,6 +2,7 @@ import { PlayerRepository } from "@/repositories/player.repository";
 import { CreatePlayerInput, UpdatePlayerInput } from "@/schemas/player.schema";
 import { MatchRepository } from "@/repositories/match.repository";
 import { AssessmentRepository } from "@/repositories/assessment.repository";
+import { createClient } from "@/lib/supabase/server";
 
 export class PlayerService {
   private repository: PlayerRepository;
@@ -35,7 +36,7 @@ export class PlayerService {
   async getPlayerShotAverages(playerId: string) {
     const assessments = await this.assessmentRepository.findByPlayer(playerId);
     const fields = [
-      'volea','globo','remate','bandeja','vibora','bajada_pared','saque','recepcion_saque'
+      'volea', 'globo', 'remate', 'bandeja', 'vibora', 'bajada_pared', 'saque', 'recepcion_saque'
     ];
     const sums: Record<string, number> = {};
     const counts: Record<string, number> = {};
@@ -124,6 +125,10 @@ export class PlayerService {
   }
 
   async createPlayer(input: CreatePlayerInput) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
     // Validar que email sea único si se proporciona
     if (input.email) {
       const existing = await this.repository.search(input.email);
@@ -144,7 +149,15 @@ export class PlayerService {
       throw new Error("El teléfono ya está en uso");
     }
 
-    return this.repository.create(input);
+    const displayName = `${input.first_name} ${input.last_name}`.trim();
+
+    return this.repository.create({
+      ...input,
+      display_name: displayName,
+      normalized_name: displayName.toLowerCase(),
+      created_by: user.id,
+      is_guest: false
+    } as any);
   }
 
   async updatePlayer(input: UpdatePlayerInput) {
@@ -178,6 +191,44 @@ export class PlayerService {
   async deactivatePlayer(id: string) {
     return this.repository.deactivate(id);
   }
+
+  async createGuestPlayer(input: {
+    display_name: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    position?: "drive" | "reves" | "cualquiera";
+    city?: string;
+    city_id?: string;
+    region_code?: string;
+    region_name?: string;
+    country_code?: string;
+  }) {
+    return this.repository.createGuestPlayer(input);
+  }
+
+  async findSimilarPlayers(query: string) {
+    return this.repository.findSimilarPlayers(query);
+  }
+
+  async claimProfile(playerId: string) {
+    return this.repository.claimProfile(playerId);
+  }
+
+  async searchPlayersWeighted(query: string, limit?: number) {
+    return this.repository.searchPlayersWeighted(query, limit);
+  }
+
+  async updatePlayerProfile(input: {
+    player_id: string;
+    display_name: string;
+    position: "drive" | "reves" | "cualquiera";
+    city?: string;
+    city_id?: string;
+    region_code?: string;
+    region_name?: string;
+    country_code?: string;
+  }) {
+    return this.repository.updatePlayerProfile(input);
+  }
 }
-
-

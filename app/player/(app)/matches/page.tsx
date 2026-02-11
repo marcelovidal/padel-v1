@@ -8,6 +8,7 @@ import MatchCardSkeleton from "@/components/matches/MatchCardSkeleton";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function PlayerMatchesPage() {
   const { user, playerId } = await requirePlayer();
