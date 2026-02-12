@@ -231,4 +231,12 @@ export class PlayerService {
   }) {
     return this.repository.updatePlayerProfile(input);
   }
+
+  async getProfileMetrics(playerId: string) {
+    return this.repository.getProfileMetrics(playerId);
+  }
+
+  async getPlayerByUserId(userId: string) {
+    return this.repository.findByUserId(userId);
+  }
 }

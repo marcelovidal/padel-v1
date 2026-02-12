@@ -214,5 +214,11 @@ export class PlayerRepository {
     if (error) throw error;
     return data;
   }
-}
 
+  async getProfileMetrics(playerId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('player_get_profile_metrics', { p_player_id: playerId });
+    if (error) throw error;
+    return data;
+  }
+}

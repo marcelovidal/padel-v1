@@ -15,6 +15,7 @@ Any new release tag must pass:
 - Failed builds must not be tagged.
 ## Release History
 
+- **v1.5.0-pasala-index** (Draft): Stage M1 Complete. Stunning Player Profile with PASALA Index, radar charts, streaks, and performance metrics.
 - **v1.4.0-player-directory-location** (Latest): Stage L Complete. Includes player directory, profile editing, official Argentinian Geodata integration, and phone field robustification.
 - **v1.3.1-stage-j-stable**: Stage J estable: resultados + autocurate + UX + fix listado/detalle.
 - **v1.3.0-match-lifecycle**: Match detail, edit, and cancel for players. Categorized listings. Build OK.
