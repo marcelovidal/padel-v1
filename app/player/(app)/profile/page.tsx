@@ -1,8 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
@@ -10,20 +9,15 @@ import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import { MapPin, Trophy, Target, Activity } from "lucide-react";
 
 export default async function PlayerProfilePage() {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        redirect("/login");
-    }
+    const { user, playerId } = await requirePlayer();
 
     const playerService = new PlayerService();
     const assessmentService = new AssessmentService();
 
-    // Find player associated with this user
-    const playerByUserId = await playerService.getPlayerByUserId(user.id);
+    // Fetch player info if needed for display name, etc.
+    const playerFull = await playerService.getPlayerByUserId(user.id);
 
-    if (!playerByUserId) {
+    if (!playerFull) {
         return (
             <div className="container mx-auto p-4 max-w-2xl">
                 <h1 className="text-2xl font-bold mb-4">Mi Perfil</h1>
@@ -37,8 +31,8 @@ export default async function PlayerProfilePage() {
     }
 
     const [metrics, pendingAssessments] = await Promise.all([
-        playerService.getProfileMetrics(playerByUserId.id),
-        assessmentService.getPendingAssessments(playerByUserId.id)
+        playerService.getProfileMetrics(playerId),
+        assessmentService.getPendingAssessments(playerId)
     ]);
 
     const hasMatches = metrics.played > 0;
@@ -49,14 +43,14 @@ export default async function PlayerProfilePage() {
             <div className="flex justify-between items-start mb-8 bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
                 <div className="space-y-1">
                     <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
-                        {playerByUserId.display_name}
+                        {playerFull.display_name}
                     </h1>
                     <div className="flex items-center gap-1.5 text-gray-500 font-bold text-sm">
                         <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                        <span>{playerByUserId.city || "Ubicación no definida"}, {playerByUserId.region_name || "AR"}</span>
+                        <span>{playerFull.city || "Ubicación no definida"}, {playerFull.region_name || "AR"}</span>
                     </div>
                 </div>
-                <Link href={`/player/players/${playerByUserId.id}/edit`}>
+                <Link href={`/player/players/${playerFull.id}/edit`}>
                     <Button variant="outline" className="rounded-full border-gray-200 font-black text-[10px] uppercase tracking-widest px-6 h-10 hover:bg-gray-50 transition-all active:scale-95 shadow-sm">
                         Editar
                     </Button>
@@ -154,7 +148,7 @@ export default async function PlayerProfilePage() {
                                 <PendingAssessmentCard
                                     key={match.id}
                                     match={match}
-                                    playerId={playerByUserId.id}
+                                    playerId={playerFull.id}
                                 />
                             ))}
                         </div>

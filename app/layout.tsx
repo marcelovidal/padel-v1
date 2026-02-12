@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Padel V1 - Admin",
+  title: "PASALA",
   description: "Sistema de gestión de pádel",
 };
 

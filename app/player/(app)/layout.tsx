@@ -14,8 +14,8 @@ export default async function PlayerLayout({
             <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
-                        <Link href="/player" className="font-bold text-xl text-blue-900 tracking-tight">
-                            Padel V1
+                        <Link href="/player" className="font-black text-2xl text-blue-600 tracking-tighter italic">
+                            PASALA
                         </Link>
                         <nav className="hidden md:flex gap-6">
                             <Link href="/player" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">

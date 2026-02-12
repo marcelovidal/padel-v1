@@ -1,52 +1,149 @@
 import { requirePlayer } from "@/lib/auth";
-import { PlayerAuthService } from "@/services/playerAuth.service";
-import { MatchService } from "@/services/match.service";
+import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
-import { PlayerStatsCards } from "@/components/player/PlayerStatsCards";
-import { PlayerAttributesChart } from "@/components/player/PlayerAttributesChart";
+import { MatchService } from "@/services/match.service";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
+import { PasalaIndex } from "@/components/player/PasalaIndex";
+import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Activity, Trophy, Target } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlayerDashboard() {
   const { user, playerId } = await requirePlayer();
 
-  const playerAuthSvc = new PlayerAuthService();
-  const matchSvc = new MatchService();
-  const assessmentSvc = new AssessmentService();
+  const playerService = new PlayerService();
+  const matchService = new MatchService();
+  const assessmentService = new AssessmentService();
 
   // Fetch all data in parallel
-  const [player, stats, averages, recentMatches, pendingAssessments] = await Promise.all([
-    playerAuthSvc.getPlayerByUserId(user.id),
-    matchSvc.getPlayerStats(playerId),
-    assessmentSvc.getPlayerAverages(playerId),
-    matchSvc.getPlayerMatches(playerId, { limit: 5 }),
-    assessmentSvc.getPendingAssessments(playerId),
+  const [player, metrics, recentMatches, pendingAssessments] = await Promise.all([
+    playerService.getPlayerByUserId(user.id),
+    playerService.getProfileMetrics(playerId),
+    matchService.getPlayerMatches(playerId, { limit: 5 }),
+    assessmentService.getPendingAssessments(playerId),
   ]);
 
+  const hasMatches = metrics.played > 0;
+
   return (
-    <div className="container mx-auto p-4 max-w-5xl space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Hola, {player?.first_name || 'Jugador'}</h1>
-          <p className="text-gray-500">Bienvenido a tu panel de control</p>
+    <div className="container mx-auto p-4 max-w-5xl space-y-8 pb-20">
+      {/* Header with Hero Style */}
+      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
+            Hola, {player?.first_name || 'Jugador'}
+          </h1>
+          <p className="text-gray-500 font-bold">Bienvenido a tu panel de control</p>
         </div>
-        <div className="bg-gray-100 px-3 py-1 rounded-full text-xs font-mono text-gray-600">
-          ID: {playerId.split('-')[0]}...
+        <div className="flex items-center gap-4">
+          <div className="bg-blue-50 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-600 border border-blue-100">
+            ID: {playerId.split('-')[0]}...
+          </div>
+          <Link href="/player/profile">
+            <button className="bg-gray-900 text-white px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200">
+              Mi Perfil
+            </button>
+          </Link>
         </div>
       </div>
 
-      {/* Pending Assessments Alert */}
-      {pendingAssessments.length > 0 && (
-        <section className="bg-orange-50 border border-orange-200 rounded-xl p-6">
-          <h2 className="text-lg font-bold text-orange-800 mb-4 flex items-center gap-2">
-            ⚠️ Evaluaciones Pendientes ({pendingAssessments.length})
-          </h2>
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* PASALA Index Card */}
+        <div className="lg:col-span-1">
+          <PasalaIndex
+            value={metrics.pasala_index}
+            winScore={metrics.win_rate}
+            perfScore={metrics.perf_score}
+          />
+        </div>
+
+        {/* KPI Grid */}
+        <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm flex flex-col justify-between">
+            <Activity className="w-5 h-5 text-blue-600 mb-4" />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Jugados</p>
+              <p className="text-2xl font-bold text-gray-900">{metrics.played}</p>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm flex flex-col justify-between">
+            <Trophy className="w-5 h-5 text-green-600 mb-4" />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ganados</p>
+              <p className="text-2xl font-bold text-gray-900">{metrics.wins}</p>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm flex flex-col justify-between">
+            <Target className="w-5 h-5 text-orange-600 mb-4" />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Winrate</p>
+              <p className="text-2xl font-bold text-gray-900">{metrics.win_rate}%</p>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm flex flex-col justify-between">
+            <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center mb-4">
+              <span className="text-[10px] font-black text-purple-600">{metrics.current_streak}</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Racha</p>
+              <p className="text-2xl font-bold text-gray-900">{metrics.current_streak}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Attributes Chart */}
+        <section className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Atributos Técnicos</h2>
+            <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+              Ver Radar
+            </Link>
+          </div>
+          <PlayerRadarChart data={metrics.avg_by_skill} />
+        </section>
+
+        {/* Recent Matches */}
+        <section className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Últimos Partidos</h2>
+            <Link href="/player/matches" className="flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+              Ver todos <ArrowRight className="ml-1 w-3 h-3" />
+            </Link>
+          </div>
+
           <div className="space-y-4">
+            <PlayerMatches matches={recentMatches} />
+          </div>
+
+          {!hasMatches && (
+            <div className="bg-blue-50 border-2 border-blue-100 p-8 rounded-[32px] text-center space-y-4 mt-4">
+              <p className="font-bold text-blue-900">¿Listo para debutar?</p>
+              <Link href="/player/matches/new" className="block">
+                <button className="w-full rounded-2xl bg-blue-600 text-white font-bold py-4 hover:bg-blue-700 transition-all">
+                  Cargar mi primer partido
+                </button>
+              </Link>
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* Pending Assessments Section */}
+      {pendingAssessments.length > 0 && (
+        <section className="bg-orange-50/50 border border-orange-100 rounded-[32px] p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-orange-800">Evaluaciones Pendientes</h2>
+            <span className="bg-orange-200 text-orange-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+              {pendingAssessments.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
             {pendingAssessments.map((match) => (
               <PendingAssessmentCard
                 key={match.id}
@@ -57,46 +154,6 @@ export default async function PlayerDashboard() {
           </div>
         </section>
       )}
-
-      {/* Stats Overview */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Resumen General</h2>
-        <PlayerStatsCards stats={stats} />
-      </section>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Attributes Chart */}
-        <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Mis Atributos</h2>
-            <Link href="/player/profile" className="text-sm text-blue-600 hover:underline">
-              Ver detalle
-            </Link>
-          </div>
-          <PlayerAttributesChart data={averages} />
-        </section>
-
-        {/* Recent Matches */}
-        <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Últimos Partidos</h2>
-            <Link href="/player/matches" className="flex items-center text-sm text-blue-600 hover:underline">
-              Ver todos
-              <ArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </div>
-
-          <PlayerMatches matches={recentMatches} />
-
-          {recentMatches.length > 0 && (
-            <div className="mt-4 text-center md:hidden">
-              <Link href="/player/matches" className="text-sm font-medium text-blue-600">
-                Ver historial completo
-              </Link>
-            </div>
-          )}
-        </section>
-      </div>
     </div>
   );
 }
