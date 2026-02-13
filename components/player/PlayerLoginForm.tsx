@@ -33,7 +33,7 @@ export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLogin
         }
 
         // Redirect to /player which is the portal entry (requirePlayer will handle deeper routing)
-        router.replace("/player/matches");
+        router.replace("/player");
         router.refresh();
     }
 

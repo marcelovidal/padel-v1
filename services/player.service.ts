@@ -236,6 +236,10 @@ export class PlayerService {
     return this.repository.getProfileMetrics(playerId);
   }
 
+  async getCompetitiveStats() {
+    return this.repository.getCompetitiveStats();
+  }
+
   async getPlayerByUserId(userId: string) {
     return this.repository.findByUserId(userId);
   }

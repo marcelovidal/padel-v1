@@ -8,7 +8,7 @@ export default async function PlayerLoginPage() {
 
   // If there is a valid player linked to this session, redirect to portal
   if (user && playerId) {
-    redirect("/player/matches");
+    redirect("/player");
   }
 
   // If no session OR session exists but no player profile, show login form

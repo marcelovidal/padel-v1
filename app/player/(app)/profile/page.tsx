@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
-import { MapPin, Trophy, Target, Activity } from "lucide-react";
+import { MapPin, Trophy, Target, Activity, Users, Zap } from "lucide-react";
 
 export default async function PlayerProfilePage() {
     const { user, playerId } = await requirePlayer();
@@ -30,9 +30,10 @@ export default async function PlayerProfilePage() {
         );
     }
 
-    const [metrics, pendingAssessments] = await Promise.all([
+    const [metrics, pendingAssessments, compStats] = await Promise.all([
         playerService.getProfileMetrics(playerId),
-        assessmentService.getPendingAssessments(playerId)
+        assessmentService.getPendingAssessments(playerId),
+        playerService.getCompetitiveStats()
     ]);
 
     const hasMatches = metrics.played > 0;
@@ -102,6 +103,55 @@ export default async function PlayerProfilePage() {
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Racha</p>
                         <p className="text-xl font-bold text-gray-900">{metrics.current_streak}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* CONTEXTO COMPETITIVO */}
+            <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm mb-8 space-y-6">
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Contexto Competitivo</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Mejor Compañero */}
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                            <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mejor Compañero</p>
+                            {compStats?.best_teammate_name ? (
+                                <>
+                                    <p className="text-base font-bold text-gray-900 leading-tight">{compStats.best_teammate_name}</p>
+                                    <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">
+                                        {compStats.wins_together} victorias — {compStats.winrate_together}% WR
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-xs text-gray-400 italic">Mínimo 2 partidos juntos</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Vs Categoría Superior */}
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+                            <Zap className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Vs Categoría Superior</p>
+                            {compStats?.matches_vs_higher > 0 ? (
+                                <>
+                                    <p className="text-base font-bold text-gray-900 leading-tight">
+                                        {compStats.wins_vs_higher} victorias
+                                    </p>
+                                    <p className="text-[10px] font-bold text-orange-600 uppercase tracking-tighter">
+                                        en {compStats.matches_vs_higher} partidos ({compStats.winrate_vs_higher}% WR)
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-xs text-gray-400 italic">Sin partidos contra categoría superior</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -221,4 +221,11 @@ export class PlayerRepository {
     if (error) throw error;
     return data;
   }
+
+  async getCompetitiveStats() {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('player_get_competitive_stats');
+    if (error) throw error;
+    return data?.[0] || null;
+  }
 }
