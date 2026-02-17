@@ -10,6 +10,8 @@ import { MatchScore } from "./MatchScore";
 interface MatchCardProps {
   model: MatchCardModel;
   variant: "admin" | "player";
+  meAvatarData?: { src: string | null; initials?: string };
+  mePlayerId?: string;
   primaryAction?: {
     label: string;
     href: string;
@@ -20,6 +22,8 @@ interface MatchCardProps {
 export default function MatchCard({
   model,
   variant,
+  meAvatarData,
+  mePlayerId,
   primaryAction,
 }: MatchCardProps) {
   const {
@@ -82,6 +86,8 @@ export default function MatchCard({
             results={results || null}
             playersByTeam={playersByTeam}
             showPlayers={true}
+            meAvatarData={meAvatarData}
+            mePlayerId={mePlayerId}
           />
         </div>
 

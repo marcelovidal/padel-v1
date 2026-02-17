@@ -1,11 +1,14 @@
 import MatchCard from "@/components/matches/MatchCard";
 import { toMatchCardModel } from "@/components/matches/matchCard.model";
+import { ResolvedAvatar } from "@/lib/avatar-server.utils";
 
 interface PlayerMatchesProps {
     matches: any[]; // Ideally typed with MatchWithPlayers from service
+    meAvatarData?: ResolvedAvatar;
+    mePlayerId?: string;
 }
 
-export function PlayerMatches({ matches }: PlayerMatchesProps) {
+export function PlayerMatches({ matches, meAvatarData, mePlayerId }: PlayerMatchesProps) {
     if (matches.length === 0) {
         return (
             <div className="bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
@@ -27,11 +30,12 @@ export function PlayerMatches({ matches }: PlayerMatchesProps) {
                         key={match.id}
                         model={model}
                         variant="player"
+                        meAvatarData={meAvatarData}
+                        mePlayerId={mePlayerId}
                         primaryAction={{
                             label: "Ver detalle",
                             href: `/player/matches/${match.id}`,
                         }}
-
                     />
                 );
             })}

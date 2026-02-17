@@ -10,6 +10,7 @@ import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
 import { hasMatchResult, normalizeSets } from "@/lib/match/matchUtils";
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 
 export default async function MatchDetailPage({
     params,
@@ -38,8 +39,20 @@ export default async function MatchDetailPage({
     const hasAssessment = !!selfAssessment;
 
     // Group players by team for the MatchScore component
-    const teamA = match.match_players.filter((p) => p.team === "A");
-    const teamB = match.match_players.filter((p) => p.team === "B");
+    const teamA_raw = match.match_players.filter((p) => p.team === "A");
+    const teamB_raw = match.match_players.filter((p) => p.team === "B");
+
+    // Resolve avatars for all players in parallel
+    const [teamA, teamB] = await Promise.all([
+        Promise.all(teamA_raw.map(async (p) => ({
+            ...p.players,
+            avatarData: await resolveAvatarSrc({ player: p.players })
+        }))),
+        Promise.all(teamB_raw.map(async (p) => ({
+            ...p.players,
+            avatarData: await resolveAvatarSrc({ player: p.players })
+        })))
+    ]);
 
     const statusColors = {
         scheduled: "bg-blue-100 text-blue-800 border-blue-200",
@@ -130,8 +143,8 @@ export default async function MatchDetailPage({
                         winnerTeam: match.match_results?.winner_team || null
                     } : null}
                     playersByTeam={{
-                        A: teamA.map(p => p.players),
-                        B: teamB.map(p => p.players)
+                        A: teamA,
+                        B: teamB
                     }}
                     showPlayers={true}
                 />

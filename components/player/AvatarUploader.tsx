@@ -30,11 +30,11 @@ export default function AvatarUploader({ onUploadComplete, currentAvatarUrl }: A
 
         const result = await uploadAvatarAction(formData);
 
-        if (result.success && result.path && result.signedUrl) {
-            onUploadComplete(result.path, result.signedUrl);
+        if (result.success && result.path) {
+            onUploadComplete(result.path, result.signedUrl || "");
         } else {
             console.error("Error al subir avatar:", result.error);
-            alert("Error al subir la imagen. Por favor, intentá de nuevo.");
+            // No bloqueamos el flujo, permitimos que el usuario intente de nuevo o siga sin foto
         }
         setUploading(false);
     }

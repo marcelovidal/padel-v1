@@ -6,6 +6,7 @@ import { toMatchCardModel } from "@/components/matches/matchCard.model";
 import { Suspense } from "react";
 import MatchCardSkeleton from "@/components/matches/MatchCardSkeleton";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,7 +15,10 @@ export default async function PlayerMatchesPage() {
   const { user, player: mePlayer } = await requirePlayer();
   const matchSvc = new MatchService();
 
-  const matches = await matchSvc.getPlayerMatches(mePlayer.id);
+  const [matches, avatarData] = await Promise.all([
+    matchSvc.getPlayerMatches(mePlayer.id),
+    resolveAvatarSrc({ player: mePlayer, user })
+  ]);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -47,6 +51,8 @@ export default async function PlayerMatchesPage() {
               <PlayerMatches matches={matches
                 .filter(m => m.status === 'scheduled')
                 .sort((a, b) => new Date(a.match_at).getTime() - new Date(b.match_at).getTime())}
+                meAvatarData={avatarData}
+                mePlayerId={mePlayer.id}
               />
             </div>
           )}
@@ -58,6 +64,8 @@ export default async function PlayerMatchesPage() {
               <PlayerMatches matches={matches
                 .filter(m => m.status === 'completed')
                 .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+                meAvatarData={avatarData}
+                mePlayerId={mePlayer.id}
               />
             </div>
           )}
@@ -70,6 +78,8 @@ export default async function PlayerMatchesPage() {
                 <PlayerMatches matches={matches
                   .filter(m => m.status === 'cancelled')
                   .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+                  meAvatarData={avatarData}
+                  mePlayerId={mePlayer.id}
                 />
               </div>
             </div>

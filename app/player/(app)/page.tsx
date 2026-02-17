@@ -180,7 +180,11 @@ export default async function PlayerDashboard() {
           </div>
 
           <div className="space-y-4">
-            <PlayerMatches matches={recentMatches} />
+            <PlayerMatches
+              matches={recentMatches}
+              meAvatarData={avatarData}
+              mePlayerId={playerId}
+            />
           </div>
 
           {!hasMatches && (

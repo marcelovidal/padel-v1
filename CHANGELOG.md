@@ -1,30 +1,22 @@
-# Changelog
+# Changelog - PASALA
 
-All notable changes to this project will be documented in this file.
+## [v1.6.0-onboarding-lock-avatars] - 2026-02-17
 
-## [Stage K2 Patch] - 2026-02-10
+### Añadido
+- **Registro por Email**: Nuevo flujo de alta de usuarios mediante email y contraseña en `/player/login`.
+- **Blindaje de Onboarding (One-Shot)**: Protección por base de datos (RPC) y Middleware para asegurar que el perfil se complete una única vez.
+- **Sistema de Avatares Consistente**: Lógica de prioridad (Storage > Google > Iniciales) aplicada en toda la plataforma.
+- **Componente UserAvatar**: Componente UI reutilizable para mostrar perfiles con soporte de iniciales y fotos firmadas de Supabase.
+- **Ruta de Signout**: Endpoint `/auth/signout` en el servidor para un cierre de sesión seguro.
+
+### Mejoras
+- **Middleware Propagativo**: El middleware ahora captura rutas de bienvenida y fuerza la finalización del perfil.
+- **MatchRepository Extendido**: Soporte para la propagación de `avatar_url` en listados de partidos y detalles de puntaje.
+- **Optimización de requirePlayer**: Reducción de consultas redundantes a la base de datos al unificar la carga del perfil.
 
 ### Corregido
-- Desacople entre la tabla `players` y la RPC `player_create_guest_player`.
-- Error de columna `city` inexistente en producción.
-- Firma de función RPC para creación de invitados desalineada con el frontend.
+- **Bucle de Redirección**: Se solucionó el "hang" al finalizar el onboarding asegurando la persistencia correcta en la base de datos y forzando el refresco de sesión en el cliente.
+- **Consistencia SQL**: Sincronización de funciones RPC entre el entorno local y Supabase.
 
-### Agregado
-- Campos geográficos en `players`: `country_code`, `region_code`, `city`, `city_normalized`.
-- Campo `created_by` y `is_guest` en `players` para mejor trazabilidad.
-- Índices para búsqueda ponderada por ubicación (`idx_players_location`).
-- Parche seguro de migración idempotente.
-- Lógica de "Zero-Safety" para el teléfono de invitados (default '00000000').
-
-## [Stage K2] - 2026-02-10
-### Agregado
-- Búsqueda de jugadores ponderada por ubicación (Ciudad/Provincia).
-- Nueva RPC `player_search_players` con sistema de scoring.
-- Etiquetas enriquecidas en la selección de jugadores: "Inicial.Apellido — Ciudad (Región)".
-- Soporte para ubicación en la creación de jugadores invitados.
-
-## [Stage K1] - 2026-02-09
-### Agregado
-- Sistema de jugadores invitados.
-- Proceso de "Claim Profile" para vincular cuentas de usuario a perfiles de jugadores pre-existentes.
-- Restricciones de co-participación en partidos.
+---
+*Nueva etapa lista para comenzar.*

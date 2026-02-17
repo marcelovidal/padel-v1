@@ -252,7 +252,7 @@ export class PlayerService {
   async uploadAvatar(file: File, userId: string) {
     const supabase = await createClient();
     const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    const fileName = `${userId}/avatar-${Date.now()}.${fileExt}`;
 
     const { error: uploadError, data } = await supabase.storage
       .from('avatars')

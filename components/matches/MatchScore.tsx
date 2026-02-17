@@ -13,9 +13,11 @@ interface MatchScoreProps {
         B: any[];
     };
     showPlayers?: boolean;
+    meAvatarData?: { src: string | null; initials?: string };
+    mePlayerId?: string;
 }
 
-export function MatchScore({ variant = "result", results, playersByTeam, showPlayers = false }: MatchScoreProps) {
+export function MatchScore({ variant = "result", results, playersByTeam, showPlayers = false, meAvatarData, mePlayerId }: MatchScoreProps) {
     const formatPlayerName = (p: any) => {
         if (!p) return "-";
         return `${p.first_name?.[0]}. ${p.last_name}`;
@@ -23,6 +25,36 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
 
     const renderPlayer = (p: any) => {
         if (!p) return <span>-</span>;
+
+        // 1. Si ya viene resuelto del servidor (en MatchDetail por ejemplo)
+        if (p.avatarData) {
+            return (
+                <div className="flex items-center gap-2">
+                    <UserAvatar
+                        src={p.avatarData.src}
+                        initials={p.avatarData.initials}
+                        size="xs"
+                    />
+                    <span className="truncate">{formatPlayerName(p)}</span>
+                </div>
+            );
+        }
+
+        // 2. Si es el usuario actual en un listado (usamos el avatar ya resuelto que viene por prop)
+        if (mePlayerId && p.id === mePlayerId && meAvatarData) {
+            return (
+                <div className="flex items-center gap-2">
+                    <UserAvatar
+                        src={meAvatarData.src}
+                        initials={meAvatarData.initials}
+                        size="xs"
+                    />
+                    <span className="truncate">{formatPlayerName(p)}</span>
+                </div>
+            );
+        }
+
+        // 3. Fallback para otros jugadores en listados
         const initials = `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`;
         return (
             <div className="flex items-center gap-2">

@@ -33,10 +33,12 @@ export async function updatePlayerProfileAction(formData: FormData) {
             avatar_url
         });
 
+        revalidatePath("/player");
         revalidatePath("/player/profile");
         revalidatePath("/player/players");
         revalidatePath(`/player/players/${playerId}`);
         revalidatePath("/player/matches/new");
+        revalidatePath("/");
 
         return { data: playerId };
     } catch (error: any) {

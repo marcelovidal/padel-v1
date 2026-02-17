@@ -25,7 +25,7 @@ export async function completeOnboardingAction(prevState: any, formData: FormDat
         city: formData.get("city") as string,
         city_id: formData.get("city_id") as string,
         birth_year: formData.get("birth_year") ? Number(formData.get("birth_year")) : undefined,
-        avatar_url: formData.get("avatar_url") as string,
+        avatar_url: (formData.get("avatar_url") as string) || null,
     };
 
     try {
