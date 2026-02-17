@@ -198,6 +198,7 @@ export class PlayerRepository {
     region_code?: string;
     region_name?: string;
     country_code?: string;
+    avatar_url?: string;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_update_profile", {
@@ -208,7 +209,8 @@ export class PlayerRepository {
       p_city_id: input.city_id,
       p_region_code: input.region_code,
       p_region_name: input.region_name,
-      p_country_code: input.country_code || 'AR'
+      p_country_code: input.country_code || 'AR',
+      p_avatar_url: input.avatar_url
     });
 
     if (error) throw error;
@@ -227,5 +229,41 @@ export class PlayerRepository {
     const { data, error } = await (supabase as any).rpc('player_get_competitive_stats');
     if (error) throw error;
     return data?.[0] || null;
+  }
+
+  async completeOnboarding(input: {
+    display_name: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    position: "drive" | "reves" | "cualquiera";
+    category: number;
+    country_code?: string;
+    region_code?: string;
+    region_name?: string;
+    city?: string;
+    city_id?: string;
+    birth_year?: number;
+    avatar_url?: string;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_complete_onboarding", {
+      p_display_name: input.display_name,
+      p_first_name: input.first_name,
+      p_last_name: input.last_name,
+      p_phone: input.phone,
+      p_position: input.position,
+      p_category: input.category,
+      p_country_code: input.country_code || 'AR',
+      p_region_code: input.region_code,
+      p_region_name: input.region_name,
+      p_city: input.city,
+      p_city_id: input.city_id,
+      p_birth_year: input.birth_year,
+      p_avatar_url: input.avatar_url
+    });
+
+    if (error) throw error;
+    return data;
   }
 }

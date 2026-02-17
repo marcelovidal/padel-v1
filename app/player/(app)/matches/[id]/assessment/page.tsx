@@ -13,7 +13,8 @@ export default async function MatchAssessmentPage({
 }: {
     params: { id: string };
 }) {
-    const { playerId } = await requirePlayer();
+    const { player: mePlayer } = await requirePlayer();
+    const playerId = mePlayer.id;
     const matchSvc = new MatchService();
     const assessmentSvc = new AssessmentService();
 

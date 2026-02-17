@@ -9,7 +9,8 @@ export default async function PlayersPage({
 }: {
     searchParams: { q?: string };
 }) {
-    const { playerId: meId } = await requirePlayer();
+    const { player } = await requirePlayer();
+    const meId = player.id;
     const playerService = new PlayerService();
     const query = searchParams.q || "";
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { TeamType } from "@/types/database";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface MatchScoreProps {
     variant?: "scheduled" | "result";
@@ -20,9 +21,30 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
         return `${p.first_name?.[0]}. ${p.last_name}`;
     };
 
-    const getTeamLabel = (teamPlayers: any[]) => {
-        if (teamPlayers.length === 0) return "-";
-        return teamPlayers.map(p => formatPlayerName(p)).join(" - ");
+    const renderPlayer = (p: any) => {
+        if (!p) return <span>-</span>;
+        const initials = `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`;
+        return (
+            <div className="flex items-center gap-2">
+                <UserAvatar
+                    src={p.avatar_url?.startsWith('http') ? p.avatar_url : null}
+                    initials={initials}
+                    size="xs"
+                />
+                <span className="truncate">{formatPlayerName(p)}</span>
+            </div>
+        );
+    };
+
+    const getTeamList = (teamPlayers: any[]) => {
+        if (teamPlayers.length === 0) return <span>-</span>;
+        return (
+            <div className="flex flex-col gap-1">
+                {teamPlayers.map((p, idx) => (
+                    <div key={idx}>{renderPlayer(p)}</div>
+                ))}
+            </div>
+        );
     };
 
     const isScheduled = variant === "scheduled";
@@ -36,12 +58,12 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-1">Equipo A</span>
-                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamLabel(playersByTeam.A) : "Pendiente"}</span>
+                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.A) : "Pendiente"}</span>
                         </div>
                         <span className="text-xs font-black text-gray-200 uppercase">VS</span>
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] text-red-600 uppercase font-black tracking-widest mb-1">Equipo B</span>
-                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamLabel(playersByTeam.B) : "Pendiente"}</span>
+                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.B) : "Pendiente"}</span>
                         </div>
                     </div>
                 </div>
@@ -57,11 +79,11 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     <div className="flex justify-between items-center opacity-50 grayscale-[0.5]">
                         <div className="flex flex-col">
                             <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-1 text-left">Equipo A</span>
-                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamLabel(playersByTeam.A) : "Pendiente"}</span>
+                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.A) : "Pendiente"}</span>
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] text-red-600 uppercase font-black tracking-widest mb-1 text-right">Equipo B</span>
-                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamLabel(playersByTeam.B) : "Pendiente"}</span>
+                            <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.B) : "Pendiente"}</span>
                         </div>
                     </div>
                 </div>
@@ -92,7 +114,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-0.5">Equipo A</span>
                                 {showPlayers && playersByTeam ? (
-                                    <span className="truncate">{getTeamLabel(playersByTeam.A)}</span>
+                                    <span className="block">{getTeamList(playersByTeam.A)}</span>
                                 ) : (
                                     <span className="truncate">Local</span>
                                 )}
@@ -115,7 +137,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-red-600 uppercase font-black tracking-widest mb-0.5">Equipo B</span>
                                 {showPlayers && playersByTeam ? (
-                                    <span className="truncate">{getTeamLabel(playersByTeam.B)}</span>
+                                    <span className="block">{getTeamList(playersByTeam.B)}</span>
                                 ) : (
                                     <span className="truncate">Visitante</span>
                                 )}

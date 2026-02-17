@@ -22,31 +22,48 @@ export async function middleware(req: NextRequest) {
   );
 
   // Refresh session if needed
-  const { data } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const pathname = req.nextUrl.pathname;
 
-  // Protect /player routes
-  if (pathname.startsWith("/player")) {
-    const isLogin = pathname === "/player/login";
-    const user = data?.user ?? null;
+  // Si el usuario está autenticado, verificar su estado de onboarding
+  if (user) {
+    // Solo consultar DB si estamos en rutas que nos interesan
+    if (pathname.startsWith("/player") || pathname === "/welcome/onboarding") {
+      const { data: player } = await supabase
+        .from("players")
+        .select("id, onboarding_completed, user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-    if (!user && !isLogin) {
-      // If there is an sb-* cookie present but Supabase returned no user,
-      // avoid redirecting immediately so the client can try to complete the
-      // auth handshake.
+      const onboardingCompleted = !!player?.onboarding_completed;
+
+      // 1. Bloquear /welcome/onboarding si ya está completo
+      if (pathname === "/welcome/onboarding" && onboardingCompleted) {
+        return NextResponse.redirect(new URL("/player/profile", req.url));
+      }
+
+      // 2. Forzar /welcome/onboarding si falta completarlo (excepto login o el mismo onboarding)
+      if (pathname.startsWith("/player") && pathname !== "/player/login" && !onboardingCompleted) {
+        return NextResponse.redirect(new URL("/welcome/onboarding", req.url));
+      }
+    }
+  }
+
+  // Protect /player routes (Anonymous check - existing logic)
+  if (pathname.startsWith("/player") && !user) {
+    if (pathname !== "/player/login") {
       const cookieHeader = req.headers.get("cookie") ?? "";
       const hasSbCookie = /\bsb-[^=]+=/.test(cookieHeader);
 
       if (!hasSbCookie) {
-        // redirect to login when no cookie present
-        const url = new URL("/player/login", req.url);
-        return NextResponse.redirect(url);
+        return NextResponse.redirect(new URL("/player/login", req.url));
       }
     }
   }
+
   return res;
 }
 export const config = {
-  matcher: ["/admin/:path*", "/login", "/player/:path*", "/player"],
+  matcher: ["/admin/:path*", "/login", "/player/:path*", "/player", "/welcome/:path*"],
 };

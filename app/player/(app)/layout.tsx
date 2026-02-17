@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { requirePlayer } from "@/lib/auth";
 import { LogOut } from "lucide-react";
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export default async function PlayerLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const { user } = await requirePlayer();
+    const { user, player } = await requirePlayer();
+    const avatarData = await resolveAvatarSrc({ player, user });
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -33,9 +36,21 @@ export default async function PlayerLayout({
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-gray-500 hidden sm:inline-block">
-                            {user.email}
-                        </span>
+                        <div className="flex items-center gap-2 mr-2">
+                            <UserAvatar
+                                src={avatarData.src}
+                                initials={avatarData.initials}
+                                size="sm"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-gray-900 leading-none">
+                                    {player.display_name}
+                                </span>
+                                <span className="text-[10px] text-gray-500 hidden sm:inline-block leading-none mt-1">
+                                    {user.email}
+                                </span>
+                            </div>
+                        </div>
                         <form action="/auth/signout" method="post">
                             <button className="text-gray-400 hover:text-red-500 transition-colors">
                                 <LogOut className="w-5 h-5" />

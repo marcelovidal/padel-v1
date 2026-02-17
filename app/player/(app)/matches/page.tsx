@@ -11,14 +11,10 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function PlayerMatchesPage() {
-  const { user, playerId } = await requirePlayer();
-  const playerAuthSvc = new PlayerAuthService();
+  const { user, player: mePlayer } = await requirePlayer();
   const matchSvc = new MatchService();
 
-  const [player, matches] = await Promise.all([
-    playerAuthSvc.getPlayerByUserId(user.id),
-    matchSvc.getPlayerMatches(playerId),
-  ]);
+  const matches = await matchSvc.getPlayerMatches(mePlayer.id);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -34,7 +30,7 @@ export default async function PlayerMatchesPage() {
         </div>
 
         <div className="text-sm text-gray-500 mb-6">
-          Hola, {player?.first_name}
+          Hola, {mePlayer?.first_name}
         </div>
       </div>
 

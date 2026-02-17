@@ -5,10 +5,10 @@ import { AssessmentRepository } from "@/repositories/assessment.repository";
 
 export async function getPlayerMatchAssessmentAction(matchId: string) {
     try {
-        const { playerId } = await requirePlayer();
+        const { player } = await requirePlayer();
         const repository = new AssessmentRepository();
 
-        const assessment = await repository.findByMatchAndPlayer(matchId, playerId);
+        const assessment = await repository.findByMatchAndPlayer(matchId, player.id);
 
         if (!assessment) {
             return { success: true, data: null };

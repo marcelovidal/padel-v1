@@ -9,20 +9,22 @@ import { Badge } from "@/components/ui/Badge";
 import { GeoSelect } from "@/components/geo/GeoSelect";
 import { useDebounce } from "@/hooks/useDebounce";
 import { updatePlayerProfileAction } from "@/lib/actions/player-profile.actions";
+import AvatarUploader from "@/components/player/AvatarUploader";
 
 interface Player {
     id: string;
     display_name: string;
     position: "drive" | "reves" | "cualquiera";
-    city?: string;
-    city_id?: string;
-    region_code?: string;
-    region_name?: string;
-    country_code?: string;
+    city?: string | null;
+    city_id?: string | null;
+    region_code?: string | null;
+    region_name?: string | null;
+    country_code?: string | null;
     is_guest: boolean;
+    avatar_url?: string | null;
 }
 
-export function EditPlayerForm({ player }: { player: any }) {
+export function EditPlayerForm({ player, currentAvatarUrl }: { player: Player, currentAvatarUrl?: string }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,7 @@ export function EditPlayerForm({ player }: { player: any }) {
     // Form state
     const [displayName, setDisplayName] = useState(player.display_name || "");
     const [position, setPosition] = useState<"drive" | "reves" | "cualquiera">(player.position || "cualquiera");
+    const [avatarUrl, setAvatarUrl] = useState(player.avatar_url || "");
 
     // Geo state
     const [provincias, setProvincias] = useState<any[]>([]);
@@ -72,7 +75,8 @@ export function EditPlayerForm({ player }: { player: any }) {
                             const found = data.find((l: any) => l.id === player.city_id);
                             if (found) setSelectedLoc(found);
                         } else if (player.city) {
-                            const found = data.find((l: any) => l.nombre.toLowerCase() === player.city.toLowerCase());
+                            const playerCity = player.city;
+                            const found = data.find((l: any) => l.nombre.toLowerCase() === playerCity.toLowerCase());
                             if (found) setSelectedLoc(found);
                         }
                     }
@@ -94,6 +98,7 @@ export function EditPlayerForm({ player }: { player: any }) {
         formData.append("player_id", player.id);
         formData.append("display_name", displayName);
         formData.append("position", position);
+        formData.append("avatar_url", avatarUrl);
         if (selectedLoc) {
             formData.append("city", selectedLoc.nombre);
             formData.append("city_id", selectedLoc.id);
@@ -120,6 +125,13 @@ export function EditPlayerForm({ player }: { player: any }) {
                     {error}
                 </div>
             )}
+
+            <div className="flex justify-center mb-8">
+                <AvatarUploader
+                    currentAvatarUrl={currentAvatarUrl}
+                    onUploadComplete={(path: string) => setAvatarUrl(path)}
+                />
+            </div>
 
             <div className="space-y-4">
                 <div className="space-y-2">

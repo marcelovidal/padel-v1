@@ -228,6 +228,7 @@ export class PlayerService {
     region_code?: string;
     region_name?: string;
     country_code?: string;
+    avatar_url?: string;
   }) {
     return this.repository.updatePlayerProfile(input);
   }
@@ -242,5 +243,33 @@ export class PlayerService {
 
   async getPlayerByUserId(userId: string) {
     return this.repository.findByUserId(userId);
+  }
+
+  async completeOnboarding(input: any) {
+    return this.repository.completeOnboarding(input);
+  }
+
+  async uploadAvatar(file: File, userId: string) {
+    const supabase = await createClient();
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError, data } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+    return data.path;
+  }
+
+  async getAvatarUrl(path: string) {
+    if (!path) return null;
+    const supabase = await createClient();
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .createSignedUrl(path, 3600);
+
+    if (error) return null;
+    return data.signedUrl;
   }
 }

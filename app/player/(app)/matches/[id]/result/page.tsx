@@ -9,7 +9,8 @@ export default async function MatchResultEntryPage({
 }: {
     params: { id: string };
 }) {
-    const { playerId } = await requirePlayer();
+    const { player: mePlayer } = await requirePlayer();
+    const playerId = mePlayer.id;
     const matchSvc = new MatchService();
 
     const match = await matchSvc.getMatchById(params.id);

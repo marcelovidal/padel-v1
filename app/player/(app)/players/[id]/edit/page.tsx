@@ -2,6 +2,7 @@ import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { notFound, redirect } from "next/navigation";
 import { EditPlayerForm } from "@/components/players/EditPlayerForm";
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 
 export default async function EditPlayerPage({
     params
@@ -15,6 +16,8 @@ export default async function EditPlayerPage({
     if (!player) {
         notFound();
     }
+
+    const avatarData = await resolveAvatarSrc({ player, user });
 
     // Security check (Duplicate of client-side/RPC logic for better UX)
     const isOwnProfile = player.user_id === user.id;
@@ -35,7 +38,7 @@ export default async function EditPlayerPage({
             </div>
 
             <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-gray-100">
-                <EditPlayerForm player={player} />
+                <EditPlayerForm player={player} currentAvatarUrl={avatarData.src || undefined} />
             </div>
         </div>
     );

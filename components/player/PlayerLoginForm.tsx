@@ -11,29 +11,55 @@ interface PlayerLoginFormProps {
 export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLoginFormProps) {
     const supabase = createBrowserSupabase();
     const router = useRouter();
+    const [mode, setMode] = useState<"login" | "signup">("login");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    async function handleLogin(e: React.FormEvent) {
+    async function handleAuth(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSuccessMessage(null);
 
-        const result = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        if (mode === "login") {
+            const result = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-        if (result.error) {
-            setError(result.error.message);
-            setLoading(false);
-            return;
+            if (result.error) {
+                setError(result.error.message);
+                setLoading(false);
+                return;
+            }
+            router.replace("/player");
+        } else {
+            const result = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+
+            if (result.error) {
+                setError(result.error.message);
+                setLoading(false);
+                return;
+            }
+
+            if (result.data.session) {
+                // Auto-logged in (rare if confirm email is on, but possible)
+                router.replace("/player");
+            } else {
+                setSuccessMessage("¡Cuenta creada! Por favor, revisá tu email para confirmar tu cuenta.");
+                setLoading(false);
+            }
         }
 
-        // Redirect to /player which is the portal entry (requirePlayer will handle deeper routing)
-        router.replace("/player");
         router.refresh();
     }
 
@@ -60,7 +86,7 @@ export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLogin
                 </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleAuth} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
@@ -90,14 +116,34 @@ export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLogin
                     </div>
                 )}
 
+                {successMessage && (
+                    <div className="bg-green-50 border border-green-100 text-green-600 text-sm p-3 rounded-lg">
+                        {successMessage}
+                    </div>
+                )}
+
                 <button
                     type="submit"
                     disabled={loading}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {loading ? "Ingresando..." : "Ingresar"}
+                    {loading ? (mode === "login" ? "Ingresando..." : "Creando cuenta...") : (mode === "login" ? "Ingresar" : "Crear Cuenta")}
                 </button>
             </form>
+
+            <div className="text-center pt-2">
+                <button
+                    type="button"
+                    onClick={() => {
+                        setMode(mode === "login" ? "signup" : "login");
+                        setError(null);
+                        setSuccessMessage(null);
+                    }}
+                    className="text-sm border-b border-blue-600 font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                    {mode === "login" ? "¿No tenés cuenta? Registrate" : "¿Ya tenés cuenta? Ingresá"}
+                </button>
+            </div>
         </div>
     );
 }

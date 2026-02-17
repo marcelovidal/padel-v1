@@ -9,18 +9,22 @@ import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import Link from "next/link";
 import { ArrowRight, Activity, Trophy, Target, Users, Zap } from "lucide-react";
 
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+
 export const dynamic = "force-dynamic";
 
 export default async function PlayerDashboard() {
-  const { user, playerId } = await requirePlayer();
+  const { user, player } = await requirePlayer();
+  const playerId = player.id;
+  const avatarData = await resolveAvatarSrc({ player, user });
 
   const playerService = new PlayerService();
   const matchService = new MatchService();
   const assessmentService = new AssessmentService();
 
   // Fetch all data in parallel
-  const [player, metrics, recentMatches, pendingAssessments, compStats] = await Promise.all([
-    playerService.getPlayerByUserId(user.id),
+  const [metrics, recentMatches, pendingAssessments, compStats] = await Promise.all([
     playerService.getProfileMetrics(playerId),
     matchService.getPlayerMatches(playerId, { limit: 5 }),
     assessmentService.getPendingAssessments(playerId),
@@ -33,11 +37,19 @@ export default async function PlayerDashboard() {
     <div className="container mx-auto p-4 max-w-5xl space-y-8 pb-20">
       {/* Header with Hero Style */}
       <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
-            Hola, {player?.first_name || 'Jugador'}
-          </h1>
-          <p className="text-gray-500 font-bold">Bienvenido a tu panel de control</p>
+        <div className="flex items-center gap-6">
+          <UserAvatar
+            src={avatarData.src}
+            initials={avatarData.initials}
+            size="lg"
+            className="shadow-xl shadow-blue-100 border-2 border-white ring-1 ring-gray-100"
+          />
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
+              Hola, {player?.first_name || 'Jugador'}
+            </h1>
+            <p className="text-gray-500 font-bold">Bienvenido a tu panel de control</p>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-blue-50 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-600 border border-blue-100">

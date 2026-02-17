@@ -26,7 +26,7 @@ export default function NewPlayerPage() {
     defaultValues: {
       position: "cualquiera",
       status: "active",
-      category: "5",
+      category: 5,
     },
   });
 
@@ -198,7 +198,7 @@ export default function NewPlayerPage() {
                 <Label htmlFor="category">Categoría</Label>
                 <select
                   id="category"
-                  {...register("category")}
+                  {...register("category", { valueAsNumber: true })}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isLoading}
                 >

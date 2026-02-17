@@ -45,8 +45,8 @@ export interface Database {
           last_name: string;
           email: string | null;
           user_id: string | null;
-          phone: string; // NOT NULL en el schema corregido
-          category: string | null;
+          phone: string;
+          category: number | null;
           position: PlayerPosition;
           status: PlayerStatus;
           display_name: string;
@@ -59,6 +59,11 @@ export interface Database {
           city_normalized: string | null;
           city_id: string | null;
           region_name: string | null;
+          birth_year: number | null;
+          avatar_url: string | null;
+          onboarding_completed: boolean;
+          onboarding_completed_at: string | null;
+          onboarding_version: number;
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
@@ -69,8 +74,8 @@ export interface Database {
           last_name: string;
           email?: string | null;
           user_id?: string | null;
-          phone: string; // NOT NULL
-          category?: string | null;
+          phone: string;
+          category?: number | null;
           position?: PlayerPosition;
           status?: PlayerStatus;
           display_name: string;
@@ -83,6 +88,11 @@ export interface Database {
           city_normalized?: string | null;
           city_id?: string | null;
           region_name?: string | null;
+          birth_year?: number | null;
+          avatar_url?: string | null;
+          onboarding_completed?: boolean;
+          onboarding_completed_at?: string | null;
+          onboarding_version?: number;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
@@ -94,7 +104,7 @@ export interface Database {
           email?: string | null;
           user_id?: string | null;
           phone?: string;
-          category?: string | null;
+          category?: number | null;
           position?: PlayerPosition;
           status?: PlayerStatus;
           display_name?: string;
@@ -107,6 +117,11 @@ export interface Database {
           city_normalized?: string | null;
           city_id?: string | null;
           region_name?: string | null;
+          birth_year?: number | null;
+          avatar_url?: string | null;
+          onboarding_completed?: boolean;
+          onboarding_completed_at?: string | null;
+          onboarding_version?: number;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;

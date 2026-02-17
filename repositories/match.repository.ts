@@ -12,7 +12,7 @@ type MatchResultInsert = Database["public"]["Tables"]["match_results"]["Insert"]
 type MatchResultUpdate = Database["public"]["Tables"]["match_results"]["Update"];
 
 export interface MatchWithPlayers extends Match {
-  match_players: Array<MatchPlayer & { players: { first_name: string; last_name: string } | null }>;
+  match_players: Array<MatchPlayer & { players: { first_name: string; last_name: string; avatar_url: string | null } | null }>;
   match_results: MatchResult | null;
 }
 
@@ -42,7 +42,8 @@ export class MatchRepository {
           *,
           players (
             first_name,
-            last_name
+            last_name,
+            avatar_url
           )
         ),
         match_results (*)
@@ -219,7 +220,7 @@ export class MatchRepository {
     // (The previous query only got the specific player's entry due to !inner)
     const { data: allMatchPlayers, error: mpAllError } = await supabase
       .from("match_players")
-      .select(`match_id, team, player_id, players ( id, first_name, last_name )`)
+      .select(`match_id, team, player_id, players ( id, first_name, last_name, avatar_url )`)
       .in("match_id", matchIds);
 
     if (mpAllError) throw mpAllError;
@@ -232,7 +233,7 @@ export class MatchRepository {
       const mid = p.match_id;
       if (!playersByMatch.has(mid)) playersByMatch.set(mid, { A: [], B: [] });
       const bucket = playersByMatch.get(mid)!;
-      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name } : null;
+      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name, avatar_url: p.players.avatar_url } : null;
       if (p.team === "A") bucket.A.push(playerInfo);
       else bucket.B.push(playerInfo);
     }
@@ -318,7 +319,7 @@ export class MatchRepository {
     // Fetch match_players with player basic info
     const { data: allMatchPlayers, error: mpAllError } = await supabase
       .from("match_players")
-      .select(`match_id, team, players ( id, first_name, last_name )`)
+      .select(`match_id, team, players ( id, first_name, last_name, avatar_url )`)
       .in("match_id", matchIds);
     if (mpAllError) throw mpAllError;
     const playersArr = (allMatchPlayers || []) as any[];
@@ -328,7 +329,7 @@ export class MatchRepository {
       const mid = p.match_id;
       if (!playersByMatch.has(mid)) playersByMatch.set(mid, { A: [], B: [] });
       const bucket = playersByMatch.get(mid)!;
-      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name } : null;
+      const playerInfo = p.players ? { id: p.players.id, first_name: p.players.first_name, last_name: p.players.last_name, avatar_url: p.players.avatar_url } : null;
       if (p.team === "A") bucket.A.push(playerInfo);
       else bucket.B.push(playerInfo);
     }

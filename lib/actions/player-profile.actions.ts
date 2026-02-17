@@ -14,6 +14,7 @@ export async function updatePlayerProfileAction(formData: FormData) {
     const region_code = formData.get("region_code") as string || undefined;
     const region_name = formData.get("region_name") as string || undefined;
     const country_code = formData.get("country_code") as string || 'AR';
+    const avatar_url = formData.get("avatar_url") as string || undefined;
 
     if (!playerId || !displayName) {
         return { error: "ID y Nombre son obligatorios" };
@@ -28,7 +29,8 @@ export async function updatePlayerProfileAction(formData: FormData) {
             city_id,
             region_code,
             region_name,
-            country_code
+            country_code,
+            avatar_url
         });
 
         revalidatePath("/player/profile");

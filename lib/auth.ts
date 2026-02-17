@@ -39,18 +39,18 @@ export async function requirePlayer() {
     redirect("/player/login");
   }
 
-  const { data: player, error: playerError } = await supabase
+  const { data: player, error: playerError } = await (supabase
     .from("players")
-    .select("id")
+    .select("id, onboarding_completed, display_name, avatar_url, first_name, last_name")
     .eq("user_id", user.id)
-    .maybeSingle();
+    .maybeSingle() as any);
 
-  if (playerError || !player) {
-    // If there's no linked player yet, redirect to the player login flow
-    redirect("/player/login");
+  // Si no hay player o no completó el onboarding, redirigir al flujo de bienvenida
+  if (playerError || !player || !player.onboarding_completed) {
+    redirect("/welcome/onboarding");
   }
 
-  return { user, playerId: (player as any).id };
+  return { user, player };
 }
 
 export async function getOptionalPlayer() {

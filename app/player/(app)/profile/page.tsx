@@ -8,27 +8,16 @@ import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import { MapPin, Trophy, Target, Activity, Users, Zap } from "lucide-react";
 
+import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+
 export default async function PlayerProfilePage() {
-    const { user, playerId } = await requirePlayer();
+    const { user, player } = await requirePlayer();
+    const playerId = player.id;
+    const avatarData = await resolveAvatarSrc({ player, user });
 
     const playerService = new PlayerService();
     const assessmentService = new AssessmentService();
-
-    // Fetch player info if needed for display name, etc.
-    const playerFull = await playerService.getPlayerByUserId(user.id);
-
-    if (!playerFull) {
-        return (
-            <div className="container mx-auto p-4 max-w-2xl">
-                <h1 className="text-2xl font-bold mb-4">Mi Perfil</h1>
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-xl">
-                    <p className="text-yellow-700">
-                        No se encontró un perfil de jugador asociado a tu cuenta.
-                    </p>
-                </div>
-            </div>
-        );
-    }
 
     const [metrics, pendingAssessments, compStats] = await Promise.all([
         playerService.getProfileMetrics(playerId),
@@ -41,17 +30,25 @@ export default async function PlayerProfilePage() {
     return (
         <div className="container mx-auto p-4 max-w-2xl pb-20">
             {/* HERO SECTION */}
-            <div className="flex justify-between items-start mb-8 bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
-                        {playerFull.display_name}
-                    </h1>
-                    <div className="flex items-center gap-1.5 text-gray-500 font-bold text-sm">
-                        <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                        <span>{playerFull.city || "Ubicación no definida"}, {playerFull.region_name || "AR"}</span>
+            <div className="flex justify-between items-center mb-8 bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-6">
+                    <UserAvatar
+                        src={avatarData.src}
+                        initials={avatarData.initials}
+                        size="lg"
+                        className="shadow-xl shadow-blue-50 border-4 border-white ring-1 ring-gray-100"
+                    />
+                    <div className="space-y-1">
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase leading-none">
+                            {player.display_name}
+                        </h1>
+                        <div className="flex items-center gap-1.5 text-gray-500 font-bold text-sm">
+                            <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                            <span>{player.city || "Ubicación no definida"}, {player.region_name || "AR"}</span>
+                        </div>
                     </div>
                 </div>
-                <Link href={`/player/players/${playerFull.id}/edit`}>
+                <Link href={`/player/players/${player.id}/edit`}>
                     <Button variant="outline" className="rounded-full border-gray-200 font-black text-[10px] uppercase tracking-widest px-6 h-10 hover:bg-gray-50 transition-all active:scale-95 shadow-sm">
                         Editar
                     </Button>
@@ -198,7 +195,7 @@ export default async function PlayerProfilePage() {
                                 <PendingAssessmentCard
                                     key={match.id}
                                     match={match}
-                                    playerId={playerFull.id}
+                                    playerId={player.id}
                                 />
                             ))}
                         </div>

@@ -4,7 +4,7 @@ import { hasMatchResult } from "@/lib/match/matchUtils";
 export type Match = Database["public"]["Tables"]["matches"]["Row"];
 export type MatchResult = Database["public"]["Tables"]["match_results"]["Row"];
 
-export type PlayerMini = { id: string; first_name: string; last_name: string } | null;
+export type PlayerMini = { id: string; first_name: string; last_name: string; avatar_url?: string | null } | null;
 
 export interface MatchCardModel {
     id: string;

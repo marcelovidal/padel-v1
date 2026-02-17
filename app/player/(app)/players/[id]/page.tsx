@@ -10,7 +10,8 @@ export default async function PlayerDetailPage({
 }: {
     params: { id: string };
 }) {
-    const { user, playerId: meId } = await requirePlayer();
+    const { user, player: mePlayer } = await requirePlayer();
+    const meId = mePlayer.id;
     const playerService = new PlayerService();
     const player = await playerService.getPlayerById(params.id);
 
