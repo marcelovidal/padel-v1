@@ -1,9 +1,6 @@
-import React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import { getOptionalPlayer } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import PlayerLoginForm from "@/components/player/PlayerLoginForm";
 
 export default async function WelcomePage() {
     const { user, playerId } = await getOptionalPlayer();
@@ -13,43 +10,25 @@ export default async function WelcomePage() {
         redirect("/player");
     }
 
+    const hasSessionWithoutPlayer = !!user && !playerId;
+
     return (
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-white to-white">
             <div className="max-w-md w-full space-y-12 text-center">
-                {/* Logo / Brand */}
-                <div className="space-y-4">
-                    <h1 className="text-6xl font-black text-blue-600 tracking-tighter italic transform -skew-x-6">
+                {/* Brand Header */}
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-6 duration-700">
+                    <h1 className="text-7xl font-black text-blue-600 tracking-tighter italic transform -skew-x-6">
                         PASALA
                     </h1>
-                    <p className="text-xl text-gray-600 font-medium">
-                        La red más grande de pádel. Uní tu juego, encontrá desafíos y subí de nivel.
+                    <p className="text-xl text-gray-500 font-medium max-w-sm mx-auto leading-relaxed">
+                        Registra tu juego, analiza tus resultados y subí el nivel
                     </p>
                 </div>
 
-                {/* Auth Actions */}
-                <div className="space-y-4 pt-8">
-                    <GoogleAuthButton label="Continuar con Google" />
-
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-gray-200" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-gray-500 font-medium">o con tu cuenta</span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3">
-                        <Link href="/player/login" className="w-full">
-                            <Button variant="outline" className="w-full py-6 text-lg font-semibold rounded-2xl border-2">
-                                Ingresar con Email
-                            </Button>
-                        </Link>
-                        <Link href="/player/login" className="w-full">
-                            <Button variant="ghost" className="w-full py-4 text-gray-500 hover:text-blue-600 transition-colors">
-                                Crear cuenta nueva
-                            </Button>
-                        </Link>
+                {/* Unified Auth Form */}
+                <div className="bg-white/40 backdrop-blur-sm p-2 rounded-[40px] border border-white/50 shadow-2xl shadow-blue-900/5 animate-in fade-in zoom-in duration-1000 delay-200">
+                    <div className="bg-white p-8 md:p-10 rounded-[32px] border border-gray-100 shadow-sm">
+                        <PlayerLoginForm hasSessionWithoutPlayer={hasSessionWithoutPlayer} />
                     </div>
                 </div>
 

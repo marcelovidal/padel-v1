@@ -15,18 +15,13 @@ export default async function PlayerLoginPage() {
   const hasSessionWithoutPlayer = !!user && !playerId;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-6 lg:px-8">
+    <div className="min-h-screen bg-white md:bg-gray-50 flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Portal de Jugadores
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Ingresá para ver tus partidos y resultados
-        </p>
+        {/* Logo or App Name could go here if needed, but we let the form handle its headings */}
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow rounded-xl sm:px-10 border border-gray-100">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-10 px-6 md:shadow-xl md:shadow-blue-900/5 md:rounded-[32px] sm:px-10 md:border border-gray-100">
           <PlayerLoginForm hasSessionWithoutPlayer={hasSessionWithoutPlayer} />
         </div>
       </div>
