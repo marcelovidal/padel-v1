@@ -100,6 +100,9 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
         setSubmitting(true);
         setError(null);
 
+        const searchParams = new URLSearchParams(window.location.search);
+        const nextPath = searchParams.get("next") || "/player";
+
         const fData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
@@ -112,15 +115,15 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
             if (result.code === "ONBOARDING_ALREADY_COMPLETED") {
                 setError("Tu perfil ya se encuentra completo. Redirigiendo...");
                 setTimeout(() => {
-                    window.location.href = "/player/profile";
+                    window.location.href = nextPath;
                 }, 2000);
             } else {
                 setError(result.error);
                 setSubmitting(false);
             }
         } else if (result?.success && result.redirect) {
-            // Success! Redirect to the portal
-            window.location.href = result.redirect;
+            // Success! Redirect to the target path or default
+            window.location.href = nextPath;
         }
     }
 

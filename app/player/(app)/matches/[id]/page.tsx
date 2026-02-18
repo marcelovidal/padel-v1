@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/Badge";
 import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
-import { hasMatchResult, normalizeSets } from "@/lib/match/matchUtils";
+import { WhatsAppShareButton } from "@/components/matches/WhatsAppShareButton";
+import { hasMatchResult, normalizeSets, getEffectiveStatus, generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { getSiteUrl } from "@/lib/utils/url";
 
 export default async function MatchDetailPage({
     params,
@@ -30,16 +32,21 @@ export default async function MatchDetailPage({
         notFound();
     }
 
+    const effectiveStatus = getEffectiveStatus(match);
     const isCreator = match.created_by === user.id;
-    const isScheduled = match.status === "scheduled";
+    const isScheduled = effectiveStatus === "scheduled";
     const calculatedHasResults = hasMatchResult(match);
-    const isCompleted = match.status === "completed" || calculatedHasResults;
-    const isCancelled = match.status === "cancelled";
+    const isCompleted = effectiveStatus === "completed" || calculatedHasResults;
+    const isCancelled = effectiveStatus === "cancelled";
     const hasAssessment = !!selfAssessment;
 
+    // Generate share message if result exists
+    const siteUrl = getSiteUrl();
+    const shareMessage = calculatedHasResults ? generateMatchShareMessage(match, siteUrl) : undefined;
+
     // Group players by team for the MatchScore component
-    const teamA = match.match_players.filter((p) => p.team === "A");
-    const teamB = match.match_players.filter((p) => p.team === "B");
+    const teamA = match.match_players.filter((p: any) => p.team === "A");
+    const teamB = match.match_players.filter((p: any) => p.team === "B");
 
     const statusColors = {
         scheduled: "bg-blue-100 text-blue-800 border-blue-200",
@@ -89,11 +96,11 @@ export default async function MatchDetailPage({
                         </p>
                     </div>
                     <Badge
-                        className={`${statusColors[match.status]} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
+                        className={`${statusColors[effectiveStatus]} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
                     >
-                        {match.status === "scheduled" && "Programado"}
-                        {match.status === "completed" && "Finalizado"}
-                        {match.status === "cancelled" && "Cancelado"}
+                        {effectiveStatus === "scheduled" && "Programado"}
+                        {effectiveStatus === "completed" && "Finalizado"}
+                        {effectiveStatus === "cancelled" && "Cancelado"}
                     </Badge>
                 </div>
 
@@ -130,13 +137,13 @@ export default async function MatchDetailPage({
                         winnerTeam: match.match_results?.winner_team || null
                     } : null}
                     playersByTeam={{
-                        A: teamA.map(p => p.players),
-                        B: teamB.map(p => p.players)
+                        A: teamA.map((p: any) => p.players),
+                        B: teamB.map((p: any) => p.players)
                     }}
                     showPlayers={true}
                 />
 
-                {isCompleted && !calculatedHasResults && match.match_players.some(p => p.player_id === playerId) && (
+                {isCompleted && !calculatedHasResults && match.match_players.some((p: any) => p.player_id === playerId) && (
                     <div className="mt-8 flex flex-col items-center justify-center p-8 bg-red-50/50 rounded-3xl border border-red-100 border-dashed animate-in fade-in zoom-in duration-500">
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,6 +158,19 @@ export default async function MatchDetailPage({
                         >
                             Cargar Resultado
                         </Link>
+                    </div>
+                )}
+
+                {calculatedHasResults && shareMessage && (
+                    <div className="mt-8 p-6 bg-green-50/50 rounded-3xl border border-green-100 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="text-center">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-green-600 mb-1">¡Buen partido!</h4>
+                            <p className="text-sm text-gray-600 font-medium">Compartí el resultado con el resto del grupo.</p>
+                        </div>
+                        <WhatsAppShareButton
+                            matchId={match.id}
+                            message={shareMessage}
+                        />
                     </div>
                 )}
             </div>

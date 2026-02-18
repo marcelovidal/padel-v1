@@ -10,10 +10,13 @@ export default function GoogleAuthButton({ label = "Continuar con Google" }: { l
 
     const handleGoogleLogin = async () => {
         setLoading(true);
+        const searchParams = new URLSearchParams(window.location.search);
+        const next = searchParams.get("next") || "/player";
+
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
             },
         });
 

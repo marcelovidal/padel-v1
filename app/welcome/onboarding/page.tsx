@@ -3,12 +3,20 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import OnboardingForm from "@/components/player/OnboardingForm";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+    searchParams
+}: {
+    searchParams: { next?: string }
+}) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const nextPath = searchParams.next || "/player";
 
     if (!user) {
-        redirect("/player/login");
+        const loginUrl = searchParams.next
+            ? `/player/login?next=${encodeURIComponent(searchParams.next)}`
+            : "/player/login";
+        redirect(loginUrl);
     }
 
     // Verificar si ya existe el jugador y si completó el onboarding
@@ -19,7 +27,7 @@ export default async function OnboardingPage() {
         .maybeSingle()) as any;
 
     if (player?.onboarding_completed) {
-        redirect("/player");
+        redirect(nextPath);
     }
 
     const initialData = {

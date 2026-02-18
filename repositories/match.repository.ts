@@ -21,6 +21,14 @@ export class MatchRepository {
     return await createClient();
   }
 
+  private async getServiceClient() {
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    return createSupabaseClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+
   async findAll(): Promise<Match[]> {
     const supabase = await this.getClient();
     const { data, error } = await supabase
@@ -345,6 +353,84 @@ export class MatchRepository {
     });
 
     return items;
+  }
+
+  async recordShareEvent(matchId: string, userId: string, channel: string = 'whatsapp'): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any)
+      .from("share_events")
+      .insert({
+        match_id: matchId,
+        user_id: userId,
+        channel
+      });
+
+    if (error && error.code !== "23505") throw error; // Ignore duplicates
+  }
+
+  async getShareStats(userId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_get_share_stats", {
+      p_user_id: userId
+    });
+
+    if (error) throw error;
+    return data?.[0] || { shares_last_30d: 0, shares_total: 0, last_share_at: null, ignored_last_3: false };
+  }
+
+  async getPublicMatchData(id: string) {
+    const supabase = await this.getServiceClient();
+    const { data, error } = await supabase
+      .from("matches")
+      .select(`
+        id,
+        match_at,
+        club_name,
+        status,
+        match_players (
+          team,
+          players (
+            first_name,
+            last_name
+          )
+        ),
+        match_results (
+          sets,
+          winner_team
+        )
+      `)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+
+    if (!data) return null;
+
+    const match = data as any;
+    const rawResult = Array.isArray(match.match_results)
+      ? match.match_results[0] ?? null
+      : match.match_results ?? null;
+
+    // Apply normalization to sets
+    const normalizedResult = normalizeMatchResult(rawResult);
+
+    // Transform players to a simple roster for display
+    const roster = match.match_players.map((mp: any) => ({
+      team: mp.team,
+      name: mp.players ? `${mp.players.first_name} ${mp.players.last_name}` : "Jugador"
+    }));
+
+    return {
+      id: match.id,
+      match_at: match.match_at,
+      club_name: match.club_name,
+      status: match.status,
+      results: normalizedResult,
+      roster
+    };
   }
 }
 

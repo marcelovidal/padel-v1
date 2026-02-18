@@ -8,6 +8,8 @@ import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import Link from "next/link";
 import { ArrowRight, Activity, Trophy, Target, Users, Zap } from "lucide-react";
+import { generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { getSiteUrl } from "@/lib/utils/url";
 
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -30,6 +32,13 @@ export default async function PlayerDashboard() {
     assessmentService.getPendingAssessments(playerId),
     playerService.getCompetitiveStats(),
   ]);
+
+  // Enrich matches with share messages for completed ones
+  const siteUrl = getSiteUrl();
+  const enrichedMatches = recentMatches.map((m) => ({
+    ...m,
+    shareMessage: m.match_results ? generateMatchShareMessage(m, siteUrl) : undefined,
+  }));
 
   const hasMatches = metrics.played > 0;
 
@@ -180,7 +189,7 @@ export default async function PlayerDashboard() {
           </div>
 
           <div className="space-y-4">
-            <PlayerMatches matches={recentMatches} />
+            <PlayerMatches matches={enrichedMatches} />
           </div>
 
           {!hasMatches && (

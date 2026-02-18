@@ -6,6 +6,8 @@ import { toMatchCardModel } from "@/components/matches/matchCard.model";
 import { Suspense } from "react";
 import MatchCardSkeleton from "@/components/matches/MatchCardSkeleton";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
+import { getEffectiveStatus, generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { getSiteUrl } from "@/lib/utils/url";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,6 +17,17 @@ export default async function PlayerMatchesPage() {
   const matchSvc = new MatchService();
 
   const matches = await matchSvc.getPlayerMatches(mePlayer.id);
+  const siteUrl = getSiteUrl();
+
+  // Group matches by effective status and prepare models with share messages
+  const categorized = matches.reduce((acc, match) => {
+    const status = getEffectiveStatus(match);
+    const hasResult = !!match.match_results;
+    const shareMessage = hasResult ? generateMatchShareMessage(match, siteUrl) : undefined;
+
+    acc[status].push({ ...match, shareMessage });
+    return acc;
+  }, { scheduled: [] as any[], completed: [] as any[], cancelled: [] as any[] });
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -41,34 +54,31 @@ export default async function PlayerMatchesPage() {
       ) : (
         <div className="space-y-12">
           {/* Section: Scheduled */}
-          {matches.filter(m => m.status === 'scheduled').length > 0 && (
+          {categorized.scheduled.length > 0 && (
             <div>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Próximos Partidos</h2>
-              <PlayerMatches matches={matches
-                .filter(m => m.status === 'scheduled')
+              <PlayerMatches matches={categorized.scheduled
                 .sort((a, b) => new Date(a.match_at).getTime() - new Date(b.match_at).getTime())}
               />
             </div>
           )}
 
           {/* Section: Completed */}
-          {matches.filter(m => m.status === 'completed').length > 0 && (
+          {categorized.completed.length > 0 && (
             <div>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Finalizados</h2>
-              <PlayerMatches matches={matches
-                .filter(m => m.status === 'completed')
+              <PlayerMatches matches={categorized.completed
                 .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
               />
             </div>
           )}
 
           {/* Section: Cancelled */}
-          {matches.filter(m => m.status === 'cancelled').length > 0 && (
+          {categorized.cancelled.length > 0 && (
             <div>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Cancelados</h2>
               <div className="opacity-75">
-                <PlayerMatches matches={matches
-                  .filter(m => m.status === 'cancelled')
+                <PlayerMatches matches={categorized.cancelled
                   .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
                 />
               </div>
@@ -76,8 +86,6 @@ export default async function PlayerMatchesPage() {
           )}
         </div>
       )}
-
-
     </div>
   );
 }
