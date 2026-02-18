@@ -2,7 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Stage K2 Patch] - 2026-02-10
+## [v1.6.0-onboarding-lock-avatars] - 2026-02-17
+
+### Agregado
+- **Sistema de Onboarding**: Flujo inicial "one-shot" bloqueado por estado (`onboarding_completed`).
+- **Gestión de Avatares**: Bucket privado en Supabase Storage, signed URLs temporales, y fallback robusto (Foto Google -> Iniciales).
+- **Capa Competitiva (Stage M2)**: Métricas de "Mejor Compañero" (mín. 2 partidos) y rendimiento vs categoría superior (basado en el equipo rival).
+- **Dashboard**: Integración del contexto competitivo y radar técnico en el panel principal.
+
+### Corregido
+- Flujo de login: redirección automática al dashboard (`/player`) en lugar de listado de partidos.
+- Consistencia del avatar del jugador a través de toda la aplicación.
+
+### Nota de Base de Datos
+- Tabla `players`: Se agregaron campos `onboarding_completed` (bool), `onboarding_completed_at` (timestamptz) y `onboarding_version` (text).
+- Campo `avatar_url`: Ahora almacena el path interno del bucket. Permisos RLS configurados para bucket privado `avatars`.
+
+## [Stage M2] - 2026-02-13
+### Agregado
+- RPC `player_get_competitive_stats` para cálculo de métricas competitivas avanzadas.
+- Dashboard: Bloque de "Contexto Competitivo".
+
+## [Stage M1 / v1.5.0] - 2026-02-12
 
 ### Corregido
 - Desacople entre la tabla `players` y la RPC `player_create_guest_player`.
