@@ -149,4 +149,24 @@ export class MatchService {
       balance: wins - losses
     };
   }
+
+  async recordShareEvent(matchId: string, channel: string = 'whatsapp') {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    return this.repository.recordShareEvent(matchId, user.id, channel);
+  }
+
+  async getShareStats() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("No autenticado");
+
+    return this.repository.getShareStats(user.id);
+  }
+
+  async getPublicMatchData(id: string) {
+    return this.repository.getPublicMatchData(id);
+  }
 }

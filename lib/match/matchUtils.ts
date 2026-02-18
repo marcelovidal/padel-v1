@@ -85,3 +85,83 @@ export function hasMatchResult(match: any): boolean {
 
     return false;
 }
+/**
+ * Calculates the "effective" status of a match for UI purposes.
+ * It's a defensive fallback: if the DB still says 'scheduled' but the time
+ * has passed, we treat it as 'completed' so the user can see results or load them.
+ */
+export function getEffectiveStatus(match: any): "scheduled" | "completed" | "cancelled" {
+    if (!match) return "scheduled";
+    if (match.status === "cancelled") return "cancelled";
+    if (match.status === "completed") return "completed";
+
+    // If scheduled, check if time has passed (give 5 mins buffer)
+    const matchTime = new Date(match.match_at).getTime();
+    const now = new Date().getTime();
+    const buffer = 5 * 60 * 1000; // 5 minutes
+
+    if (now > (matchTime + buffer)) {
+        return "completed";
+    }
+
+    return "scheduled";
+}
+
+/**
+ * Formats match sets as a string (e.g., "6–4 6–4").
+ * Uses en-dash (–) for professional look or hyphen as fallback.
+ */
+export function formatMatchSets(sets?: NormalizedSet[] | null): string {
+    if (!sets || !Array.isArray(sets) || sets.length === 0) return "Sin resultado";
+
+    return sets
+        .filter(s => s.a !== null && s.b !== null)
+        .map(s => `${s.a}–${s.b}`)
+        .join(" ");
+}
+
+/** Formats a player as "F. Apellido" matching the match score UI display. */
+function formatPlayerShortName(firstName?: string | null, lastName?: string | null): string {
+    if (!firstName && !lastName) return "?";
+    if (!lastName) return firstName!;
+    return `${firstName!.charAt(0)}. ${lastName}`;
+}
+
+/**
+ * Generates the standardized 4-line WhatsApp share message.
+ * Handles two different match data shapes:
+ *  - Detail page: match.match_players[] with nested .players { first_name, last_name }
+ *  - List view:   match.playersByTeam { A: [{first_name, last_name}], B: [...] }
+ */
+export function generateMatchShareMessage(match: any, siteUrl: string): string {
+    const sets = match.match_results?.sets || match.results?.sets || [];
+    const setsFormatted = formatMatchSets(sets);
+
+    let teamANames = "";
+    let teamBNames = "";
+
+    if (match.playersByTeam) {
+        // List view shape: { A: [{first_name, last_name, ...}], B: [...] }
+        teamANames = (match.playersByTeam.A as any[])
+            .map((p: any) => formatPlayerShortName(p?.first_name, p?.last_name))
+            .join(" / ");
+        teamBNames = (match.playersByTeam.B as any[])
+            .map((p: any) => formatPlayerShortName(p?.first_name, p?.last_name))
+            .join(" / ");
+    } else if (match.match_players) {
+        // Detail page shape: [{ team: "A", players: { first_name, last_name } }]
+        const teamA = (match.match_players as any[]).filter((p: any) => p.team === "A");
+        const teamB = (match.match_players as any[]).filter((p: any) => p.team === "B");
+        teamANames = teamA.map((p: any) => formatPlayerShortName(p.players?.first_name, p.players?.last_name)).join(" / ");
+        teamBNames = teamB.map((p: any) => formatPlayerShortName(p.players?.first_name, p.players?.last_name)).join(" / ");
+    }
+
+    const publicLink = `${siteUrl}/m/${match.id}`;
+
+    return [
+        "Partido cargado en PASALA ->",
+        `${teamANames} vs ${teamBNames}`,
+        `Resultado: ${setsFormatted}`,
+        publicLink,
+    ].join("\n");
+}

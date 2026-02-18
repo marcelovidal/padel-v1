@@ -5,13 +5,22 @@ import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import { getOptionalPlayer } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default async function WelcomePage() {
+export default async function WelcomePage({
+    searchParams
+}: {
+    searchParams: { next?: string }
+}) {
     const { user, playerId } = await getOptionalPlayer();
+    const next = searchParams.next || "/player";
 
-    // Si ya tiene perfil y está logueado, al dashboard
+    // Si ya tiene perfil y está logueado, al destino o dashboard
     if (user && playerId) {
-        redirect("/player");
+        redirect(next);
     }
+
+    const loginUrl = searchParams.next
+        ? `/player/login?next=${encodeURIComponent(searchParams.next)}`
+        : "/player/login";
 
     return (
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-white to-white">
@@ -40,12 +49,12 @@ export default async function WelcomePage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-3">
-                        <Link href="/player/login" className="w-full">
+                        <Link href={loginUrl} className="w-full">
                             <Button variant="outline" className="w-full py-6 text-lg font-semibold rounded-2xl border-2">
                                 Ingresar con Email
                             </Button>
                         </Link>
-                        <Link href="/player/login" className="w-full">
+                        <Link href={loginUrl} className="w-full">
                             <Button variant="ghost" className="w-full py-4 text-gray-500 hover:text-blue-600 transition-colors">
                                 Crear cuenta nueva
                             </Button>

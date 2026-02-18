@@ -31,7 +31,7 @@ export function PlayerMatches({ matches }: PlayerMatchesProps) {
                             label: "Ver detalle",
                             href: `/player/matches/${match.id}`,
                         }}
-
+                        shareMessage={match.shareMessage}
                     />
                 );
             })}
