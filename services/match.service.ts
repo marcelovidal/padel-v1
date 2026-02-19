@@ -11,6 +11,7 @@ import { computeWinner } from "@/lib/match/computeWinner";
 import { AssessmentRepository } from "@/repositories/assessment.repository";
 
 type ShareChannel = "whatsapp" | "copylink" | "webshare";
+type ShareContext = "match" | "directory" | "profile";
 
 export class MatchService {
   private repository: MatchRepository;
@@ -152,12 +153,21 @@ export class MatchService {
     };
   }
 
-  async recordShareEvent(matchId: string, channel: ShareChannel = "whatsapp") {
+  async recordShareEvent(input: {
+    channel?: ShareChannel;
+    context?: ShareContext;
+    matchId?: string | null;
+  }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("No autenticado");
 
-    return this.repository.recordShareEvent(matchId, user.id, channel);
+    return this.repository.recordShareEvent({
+      userId: user.id,
+      channel: input.channel || "whatsapp",
+      context: input.context || "match",
+      matchId: input.matchId ?? null,
+    });
   }
 
   async getShareStats() {

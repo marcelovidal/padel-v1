@@ -20,6 +20,27 @@ export async function resolveAvatarSrc(data: {
         if (!error && signedData) {
             return { src: signedData.signedUrl };
         }
+
+        // Public/server fallback: sign with service role when no user session is available.
+        if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            try {
+                const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+                const serviceClient = createSupabaseClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY
+                );
+                const { data: serviceSigned } = await serviceClient.storage
+                    .from("avatars")
+                    .createSignedUrl(info.url, 600);
+
+                if (serviceSigned?.signedUrl) {
+                    return { src: serviceSigned.signedUrl };
+                }
+            } catch {
+                // ignore and continue fallback
+            }
+        }
+
         // If signed URL fails, fallback to initials
         return { initials: info.initials, src: null };
     }

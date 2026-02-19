@@ -15,6 +15,7 @@ Any new release tag must pass:
 - Failed builds must not be tagged.
 ## Release History
 
+- **v1.9.0-stage-p2-directory-public-profile** (Draft): Stage P2. Directorio de jugadores mejorado, perfil publico `/p/[playerId]`, invitaciones WhatsApp desde directorio/perfil y tracking con `share_events.context`.
 - **v1.7.0-claim** (Draft): Stage P1 Claim real desde link publico. Incluye RPC segura `player_claim_profile_v2`, ruta `/welcome/claim`, validaciones anti-abuso, y retorno post-login conservando parametros de claim.
 - **v1.6.0-onboarding-lock-avatars** (Current): Stage N Complete. Onboarding system (one-shot flow), robust private avatar system (Storage, Signed URLs, Fallbacks), and Stage M2 Competitive Metrics integration. Includes login redirect fix to Dashboard.
 - **v1.5.0-pasala-index**: Stage M1 Complete. Rebranded to PASALA. Stunning Player Profile with PASALA Index, radar charts, streaks, and performance metrics. Dashboard upgraded with high-impact metrics.
