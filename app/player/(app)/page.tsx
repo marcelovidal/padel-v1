@@ -7,7 +7,7 @@ import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmen
 import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import Link from "next/link";
-import { ArrowRight, Activity, Trophy, Target, Users, Zap } from "lucide-react";
+import { ArrowRight, Activity, Trophy, Target, Users, Zap, PlusCircle } from "lucide-react";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 
@@ -58,10 +58,16 @@ export default async function PlayerDashboard() {
             <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
               Hola, {player?.first_name || 'Jugador'}
             </h1>
-            <p className="text-gray-500 font-bold">Bienvenido a tu panel de control</p>
+            <p className="text-gray-500 font-bold">Bienvenido a tu resumen de juego</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/player/matches/new">
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 inline-flex items-center gap-1.5">
+              <PlusCircle className="w-4 h-4" />
+              Cargar Partido
+            </button>
+          </Link>
           <div className="bg-blue-50 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-600 border border-blue-100">
             ID: {playerId.split('-')[0]}...
           </div>
