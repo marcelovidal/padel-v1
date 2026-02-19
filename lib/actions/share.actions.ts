@@ -3,7 +3,9 @@
 import { MatchService } from "@/services/match.service";
 import { revalidatePath } from "next/cache";
 
-export async function recordShareAction(matchId: string, channel: string = 'whatsapp') {
+type ShareChannel = "whatsapp" | "copylink" | "webshare";
+
+export async function recordShareAction(matchId: string, channel: ShareChannel = "whatsapp") {
     try {
         const matchSvc = new MatchService();
         await matchSvc.recordShareEvent(matchId, channel);

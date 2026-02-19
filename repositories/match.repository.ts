@@ -16,6 +16,8 @@ export interface MatchWithPlayers extends Match {
   match_results: MatchResult | null;
 }
 
+type ShareChannel = "whatsapp" | "copylink" | "webshare";
+
 export class MatchRepository {
   private async getClient() {
     return await createClient();
@@ -355,17 +357,20 @@ export class MatchRepository {
     return items;
   }
 
-  async recordShareEvent(matchId: string, userId: string, channel: string = 'whatsapp'): Promise<void> {
+  async recordShareEvent(matchId: string, userId: string, channel: ShareChannel = "whatsapp"): Promise<void> {
     const supabase = await this.getClient();
     const { error } = await (supabase as any)
       .from("share_events")
-      .insert({
+      .upsert({
         match_id: matchId,
         user_id: userId,
-        channel
+        channel,
+      }, {
+        onConflict: "user_id,match_id,channel",
+        ignoreDuplicates: true
       });
 
-    if (error && error.code !== "23505") throw error; // Ignore duplicates
+    if (error) throw error;
   }
 
   async getShareStats(userId: string) {
@@ -390,6 +395,7 @@ export class MatchRepository {
         match_players (
           team,
           players (
+            id,
             first_name,
             last_name
           )
@@ -420,6 +426,7 @@ export class MatchRepository {
     // Transform players to a simple roster for display
     const roster = match.match_players.map((mp: any) => ({
       team: mp.team,
+      player_id: mp.players?.id || null,
       name: mp.players ? `${mp.players.first_name} ${mp.players.last_name}` : "Jugador"
     }));
 

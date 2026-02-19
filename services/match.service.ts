@@ -10,6 +10,8 @@ import { computeWinner } from "@/lib/match/computeWinner";
 
 import { AssessmentRepository } from "@/repositories/assessment.repository";
 
+type ShareChannel = "whatsapp" | "copylink" | "webshare";
+
 export class MatchService {
   private repository: MatchRepository;
   private assessmentRepository: AssessmentRepository;
@@ -150,7 +152,7 @@ export class MatchService {
     };
   }
 
-  async recordShareEvent(matchId: string, channel: string = 'whatsapp') {
+  async recordShareEvent(matchId: string, channel: ShareChannel = "whatsapp") {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("No autenticado");
