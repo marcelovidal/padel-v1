@@ -32,6 +32,7 @@ export function PlayerMatches({ matches }: PlayerMatchesProps) {
                             href: `/player/matches/${match.id}`,
                         }}
                         shareMessage={match.shareMessage}
+                        shareUrl={match.shareUrl}
                     />
                 );
             })}

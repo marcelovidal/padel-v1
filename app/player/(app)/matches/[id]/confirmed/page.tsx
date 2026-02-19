@@ -1,10 +1,10 @@
 import { requirePlayer } from "@/lib/auth";
 import { MatchService } from "@/services/match.service";
-import { notFound, redirect } from "next/navigation";
-import { Trophy, Users, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { notFound } from "next/navigation";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import { WhatsAppShareButton } from "@/components/matches/WhatsAppShareButton";
-import { generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { ShareButtons } from "@/components/matches/ShareButtons";
+import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 import { getSiteUrl } from "@/lib/utils/url";
 
 export default async function MatchConfirmedPage({
@@ -12,14 +12,10 @@ export default async function MatchConfirmedPage({
 }: {
     params: { id: string }
 }) {
-    const { player } = await requirePlayer();
+    await requirePlayer();
     const matchSvc = new MatchService();
 
-    // Fetch match data and sharing stats in parallel
-    const [match, shareStats] = await Promise.all([
-        matchSvc.getMatchById(params.id),
-        matchSvc.getShareStats()
-    ]);
+    const match = await matchSvc.getMatchById(params.id);
 
     if (!match || !match.match_results) notFound();
 
@@ -30,12 +26,11 @@ export default async function MatchConfirmedPage({
     const teamANames = teamA.map(p => p.players?.first_name).join("/");
     const teamBNames = teamB.map(p => p.players?.first_name).join("/");
 
-    // Construct the standardized message using centered helper
     const siteUrl = getSiteUrl();
-    const message = generateMatchShareMessage(match, siteUrl);
+    const message = buildShareMessage(match, siteUrl);
+    const shareUrl = buildPublicMatchUrl(match.id, siteUrl);
 
     const sets = (result.sets || []) as any[];
-    const isSubtle = shareStats.ignored_last_3;
 
     return (
         <div className="min-h-screen bg-gray-50/50 p-6 flex flex-col items-center justify-center">
@@ -84,10 +79,11 @@ export default async function MatchConfirmedPage({
                             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Compartir con los demás</h2>
                         </div>
 
-                        <WhatsAppShareButton
+                        <ShareButtons
                             matchId={match.id}
                             message={message}
-                            variant={isSubtle ? "subtle" : "default"}
+                            shareUrl={shareUrl}
+                            variant="default"
                         />
                     </div>
                 </div>

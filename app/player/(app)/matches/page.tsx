@@ -6,8 +6,9 @@ import { toMatchCardModel } from "@/components/matches/matchCard.model";
 import { Suspense } from "react";
 import MatchCardSkeleton from "@/components/matches/MatchCardSkeleton";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
-import { getEffectiveStatus, generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
+import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -23,9 +24,10 @@ export default async function PlayerMatchesPage() {
   const categorized = matches.reduce((acc, match) => {
     const status = getEffectiveStatus(match);
     const hasResult = !!match.match_results;
-    const shareMessage = hasResult ? generateMatchShareMessage(match, siteUrl) : undefined;
+    const shareMessage = hasResult ? buildShareMessage(match, siteUrl) : undefined;
+    const shareUrl = hasResult ? buildPublicMatchUrl(match.id, siteUrl) : undefined;
 
-    acc[status].push({ ...match, shareMessage });
+    acc[status].push({ ...match, shareMessage, shareUrl });
     return acc;
   }, { scheduled: [] as any[], completed: [] as any[], cancelled: [] as any[] });
 
