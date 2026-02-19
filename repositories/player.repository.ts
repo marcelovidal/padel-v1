@@ -178,6 +178,17 @@ export class PlayerRepository {
     return data;
   }
 
+  async claimProfileV2(targetPlayerId: string, matchId?: string): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_claim_profile_v2", {
+      p_target_player_id: targetPlayerId,
+      p_match_id: matchId || null,
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
   async searchPlayersWeighted(query: string, limit: number = 20): Promise<any[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_search_players", {
