@@ -5,7 +5,7 @@ import Link from "next/link";
 import { MatchCardModel } from "./matchCard.model";
 import PlayerMatchAssessmentPanel from "../player/PlayerMatchAssessmentPanel";
 import { MatchScore } from "./MatchScore";
-import { WhatsAppShareButton } from "./WhatsAppShareButton";
+import { ShareButtons } from "./ShareButtons";
 
 
 interface MatchCardProps {
@@ -17,6 +17,7 @@ interface MatchCardProps {
     disabled?: boolean;
   };
   shareMessage?: string; // Standard message for WhatsApp
+  shareUrl?: string;
 }
 
 export default function MatchCard({
@@ -24,6 +25,7 @@ export default function MatchCard({
   variant,
   primaryAction,
   shareMessage,
+  shareUrl,
 }: MatchCardProps) {
   const {
     clubName,
@@ -152,11 +154,12 @@ export default function MatchCard({
         </div>
 
         {/* Subtle Share CTA */}
-        {shareMessage && (
+        {shareMessage && shareUrl && (
           <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
-            <WhatsAppShareButton
+            <ShareButtons
               matchId={model.id}
               message={shareMessage}
+              shareUrl={shareUrl}
               variant="subtle"
             />
           </div>

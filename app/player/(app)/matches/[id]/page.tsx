@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/Badge";
 import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
-import { WhatsAppShareButton } from "@/components/matches/WhatsAppShareButton";
-import { hasMatchResult, normalizeSets, getEffectiveStatus, generateMatchShareMessage } from "@/lib/match/matchUtils";
+import { ShareButtons } from "@/components/matches/ShareButtons";
+import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
+import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 
 export default async function MatchDetailPage({
     params,
@@ -42,7 +43,8 @@ export default async function MatchDetailPage({
 
     // Generate share message if result exists
     const siteUrl = getSiteUrl();
-    const shareMessage = calculatedHasResults ? generateMatchShareMessage(match, siteUrl) : undefined;
+    const shareMessage = calculatedHasResults ? buildShareMessage(match, siteUrl) : undefined;
+    const shareUrl = calculatedHasResults ? buildPublicMatchUrl(match.id, siteUrl) : undefined;
 
     // Group players by team for the MatchScore component
     const teamA = match.match_players.filter((p: any) => p.team === "A");
@@ -167,9 +169,11 @@ export default async function MatchDetailPage({
                             <h4 className="text-xs font-black uppercase tracking-widest text-green-600 mb-1">¡Buen partido!</h4>
                             <p className="text-sm text-gray-600 font-medium">Compartí el resultado con el resto del grupo.</p>
                         </div>
-                        <WhatsAppShareButton
+                        <ShareButtons
                             matchId={match.id}
                             message={shareMessage}
+                            shareUrl={shareUrl || ""}
+                            variant="subtle"
                         />
                     </div>
                 )}
