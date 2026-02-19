@@ -3,12 +3,17 @@ import { getOptionalPlayer } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import PlayerLoginForm from "@/components/player/PlayerLoginForm";
 
-export default async function PlayerLoginPage() {
+export default async function PlayerLoginPage({
+  searchParams,
+}: {
+  searchParams: { next?: string };
+}) {
   const { user, playerId } = await getOptionalPlayer();
+  const nextPath = searchParams.next || "/player";
 
   // If there is a valid player linked to this session, redirect to portal
   if (user && playerId) {
-    redirect("/player");
+    redirect(nextPath);
   }
 
   // If no session OR session exists but no player profile, show login form
@@ -27,7 +32,7 @@ export default async function PlayerLoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow rounded-xl sm:px-10 border border-gray-100">
-          <PlayerLoginForm hasSessionWithoutPlayer={hasSessionWithoutPlayer} />
+          <PlayerLoginForm hasSessionWithoutPlayer={hasSessionWithoutPlayer} nextPath={nextPath} />
         </div>
       </div>
     </div>
