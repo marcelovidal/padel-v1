@@ -357,18 +357,33 @@ export class MatchRepository {
     return items;
   }
 
-  async recordShareEvent(matchId: string, userId: string, channel: ShareChannel = "whatsapp"): Promise<void> {
+  async recordShareEvent(input: {
+    userId: string;
+    channel?: ShareChannel;
+    context?: "match" | "directory" | "profile";
+    matchId?: string | null;
+  }): Promise<void> {
     const supabase = await this.getClient();
-    const { error } = await (supabase as any)
-      .from("share_events")
-      .upsert({
-        match_id: matchId,
-        user_id: userId,
-        channel,
-      }, {
-        onConflict: "user_id,match_id,channel",
-        ignoreDuplicates: true
-      });
+    const payload = {
+      match_id: input.matchId ?? null,
+      user_id: input.userId,
+      channel: input.channel || "whatsapp",
+      context: input.context || "match",
+    };
+
+    let error: any = null;
+    if (payload.match_id) {
+      ({ error } = await (supabase as any)
+        .from("share_events")
+        .upsert(payload, {
+          onConflict: "user_id,match_id,channel,context",
+          ignoreDuplicates: true,
+        }));
+    } else {
+      ({ error } = await (supabase as any)
+        .from("share_events")
+        .insert(payload));
+    }
 
     if (error) throw error;
   }

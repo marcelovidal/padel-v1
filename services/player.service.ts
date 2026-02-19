@@ -249,6 +249,10 @@ export class PlayerService {
     return this.repository.findByUserId(userId);
   }
 
+  async getPublicPlayerData(playerId: string) {
+    return this.repository.getPublicPlayerData(playerId);
+  }
+
   async completeOnboarding(input: any) {
     return this.repository.completeOnboarding(input);
   }

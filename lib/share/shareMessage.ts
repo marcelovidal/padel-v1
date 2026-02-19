@@ -11,6 +11,11 @@ export function buildPublicMatchUrl(matchId: string, siteUrl: string): string {
     return `${base}/m/${matchId}`;
 }
 
+export function buildPublicPlayerUrl(playerId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/p/${playerId}`;
+}
+
 export function buildShareMessage(match: any, siteUrl: string): string {
     const sets = match.match_results?.sets || match.results?.sets || [];
     const setsFormatted = formatMatchSets(sets);
@@ -47,5 +52,22 @@ export function buildShareMessage(match: any, siteUrl: string): string {
     return [
         `Partido cargado en PASALA. Resultado: ${teamANames} vs ${teamBNames} ${setsFormatted}`,
         publicLink,
+    ].join("\n");
+}
+
+export function buildPlayerInviteMessage(
+    player: { id: string; display_name?: string | null; city?: string | null; region_code?: string | null },
+    siteUrl: string
+): string {
+    const publicProfileUrl = buildPublicPlayerUrl(player.id, siteUrl);
+    const label = player.display_name || "Jugador";
+    const city = player.city || "Sin ciudad";
+    const region = player.region_code ? ` (${player.region_code})` : "";
+
+    return [
+        "Te agregué en PASALA 👇",
+        `${label} — ${city}${region}`,
+        "Mirá tu perfil acá:",
+        publicProfileUrl,
     ].join("\n");
 }

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.9.0-stage-p2-directory-public-profile] - 2026-02-19 (Draft)
+
+### Agregado
+- **Stage P2 Directorio**: `/player/players` con cards enriquecidas (avatar, ciudad/provincia, categoria, posicion).
+- **Perfil publico de jugador**: nueva ruta `/p/[playerId]` con allowlist segura.
+- **Invitaciones por WhatsApp**: boton en directorio/perfil para perfiles no reclamados.
+- **Share context**: migracion para registrar `share_events.context` con valores `match | directory | profile`.
+- **Mensajeria unificada**: `buildPublicPlayerUrl` + `buildPlayerInviteMessage`.
+
+### Seguridad / Datos publicos
+- `getPublicPlayerData` expone solo: `display_name`, `avatar`, `city/region`, `category`, `position`.
+- No se exponen `email`, `phone` ni `user_id` en `/p/[playerId]`.
+
+### Compatibilidad
+- `player_get_share_stats` mantiene foco en shares de partidos (`context='match'`) para no contaminar metricas existentes.
+
 ## [v1.7.0-claim] - 2026-02-19 (Draft)
 
 ### Agregado

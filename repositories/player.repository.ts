@@ -10,6 +10,14 @@ export class PlayerRepository {
     return await createClient();
   }
 
+  private async getServiceClient() {
+    const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+    return createSupabaseClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+
   async findAll(): Promise<Player[]> {
     const supabase = await this.getClient();
     const { data, error } = await supabase
@@ -197,7 +205,79 @@ export class PlayerRepository {
     });
 
     if (error) throw error;
-    return data || [];
+
+    const ranked = (data || []) as Array<{
+      id: string;
+      score: number;
+      display_name: string;
+      city: string | null;
+      city_id: string | null;
+      region_code: string | null;
+      region_name: string | null;
+      is_guest: boolean;
+    }>;
+
+    if (ranked.length === 0) return [];
+
+    const ids = ranked.map((r) => r.id);
+    const { data: details, error: detailsError } = await (supabase as any)
+      .from("players")
+      .select("id, display_name, city, city_id, region_code, region_name, is_guest, position, category, avatar_url, user_id")
+      .in("id", ids)
+      .is("deleted_at", null);
+
+    if (detailsError) throw detailsError;
+
+    const byId = new Map((details || []).map((p: any) => [p.id, p]));
+
+    return ranked.map((r) => {
+      const d: any = byId.get(r.id) || {};
+      return {
+        id: r.id,
+        display_name: d.display_name ?? r.display_name,
+        city: d.city ?? r.city,
+        city_id: d.city_id ?? r.city_id,
+        region_code: d.region_code ?? r.region_code,
+        region_name: d.region_name ?? r.region_name,
+        is_guest: typeof d.is_guest === "boolean" ? d.is_guest : r.is_guest,
+        position: d.position ?? null,
+        category: d.category ?? null,
+        avatar_url: d.avatar_url ?? null,
+        user_id: d.user_id ?? null,
+        score: r.score,
+      };
+    });
+  }
+
+  async getPublicPlayerData(playerId: string): Promise<any | null> {
+    const supabase = await this.getServiceClient();
+    const { data, error } = await supabase
+      .from("players")
+      .select("id, display_name, avatar_url, city, region_name, region_code, category, position, is_guest, user_id, deleted_at")
+      .eq("id", playerId)
+      .is("deleted_at", null)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+
+    const row: any = data;
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      display_name: row.display_name,
+      avatar_url: row.avatar_url,
+      city: row.city,
+      region_name: row.region_name,
+      region_code: row.region_code,
+      category: row.category,
+      position: row.position,
+      is_guest: row.is_guest,
+      is_claimable: !row.user_id,
+    };
   }
 
   async updatePlayerProfile(input: {

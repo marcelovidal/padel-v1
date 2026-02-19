@@ -265,6 +265,32 @@ export interface Database {
           created_at?: string;
         };
       };
+      share_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          match_id: string | null;
+          channel: string;
+          context: "match" | "directory" | "profile";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          match_id?: string | null;
+          channel?: string;
+          context?: "match" | "directory" | "profile";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          match_id?: string | null;
+          channel?: string;
+          context?: "match" | "directory" | "profile";
+          created_at?: string;
+        };
+      };
     };
   };
 }
