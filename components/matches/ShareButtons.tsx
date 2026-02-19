@@ -21,7 +21,6 @@ export function ShareButtons({ matchId, message, shareUrl, variant = "default" }
     const [loadingWebShare, setLoadingWebShare] = useState(false);
     const { toast } = useToast();
 
-    const canUseWebShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
     const whatsappUrl = useMemo(() => {
         const encodedMessage = encodeURIComponent(message.trim());
         return `https://wa.me/?text=${encodedMessage}`;
@@ -61,7 +60,7 @@ export function ShareButtons({ matchId, message, shareUrl, variant = "default" }
     }
 
     async function handleWebShare() {
-        if (!canUseWebShare) return;
+        if (typeof navigator === "undefined" || typeof navigator.share !== "function") return;
         setLoadingWebShare(true);
         try {
             await navigator.share({
@@ -94,16 +93,14 @@ export function ShareButtons({ matchId, message, shareUrl, variant = "default" }
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? "Copiado" : "Copiar link"}
                 </button>
-                {canUseWebShare && (
-                    <button
-                        onClick={handleWebShare}
-                        disabled={loadingWebShare}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-gray-300 disabled:opacity-60 text-gray-600 text-xs font-bold rounded-xl transition-colors"
-                    >
-                        <Share2 className="w-3.5 h-3.5" />
-                        Compartir
-                    </button>
-                )}
+                <button
+                    onClick={handleWebShare}
+                    disabled={loadingWebShare}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-gray-300 disabled:opacity-60 text-gray-600 text-xs font-bold rounded-xl transition-colors"
+                >
+                    <Share2 className="w-3.5 h-3.5" />
+                    Compartir
+                </button>
             </div>
         );
     }
@@ -126,18 +123,14 @@ export function ShareButtons({ matchId, message, shareUrl, variant = "default" }
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     {copied ? "Copiado" : "Copiar link"}
                 </button>
-                {canUseWebShare ? (
-                    <button
-                        onClick={handleWebShare}
-                        disabled={loadingWebShare}
-                        className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 disabled:opacity-60 text-xs font-bold text-gray-700 transition-colors"
-                    >
-                        <Share2 className="w-4 h-4" />
-                        Compartir
-                    </button>
-                ) : (
-                    <div className="hidden sm:block" />
-                )}
+                <button
+                    onClick={handleWebShare}
+                    disabled={loadingWebShare}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 disabled:opacity-60 text-xs font-bold text-gray-700 transition-colors"
+                >
+                    <Share2 className="w-4 h-4" />
+                    Compartir
+                </button>
             </div>
         </div>
     );

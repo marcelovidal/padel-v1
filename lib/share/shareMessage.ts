@@ -14,6 +14,7 @@ export function buildPublicMatchUrl(matchId: string, siteUrl: string): string {
 export function buildShareMessage(match: any, siteUrl: string): string {
     const sets = match.match_results?.sets || match.results?.sets || [];
     const setsFormatted = formatMatchSets(sets);
+    const winnerTeam = match.match_results?.winner_team || match.results?.winner_team || null;
 
     let teamANames = "";
     let teamBNames = "";
@@ -34,10 +35,17 @@ export function buildShareMessage(match: any, siteUrl: string): string {
 
     const publicLink = buildPublicMatchUrl(match.id, siteUrl);
 
+    if (winnerTeam === "A" || winnerTeam === "B") {
+        const winners = winnerTeam === "A" ? teamANames : teamBNames;
+        const losers = winnerTeam === "A" ? teamBNames : teamANames;
+        return [
+            `Partido cargado en PASALA. El resultado fue ganadores ${winners} a ${losers} ${setsFormatted}`,
+            publicLink,
+        ].join("\n");
+    }
+
     return [
-        "Partido cargado en PASALA 👇",
-        `${teamANames} vs ${teamBNames}`,
-        `Resultado: ${setsFormatted}`,
+        `Partido cargado en PASALA. Resultado: ${teamANames} vs ${teamBNames} ${setsFormatted}`,
         publicLink,
     ].join("\n");
 }

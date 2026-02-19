@@ -7,6 +7,12 @@ import { ShareButtons } from "@/components/matches/ShareButtons";
 import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 import { getSiteUrl } from "@/lib/utils/url";
 
+function formatPlayerShortName(firstName?: string | null, lastName?: string | null): string {
+    if (!firstName && !lastName) return "?";
+    if (!lastName) return firstName || "?";
+    return `${firstName?.charAt(0)}. ${lastName}`;
+}
+
 export default async function MatchConfirmedPage({
     params
 }: {
@@ -23,8 +29,8 @@ export default async function MatchConfirmedPage({
     const teamA = match.match_players.filter(p => p.team === "A");
     const teamB = match.match_players.filter(p => p.team === "B");
 
-    const teamANames = teamA.map(p => p.players?.first_name).join("/");
-    const teamBNames = teamB.map(p => p.players?.first_name).join("/");
+    const teamANames = teamA.map((p) => formatPlayerShortName(p.players?.first_name, p.players?.last_name)).join(" / ");
+    const teamBNames = teamB.map((p) => formatPlayerShortName(p.players?.first_name, p.players?.last_name)).join(" / ");
 
     const siteUrl = getSiteUrl();
     const message = buildShareMessage(match, siteUrl);
