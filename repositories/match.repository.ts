@@ -397,7 +397,8 @@ export class MatchRepository {
           players (
             id,
             first_name,
-            last_name
+            last_name,
+            user_id
           )
         ),
         match_results (
@@ -427,7 +428,8 @@ export class MatchRepository {
     const roster = match.match_players.map((mp: any) => ({
       team: mp.team,
       player_id: mp.players?.id || null,
-      name: mp.players ? `${mp.players.first_name} ${mp.players.last_name}` : "Jugador"
+      name: mp.players ? `${mp.players.first_name} ${mp.players.last_name}` : "Jugador",
+      has_profile: !!mp.players?.user_id
     }));
 
     return {

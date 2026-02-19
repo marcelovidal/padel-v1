@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.0-claim] - 2026-02-19 (Draft)
+
+### Agregado
+- **Stage P1 - Claim real**: nueva RPC `player_claim_profile_v2(p_target_player_id, p_match_id)` con reglas anti-abuso.
+- **Flujo público de claim**: nueva ruta `app/welcome/claim/page.tsx` para reclamar perfil desde link compartido.
+- **Server Action dedicada**: `lib/actions/claim.actions.ts` con mapeo explícito de errores (`CLAIM_NOT_ALLOWED`, `PROFILE_ALREADY_CLAIMED`, etc.).
+- **Persistencia de retorno en auth**: login Google y email ahora conservan `next` para volver al claim tras autenticarse.
+
+### Seguridad / Reglas
+- Se bloquea claim de perfiles ya reclamados o eliminados lógicamente (`deleted_at`).
+- Se bloquea claim si el usuario autenticado ya tiene perfil en `players`.
+- El claim exige validación de contexto: el target debe pertenecer al `claim_match` (o co-participación para compatibilidad futura).
+
+### UX
+- Mensajería humana en español para estados de claim exitoso/error.
+- Visualización del partido compartido y resaltado del jugador objetivo antes de confirmar.
+
 ## [v1.6.0-onboarding-lock-avatars] - 2026-02-17
 
 ### Agregado

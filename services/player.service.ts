@@ -215,6 +215,10 @@ export class PlayerService {
     return this.repository.claimProfile(playerId);
   }
 
+  async claimProfileV2(targetPlayerId: string, matchId?: string) {
+    return this.repository.claimProfileV2(targetPlayerId, matchId);
+  }
+
   async searchPlayersWeighted(query: string, limit?: number) {
     return this.repository.searchPlayersWeighted(query, limit);
   }

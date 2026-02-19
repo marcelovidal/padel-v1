@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 
 interface PlayerLoginFormProps {
     hasSessionWithoutPlayer: boolean;
+    nextPath?: string;
 }
 
-export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLoginFormProps) {
+export default function PlayerLoginForm({ hasSessionWithoutPlayer, nextPath = "/player" }: PlayerLoginFormProps) {
     const supabase = createBrowserSupabase();
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "signup">("login");
@@ -35,13 +36,13 @@ export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLogin
                 setLoading(false);
                 return;
             }
-            router.replace("/player");
+            router.replace(nextPath);
         } else {
             const result = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                    emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
                 },
             });
 
@@ -53,7 +54,7 @@ export default function PlayerLoginForm({ hasSessionWithoutPlayer }: PlayerLogin
 
             if (result.data.session) {
                 // Auto-logged in (rare if confirm email is on, but possible)
-                router.replace("/player");
+                router.replace(nextPath);
             } else {
                 setSuccessMessage("¡Cuenta creada! Por favor, revisá tu email para confirmar tu cuenta.");
                 setLoading(false);

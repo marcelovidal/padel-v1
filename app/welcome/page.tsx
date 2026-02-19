@@ -8,8 +8,16 @@ import { redirect } from "next/navigation";
 export default async function WelcomePage({
     searchParams
 }: {
-    searchParams: { next?: string }
+    searchParams: { next?: string; claim_match?: string; claim_player?: string }
 }) {
+    if (searchParams.claim_player) {
+        const claimParams = new URLSearchParams();
+        claimParams.set("claim_player", searchParams.claim_player);
+        if (searchParams.claim_match) claimParams.set("claim_match", searchParams.claim_match);
+        if (searchParams.next) claimParams.set("next", searchParams.next);
+        redirect(`/welcome/claim?${claimParams.toString()}`);
+    }
+
     const { user, playerId } = await getOptionalPlayer();
     const next = searchParams.next || "/player";
 
@@ -37,7 +45,7 @@ export default async function WelcomePage({
 
                 {/* Auth Actions */}
                 <div className="space-y-4 pt-8">
-                    <GoogleAuthButton label="Continuar con Google" />
+                    <GoogleAuthButton label="Continuar con Google" nextPath={next} />
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
