@@ -14,6 +14,14 @@ function cn(...classes: Array<string | false>) {
   return classes.filter(Boolean).join(" ");
 }
 
+function resolvePortalNextPath(portal: PortalType, nextPath?: string) {
+  if (portal === "club") {
+    if (!nextPath || nextPath === "/player") return "/club";
+    return nextPath;
+  }
+  return nextPath || "/player";
+}
+
 function mapLoginError(message: string) {
   const raw = message.toLowerCase();
   if (raw.includes("invalid login credentials")) return "Email o contrasena incorrectos.";
@@ -51,7 +59,7 @@ export default function WelcomePortalAuth({
         return;
       }
 
-      const targetPath = portal === "player" ? nextPath : "/club";
+      const targetPath = resolvePortalNextPath(portal, nextPath);
       router.replace(targetPath);
       router.refresh();
     });
@@ -151,7 +159,7 @@ export default function WelcomePortalAuth({
 
             <GoogleAuthButton
               label={portal === "player" ? "Iniciar con Google" : "Iniciar club con Google"}
-              nextPath={portal === "player" ? nextPath : "/club"}
+              nextPath={resolvePortalNextPath(portal, nextPath)}
             />
           </form>
         )}

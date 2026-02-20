@@ -26,7 +26,7 @@ export default async function WelcomePage({
 
   const portal = searchParams.portal === "club" ? "club" : "player";
   const mode = searchParams.mode === "signup" ? "signup" : "login";
-  const next = searchParams.next || "/player";
+  const next = searchParams.next || (portal === "club" ? "/club" : "/player");
 
   const { user, playerId } = await getOptionalPlayer();
 
