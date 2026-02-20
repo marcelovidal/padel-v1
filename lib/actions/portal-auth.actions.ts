@@ -94,6 +94,7 @@ export async function completeClubSignupOnboardingAction(input: {
   contact_first_name: string;
   contact_last_name: string;
   contact_phone: string;
+  avatar_url?: string | null;
 }) {
   const supabase = await createClient();
   const {
@@ -113,6 +114,16 @@ export async function completeClubSignupOnboardingAction(input: {
     const createdClub = await clubService.completeClubOnboarding({
       ...input,
       country_code: input.country_code || "AR",
+      avatar_url: input.avatar_url || undefined,
+    });
+
+    await clubService.requestClubClaim({
+      clubId: createdClub.id,
+      requester_first_name: input.contact_first_name,
+      requester_last_name: input.contact_last_name,
+      requester_phone: input.contact_phone,
+      requester_email: user.email || "unknown@pasala.local",
+      message: "Alta de club desde onboarding. Pendiente de validacion administrativa.",
     });
 
     const claimCandidates = await clubService.findClubClaimCandidates({
@@ -124,6 +135,7 @@ export async function completeClubSignupOnboardingAction(input: {
     });
 
     revalidatePath("/welcome/claim/club");
+    revalidatePath("/admin/club-claims");
 
     return {
       success: true as const,

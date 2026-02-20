@@ -42,7 +42,7 @@ export default async function ClubClaimPage({
 
   const { data: player } = await (supabase
     .from("players")
-    .select("id,onboarding_completed,phone")
+    .select("id,onboarding_completed,first_name,last_name,phone")
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .maybeSingle() as any);
@@ -111,6 +111,9 @@ export default async function ClubClaimPage({
             <ClubClaimRequestForm
               clubId={club.id}
               clubName={club.name}
+              defaultFirstName={player?.first_name || (user.user_metadata as any)?.first_name || ""}
+              defaultLastName={player?.last_name || (user.user_metadata as any)?.last_name || ""}
+              defaultEmail={user.email || ""}
               defaultPhone={player?.phone || (user.user_metadata as any)?.phone || ""}
               nextPath={nextPath}
             />

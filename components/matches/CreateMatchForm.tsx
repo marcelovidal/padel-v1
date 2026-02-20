@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { GuestPlayerModal } from "@/components/players/GuestPlayerModal";
 import { ClubSelector } from "@/components/clubs/ClubSelector";
-import { createMatchAsPlayer } from "@/lib/actions/player-match.actions";
-import { createClubAction } from "@/lib/actions/club.actions";
+import { createMatchAsPlayer, suggestClubLeadAction } from "@/lib/actions/player-match.actions";
 
 interface PlayerOption {
   id: string;
@@ -127,31 +126,22 @@ export function CreateMatchForm({
     const rawClubName = String(formData.get("club_name") || "").trim();
     const rawClubId = String(formData.get("club_id") || "").trim();
 
-    if (!rawClubName && !rawClubId) {
-      setError("Selecciona o crea un club antes de guardar el partido.");
+    if (!rawClubId && !rawClubName) {
+      setError("Selecciona un club publicado o escribe el nombre del club.");
       setIsSubmitting(false);
       return;
     }
 
     try {
       if (!rawClubId && rawClubName) {
-        const createdClub = await createClubAction({
-          name: rawClubName,
-          country_code: "AR",
+        await suggestClubLeadAction({
+          suggested_name: rawClubName,
           city: currentPlayerLocation?.city,
           city_id: currentPlayerLocation?.city_id,
           region_code: currentPlayerLocation?.region_code,
           region_name: currentPlayerLocation?.region_name,
+          country_code: "AR",
         });
-
-        if (!createdClub.success) {
-          setError(createdClub.error);
-          setIsSubmitting(false);
-          return;
-        }
-
-        formData.set("club_id", createdClub.data.id);
-        formData.set("club_name", createdClub.data.name);
       }
 
       const result = await createMatchAsPlayer(null, formData);
@@ -207,7 +197,7 @@ export function CreateMatchForm({
           </div>
         </div>
 
-        <ClubSelector currentLocation={currentPlayerLocation} required />
+        <ClubSelector currentLocation={currentPlayerLocation} required allowUnlisted />
 
         <div className="space-y-6 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
           <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 pb-3">Formacion de Equipos</h3>

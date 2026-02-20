@@ -7,12 +7,26 @@ import { requestClubClaimAction } from "@/lib/actions/club.actions";
 interface ClubClaimRequestFormProps {
   clubId: string;
   clubName: string;
+  defaultFirstName?: string | null;
+  defaultLastName?: string | null;
+  defaultEmail?: string | null;
   defaultPhone?: string | null;
   nextPath?: string;
 }
 
-export function ClubClaimRequestForm({ clubId, clubName, defaultPhone, nextPath = "/player" }: ClubClaimRequestFormProps) {
+export function ClubClaimRequestForm({
+  clubId,
+  clubName,
+  defaultFirstName,
+  defaultLastName,
+  defaultEmail,
+  defaultPhone,
+  nextPath = "/player",
+}: ClubClaimRequestFormProps) {
   const router = useRouter();
+  const [firstName, setFirstName] = useState(defaultFirstName || "");
+  const [lastName, setLastName] = useState(defaultLastName || "");
+  const [email, setEmail] = useState(defaultEmail || "");
   const [message, setMessage] = useState("");
   const [phone, setPhone] = useState(defaultPhone || "");
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +39,11 @@ export function ClubClaimRequestForm({ clubId, clubName, defaultPhone, nextPath 
     startTransition(async () => {
       const result = await requestClubClaimAction({
         clubId,
+        requesterFirstName: firstName,
+        requesterLastName: lastName,
+        requesterEmail: email,
+        requesterPhone: phone,
         message,
-        contactPhone: phone,
         next: nextPath,
       });
 
@@ -49,12 +66,47 @@ export function ClubClaimRequestForm({ clubId, clubName, defaultPhone, nextPath 
       </div>
 
       <div className="space-y-1.5">
+        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Nombre</label>
+        <input
+          value={firstName}
+          onChange={(event) => setFirstName(event.target.value)}
+          placeholder="Tu nombre"
+          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          required
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Apellido</label>
+        <input
+          value={lastName}
+          onChange={(event) => setLastName(event.target.value)}
+          placeholder="Tu apellido"
+          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          required
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-xs font-black uppercase tracking-widest text-gray-500">Email de contacto</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="tu@email.com"
+          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          required
+        />
+      </div>
+
+      <div className="space-y-1.5">
         <label className="text-xs font-black uppercase tracking-widest text-gray-500">Telefono de contacto (WhatsApp)</label>
         <input
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           placeholder="Ej: +54 9 11 ..."
           className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          required
         />
       </div>
 

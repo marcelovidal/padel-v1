@@ -23,7 +23,7 @@ const createMatchSchema = z
     if (!hasClubName && !hasClubId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Selecciona o crea un club",
+        message: "Selecciona un club o ingresa su nombre",
         path: ["club_name"],
       });
     }
@@ -99,6 +99,49 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
   revalidatePath("/player/matches");
   revalidatePath("/player");
   redirect("/player/matches");
+}
+
+export async function suggestClubLeadAction(input: {
+  suggested_name: string;
+  city?: string;
+  city_id?: string;
+  region_code?: string;
+  region_name?: string;
+  country_code?: string;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { success: false as const, error: "NOT_AUTHENTICATED" };
+
+  const suggestedName = (input.suggested_name || "").trim();
+  if (!suggestedName) return { success: false as const, error: "CLUB_NAME_REQUIRED" };
+
+  const normalizedName = suggestedName.toLowerCase().replace(/\s+/g, " ").trim();
+
+  const { error } = await (supabase as any).from("club_leads").insert({
+    suggested_name: suggestedName,
+    normalized_name: normalizedName,
+    country_code: input.country_code || "AR",
+    region_code: input.region_code || null,
+    region_name: input.region_name || null,
+    city: input.city || null,
+    city_id: input.city_id || null,
+    suggested_by: user.id,
+    source: "player_match",
+    status: "pending",
+  });
+
+  if (error) {
+    if (error.code === "23505") {
+      return { success: true as const, duplicatedPending: true };
+    }
+    return { success: false as const, error: error.message || "UNKNOWN_ERROR" };
+  }
+
+  return { success: true as const, duplicatedPending: false };
 }
 
 export async function updateMatchAsPlayer(matchId: string, formData: FormData) {

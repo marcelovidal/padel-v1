@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
 import { GeoSelect } from "@/components/geo/GeoSelect";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { completeClubSignupOnboardingAction } from "@/lib/actions/portal-auth.actions";
@@ -16,6 +15,14 @@ type ClubCandidate = {
   region_name: string | null;
   claim_status: string;
 };
+
+async function uploadClubAvatar(supabase: ReturnType<typeof createBrowserSupabase>, userId: string, file: File) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from("avatars").upload(path, file);
+  if (error) throw error;
+  return path;
+}
 
 export default function ClubSignupWizard({
   onError,
@@ -46,6 +53,8 @@ export default function ClubSignupWizard({
   const [contactFirst, setContactFirst] = useState("");
   const [contactLast, setContactLast] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -106,6 +115,16 @@ export default function ClubSignupWizard({
         return;
       }
 
+      let avatarPath: string | null = null;
+      if (avatarFile) {
+        try {
+          avatarPath = await uploadClubAvatar(supabase, signUp.data.session.user.id, avatarFile);
+        } catch (error: any) {
+          onError(`No pudimos subir el logo: ${error?.message || "error inesperado"}`);
+          return;
+        }
+      }
+
       const onboarding = await completeClubSignupOnboardingAction({
         name: name.trim(),
         country_code: "AR",
@@ -122,6 +141,7 @@ export default function ClubSignupWizard({
         contact_first_name: contactFirst.trim(),
         contact_last_name: contactLast.trim(),
         contact_phone: contactPhone.trim(),
+        avatar_url: avatarPath,
       });
 
       if (!onboarding.success) {
@@ -215,6 +235,22 @@ export default function ClubSignupWizard({
           <input className="w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Nombre contacto*" value={contactFirst} onChange={(e) => setContactFirst(e.target.value)} />
           <input className="w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Apellido contacto*" value={contactLast} onChange={(e) => setContactLast(e.target.value)} />
           <input className="w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Celular contacto*" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Logo del club (opcional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setAvatarFile(file);
+                setAvatarPreview(file ? URL.createObjectURL(file) : null);
+              }}
+            />
+            {avatarPreview && (
+              <img src={avatarPreview} alt="Preview logo club" className="h-20 w-20 rounded-xl border border-gray-200 object-cover" />
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <button type="button" onClick={() => setStep(2)} className="rounded-xl border border-gray-300 px-4 py-3 font-bold text-gray-700">
               Volver
@@ -236,31 +272,14 @@ export default function ClubSignupWizard({
 
           {result ? (
             <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 space-y-2">
-              <p className="text-sm font-bold text-green-800">Club creado correctamente.</p>
-              <Link
-                href={`/welcome/claim/club?club_id=${result.clubId}&next=${encodeURIComponent("/welcome?portal=club&mode=login")}`}
-                className="inline-block text-sm font-black text-green-900 underline"
-              >
-                Solicitar reclamo de este club
-              </Link>
-              {result.candidates.length > 0 && (
-                <ul className="space-y-1">
-                  {result.candidates.map((candidate) => (
-                    <li key={candidate.id} className="text-xs text-green-900 flex items-center justify-between gap-2">
-                      <span>
-                        {candidate.name}
-                        {candidate.city ? ` - ${candidate.city}` : ""}
-                        {candidate.region_name ? ` (${candidate.region_name})` : ""}
-                      </span>
-                      <Link
-                        href={`/welcome/claim/club?club_id=${candidate.id}&next=${encodeURIComponent("/welcome?portal=club&mode=login")}`}
-                        className="font-black underline"
-                      >
-                        Reclamar
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              {result.candidates.length > 0 ? (
+                <p className="text-sm font-bold text-green-800">
+                  Existe un posible club con el mismo nombre. Los administradores de la app se comunicaran con usted para verificar la informacion y aprobar su solicitud.
+                </p>
+              ) : (
+                <p className="text-sm font-bold text-green-800">
+                  Su solicitud de creacion de club en la aplicacion esta en proceso de validacion. Los administradores se pondran en contacto con usted para verificar la informacion y finalizar el proceso de publicacion del club. Gracias.
+                </p>
               )}
             </div>
           ) : (

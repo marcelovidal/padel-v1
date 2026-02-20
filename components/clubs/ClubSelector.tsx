@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { createClubAction, searchClubsAction } from "@/lib/actions/club.actions";
+import { useEffect, useState } from "react";
+import { searchClubsAction } from "@/lib/actions/club.actions";
 
 type ClubOption = {
   id: string;
@@ -24,6 +24,7 @@ interface ClubSelectorProps {
   };
   initialClub?: { id: string; name: string; claim_status?: ClubOption["claim_status"] } | null;
   required?: boolean;
+  allowUnlisted?: boolean;
 }
 
 function claimBadge(status: ClubOption["claim_status"]) {
@@ -36,7 +37,12 @@ function claimBadge(status: ClubOption["claim_status"]) {
   return null;
 }
 
-export function ClubSelector({ currentLocation, initialClub = null, required = true }: ClubSelectorProps) {
+export function ClubSelector({
+  currentLocation,
+  initialClub = null,
+  required = true,
+  allowUnlisted = false,
+}: ClubSelectorProps) {
   const [query, setQuery] = useState(initialClub?.name || "");
   const [selectedClub, setSelectedClub] = useState<ClubOption | null>(
     initialClub
@@ -54,21 +60,14 @@ export function ClubSelector({ currentLocation, initialClub = null, required = t
   );
   const [results, setResults] = useState<ClubOption[]>([]);
   const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const canCreate = useMemo(() => {
-    const text = query.trim();
-    if (text.length < 2) return false;
-    return !results.some((club) => club.name.toLowerCase() === text.toLowerCase());
-  }, [query, results]);
 
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       setLoading(true);
       const response = await searchClubsAction({ query, limit: 8 });
       if (response.success) {
-        setResults(response.data as ClubOption[]);
+        setResults((response.data as ClubOption[]).filter((club) => club.claim_status === "claimed"));
       } else {
         setResults([]);
       }
@@ -77,46 +76,6 @@ export function ClubSelector({ currentLocation, initialClub = null, required = t
 
     return () => clearTimeout(timeoutId);
   }, [query]);
-
-  async function handleCreateClub() {
-    const name = query.trim();
-    if (!name) return;
-
-    setCreating(true);
-    setError(null);
-
-    const result = await createClubAction({
-      name,
-      country_code: "AR",
-      city: currentLocation?.city,
-      city_id: currentLocation?.city_id,
-      region_code: currentLocation?.region_code,
-      region_name: currentLocation?.region_name,
-    });
-
-    setCreating(false);
-
-    if (!result.success) {
-      setError(result.error);
-      return;
-    }
-
-    const club = result.data;
-    const selected: ClubOption = {
-      id: club.id,
-      name: club.name,
-      city: club.city,
-      city_id: club.city_id,
-      region_code: club.region_code,
-      region_name: club.region_name,
-      country_code: club.country_code,
-      claim_status: club.claim_status,
-    };
-
-    setSelectedClub(selected);
-    setQuery(selected.name);
-    setResults((prev) => [selected, ...prev.filter((c) => c.id !== selected.id)]);
-  }
 
   function handleSelectClub(club: ClubOption) {
     setSelectedClub(club);
@@ -138,27 +97,22 @@ export function ClubSelector({ currentLocation, initialClub = null, required = t
       </label>
 
       <input type="hidden" name="club_id" value={selectedClub?.id || ""} />
-      <input type="hidden" name="club_name" value={selectedClub?.name || query.trim()} required={required} />
+      <input
+        type="hidden"
+        name="club_name"
+        value={selectedClub?.name || (allowUnlisted ? query.trim() : "")}
+        required={required}
+      />
 
-      <div className="flex gap-2">
-        <input
-          id="club_search"
-          type="text"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Busca un club existente"
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          required={required}
-        />
-        <button
-          type="button"
-          onClick={handleCreateClub}
-          disabled={!canCreate || creating}
-          className="whitespace-nowrap rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-black uppercase tracking-wider text-blue-700 disabled:opacity-50"
-        >
-          {creating ? "Creando..." : "Crear club"}
-        </button>
-      </div>
+      <input
+        id="club_search"
+        type="text"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Busca un club publicado"
+        className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+        required={required}
+      />
 
       {selectedClub && (
         <div className="rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2 flex items-center justify-between gap-2">
@@ -170,7 +124,13 @@ export function ClubSelector({ currentLocation, initialClub = null, required = t
       {!selectedClub && (query.trim().length > 0 || loading) && (
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm max-h-56 overflow-auto">
           {loading && <p className="px-3 py-2 text-xs text-gray-500">Buscando clubes...</p>}
-          {!loading && results.length === 0 && <p className="px-3 py-2 text-xs text-gray-500">No encontramos clubes. Crea uno nuevo.</p>}
+          {!loading && results.length === 0 && (
+            <p className="px-3 py-2 text-xs text-gray-500">
+              {allowUnlisted
+                ? "No encontramos clubes publicados. Puedes continuar con el nombre escrito y lo propondremos para validacion."
+                : "No encontramos clubes publicados. Si tu club no aparece, solicita su alta desde el acceso de Club."}
+            </p>
+          )}
           {!loading &&
             results.map((club) => (
               <button
@@ -190,6 +150,12 @@ export function ClubSelector({ currentLocation, initialClub = null, required = t
               </button>
             ))}
         </div>
+      )}
+
+      {allowUnlisted && !selectedClub && query.trim().length >= 3 && (
+        <p className="text-xs text-amber-700">
+          Se creara el partido con este nombre y enviaremos una propuesta de club para revision.
+        </p>
       )}
 
       {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
