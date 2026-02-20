@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Calendar, MapPin, ArrowRight, UserPlus } from "lucide-react";
+import { Calendar, MapPin, ArrowRight, UserPlus, Building2 } from "lucide-react";
 
 function formatShortName(fullName: string) {
   const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
@@ -48,6 +48,10 @@ export default async function PublicMatchPage({
   const teamA = match.roster.filter((p: any) => p.team === "A");
   const teamB = match.roster.filter((p: any) => p.team === "B");
   const unclaimedRoster = match.roster.filter((p: any) => !!p.player_id && !p.has_profile);
+  const claimableClubId = match.club && match.club.claim_status !== "claimed" ? match.club.id : null;
+  const clubClaimHref = claimableClubId
+    ? `/welcome/claim/club?club_id=${encodeURIComponent(claimableClubId)}&next=${encodeURIComponent(`/m/${match.id}`)}`
+    : null;
   const result: any = match.results;
   const sets = (result?.sets || []) as any[];
   const winnerTeam = (result?.winner_team || result?.winnerTeam || null) as "A" | "B" | null;
@@ -152,13 +156,19 @@ export default async function PublicMatchPage({
             <div className="flex items-center gap-2 justify-end">
               <MapPin className="w-4 h-4 text-gray-400" />
               <p className="text-xs font-medium text-gray-600 truncate">{match.club_name}</p>
+              {match.club?.claim_status === "unclaimed" && (
+                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                  <Building2 className="w-3 h-3" />
+                  Reclamable
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-[24px] p-6 border border-gray-100 shadow-sm space-y-4">
-          <h4 className="text-sm font-black text-gray-900 text-center">¿Sos uno de estos jugadores?</h4>
-          <p className="text-xs text-gray-500 text-center -mt-2">Reclamá tu perfil para ver tu historial y estadísticas.</p>
+          <h4 className="text-sm font-black text-gray-900 text-center">Â¿Sos uno de estos jugadores?</h4>
+          <p className="text-xs text-gray-500 text-center -mt-2">ReclamÃ¡ tu perfil para ver tu historial y estadÃ­sticas.</p>
           <div className="grid grid-cols-1 gap-2">
             {unclaimedRoster.map((p: any) => (
               <Link
@@ -178,25 +188,39 @@ export default async function PublicMatchPage({
           )}
         </div>
 
+        {clubClaimHref && (
+          <div className="bg-white rounded-[24px] p-6 border border-gray-100 shadow-sm space-y-4">
+            <h4 className="text-sm font-black text-gray-900 text-center">Sos de este club?</h4>
+            <p className="text-xs text-gray-500 text-center -mt-2">
+              Solicita el reclamo de <span className="font-bold">{match.club_name}</span> para gestionarlo en PASALA.
+            </p>
+            <Link href={clubClaimHref} className="w-full block">
+              <Button variant="outline" className="w-full rounded-xl h-12 font-black uppercase tracking-widest text-blue-600">
+                Reclamar club
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <div className="bg-blue-600 rounded-[32px] p-8 text-white shadow-xl shadow-blue-200 text-center space-y-6">
           <div className="space-y-2">
             <h3 className="text-xl font-bold tracking-tight">
               {unclaimedRoster.length > 0
-                ? "Primero reclamá tu perfil"
+                ? "Primero reclamÃ¡ tu perfil"
                 : userState === "anonymous"
-                  ? "¿Jugaste este partido?"
+                  ? "Â¿Jugaste este partido?"
                   : userState === "unonboarded"
-                    ? "¡Casi listo!"
-                    : "Seguí tu evolución"}
+                    ? "Â¡Casi listo!"
+                    : "SeguÃ­ tu evoluciÃ³n"}
             </h3>
             <p className="text-blue-100 text-sm font-medium">
               {unclaimedRoster.length > 0
-                ? "Si aparecés en esta lista, reclamá tu perfil antes de continuar."
+                ? "Si aparecÃ©s en esta lista, reclamÃ¡ tu perfil antes de continuar."
                 : userState === "anonymous"
-                  ? "Entrá para ver tu historial completo y estadísticas avanzadas."
+                  ? "EntrÃ¡ para ver tu historial completo y estadÃ­sticas avanzadas."
                   : userState === "unonboarded"
-                    ? "Completá tu registro para activar tu perfil en PASALA."
-                    : "Revisá tus estadísticas competitivas en tu perfil."}
+                    ? "CompletÃ¡ tu registro para activar tu perfil en PASALA."
+                    : "RevisÃ¡ tus estadÃ­sticas competitivas en tu perfil."}
             </p>
           </div>
 
