@@ -51,7 +51,7 @@ export default function WelcomePortalAuth({
         return;
       }
 
-      const targetPath = portal === "player" ? nextPath : "/welcome?portal=club&mode=login";
+      const targetPath = portal === "player" ? nextPath : "/club";
       router.replace(targetPath);
       router.refresh();
     });
@@ -151,7 +151,7 @@ export default function WelcomePortalAuth({
 
             <GoogleAuthButton
               label={portal === "player" ? "Iniciar con Google" : "Iniciar club con Google"}
-              nextPath={portal === "player" ? nextPath : "/welcome?portal=club&mode=login"}
+              nextPath={portal === "player" ? nextPath : "/club"}
             />
           </form>
         )}

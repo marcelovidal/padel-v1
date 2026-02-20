@@ -320,6 +320,7 @@ export interface Database {
           contact_first_name: string | null;
           contact_last_name: string | null;
           contact_phone: string | null;
+          avatar_url: string | null;
           onboarding_completed: boolean;
           onboarding_completed_at: string | null;
           created_at: string;
@@ -348,6 +349,7 @@ export interface Database {
           contact_first_name?: string | null;
           contact_last_name?: string | null;
           contact_phone?: string | null;
+          avatar_url?: string | null;
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           created_at?: string;
@@ -376,6 +378,7 @@ export interface Database {
           contact_first_name?: string | null;
           contact_last_name?: string | null;
           contact_phone?: string | null;
+          avatar_url?: string | null;
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           created_at?: string;
@@ -388,6 +391,10 @@ export interface Database {
           id: string;
           club_id: string;
           requested_by: string;
+          requester_first_name: string;
+          requester_last_name: string;
+          requester_phone: string;
+          requester_email: string;
           status: ClubClaimRequestStatus;
           message: string | null;
           contact_phone: string | null;
@@ -399,6 +406,10 @@ export interface Database {
           id?: string;
           club_id: string;
           requested_by: string;
+          requester_first_name: string;
+          requester_last_name: string;
+          requester_phone: string;
+          requester_email: string;
           status?: ClubClaimRequestStatus;
           message?: string | null;
           contact_phone?: string | null;
@@ -410,6 +421,10 @@ export interface Database {
           id?: string;
           club_id?: string;
           requested_by?: string;
+          requester_first_name?: string;
+          requester_last_name?: string;
+          requester_phone?: string;
+          requester_email?: string;
           status?: ClubClaimRequestStatus;
           message?: string | null;
           contact_phone?: string | null;

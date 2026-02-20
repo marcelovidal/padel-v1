@@ -53,6 +53,33 @@ export async function requirePlayer() {
   return { user, player };
 }
 
+export async function requireClub() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/welcome?portal=club&mode=login");
+  }
+
+  const { data: club, error: clubError } = await (supabase as any)
+    .from("clubs")
+    .select("id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at")
+    .eq("claimed_by", user.id)
+    .eq("claim_status", "claimed")
+    .is("deleted_at", null)
+    .order("claimed_at", { ascending: false })
+    .maybeSingle();
+
+  if (clubError || !club) {
+    redirect("/welcome?portal=club&mode=login");
+  }
+
+  return { user, club };
+}
+
 export async function getOptionalPlayer() {
   const supabase = await createClient();
   const {
