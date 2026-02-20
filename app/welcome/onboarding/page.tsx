@@ -14,8 +14,8 @@ export default async function OnboardingPage({
 
     if (!user) {
         const loginUrl = searchParams.next
-            ? `/player/login?next=${encodeURIComponent(searchParams.next)}`
-            : "/player/login";
+            ? `/welcome?next=${encodeURIComponent(searchParams.next)}`
+            : "/welcome";
         redirect(loginUrl);
     }
 

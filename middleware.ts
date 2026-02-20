@@ -57,7 +57,8 @@ export async function middleware(req: NextRequest) {
       const hasSbCookie = /\bsb-[^=]+=/.test(cookieHeader);
 
       if (!hasSbCookie) {
-        return NextResponse.redirect(new URL("/player/login", req.url));
+        const next = encodeURIComponent(`${req.nextUrl.pathname}${req.nextUrl.search}`);
+        return NextResponse.redirect(new URL(`/welcome?next=${next}`, req.url));
       }
     }
   }
