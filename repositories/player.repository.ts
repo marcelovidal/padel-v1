@@ -357,4 +357,36 @@ export class PlayerRepository {
     if (error) throw error;
     return data;
   }
+
+  async findClaimCandidates(input: {
+    first_name: string;
+    last_name: string;
+    city?: string;
+    limit?: number;
+  }): Promise<
+    Array<{
+      id: string;
+      display_name: string;
+      city: string | null;
+      region_name: string | null;
+      city_match: boolean;
+    }>
+  > {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_find_claim_candidates", {
+      p_first_name: input.first_name,
+      p_last_name: input.last_name,
+      p_city: input.city || null,
+      p_limit: input.limit ?? 5,
+    });
+
+    if (error) throw error;
+    return (data || []) as Array<{
+      id: string;
+      display_name: string;
+      city: string | null;
+      region_name: string | null;
+      city_match: boolean;
+    }>;
+  }
 }
