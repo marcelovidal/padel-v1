@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.10.1-stage-p-club-claims-admin] - 2026-02-26 (Draft)
+
+### Agregado
+- **Stage P (manual review)**: panel admin `/admin/club-claims` para revisar reclamos pendientes.
+- **Acciones admin**: resolver reclamo con aprobar/rechazar via `club_resolve_claim`.
+- **Datos de solicitante** en reclamos: nombre, apellido, celular y email para validacion manual.
+
+### Seguridad / Solidez
+- Migracion incremental idempotente para reforzar reclamos:
+  - una sola solicitud `pending` por club.
+  - endurecimiento de `club_request_claim` con validacion de datos del solicitante.
+- Mantiene validacion manual (sin auto-claim).
+
 ## [v1.10.0-stage-club-claims] - 2026-02-19 (Draft)
 
 ### Agregado
