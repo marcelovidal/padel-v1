@@ -10,7 +10,7 @@ export default async function ClubClaimPage({
   searchParams: { club_id?: string; next?: string };
 }) {
   const clubId = (searchParams.club_id || "").trim();
-  const nextPath = searchParams.next || "/player";
+  const nextPath = searchParams.next || "/welcome?portal=club&mode=login";
 
   if (!clubId) {
     return (
@@ -46,10 +46,6 @@ export default async function ClubClaimPage({
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .maybeSingle() as any);
-
-  if (!player || !player.onboarding_completed) {
-    redirect(`/welcome/onboarding?next=${encodeURIComponent(selfPath)}`);
-  }
 
   const clubService = new ClubService();
   const club = await clubService.getClubById(clubId);
@@ -115,7 +111,7 @@ export default async function ClubClaimPage({
             <ClubClaimRequestForm
               clubId={club.id}
               clubName={club.name}
-              defaultPhone={player?.phone || ""}
+              defaultPhone={player?.phone || (user.user_metadata as any)?.phone || ""}
               nextPath={nextPath}
             />
           </div>

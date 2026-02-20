@@ -257,6 +257,15 @@ export class PlayerService {
     return this.repository.completeOnboarding(input);
   }
 
+  async findClaimCandidates(input: {
+    first_name: string;
+    last_name: string;
+    city?: string;
+    limit?: number;
+  }) {
+    return this.repository.findClaimCandidates(input);
+  }
+
   async uploadAvatar(file: File, userId: string) {
     const supabase = await createClient();
     const fileExt = file.name.split('.').pop();
