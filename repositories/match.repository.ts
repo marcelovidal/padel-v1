@@ -134,7 +134,7 @@ export class MatchRepository {
 
     if (error) {
       if (error.code === "23505") {
-        throw new Error("El jugador ya está asignado a este partido");
+        throw new Error("El jugador ya estÃ¡ asignado a este partido");
       }
       throw error;
     }
@@ -202,6 +202,7 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_id,
         max_players,
         notes,
         status,
@@ -255,7 +256,7 @@ export class MatchRepository {
       const myPlayerEntry = match.match_players && match.match_players[0];
       const team = myPlayerEntry ? myPlayerEntry.team : null;
 
-      // Normalización del resultado (Array -> Objeto)
+      // NormalizaciÃ³n del resultado (Array -> Objeto)
       const rawResult = Array.isArray(match.match_results)
         ? match.match_results[0] ?? null
         : match.match_results ?? null;
@@ -267,6 +268,7 @@ export class MatchRepository {
         id: match.id,
         match_at: match.match_at,
         club_name: match.club_name,
+        club_id: match.club_id ?? null,
         max_players: match.max_players,
         notes: match.notes,
         status: match.status,
@@ -290,6 +292,7 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_id,
         max_players,
         notes,
         status,
@@ -406,7 +409,13 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_id,
         status,
+        clubs (
+          id,
+          name,
+          claim_status
+        ),
         match_players (
           team,
           players (
@@ -446,13 +455,22 @@ export class MatchRepository {
       name: mp.players ? `${mp.players.first_name} ${mp.players.last_name}` : "Jugador",
       has_profile: !!mp.players?.user_id
     }));
+    const clubData = match.clubs && !Array.isArray(match.clubs) ? match.clubs : Array.isArray(match.clubs) ? match.clubs[0] : null;
 
     return {
       id: match.id,
       match_at: match.match_at,
-      club_name: match.club_name,
+      club_id: match.club_id || clubData?.id || null,
+      club_name: clubData?.name || match.club_name,
       status: match.status,
       results: normalizedResult,
+      club: clubData
+        ? {
+            id: clubData.id,
+            name: clubData.name,
+            claim_status: clubData.claim_status,
+          }
+        : null,
       roster
     };
   }

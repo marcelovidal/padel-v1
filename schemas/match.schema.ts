@@ -4,8 +4,9 @@ export const matchStatusSchema = z.enum(["scheduled", "completed", "cancelled"])
 export const teamTypeSchema = z.enum(["A", "B"]);
 
 export const createMatchSchema = z.object({
-  match_at: z.string().datetime("Fecha y hora inválida"),
+  match_at: z.string().datetime("Fecha y hora invalida"),
   club_name: z.string().min(1, "El nombre del club es requerido").max(200),
+  club_id: z.string().uuid().nullable().optional(),
   max_players: z.number().int().min(2).max(4).default(4),
   notes: z.string().max(1000).optional().nullable(),
 });
@@ -36,4 +37,3 @@ export type UpdateMatchInput = z.infer<typeof updateMatchSchema>;
 export type AddPlayerToMatchInput = z.infer<typeof addPlayerToMatchSchema>;
 export type CreateMatchResultInput = z.infer<typeof createMatchResultSchema>;
 export type MatchResultSet = z.infer<typeof matchResultSetSchema>;
-

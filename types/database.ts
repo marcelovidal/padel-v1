@@ -10,6 +10,8 @@ export type PlayerPosition = "drive" | "reves" | "cualquiera";
 export type PlayerStatus = "active" | "inactive";
 export type MatchStatus = "scheduled" | "completed" | "cancelled";
 export type TeamType = "A" | "B";
+export type ClubClaimStatus = "unclaimed" | "pending" | "claimed" | "rejected";
+export type ClubClaimRequestStatus = "pending" | "approved" | "rejected";
 
 export type Player = Database["public"]["Tables"]["players"]["Row"];
 export type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
@@ -130,8 +132,9 @@ export interface Database {
       matches: {
         Row: {
           id: string;
-          match_at: string; // Cambió de datetime a match_at
+          match_at: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name: string;
+          club_id: string | null;
           max_players: number;
           notes: string | null;
           status: MatchStatus;
@@ -141,8 +144,9 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          match_at: string; // Cambió de datetime a match_at
+          match_at: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name: string;
+          club_id?: string | null;
           max_players?: number;
           notes?: string | null;
           status?: MatchStatus;
@@ -152,8 +156,9 @@ export interface Database {
         };
         Update: {
           id?: string;
-          match_at?: string; // Cambió de datetime a match_at
+          match_at?: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name?: string;
+          club_id?: string | null;
           max_players?: number;
           notes?: string | null;
           status?: MatchStatus;
@@ -289,6 +294,94 @@ export interface Database {
           channel?: string;
           context?: "match" | "directory" | "profile";
           created_at?: string;
+        };
+      };
+      clubs: {
+        Row: {
+          id: string;
+          name: string;
+          normalized_name: string;
+          country_code: string;
+          region_code: string | null;
+          region_name: string | null;
+          city: string | null;
+          city_id: string | null;
+          created_by: string | null;
+          claimed_by: string | null;
+          claim_status: ClubClaimStatus;
+          claimed_at: string | null;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          normalized_name: string;
+          country_code?: string;
+          region_code?: string | null;
+          region_name?: string | null;
+          city?: string | null;
+          city_id?: string | null;
+          created_by?: string | null;
+          claimed_by?: string | null;
+          claim_status?: ClubClaimStatus;
+          claimed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          deleted_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          normalized_name?: string;
+          country_code?: string;
+          region_code?: string | null;
+          region_name?: string | null;
+          city?: string | null;
+          city_id?: string | null;
+          created_by?: string | null;
+          claimed_by?: string | null;
+          claim_status?: ClubClaimStatus;
+          claimed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          deleted_at?: string | null;
+        };
+      };
+      club_claim_requests: {
+        Row: {
+          id: string;
+          club_id: string;
+          requested_by: string;
+          status: ClubClaimRequestStatus;
+          message: string | null;
+          contact_phone: string | null;
+          created_at: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          requested_by: string;
+          status?: ClubClaimRequestStatus;
+          message?: string | null;
+          contact_phone?: string | null;
+          created_at?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          requested_by?: string;
+          status?: ClubClaimRequestStatus;
+          message?: string | null;
+          contact_phone?: string | null;
+          created_at?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
         };
       };
     };
