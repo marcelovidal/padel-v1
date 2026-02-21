@@ -1,6 +1,7 @@
 import { requirePlayer } from "@/lib/auth";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { PlayerTopNav } from "@/components/player/PlayerTopNav";
+import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 
 export default async function PlayerLayout({
     children,
@@ -21,6 +22,11 @@ export default async function PlayerLayout({
             <main className="py-6">
                 {children}
             </main>
+            <ProfileIssueTooltip
+                targetProfileType="player"
+                targetProfileId={player.id}
+                targetProfileName={player.display_name}
+            />
         </div>
     );
 }

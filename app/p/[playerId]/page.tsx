@@ -8,6 +8,7 @@ import { PlayerService } from "@/services/player.service";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildPlayerInviteMessage } from "@/lib/share/shareMessage";
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
+import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 
 function positionLabel(value?: string | null) {
     if (!value) return "Cualquiera";
@@ -45,7 +46,7 @@ export default async function PublicPlayerProfilePage({
     if (user) {
         const { data } = await (supabase
             .from("players")
-            .select("id, onboarding_completed")
+            .select("id, onboarding_completed, first_name, last_name")
             .eq("user_id", user.id)
             .is("deleted_at", null)
             .maybeSingle() as any);
@@ -139,6 +140,14 @@ export default async function PublicPlayerProfilePage({
                         )}
                     </div>
                 </div>
+
+                {user && (
+                    <ProfileIssueTooltip
+                        targetProfileType="player"
+                        targetProfileId={player.id}
+                        targetProfileName={player.display_name}
+                    />
+                )}
             </div>
         </div>
     );

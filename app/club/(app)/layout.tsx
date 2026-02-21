@@ -1,6 +1,7 @@
 import { requireClub } from "@/lib/auth";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { ClubTopNav } from "@/components/club/ClubTopNav";
+import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 
 export default async function ClubLayout({
   children,
@@ -19,6 +20,11 @@ export default async function ClubLayout({
     <div className="min-h-screen bg-gray-50">
       <ClubTopNav clubName={club.name} email={user.email} avatarSrc={avatarData.src} />
       <main className="py-6">{children}</main>
+      <ProfileIssueTooltip
+        targetProfileType="club"
+        targetProfileId={club.id}
+        targetProfileName={club.name}
+      />
     </div>
   );
 }
