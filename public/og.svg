@@ -1,0 +1,19 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F8FAFC"/>
+  <rect x="52" y="52" width="1096" height="526" rx="36" fill="url(#grad)"/>
+  <rect x="84" y="84" width="1032" height="462" rx="28" fill="#0F172A" fill-opacity="0.2"/>
+  <text x="120" y="290" fill="white" font-family="Arial, sans-serif" font-size="118" font-style="italic" font-weight="800">PASALA</text>
+  <text x="120" y="362" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="34" font-weight="600">
+    El padel se juega. PASALA lo registra.
+  </text>
+  <text x="120" y="418" fill="#BFDBFE" font-family="Arial, sans-serif" font-size="28" font-weight="600">
+    Resultados · Estadisticas · Reclamo de perfil
+  </text>
+  <defs>
+    <linearGradient id="grad" x1="52" y1="52" x2="1148" y2="578" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#0E7490"/>
+    </linearGradient>
+  </defs>
+</svg>
+

@@ -15,6 +15,7 @@ Any new release tag must pass:
 - Failed builds must not be tagged.
 ## Release History
 
+- **v1.11.0-stage-public-web** (Draft): Stage Public Web. Nuevo marketing site integrado (home + players/clubs/pricing/faq/legal), layout publico con header/footer, CTAs inteligentes por estado de sesion y metadata/OG base para campañas.
 - **v1.10.1-stage-p-club-claims-admin** (Draft): Stage P manual review. Admin panel `/admin/club-claims` to approve/reject club claim requests, incremental hardening of claim request data, and pending uniqueness per club.
 - **v1.10.0-stage-club-claims** (Draft): Stage Club. Modelo de clubes reutilizable en partidos, selector con busqueda/creacion, claim de club por solicitud y CTA publica desde `/m/[id]`.
 - **v1.9.0-stage-p2-directory-public-profile** (Draft): Stage P2. Directorio de jugadores mejorado, perfil publico `/p/[playerId]`, invitaciones WhatsApp desde directorio/perfil y tracking con `share_events.context`.

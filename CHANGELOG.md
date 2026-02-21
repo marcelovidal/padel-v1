@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.0-stage-public-web] - 2026-02-21 (Draft)
+
+### Agregado
+- **Stage Public Web**: nuevo sitio publico integrado en App Router con layout dedicado y rutas:
+  - `/` (home de conversion)
+  - `/players`
+  - `/clubs`
+  - `/pricing`
+  - `/faq`
+  - `/privacy`
+  - `/terms`
+- **Header/Footer publicos** reutilizables con navegacion principal y CTAs.
+- **Componentes publicos** base (`PublicContainer`, `PublicSection`, `FeatureCard`, `StatCard`, `FAQAccordion`).
+
+### Auth / Conversion
+- Helper server-side para CTAs inteligentes segun sesion/estado:
+  - guest -> `/welcome?next=...`
+  - onboarding pendiente -> `/welcome/onboarding?next=...`
+  - jugador onboarded -> `/player`
+  - club reclamado -> `/club`
+- CTA de registro de club alineada al flujo vigente:
+  - `/welcome?portal=club&mode=signup&next=/club`
+
+### SEO
+- Metadata y OpenGraph basicos para la capa publica.
+- Asset OG estatico (`/og.svg`) para previews sociales.
+
 ## [v1.10.1-stage-p-club-claims-admin] - 2026-02-26 (Draft)
 
 ### Agregado
