@@ -13,9 +13,10 @@ interface MatchScoreProps {
         B: any[];
     };
     showPlayers?: boolean;
+    highlightPlayerId?: string;
 }
 
-export function MatchScore({ variant = "result", results, playersByTeam, showPlayers = false }: MatchScoreProps) {
+export function MatchScore({ variant = "result", results, playersByTeam, showPlayers = false, highlightPlayerId }: MatchScoreProps) {
     const formatPlayerName = (p: any) => {
         if (!p) return "-";
         return `${p.first_name?.[0]}. ${p.last_name}`;
@@ -24,6 +25,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
     const renderPlayer = (p: any) => {
         if (!p) return <span>-</span>;
         const initials = `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`;
+        const isCurrentPlayer = !!highlightPlayerId && p.id === highlightPlayerId;
         return (
             <div className="flex items-center gap-2">
                 <UserAvatar
@@ -31,7 +33,15 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     initials={initials}
                     size="xs"
                 />
-                <span className="truncate">{formatPlayerName(p)}</span>
+                <span
+                    className={`truncate rounded px-1 py-0.5 ${
+                        isCurrentPlayer
+                            ? "bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-100"
+                            : ""
+                    }`}
+                >
+                    {formatPlayerName(p)}
+                </span>
             </div>
         );
     };

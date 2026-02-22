@@ -48,6 +48,14 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials }: 
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <div className="hidden md:flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <UserAvatar src={avatarSrc || null} initials={avatarInitials} size="xs" />
+                        <div className="min-w-0 max-w-[180px]">
+                            <p className="truncate text-xs font-bold text-gray-800 leading-none">
+                                {displayName}
+                            </p>
+                        </div>
+                    </div>
                     <Link href="/player/matches/new" className="hidden md:inline-flex">
                         <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest px-4">
                             <Plus className="w-4 h-4 mr-1" />

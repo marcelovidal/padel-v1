@@ -85,23 +85,41 @@ export function GuestPlayerModal({ isOpen, onClose, onSuccess, defaultLocation }
         }
     }, [selectedProv, debouncedLocQuery]); // Note: defaultLocation removed from deps to avoid cycle
 
+    useEffect(() => {
+        if (!isOpen) {
+            setIsSubmitting(false);
+            setError(null);
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsSubmitting(true);
         setError(null);
-
         const formData = new FormData(e.currentTarget);
-        const result = await createGuestPlayerAction(formData);
 
-        if (result.error) {
-            setError(result.error);
+        try {
+            const result = await createGuestPlayerAction(formData);
+
+            if (result.error) {
+                setError(result.error);
+                return;
+            }
+
+            if (result.data) {
+                const displayName = formData.get("display_name") as string;
+                onSuccess(result.data, displayName);
+                onClose();
+                return;
+            }
+
+            setError("No se pudo crear el jugador invitado. Intente nuevamente.");
+        } catch {
+            setError("Ocurrio un error inesperado al crear el jugador.");
+        } finally {
             setIsSubmitting(false);
-        } else if (result.data) {
-            const displayName = formData.get("display_name") as string;
-            onSuccess(result.data, displayName);
-            onClose();
         }
     }
 

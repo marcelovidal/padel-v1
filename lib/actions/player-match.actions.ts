@@ -157,11 +157,25 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
   const club_name = (formData.get("club_name") as string) || "";
   const club_id = ((formData.get("club_id") as string) || "").trim() || null;
   const notes = formData.get("notes") as string;
+  const partner_id = ((formData.get("partner_id") as string) || "").trim();
+  const opponent1_id = ((formData.get("opponent1_id") as string) || "").trim();
+  const opponent2_id = ((formData.get("opponent2_id") as string) || "").trim();
 
   const matchTimestamp = `${date}T${time}:00`;
 
+  if (!partner_id || !opponent1_id || !opponent2_id) {
+    return { error: "Completa companero y rivales para guardar el partido" };
+  }
+
+  const uniquePlayers = new Set([partner_id, opponent1_id, opponent2_id]);
+  if (uniquePlayers.size !== 3) {
+    return { error: "No puedes repetir jugadores en el partido" };
+  }
+
   try {
-    const { error } = await (supabase as any).rpc("player_update_match", {
+    const sb = supabase as any;
+
+    const { error } = await sb.rpc("player_update_match", {
       p_match_id: matchId,
       p_match_at: matchTimestamp,
       p_club_name: club_name,
@@ -170,12 +184,28 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
     });
 
     if (error) throw error;
+
+    const { error: rosterError } = await sb.rpc("player_update_match_roster", {
+      p_match_id: matchId,
+      p_partner_id: partner_id,
+      p_opp1_id: opponent1_id,
+      p_opp2_id: opponent2_id,
+    });
+
+    if (rosterError) throw rosterError;
   } catch (err: any) {
+    if (err.message?.includes("DUPLICATE_PLAYERS")) {
+      return { error: "No puedes repetir jugadores en el partido." };
+    }
+    if (err.message?.includes("PLAYER_PROFILE_NOT_FOUND")) {
+      return { error: "Tu usuario no tiene un perfil de jugador vinculado." };
+    }
     return { error: err.message || "Error al actualizar el partido" };
   }
 
   revalidatePath("/player/matches");
   revalidatePath(`/player/matches/${matchId}`);
+  revalidatePath(`/player/matches/${matchId}/edit`);
   redirect(`/player/matches/${matchId}`);
 }
 

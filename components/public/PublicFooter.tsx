@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PublicContainer } from "@/components/public/PublicContainer";
+import { PublicContactModal } from "@/components/public/PublicContactModal";
 
 export function PublicFooter() {
   return (
@@ -20,9 +21,7 @@ export function PublicFooter() {
             <Link href="/privacy" className="hover:text-blue-700">
               Privacidad
             </Link>
-            <a href="mailto:soporte@pasala.app" className="hover:text-blue-700">
-              Contacto
-            </a>
+            <PublicContactModal />
           </nav>
         </div>
 
@@ -33,4 +32,3 @@ export function PublicFooter() {
     </footer>
   );
 }
-

@@ -33,20 +33,9 @@ export default async function PlayerMatchesPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="container mx-auto p-4 max-w-2xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Mis Partidos</h1>
-          <a
-            href="/player/matches/new"
-            className="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded hover:bg-blue-700 transition-colors"
-          >
-            + Nuevo Partido
-          </a>
-        </div>
-
-        <div className="text-sm text-gray-500 mb-6">
-          Hola, {mePlayer?.first_name}
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Mis Partidos</h1>
+        <p className="text-sm text-gray-500 mt-1">Historial, programados y pendientes de resultado</p>
       </div>
 
       {matches.length === 0 ? (
@@ -58,9 +47,11 @@ export default async function PlayerMatchesPage() {
           {/* Section: Scheduled */}
           {categorized.scheduled.length > 0 && (
             <div>
-              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Próximos Partidos</h2>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Próximos Partidos</h2>
               <PlayerMatches matches={categorized.scheduled
                 .sort((a, b) => new Date(a.match_at).getTime() - new Date(b.match_at).getTime())}
+                currentUserId={user.id}
+                currentPlayerId={mePlayer.id}
               />
             </div>
           )}
@@ -68,9 +59,11 @@ export default async function PlayerMatchesPage() {
           {/* Section: Completed */}
           {categorized.completed.length > 0 && (
             <div>
-              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Finalizados</h2>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Finalizados</h2>
               <PlayerMatches matches={categorized.completed
                 .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+                currentUserId={user.id}
+                currentPlayerId={mePlayer.id}
               />
             </div>
           )}
@@ -78,10 +71,12 @@ export default async function PlayerMatchesPage() {
           {/* Section: Cancelled */}
           {categorized.cancelled.length > 0 && (
             <div>
-              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 px-4">Cancelados</h2>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Cancelados</h2>
               <div className="opacity-75">
                 <PlayerMatches matches={categorized.cancelled
                   .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
+                  currentUserId={user.id}
+                  currentPlayerId={mePlayer.id}
                 />
               </div>
             </div>

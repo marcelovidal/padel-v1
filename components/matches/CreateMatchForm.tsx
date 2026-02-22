@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { GuestPlayerModal } from "@/components/players/GuestPlayerModal";
+import { PlayerSearchSelect } from "@/components/players/PlayerSearchSelect";
 import { ClubSelector } from "@/components/clubs/ClubSelector";
 import { createMatchAsPlayer, suggestClubLeadAction } from "@/lib/actions/player-match.actions";
 
@@ -99,22 +100,6 @@ export function CreateMatchForm({
     });
   }, [players, currentPlayerId, currentPlayerLocation]);
 
-  const getPlayerLabel = (p: PlayerOption) => {
-    const name = p.display_name || `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Jugador sin nombre";
-
-    let formattedName = name;
-    if (p.first_name && p.last_name) {
-      formattedName = `${p.first_name.charAt(0)}.${p.last_name}`;
-    }
-
-    const cityLabel = p.city || "";
-    const regionLabel = p.region_name || p.region_code || "";
-
-    if (!cityLabel && !regionLabel) return formattedName;
-
-    return `${formattedName} - ${cityLabel}${regionLabel ? ` (${regionLabel})` : ""}`.trim();
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -206,26 +191,23 @@ export function CreateMatchForm({
             <div className="p-4 bg-white rounded-2xl border border-blue-100 shadow-sm">
               <div className="flex justify-between items-center mb-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-blue-600">Tu Companero (Equipo A)</Label>
-                <button type="button" onClick={() => openModal("partner")} className="text-[10px] font-bold text-blue-500 hover:text-blue-700 uppercase">
-                  + Nuevo
+                <button
+                  type="button"
+                  onClick={() => openModal("partner")}
+                  className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+                >
+                  <span className="text-xs leading-none">+</span>
+                  Cargar invitado
                 </button>
               </div>
-              <select
+              <PlayerSearchSelect
                 name="partner_id"
-                className="w-full p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Escribe nombre, apellido o ciudad"
                 required
-                value={partnerId}
-                onChange={(e) => setPartnerId(e.target.value)}
-              >
-                <option value="">Selecciona companero</option>
-                {otherPlayers
-                  .filter((p) => !selectedIds.has(p.id) || p.id === partnerId)
-                  .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {getPlayerLabel(p)}
-                    </option>
-                  ))}
-              </select>
+                selectedId={partnerId}
+                onSelectId={setPartnerId}
+                players={otherPlayers.filter((p) => !selectedIds.has(p.id) || p.id === partnerId)}
+              />
             </div>
 
             <div className="p-4 bg-white rounded-2xl border border-red-100 shadow-sm space-y-4">
@@ -235,51 +217,45 @@ export function CreateMatchForm({
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <Label className="text-[10px] font-bold text-gray-400 uppercase">Rival 1</Label>
-                    <button type="button" onClick={() => openModal("opp1")} className="text-[10px] font-bold text-red-400 hover:text-red-700 uppercase">
-                      + Nuevo
+                    <button
+                      type="button"
+                      onClick={() => openModal("opp1")}
+                      className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-red-700 hover:bg-red-100"
+                    >
+                      <span className="text-xs leading-none">+</span>
+                      Cargar invitado
                     </button>
                   </div>
-                  <select
+                  <PlayerSearchSelect
                     name="opponent1_id"
-                    className="w-full mt-1 p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-red-500 focus:border-red-500"
+                    placeholder="Escribe nombre, apellido o ciudad"
                     required
-                    value={opp1Id}
-                    onChange={(e) => setOpp1Id(e.target.value)}
-                  >
-                    <option value="">Selecciona rival 1</option>
-                    {otherPlayers
-                      .filter((p) => !selectedIds.has(p.id) || p.id === opp1Id)
-                      .map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {getPlayerLabel(p)}
-                        </option>
-                      ))}
-                  </select>
+                    selectedId={opp1Id}
+                    onSelectId={setOpp1Id}
+                    players={otherPlayers.filter((p) => !selectedIds.has(p.id) || p.id === opp1Id)}
+                  />
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <Label className="text-[10px] font-bold text-gray-400 uppercase">Rival 2</Label>
-                    <button type="button" onClick={() => openModal("opp2")} className="text-[10px] font-bold text-red-400 hover:text-red-700 uppercase">
-                      + Nuevo
+                    <button
+                      type="button"
+                      onClick={() => openModal("opp2")}
+                      className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-red-700 hover:bg-red-100"
+                    >
+                      <span className="text-xs leading-none">+</span>
+                      Cargar invitado
                     </button>
                   </div>
-                  <select
+                  <PlayerSearchSelect
                     name="opponent2_id"
-                    className="w-full mt-1 p-2.5 bg-gray-50 rounded-xl border-gray-100 text-sm font-medium focus:ring-red-500 focus:border-red-500"
+                    placeholder="Escribe nombre, apellido o ciudad"
                     required
-                    value={opp2Id}
-                    onChange={(e) => setOpp2Id(e.target.value)}
-                  >
-                    <option value="">Selecciona rival 2</option>
-                    {otherPlayers
-                      .filter((p) => !selectedIds.has(p.id) || p.id === opp2Id)
-                      .map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {getPlayerLabel(p)}
-                        </option>
-                      ))}
-                  </select>
+                    selectedId={opp2Id}
+                    onSelectId={setOpp2Id}
+                    players={otherPlayers.filter((p) => !selectedIds.has(p.id) || p.id === opp2Id)}
+                  />
                 </div>
               </div>
             </div>

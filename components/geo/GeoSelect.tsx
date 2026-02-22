@@ -19,6 +19,14 @@ interface GeoSelectProps {
     disabled?: boolean;
 }
 
+function normalizeText(value: string) {
+    return (value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
 export function GeoSelect({
     label,
     placeholder,
@@ -35,11 +43,18 @@ export function GeoSelect({
         options.find(o => o.id === value) || null,
         [options, value]);
 
-    const filteredOptions = useMemo(() =>
-        options.filter(o =>
-            o.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-        ).slice(0, 50), // Limit results for performance
-        [options, searchTerm]);
+    const filteredOptions = useMemo(() => {
+        const q = normalizeText(searchTerm);
+        if (!q) return options.slice(0, 50);
+
+        const tokens = q.split(/\s+/).filter(Boolean);
+        return options
+            .filter((o) => {
+                const name = normalizeText(o.nombre);
+                return tokens.every((token) => name.includes(token));
+            })
+            .slice(0, 50);
+    }, [options, searchTerm]);
 
     // Sync search term with selected option when not open
     useEffect(() => {

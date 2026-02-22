@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabase } from "@/lib/supabase/client";
@@ -145,6 +146,15 @@ export default function WelcomePortalAuth({
               placeholder="Contrasena"
               className="w-full rounded-xl border border-gray-300 px-4 py-3"
             />
+
+            <div className="text-right">
+              <Link
+                href={`/welcome/reset-password?next=${encodeURIComponent(resolvePortalNextPath(portal, nextPath))}`}
+                className="text-sm font-semibold text-gray-500 hover:text-blue-700 transition-colors"
+              >
+                Olvide mi contrasena
+              </Link>
+            </div>
 
             {error && <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
             {info && <p className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">{info}</p>}

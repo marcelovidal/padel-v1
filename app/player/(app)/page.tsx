@@ -196,7 +196,7 @@ export default async function PlayerDashboard() {
           </div>
 
           <div className="space-y-4">
-            <PlayerMatches matches={enrichedMatches} />
+            <PlayerMatches matches={enrichedMatches} currentUserId={user.id} currentPlayerId={playerId} />
           </div>
 
           {!hasMatches && (

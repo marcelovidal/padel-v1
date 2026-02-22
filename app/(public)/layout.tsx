@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
-import { getPublicCtaState } from "@/lib/auth/public-cta";
+import { getPublicCtaContext } from "@/lib/auth/public-cta";
 
 const siteBase =
   process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.trim() !== ""
@@ -58,14 +58,13 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const ctaState = await getPublicCtaState();
+  const ctaContext = await getPublicCtaContext();
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <PublicHeader ctaState={ctaState} />
+      <PublicHeader ctaContext={ctaContext} />
       <main>{children}</main>
       <PublicFooter />
     </div>
   );
 }
-

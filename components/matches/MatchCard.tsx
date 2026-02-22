@@ -11,7 +11,13 @@ import { ShareButtons } from "./ShareButtons";
 interface MatchCardProps {
   model: MatchCardModel;
   variant: "admin" | "player";
+  highlightPlayerId?: string;
   primaryAction?: {
+    label: string;
+    href: string;
+    disabled?: boolean;
+  };
+  secondaryAction?: {
     label: string;
     href: string;
     disabled?: boolean;
@@ -23,7 +29,9 @@ interface MatchCardProps {
 export default function MatchCard({
   model,
   variant,
+  highlightPlayerId,
   primaryAction,
+  secondaryAction,
   shareMessage,
   shareUrl,
 }: MatchCardProps) {
@@ -39,6 +47,7 @@ export default function MatchCard({
   } = model;
 
   const isCompleted = status === "completed";
+  const hasPrimaryLoadResult = primaryAction?.href === `/player/matches/${model.id}/result`;
 
   const formatPlayerName = (p: { first_name: string; last_name: string } | null) => {
     if (!p) return "-";
@@ -87,6 +96,7 @@ export default function MatchCard({
             results={results || null}
             playersByTeam={playersByTeam}
             showPlayers={true}
+            highlightPlayerId={highlightPlayerId}
           />
         </div>
 
@@ -122,7 +132,7 @@ export default function MatchCard({
                 </>
               )}
             </div>
-            {isCompleted && !model.hasResults && playerTeam && (
+            {isCompleted && !model.hasResults && playerTeam && !hasPrimaryLoadResult && (
               <div className="mt-2">
                 <Link
                   href={`/player/matches/${model.id}/result`}
@@ -137,20 +147,36 @@ export default function MatchCard({
             )}
           </div>
 
-          {primaryAction && (
-            primaryAction.disabled ? (
-              <span className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-gray-400 bg-gray-100 cursor-not-allowed">
-                {primaryAction.label}
-              </span>
-            ) : (
-              <Link
-                href={primaryAction.href}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-              >
-                {primaryAction.label}
-              </Link>
-            )
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {secondaryAction && (
+              secondaryAction.disabled ? (
+                <span className="inline-flex items-center px-4 py-2 border border-gray-200 text-xs font-bold rounded-lg text-gray-400 bg-gray-100 cursor-not-allowed">
+                  {secondaryAction.label}
+                </span>
+              ) : (
+                <Link
+                  href={secondaryAction.href}
+                  className="inline-flex items-center px-4 py-2 border border-gray-200 text-xs font-bold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  {secondaryAction.label}
+                </Link>
+              )
+            )}
+            {primaryAction && (
+              primaryAction.disabled ? (
+                <span className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-gray-400 bg-gray-100 cursor-not-allowed">
+                  {primaryAction.label}
+                </span>
+              ) : (
+                <Link
+                  href={primaryAction.href}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  {primaryAction.label}
+                </Link>
+              )
+            )}
+          </div>
         </div>
 
         {/* Subtle Share CTA */}

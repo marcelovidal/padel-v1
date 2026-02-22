@@ -51,29 +51,33 @@ export default async function MatchConfirmedPage({
                 </div>
 
                 {/* Score Card */}
-                <div className="bg-white rounded-[32px] p-8 shadow-xl shadow-blue-900/5 border border-gray-100 space-y-8">
+                <div className="bg-white rounded-[32px] p-5 sm:p-8 shadow-xl shadow-blue-900/5 border border-gray-100 space-y-8">
                     {/* Score display */}
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="text-center flex-1">
+                    <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-center flex-1 rounded-2xl bg-blue-50/40 p-3 sm:bg-transparent sm:p-0">
                             <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Equipo A</p>
-                            <p className="font-bold text-gray-900 truncate">{teamANames}</p>
+                            <p className="font-bold text-gray-900 text-sm leading-snug break-words sm:text-base">{teamANames}</p>
                         </div>
-                        <div className="flex flex-col items-center gap-1">
-                            <div className="bg-gray-900 text-white px-4 py-1.5 rounded-xl text-xl font-black tabular-nums">
-                                {result.winner_team === "A" ? "Victoria" : "Derrota"}
-                                {" "}{sets.filter((s: any) => (s.a || 0) > (s.b || 0)).length} - {sets.filter((s: any) => (s.b || 0) > (s.a || 0)).length}
+                        <div className="flex flex-col items-center gap-2 order-first sm:order-none">
+                            <div className="bg-gray-900 text-white px-3 py-2 rounded-xl text-center font-black tabular-nums leading-tight min-w-[140px]">
+                                <div className="text-[11px] uppercase tracking-wider text-gray-200">
+                                    {result.winner_team === "A" ? "Victoria" : "Derrota"}
+                                </div>
+                                <div className="text-lg sm:text-xl">
+                                    {sets.filter((s: any) => (s.a || 0) > (s.b || 0)).length} - {sets.filter((s: any) => (s.b || 0) > (s.a || 0)).length}
+                                </div>
                             </div>
-                            <div className="flex gap-1">
+                            <div className="flex flex-wrap justify-center gap-1 max-w-full">
                                 {sets.map((s, i) => (
-                                    <span key={i} className="text-[10px] font-bold text-gray-400">
+                                    <span key={i} className="rounded-md bg-gray-50 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">
                                         {s.a}-{s.b}
                                     </span>
                                 ))}
                             </div>
                         </div>
-                        <div className="text-center flex-1">
+                        <div className="text-center flex-1 rounded-2xl bg-red-50/40 p-3 sm:bg-transparent sm:p-0">
                             <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-1">Equipo B</p>
-                            <p className="font-bold text-gray-900 truncate">{teamBNames}</p>
+                            <p className="font-bold text-gray-900 text-sm leading-snug break-words sm:text-base">{teamBNames}</p>
                         </div>
                     </div>
 

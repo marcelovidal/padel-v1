@@ -134,6 +134,11 @@ export default function PlayerLoginForm({
       </form>
 
       <div className="text-center pt-2">
+        {mode === "login" && (
+          <div className="mb-3">
+            <LinkLikeForgotPassword nextPath={nextPath} />
+          </div>
+        )}
         <button
           type="button"
           onClick={() => {
@@ -147,5 +152,16 @@ export default function PlayerLoginForm({
         </button>
       </div>
     </div>
+  );
+}
+
+function LinkLikeForgotPassword({ nextPath }: { nextPath: string }) {
+  return (
+    <a
+      href={`/welcome/reset-password?next=${encodeURIComponent(nextPath)}`}
+      className="text-sm font-semibold text-gray-500 hover:text-blue-700 transition-colors"
+    >
+      Olvide mi contrasena
+    </a>
   );
 }
