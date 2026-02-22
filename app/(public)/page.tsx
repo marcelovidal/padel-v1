@@ -16,6 +16,8 @@ import { PublicContainer } from "@/components/public/PublicContainer";
 import { PublicSection } from "@/components/public/PublicSection";
 import { FeatureCard } from "@/components/public/FeatureCard";
 import { FAQAccordion } from "@/components/public/FAQAccordion";
+import { MatchScore } from "@/components/matches/MatchScore";
+import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { getPrimaryCtaHref } from "@/lib/auth/public-cta";
 import { getRegisterClubHref } from "@/lib/auth/public-cta.shared";
 import { publicFaqItems, shareDemoMessage } from "@/lib/public/content";
@@ -23,7 +25,18 @@ import { publicFaqItems, shareDemoMessage } from "@/lib/public/content";
 export const metadata: Metadata = {
   title: "PASALA | Padel amateur con historial y progreso",
   description:
-    "Registra partidos 2 vs 2 de padel, comparte por WhatsApp, mide rendimiento y construye historial deportivo.",
+    "Registra tu juego de padel, comparte por WhatsApp, mide rendimiento y construye historial deportivo.",
+};
+
+const samplePlayersByTeam = {
+  A: [
+    { id: "sample-a1", first_name: "Axel", last_name: "Perez", avatar_url: null },
+    { id: "sample-a2", first_name: "Luca", last_name: "Gonzalez", avatar_url: null },
+  ],
+  B: [
+    { id: "sample-b1", first_name: "Rene", last_name: "Martinez", avatar_url: null },
+    { id: "sample-b2", first_name: "Ciro", last_name: "Vidal", avatar_url: null },
+  ],
 };
 
 function HeroCourtVisual() {
@@ -39,32 +52,27 @@ function HeroCourtVisual() {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
           <div className="flex items-center justify-between">
             <p className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/80">
-              Padel indoor 2 vs 2
+              Padel indoor · tu juego
             </p>
             <span className="rounded-full bg-emerald-300/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">
               Match point
             </span>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">Equipo A</p>
-                <p className="mt-1 text-sm font-bold text-white">P. Vidal</p>
-                <p className="text-xs text-white/70">L. Martos</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/60">Sets</p>
-                <p className="mt-1 text-sm font-black tabular-nums text-white">6-4</p>
-                <p className="text-sm font-black tabular-nums text-white">4-6</p>
-                <p className="text-sm font-black tabular-nums text-emerald-300">7-6</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-rose-200">Equipo B</p>
-                <p className="mt-1 text-sm font-bold text-white">M. Martin</p>
-                <p className="text-xs text-white/70">F. Boeto</p>
-              </div>
-            </div>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-3">
+            <MatchScore
+              variant="result"
+              results={{
+                sets: [
+                  { a: 6, b: 4 },
+                  { a: 4, b: 6 },
+                  { a: 7, b: 6 },
+                ],
+                winnerTeam: "A",
+              }}
+              playersByTeam={samplePlayersByTeam}
+              showPlayers
+            />
           </div>
         </div>
 
@@ -73,9 +81,9 @@ function HeroCourtVisual() {
           <div className="mt-3 rounded-2xl bg-[#111B21] p-3">
             <div className="max-w-[340px] rounded-2xl rounded-tl-md bg-[#005C4B] p-3 text-sm leading-relaxed text-white">
               Partido cargado en PASALA 👇<br />
-              Vidal/Martos vs Martin/Boeto<br />
+              Perez/Gonzalez vs Martinez/Vidal<br />
               Resultado: 6-4 4-6 7-6<br />
-              pasala.app/m/xxxx
+              pasla.com.ar/match
             </div>
           </div>
         </div>
@@ -96,18 +104,18 @@ export default async function PublicHomePage() {
             <div className="space-y-6 pt-2 sm:pt-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-blue-700 shadow-sm">
                 <Sparkles className="h-3.5 w-3.5" />
-                Producto serio de pádel
+                Lo importante es tu juego
               </div>
 
               <h1 className="text-4xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-                El pádel no termina
+                El padel no termina
                 <br />
                 cuando termina
                 <span className="block text-blue-600">el partido.</span>
               </h1>
 
               <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Registrá tus partidos de pádel. Medí tu progreso. Construí tu historia deportiva.
+                Registra tus partidos de padel. Medi tu progreso. Construi tu historia deportiva.
                 Pensado para dobles, grupos de WhatsApp y clubes reales.
               </p>
 
@@ -123,9 +131,9 @@ export default async function PublicHomePage() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["Historial", "Partidos 2 vs 2 ordenados"],
-                  ["Progreso", "Métricas y rachas"],
-                  ["WhatsApp", "Invitás y compartís"],
+                  ["Historial", "Registra todos tus partidos y analiza tus resultados"],
+                  ["Progreso", "Evaluacion de tu juego y tus golpes"],
+                  ["WhatsApp", "Comparti el resultado e invita a tus compañeros GRATIS"],
                 ].map(([k, v]) => (
                   <div key={k} className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-[0_8px_24px_rgba(2,6,23,0.05)]">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{k}</p>
@@ -153,7 +161,7 @@ export default async function PublicHomePage() {
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 1</p>
-            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Cargás el partido 2 vs 2</h3>
+            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Cargás tu juego</h3>
             <p className="mt-2 text-sm text-slate-600">Armás parejas, club y datos base en segundos.</p>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
@@ -172,7 +180,8 @@ export default async function PublicHomePage() {
       <PublicSection eyebrow="Para jugadores" title="Tu progreso, sin planillas sueltas">
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <PasalaIndex value={78} winScore={62} perfScore={74} />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
                 ["Partidos", "128", "Historial consolidado"],
                 ["Win rate", "62%", "Últimos 90 días"],
@@ -201,7 +210,7 @@ export default async function PublicHomePage() {
             <FeatureCard title="Invitados + reclamo" description="Podés sumar jugadores sin cuenta y consolidar la red con el tiempo." icon={<ShieldCheck className="h-5 w-5" />} />
             <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-blue-600 to-blue-700 p-6 text-white shadow-[0_16px_48px_rgba(37,99,235,0.25)]">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-100">Jugador amateur</p>
-              <p className="mt-3 text-xl font-black leading-tight">“Esto es para cómo jugamos pádel, no una app deportiva genérica.”</p>
+              <p className="mt-3 text-xl font-black leading-tight">Es una app exclusiva para jugadores de padel, pensada para jugadores, no es una app generica.</p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link href="/players" className="rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">Ver jugadores</Link>
                 <Link href={primaryHref} className="rounded-xl border border-white/25 px-4 py-2 text-xs font-black uppercase tracking-wide text-white">Crear perfil</Link>
@@ -211,7 +220,7 @@ export default async function PublicHomePage() {
         </div>
       </PublicSection>
 
-      <PublicSection eyebrow="Clubes de pádel" title="Digitalizá la comunidad del club" description="Ranking interno, torneos, grupos de sábado y actividad local." className="bg-slate-50/70">
+      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking interno, torneos, grupos de sabado y actividad local." className="bg-slate-50/70">
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
             <div className="mb-4 flex items-center gap-2">
@@ -231,7 +240,7 @@ export default async function PublicHomePage() {
             <p className="mt-3 text-sm leading-relaxed text-white/75">PASALA no reemplaza el vínculo social. Lo ordena, lo registra y lo vuelve medible.</p>
             <div className="mt-5 space-y-3">
               {[
-                "Partidos asociados a clubes de pádel",
+                "Partidos asociados a clubes de padel",
                 "Flujo real de grupos y dobles",
                 "Base para ranking y torneos",
               ].map((line) => (
@@ -259,7 +268,7 @@ export default async function PublicHomePage() {
             <pre className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-sm leading-relaxed text-white/95">{shareDemoMessage}</pre>
           </div>
           <div className="space-y-4">
-            <FeatureCard title="No parece una app de tenis" description="El lenguaje visual y funcional está centrado en pádel amateur." icon={<Trophy className="h-5 w-5" />} />
+            <FeatureCard title="Es una app de padel para jugadores de padel" description="El lenguaje visual y funcional esta centrado en padel amateur." icon={<Trophy className="h-5 w-5" />} />
             <FeatureCard title="No depende de que todos tengan cuenta" description="Podés invitar y crecer la red de forma orgánica desde partidos reales." icon={<Users className="h-5 w-5" />} />
             <FeatureCard title="Se entiende en segundos" description="Marcador, dobles, clubes y WhatsApp como parte del producto." icon={<ShieldCheck className="h-5 w-5" />} />
           </div>
@@ -277,7 +286,7 @@ export default async function PublicHomePage() {
           <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-[0_10px_30px_rgba(59,130,246,0.08)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">Clubes</p>
             <p className="mt-2 text-3xl font-black text-slate-900">Gratis por lanzamiento</p>
-            <p className="mt-2 text-sm text-slate-600">Claim + ficha pública. Próximamente reservas y gestión de canchas.</p>
+            <p className="mt-2 text-sm text-slate-600">Ranking interno + ficha publica + actividad de comunidad.</p>
             <div className="mt-5"><Link href={clubHref} className="inline-flex rounded-xl bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-slate-800">Registrar club</Link></div>
           </div>
         </div>

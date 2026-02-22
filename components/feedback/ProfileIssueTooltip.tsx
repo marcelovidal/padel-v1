@@ -69,7 +69,7 @@ export function ProfileIssueTooltip({
     <div className="fixed bottom-5 right-5 z-50">
       {open && (
         <div className="mb-3 w-[340px] max-w-[92vw] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl">
-          <p className="text-sm font-black text-gray-900">Reportar situacion de testing</p>
+          <p className="text-sm font-black text-gray-900">Sugerencias de testing</p>
           <p className="mt-1 text-xs text-gray-500">
             Se enviara al equipo de soporte para verificar la situacion.
           </p>
@@ -108,10 +108,10 @@ export function ProfileIssueTooltip({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        title="Reportar situacion de testing"
+        title="Sugerencias de testing"
         className="rounded-full bg-red-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:bg-red-700"
       >
-        Reportar
+        Sugerencias
       </button>
     </div>
   );

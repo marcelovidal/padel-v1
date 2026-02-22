@@ -80,7 +80,7 @@ export default async function MatchDetailPage({
                             href={`/player/matches/${match.id}/edit`}
                             className="px-4 py-2 text-sm font-bold text-blue-600 bg-white border border-blue-200 rounded-xl hover:bg-blue-50 transition-all active:scale-[0.98]"
                         >
-                            Editar
+                            Editar partido
                         </Link>
                         <CancelMatchButton matchId={match.id} />
                     </div>
@@ -105,6 +105,14 @@ export default async function MatchDetailPage({
                         {effectiveStatus === "cancelled" && "Cancelado"}
                     </Badge>
                 </div>
+
+                {isScheduled && !isCreator && (
+                    <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                        <p className="text-sm font-medium text-amber-800">
+                            Solo quien cargo el partido puede editarlo antes de registrar el resultado.
+                        </p>
+                    </div>
+                )}
 
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">

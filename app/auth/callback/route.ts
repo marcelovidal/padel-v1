@@ -130,7 +130,8 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const rawNext = searchParams.get("next");
-  const nextPath = rawNext && rawNext.startsWith("/") ? rawNext : "/welcome";
+  const nextPathCandidate = rawNext && rawNext.startsWith("/") ? rawNext : "/player";
+  const nextPath = nextPathCandidate === "/" ? "/player" : nextPathCandidate;
 
   let response = NextResponse.redirect(new URL(nextPath, origin));
 

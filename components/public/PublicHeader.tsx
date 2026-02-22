@@ -12,6 +12,7 @@ import {
 import { PublicContactModal } from "@/components/public/PublicContactModal";
 
 const NAV_ITEMS = [
+  { href: "/", label: "Inicio" },
   { href: "/players", label: "Jugadores" },
   { href: "/clubs", label: "Clubes" },
   { href: "/pricing", label: "Precios" },

@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.1-public-polish] - 2026-02-22 (Draft)
+
+### Corregido / Ajustado (Produccion)
+- **Home publica (copy + navegacion)**
+  - Se agrego `Inicio` al menu principal.
+  - Ajustes de copy comercial y unificacion de lenguaje (`padel` sin tilde).
+  - Reemplazo de nombres de ejemplo por nombres neutros/no sensibles.
+  - Mensaje demo de WhatsApp actualizado con contenido realista y URL simplificada (`pasla.com.ar/match`).
+- **Flujo auth desde home publica**
+  - OAuth callback robustecido: si `next` llega vacio o `/`, redirige a `/player` por defecto.
+  - Evita volver a la home publica tras login con Google en flujos iniciados desde marketing.
+- **Detalle de partido (jugador)**
+  - CTA renombrado a `Editar partido`.
+  - Aviso explicito cuando el partido esta programado pero el usuario no es el creador (solo el creador puede editar).
+- **UX de soporte / testing**
+  - Boton flotante renombrado de `Reportar` a `Sugerencias`.
+- **Privacidad / UI jugador**
+  - Se oculta el identificador (ID) visible en el dashboard del jugador.
+
+### Visual / Familiaridad del producto
+- La home publica reutiliza componentes reales del producto para familiarizar al usuario:
+  - `MatchScore` (marcador de partido)
+  - `PasalaIndex` (indice y performance)
+
 ## [v1.11.0-stage-public-web] - 2026-02-21 (Draft)
 
 ### Agregado
