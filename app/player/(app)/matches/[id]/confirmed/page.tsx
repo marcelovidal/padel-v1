@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShareButtons } from "@/components/matches/ShareButtons";
 import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
 import { getSiteUrl } from "@/lib/utils/url";
+import { PlayerService } from "@/services/player.service";
 
 function formatPlayerShortName(firstName?: string | null, lastName?: string | null): string {
     if (!firstName && !lastName) return "?";
@@ -14,12 +15,15 @@ function formatPlayerShortName(firstName?: string | null, lastName?: string | nu
 }
 
 export default async function MatchConfirmedPage({
-    params
+    params,
+    searchParams,
 }: {
-    params: { id: string }
+    params: { id: string };
+    searchParams?: { fme?: string };
 }) {
-    await requirePlayer();
+    const { player } = await requirePlayer();
     const matchSvc = new MatchService();
+    const playerService = new PlayerService();
 
     const match = await matchSvc.getMatchById(params.id);
 
@@ -37,6 +41,13 @@ export default async function MatchConfirmedPage({
     const shareUrl = buildPublicMatchUrl(match.id, siteUrl);
 
     const sets = (result.sets || []) as any[];
+    const isFme = searchParams?.fme === "1";
+    const [metrics, compStats] = isFme
+        ? await Promise.all([
+            playerService.getProfileMetrics(player.id),
+            playerService.getCompetitiveStats(),
+        ])
+        : [null, null];
 
     return (
         <div className="min-h-screen bg-gray-50/50 p-6 flex flex-col items-center justify-center">
@@ -82,6 +93,37 @@ export default async function MatchConfirmedPage({
                     </div>
 
                     <div className="h-px bg-gray-50" />
+
+                    {isFme && metrics && (
+                        <div className="space-y-4">
+                            <div className="text-center">
+                                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-blue-500 mb-1">
+                                    Tu primer progreso
+                                </h2>
+                                <p className="text-sm font-medium text-gray-500">
+                                    Ya activaste tu perfil con datos reales.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 text-center">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Winrate</p>
+                                    <p className="mt-1 text-2xl font-black text-gray-900">{metrics.win_rate}%</p>
+                                </div>
+                                <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 text-center">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Indice PASALA</p>
+                                    <p className="mt-1 text-2xl font-black text-gray-900">
+                                        {metrics.pasala_index == null ? "—" : `${Math.round(metrics.pasala_index)}`}
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 text-center">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mejor companero</p>
+                                    <p className="mt-1 text-sm font-bold text-gray-900 leading-tight">
+                                        {compStats?.best_teammate_name || "Se activa con mas partidos"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Share Section */}
                     <div className="space-y-4">

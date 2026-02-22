@@ -10,6 +10,8 @@ import Link from "next/link";
 import { ArrowRight, Activity, Trophy, Target, Users, Zap, PlusCircle } from "lucide-react";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -24,6 +26,43 @@ export default async function PlayerDashboard() {
   const playerService = new PlayerService();
   const matchService = new MatchService();
   const assessmentService = new AssessmentService();
+  const cookieStore = cookies();
+
+  const fmeSeen = cookieStore.get("pasala_fme_seen")?.value === "1";
+  const firstMatchCheck = await matchService.getPlayerMatches(playerId, { limit: 2 });
+
+  if (!fmeSeen && firstMatchCheck.length === 0) {
+    redirect("/welcome/first-match");
+  }
+
+  if (firstMatchCheck.length === 0) {
+    return (
+      <div className="container mx-auto max-w-3xl p-4 pb-20">
+        <div className="rounded-[32px] border border-blue-100 bg-white p-8 shadow-xl shadow-blue-900/5">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">Tu juego empieza aca</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">Carga tu primer partido</h1>
+              <p className="text-sm leading-relaxed text-slate-600">
+                Activa historial, indice PASALA y la opcion de compartir resultados con tu grupo.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Link href="/welcome/first-match">
+                <button className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 hover:bg-blue-700">
+                  <PlusCircle className="h-4 w-4" />
+                  Cargar mi primer partido
+                </button>
+              </Link>
+              <Link href="/player/matches/new" className="text-center text-sm font-bold text-gray-400 hover:text-gray-600">
+                Ir al formulario completo
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch all data in parallel
   const [metrics, recentMatches, pendingAssessments, compStats] = await Promise.all([
@@ -45,6 +84,24 @@ export default async function PlayerDashboard() {
 
   return (
     <div className="container mx-auto p-4 max-w-5xl space-y-8 pb-20">
+      {recentMatches.length === 1 && (
+        <div className="rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Buen comienzo</p>
+              <p className="mt-1 text-sm font-medium text-emerald-900">
+                Ya cargaste tu primer partido. Suma otro para mejorar tu lectura de progreso y contexto competitivo.
+              </p>
+            </div>
+            <Link href="/player/matches/new">
+              <button className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white hover:bg-emerald-700">
+                Cargar segundo partido
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Header with Hero Style */}
       <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-6">
