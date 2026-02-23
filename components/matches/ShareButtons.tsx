@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Copy, MessageCircle, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { recordShareAction } from "@/lib/actions/share.actions";
+import { trackEvent } from "@/lib/analytics/gtag";
 
 type ShareChannel = "whatsapp" | "copylink" | "webshare";
 
@@ -28,6 +29,11 @@ export function ShareButtons({ matchId, message, shareUrl, variant = "default" }
 
     async function record(channel: ShareChannel) {
         await recordShareAction(matchId, channel);
+        trackEvent("match_shared", {
+            channel,
+            match_id: matchId,
+            surface_variant: variant,
+        });
     }
 
     async function handleWhatsApp() {

@@ -16,6 +16,7 @@ Any new release tag must pass:
 
 ## Release History
 
+- **v1.11.2-ga4-tracking** (Draft): Integracion GA4 para Next.js App Router con script global, `page_view` consistente en navegacion SPA (sin doble conteo) y evento de producto `match_shared` por canal.
 - **v1.11.1-public-polish** (Draft): Ajustes finos de produccion. Pulido de home publica (copy/menu/demo), redirect post-Google hacia `/player`, mejora de claridad en detalle de partidos programados, boton `Sugerencias` para soporte y ocultamiento de ID visible en dashboard de jugador.
 - **v1.11.0-stage-public-web** (Draft): Stage Public Web. Nuevo marketing site integrado (home + players/clubs/pricing/faq/legal), layout publico con header/footer, CTAs inteligentes por estado de sesion y metadata/OG base para campanas.
 - **v1.10.1-stage-p-club-claims-admin** (Draft): Stage P manual review. Admin panel `/admin/club-claims` to approve/reject club claim requests, incremental hardening of claim request data, and pending uniqueness per club.

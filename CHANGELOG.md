@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.2-ga4-tracking] - 2026-02-23 (Draft)
+
+### Agregado
+- **GA4 global (App Router)**: integracion de Google Analytics 4 en `app/layout.tsx` usando `next/script`.
+- **Pageviews consistentes en SPA**: tracker client con `usePathname` + `useSearchParams` para registrar `page_view` en navegaciones internas.
+- **Helper reutilizable de analytics**: `lib/analytics/gtag.ts` con `pageview()` y `trackEvent()`.
+- **Evento de negocio `match_shared`**: tracking en `ShareButtons` con parametros `channel`, `match_id` y `surface_variant`.
+
+### Solidez / Implementacion
+- Configuracion GA4 con `send_page_view: false` para evitar doble conteo y enviar `page_view` manualmente.
+- Activacion por entorno via `NEXT_PUBLIC_GA_MEASUREMENT_ID` (sin hardcode obligatorio en produccion).
+- Tracker envuelto en `Suspense` para compatibilidad con `useSearchParams` en build de Next.js App Router.
+
 ## [v1.11.1-public-polish] - 2026-02-22 (Draft)
 
 ### Corregido / Ajustado (Produccion)
