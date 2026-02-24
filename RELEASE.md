@@ -16,7 +16,8 @@ Any new release tag must pass:
 
 ## Release History
 
-- **v1.11.4-stage-c1-club-dashboard** (Draft): Dashboard operativo para clubes (`/club/dashboard`) con KPIs de actividad (7d/30d), jugadores únicos, distribución por día/hora, top jugadores y categorías. Incluye RPC segura `club_get_dashboard_stats` validando ownership del club y bloque de insights operativos (día/hora pico, ritmo semanal y mix de actividad).
+- **v1.11.5-admin-club-preview** (Draft): Vista previa read-only de perfil de club para admins (`/admin/clubs/[id]/preview`) con acceso desde `/admin/club-claims`, para soporte y QA sin impersonacion ni acciones.
+- **v1.11.4-stage-c1-club-dashboard** (Draft): Dashboard operativo para clubes (`/club/dashboard`) con KPIs de actividad (7d/30d), jugadores Ãºnicos, distribuciÃ³n por dÃ­a/hora, top jugadores y categorÃ­as. Incluye RPC segura `club_get_dashboard_stats` validando ownership del club y bloque de insights operativos (dÃ­a/hora pico, ritmo semanal y mix de actividad).
 - **v1.11.3-ntf1r-in-app-notifications** (Draft): NTF-1R retention-first. Sistema de notificaciones in-app para Player/Club/Admin con tabla `notifications`, RLS+RPCs seguras, campana con badge/listado, `mark_read` + `mark_all_read`, y eventos iniciales (`player_match_result_ready`, `player_claim_success`, `club_claim_requested`, `club_match_created`).
 - **v1.11.2-ga4-tracking** (Draft): Integracion GA4 para Next.js App Router con script global, `page_view` consistente en navegacion SPA (sin doble conteo) y evento de producto `match_shared` por canal.
 - **v1.11.1-public-polish** (Draft): Ajustes finos de produccion. Pulido de home publica (copy/menu/demo), redirect post-Google hacia `/player`, mejora de claridad en detalle de partidos programados, boton `Sugerencias` para soporte y ocultamiento de ID visible en dashboard de jugador.

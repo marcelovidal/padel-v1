@@ -232,3 +232,11 @@ All notable changes to this project will be documented in this file.
 - Sistema de jugadores invitados.
 - Proceso de "Claim Profile" para vincular cuentas de usuario a perfiles de jugadores pre-existentes.
 - Restricciones de co-participaciÃƒÂ³n en partidos.
+## [Unreleased]
+
+### Agregado
+- Admin Club Preview read-only: nueva ruta `app/admin/clubs/[id]/preview/page.tsx` para soporte/QA de perfiles de club.
+- Links "Ver preview del club" en `/admin/club-claims` (pendientes, aprobados y sin reclamo).
+
+### Corregido
+- Normalizacion de texto/encoding en la nueva vista admin preview de club.

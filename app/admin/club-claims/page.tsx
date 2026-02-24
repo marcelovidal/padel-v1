@@ -90,6 +90,14 @@ export default async function AdminClubClaimsPage({
                       <p className="text-xs text-gray-400">
                         Solicitado: {new Date(request.created_at).toLocaleString("es-AR")}
                       </p>
+                      {request.clubs?.id ? (
+                        <Link
+                          href={`/admin/clubs/${request.clubs.id}/preview`}
+                          className="inline-flex text-xs font-bold text-blue-700 hover:underline mt-1"
+                        >
+                          Ver preview del club
+                        </Link>
+                      ) : null}
                     </div>
                     <AdminClubClaimActions requestId={request.id} />
                   </div>
@@ -120,6 +128,12 @@ export default async function AdminClubClaimsPage({
                     <p className="text-xs text-gray-400 mt-1">
                       Aprobado: {club.claimed_at ? new Date(club.claimed_at).toLocaleString("es-AR") : "N/D"}
                     </p>
+                    <Link
+                      href={`/admin/clubs/${club.id}/preview`}
+                      className="inline-flex text-xs font-bold text-blue-700 hover:underline mt-2"
+                    >
+                      Ver preview del club
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -175,6 +189,12 @@ export default async function AdminClubClaimsPage({
                     <p className="text-xs text-gray-400 mt-1">
                       Creado: {new Date(club.created_at).toLocaleString("es-AR")}
                     </p>
+                    <Link
+                      href={`/admin/clubs/${club.id}/preview`}
+                      className="inline-flex text-xs font-bold text-blue-700 hover:underline mt-2"
+                    >
+                      Ver preview del club
+                    </Link>
                   </div>
                 ))}
               </div>
