@@ -50,8 +50,7 @@ BEGIN
   completed_matches AS (
     SELECT m.id, m.club_id, m.created_at, m.match_at
     FROM public.matches m
-    WHERE m.deleted_at IS NULL
-      AND EXISTS (
+    WHERE EXISTS (
         SELECT 1
         FROM public.match_results mr
         WHERE mr.match_id = m.id
@@ -60,14 +59,12 @@ BEGIN
   matches_created_30 AS (
     SELECT m.id, m.club_id, m.created_at
     FROM public.matches m, bounds b
-    WHERE m.deleted_at IS NULL
-      AND m.created_at >= b.d30
+    WHERE m.created_at >= b.d30
   ),
   matches_created_prev30 AS (
     SELECT m.id
     FROM public.matches m, bounds b
-    WHERE m.deleted_at IS NULL
-      AND m.created_at >= b.d60
+    WHERE m.created_at >= b.d60
       AND m.created_at < b.d30
   ),
   matches_result_30 AS (
@@ -142,7 +139,7 @@ BEGIN
        FROM players_with_user pwu, bounds b
        WHERE pwu.created_at >= b.d30) AS player_profiles_created_30d,
 
-      (SELECT COUNT(*)::int FROM public.matches m, bounds b WHERE m.deleted_at IS NULL AND m.created_at >= b.d7) AS matches_created_7d,
+      (SELECT COUNT(*)::int FROM public.matches m, bounds b WHERE m.created_at >= b.d7) AS matches_created_7d,
       (SELECT COUNT(*)::int FROM matches_created_30) AS matches_created_30d,
       (SELECT COUNT(*)::int FROM matches_created_prev30) AS matches_created_prev_30d,
       (SELECT COUNT(*)::int FROM matches_result_7) AS matches_with_result_7d,

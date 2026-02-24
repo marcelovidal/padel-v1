@@ -75,6 +75,34 @@ export default async function AdminLayout({
               <SignOutButton />
             </div>
           </div>
+          <div className="sm:hidden border-t border-gray-100 py-2">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <Link
+                href="/admin"
+                className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/admin/users"
+                className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
+              >
+                Jugadores
+              </Link>
+              <Link
+                href="/admin/matches"
+                className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
+              >
+                Partidos
+              </Link>
+              <Link
+                href="/admin/club-claims"
+                className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
+              >
+                Clubes
+              </Link>
+            </div>
+          </div>
         </div>
       </nav>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
