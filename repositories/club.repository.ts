@@ -101,6 +101,17 @@ export type ClubLeadListItem = {
   suggested_by: string;
 };
 
+export type ClubDashboardStats = {
+  club_id: string;
+  matches_last_7_days: number;
+  matches_last_30_days: number;
+  unique_players_last_30_days: number;
+  matches_by_weekday: Array<{ dow: number; label: string; count: number }>;
+  matches_by_hour: Array<{ hour: number; count: number }>;
+  top_players: Array<{ player_id: string; display_name: string; matches_count: number }>;
+  matches_by_category: Array<{ category: string; count: number }>;
+};
+
 export class ClubRepository {
   private async getClient() {
     return await createClient();
@@ -409,5 +420,39 @@ export class ClubRepository {
       exact_name: !!row.exact_name,
       location_match: !!row.location_match,
     }));
+  }
+
+  async getDashboardStats(clubId?: string | null): Promise<ClubDashboardStats> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_get_dashboard_stats", {
+      p_club_id: clubId || null,
+    });
+
+    if (error) throw error;
+
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) {
+      return {
+        club_id: clubId || "",
+        matches_last_7_days: 0,
+        matches_last_30_days: 0,
+        unique_players_last_30_days: 0,
+        matches_by_weekday: [],
+        matches_by_hour: [],
+        top_players: [],
+        matches_by_category: [],
+      };
+    }
+
+    return {
+      club_id: row.club_id,
+      matches_last_7_days: Number(row.matches_last_7_days || 0),
+      matches_last_30_days: Number(row.matches_last_30_days || 0),
+      unique_players_last_30_days: Number(row.unique_players_last_30_days || 0),
+      matches_by_weekday: Array.isArray(row.matches_by_weekday) ? row.matches_by_weekday : [],
+      matches_by_hour: Array.isArray(row.matches_by_hour) ? row.matches_by_hour : [],
+      top_players: Array.isArray(row.top_players) ? row.top_players : [],
+      matches_by_category: Array.isArray(row.matches_by_category) ? row.matches_by_category : [],
+    };
   }
 }

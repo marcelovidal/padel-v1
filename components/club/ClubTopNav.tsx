@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Building2, CalendarDays, Home, LogOut, Menu, UserCircle, Users, X } from "lucide-react";
+import { BarChart3, Building2, CalendarDays, Home, LogOut, Menu, UserCircle, Users, X } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 
@@ -14,6 +14,7 @@ interface ClubTopNavProps {
 
 const navItems = [
   { href: "/club", label: "Resumen", icon: Home },
+  { href: "/club/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/club/matches", label: "Partidos", icon: CalendarDays },
   { href: "/club/players", label: "Jugadores", icon: Users },
   { href: "/club/profile", label: "Perfil", icon: UserCircle },
@@ -76,7 +77,7 @@ export function ClubTopNav({ clubName, email, avatarSrc }: ClubTopNavProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (

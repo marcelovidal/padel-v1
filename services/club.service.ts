@@ -113,4 +113,8 @@ export class ClubService {
   }) {
     return this.repository.findClaimCandidates(input);
   }
+
+  async getDashboardStats(clubId?: string | null) {
+    return this.repository.getDashboardStats(clubId);
+  }
 }

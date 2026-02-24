@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.4-stage-c1-club-dashboard] - 2026-02-24 (Draft)
+
+### Agregado
+- **Stage C1 (Club Analytics Dashboard)**: nueva ruta `app/club/(app)/dashboard/page.tsx` con métricas operativas para clubes.
+- **RPC `club_get_dashboard_stats(p_club_id uuid)`** con validación de ownership (club reclamado por `auth.uid()`).
+- Métricas incluidas (solo partidos con resultado):
+  - `matches_last_7_days`
+  - `matches_last_30_days`
+  - `unique_players_last_30_days`
+  - `matches_by_weekday`
+  - `matches_by_hour`
+  - `top_players` (top 10)
+  - `matches_by_category` (distribución por categoría de jugadores)
+- Navegación Club actualizada con acceso a `Dashboard`.
+
+### Seguridad / Consistencia
+- La RPC filtra por `club_id` + `claim_status='claimed'` + `claimed_by=auth.uid()`.
+- Las métricas consideran partidos completados por existencia de `match_results` (fuente de verdad de resultados cargados).
+
+### C1.1 Insights (Operativo)
+- Bloque de **insights accionables** en `/club/dashboard` derivado de métricas existentes (sin cambiar RPC):
+  - día/hora pico
+  - ritmo semanal vs promedio mensual
+  - concentración de jugadores frecuentes (top 3 share estimado)
+  - categoría con mayor participación
+
 ## [v1.11.3-ntf1r-in-app-notifications] - 2026-02-24 (Draft)
 
 ### Agregado
