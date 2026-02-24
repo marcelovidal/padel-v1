@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createNotificationInternal } from "@/lib/actions/notification.actions";
 
 type FormState = { error?: string } | null;
 
@@ -72,6 +73,25 @@ export async function createMatchAsClubAction(
     return { error: insertError?.message || "No pudimos crear el partido." };
   }
 
+  try {
+    await createNotificationInternal({
+      clubId: club.id,
+      type: "club_match_created",
+      entityId: created,
+      priority: 2,
+      dedupeKey: `club_match_created:${created}`,
+      payload: {
+        schema_version: 1,
+        title: "Nuevo partido en tu club",
+        message: "Ya se registró un partido y podés gestionarlo desde el panel.",
+        link: "/club/matches",
+        cta_label: "Ver partidos",
+      },
+    });
+  } catch (notificationError) {
+    console.error("notification club_match_created failed", notificationError);
+  }
+
   redirect(`/club/matches`);
 }
 
@@ -115,6 +135,19 @@ export async function createMatchWithPlayersAsClubAction(
     return { error: "Fecha y hora invalidas." };
   }
 
+  const { data: club, error: clubError } = await (supabase as any)
+    .from("clubs")
+    .select("id")
+    .eq("claimed_by", user.id)
+    .eq("claim_status", "claimed")
+    .is("deleted_at", null)
+    .order("claimed_at", { ascending: false })
+    .maybeSingle();
+
+  if (clubError || !club) {
+    return { error: "No encontramos un club reclamado para tu usuario." };
+  }
+
   const { data, error } = await (supabase as any).rpc("club_create_match_with_players", {
     p_match_at: matchAtISO,
     p_player_a1_id: playerA1,
@@ -132,6 +165,25 @@ export async function createMatchWithPlayersAsClubAction(
     if (raw.includes("DUPLICATE_PLAYERS")) return { error: "No puedes repetir jugadores." };
     if (raw.includes("INVALID_MATCH_AT")) return { error: "Fecha y hora invalidas." };
     return { error: error?.message || "No pudimos crear el partido." };
+  }
+
+  try {
+    await createNotificationInternal({
+      clubId: club.id,
+      type: "club_match_created",
+      entityId: data,
+      priority: 2,
+      dedupeKey: `club_match_created:${data}`,
+      payload: {
+        schema_version: 1,
+        title: "Nuevo partido en tu club",
+        message: "Se creó un partido con jugadores y ya está disponible en el panel.",
+        link: "/club/matches",
+        cta_label: "Ver partidos",
+      },
+    });
+  } catch (notificationError) {
+    console.error("notification club_match_created (with players) failed", notificationError);
   }
 
   redirect(`/club/matches`);

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ClubService } from "@/services/club.service";
+import { createNotificationInternal } from "@/lib/actions/notification.actions";
 
 type ClubActionErrorCode =
   | "NOT_AUTHENTICATED"
@@ -140,6 +141,39 @@ export async function requestClubClaimAction(input: {
     revalidatePath("/player/matches/new");
     revalidatePath(`/welcome/claim/club?club_id=${input.clubId}`);
     revalidatePath("/admin/club-claims");
+
+    try {
+      const { data: admins } = await (supabase as any)
+        .from("profiles")
+        .select("id")
+        .eq("role", "admin");
+
+      const dedupeKey = `club_claim_requested:${requestId}`;
+      await Promise.all(
+        ((admins || []) as Array<{ id: string }>).map((admin) =>
+          createNotificationInternal({
+            userId: admin.id,
+            type: "club_claim_requested",
+            entityId: requestId,
+            priority: 3,
+            dedupeKey,
+            payload: {
+              schema_version: 1,
+              title: "Nuevo reclamo de club",
+              message: "Recibiste una solicitud para revisar en el panel admin.",
+              link: "/admin/club-claims",
+              cta_label: "Revisar",
+              club_id: input.clubId,
+            },
+          }).catch((notificationError) => {
+            console.error("notification club_claim_requested failed", notificationError);
+            return null;
+          })
+        )
+      );
+    } catch (notificationError) {
+      console.error("notification club_claim_requested batch failed", notificationError);
+    }
 
     return {
       success: true as const,

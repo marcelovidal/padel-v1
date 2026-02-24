@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createNotificationInternal } from "@/lib/actions/notification.actions";
 
 const fmeSchema = z
   .object({
@@ -102,6 +103,25 @@ export async function createFirstMatchWithResultAsPlayer(prevState: any, formDat
     });
 
     if (resultError) throw resultError;
+
+    try {
+      await createNotificationInternal({
+        userId: user.id,
+        type: "player_match_result_ready",
+        entityId: matchId,
+        priority: 2,
+        dedupeKey: `player_match_result_ready:${matchId}`,
+        payload: {
+          schema_version: 1,
+          title: "Resultado cargado",
+          message: "Tu primer partido ya tiene marcador y podés compartirlo.",
+          link: `/player/matches/${matchId}/confirmed?fme=1`,
+          cta_label: "Ver resultado",
+        },
+      });
+    } catch (notificationError) {
+      console.error("notification player_match_result_ready (fme) failed", notificationError);
+    }
 
     revalidatePath("/player");
     revalidatePath("/player/matches");

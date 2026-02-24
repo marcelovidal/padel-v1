@@ -16,6 +16,7 @@ Any new release tag must pass:
 
 ## Release History
 
+- **v1.11.3-ntf1r-in-app-notifications** (Draft): NTF-1R retention-first. Sistema de notificaciones in-app para Player/Club/Admin con tabla `notifications`, RLS+RPCs seguras, campana con badge/listado, `mark_read` + `mark_all_read`, y eventos iniciales (`player_match_result_ready`, `player_claim_success`, `club_claim_requested`, `club_match_created`).
 - **v1.11.2-ga4-tracking** (Draft): Integracion GA4 para Next.js App Router con script global, `page_view` consistente en navegacion SPA (sin doble conteo) y evento de producto `match_shared` por canal.
 - **v1.11.1-public-polish** (Draft): Ajustes finos de produccion. Pulido de home publica (copy/menu/demo), redirect post-Google hacia `/player`, mejora de claridad en detalle de partidos programados, boton `Sugerencias` para soporte y ocultamiento de ID visible en dashboard de jugador.
 - **v1.11.0-stage-public-web** (Draft): Stage Public Web. Nuevo marketing site integrado (home + players/clubs/pricing/faq/legal), layout publico con header/footer, CTAs inteligentes por estado de sesion y metadata/OG base para campanas.

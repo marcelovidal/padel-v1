@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import type { Database } from "@/types/database";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -62,7 +63,8 @@ export default async function AdminLayout({
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <NotificationBell target="admin" />
               <span className="text-sm text-gray-700 mr-4">{user?.email}</span>
               <SignOutButton />
             </div>

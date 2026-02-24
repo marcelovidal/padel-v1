@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { PlayerService } from "@/services/player.service";
+import { createNotificationInternal } from "@/lib/actions/notification.actions";
 
 type ClaimErrorCode =
   | "CLAIM_NOT_ALLOWED"
@@ -94,6 +95,25 @@ export async function claimProfileAction(input: {
       ? nextPath
       : `/welcome/onboarding?next=${encodeURIComponent(nextPath)}`;
 
+    try {
+      await createNotificationInternal({
+        userId: user.id,
+        type: "player_claim_success",
+        entityId: input.targetPlayerId,
+        priority: 3,
+        dedupeKey: `player_claim_success:${input.targetPlayerId}`,
+        payload: {
+          schema_version: 1,
+          title: "Perfil reclamado",
+          message: "Tu perfil quedó vinculado y ya podés usar tu historial.",
+          link: claimedPlayer?.onboarding_completed ? "/player/profile" : "/welcome/onboarding",
+          cta_label: claimedPlayer?.onboarding_completed ? "Ver perfil" : "Completar onboarding",
+        },
+      });
+    } catch (notificationError) {
+      console.error("notification player_claim_success failed", notificationError);
+    }
+
     return {
       success: true as const,
       redirectTo,
@@ -155,6 +175,25 @@ export async function finalizeClaimFlowAction(input: {
     revalidatePath("/player");
     revalidatePath("/player/profile");
     revalidatePath("/player/players");
+
+    try {
+      await createNotificationInternal({
+        userId: user.id,
+        type: "player_claim_success",
+        entityId: input.targetPlayerId,
+        priority: 3,
+        dedupeKey: `player_claim_success:${input.targetPlayerId}`,
+        payload: {
+          schema_version: 1,
+          title: "Perfil reclamado",
+          message: "Tu perfil quedó vinculado y tu onboarding fue completado.",
+          link: "/player/profile",
+          cta_label: "Ver perfil",
+        },
+      });
+    } catch (notificationError) {
+      console.error("notification player_claim_success (finalize) failed", notificationError);
+    }
 
     return {
       success: true as const,

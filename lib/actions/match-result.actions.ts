@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createNotificationInternal } from "@/lib/actions/notification.actions";
 
 const submitResultSchema = z.object({
     match_id: z.string().uuid(),
@@ -75,6 +76,25 @@ export async function submitMatchResultAsPlayer(prevState: any, formData: FormDa
         }
 
         return { error: err.message || "Error al cargar el resultado" };
+    }
+
+    try {
+        await createNotificationInternal({
+            userId: user.id,
+            type: "player_match_result_ready",
+            entityId: match_id,
+            priority: 2,
+            dedupeKey: `player_match_result_ready:${match_id}`,
+            payload: {
+                schema_version: 1,
+                title: "Resultado cargado",
+                message: "Tu partido ya tiene marcador y podes verlo o compartirlo.",
+                link: `/player/matches/${match_id}/confirmed`,
+                cta_label: "Ver resultado",
+            },
+        });
+    } catch (notificationError) {
+        console.error("notification player_match_result_ready failed", notificationError);
     }
 
     revalidatePath("/player/matches");

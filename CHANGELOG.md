@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.3-ntf1r-in-app-notifications] - 2026-02-24 (Draft)
+
+### Agregado
+- **NTF-1R (retention-first)**: sistema de notificaciones in-app para Player y Club.
+- **UI de campana** con badge de no leidas + dropdown (ultimas 10) en `PlayerTopNav` y `ClubTopNav`.
+- **RPCs de notificaciones**:
+  - `notification_create`
+  - `notification_list`
+  - `notification_unread_count`
+  - `notification_mark_read`
+- **Tracking GA4 de interaccion** en campana y clicks de notificaciones.
+
+### Eventos iniciales (retencion)
+- `player_match_result_ready` al guardar resultado (incluye flujo FME).
+- `player_claim_success` al completar reclamo de perfil.
+- `club_claim_requested` (notificacion a admins para revisar reclamo).
+- `club_match_created` al crear partido desde portal Club.
+
+### Seguridad / Solidez
+- Tabla `public.notifications` con target exclusivo (`user_id` xor `club_id`).
+- RLS para lectura/actualizacion de notificaciones propias (player y club owner).
+- Deduplicacion por `dedupe_key` (indices parciales por destinatario).
+- `notification_create` endurecida con validaciones por tipo para evitar uso indebido.
+
+### Incremental (NTF-1R follow-up)
+- RPC `notification_mark_all_read` para marcar todas como leidas por target.
+- Soporte de target `admin` (alias user-based) en `notification_list` / `notification_unread_count`.
+- Campana de notificaciones integrada en `app/admin/layout.tsx`.
+- CTA `Marcar todo` en dropdown de notificaciones.
+
 ## [v1.11.2-ga4-tracking] - 2026-02-23 (Draft)
 
 ### Agregado

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface PlayerTopNavProps {
     displayName: string;
@@ -48,6 +49,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials }: 
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <NotificationBell target="player" />
                     <div className="hidden md:flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
                         <UserAvatar src={avatarSrc || null} initials={avatarInitials} size="xs" />
                         <div className="min-w-0 max-w-[180px]">

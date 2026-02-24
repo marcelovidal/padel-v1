@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Building2, CalendarDays, Home, LogOut, Menu, UserCircle, Users, X } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface ClubTopNavProps {
   clubName: string;
@@ -52,13 +53,16 @@ export function ClubTopNav({ clubName, email, avatarSrc }: ClubTopNavProps) {
           </nav>
         </div>
 
-        <button
-          onClick={() => setOpen((prev) => !prev)}
-          className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-          aria-label={open ? "Cerrar menu" : "Abrir menu"}
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-3">
+          <NotificationBell target="club" />
+          <button
+            onClick={() => setOpen((prev) => !prev)}
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+            aria-label={open ? "Cerrar menu" : "Abrir menu"}
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {open && (
