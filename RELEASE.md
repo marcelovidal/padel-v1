@@ -17,6 +17,7 @@ Any new release tag must pass:
 ## Release History
 
 - **v1.11.6-admin-overview-a1** (Draft): Dashboard estrategico admin (`/admin`) con KPIs de usuarios, onboarding, partidos, clubes, claims y shares, mas insights automáticos para orientar roadmap. Incluye RPC segura `admin_get_overview_stats()`.
+- **v1.11.7-dashboard-ui-polish-admin-club** (Draft): Mejora visual/UX de dashboards Admin y Club con foco en legibilidad de metricas, jerarquia de informacion e insights estrategicos.
 - **v1.11.5-admin-club-preview** (Draft): Vista previa read-only de perfil de club para admins (`/admin/clubs/[id]/preview`) con acceso desde `/admin/club-claims`, para soporte y QA sin impersonacion ni acciones.
 - **v1.11.4-stage-c1-club-dashboard** (Draft): Dashboard operativo para clubes (`/club/dashboard`) con KPIs de actividad (7d/30d), jugadores Ãºnicos, distribuciÃ³n por dÃ­a/hora, top jugadores y categorÃ­as. Incluye RPC segura `club_get_dashboard_stats` validando ownership del club y bloque de insights operativos (dÃ­a/hora pico, ritmo semanal y mix de actividad).
 - **v1.11.3-ntf1r-in-app-notifications** (Draft): NTF-1R retention-first. Sistema de notificaciones in-app para Player/Club/Admin con tabla `notifications`, RLS+RPCs seguras, campana con badge/listado, `mark_read` + `mark_all_read`, y eventos iniciales (`player_match_result_ready`, `player_claim_success`, `club_claim_requested`, `club_match_created`).

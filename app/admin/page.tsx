@@ -43,6 +43,13 @@ function growthBadge(value: number | null) {
   };
 }
 
+function trendTone(value: number | null) {
+  if (value == null) return "text-gray-600";
+  if (value > 0.5) return "text-green-700";
+  if (value < -0.5) return "text-red-700";
+  return "text-amber-700";
+}
+
 function buildInsights(stats: Awaited<ReturnType<AdminService["getOverviewStats"]>>) {
   const insights: Array<{ title: string; detail: string; level: "info" | "warn" | "good" }> = [];
 
@@ -99,7 +106,7 @@ function buildInsights(stats: Awaited<ReturnType<AdminService["getOverviewStats"
 
   if (stats.sharing.match_shares_30d > 0) {
     insights.push({
-      title: "Señal de crecimiento organico",
+      title: "Senal de crecimiento organico",
       detail: `Se registraron ${formatInt(stats.sharing.match_shares_30d)} shares de partidos en 30d. Conviene seguir midiendo conversion desde links publicos.`,
       level: "good",
     });
@@ -134,9 +141,9 @@ function InsightCard({
       : "border-blue-200 bg-blue-50";
 
   return (
-    <div className={`rounded-xl border p-4 ${styles}`}>
+    <div className={`rounded-2xl border p-4 shadow-sm ${styles}`}>
       <p className="text-sm font-black text-gray-900">{title}</p>
-      <p className="mt-1 text-sm text-gray-700">{detail}</p>
+      <p className="mt-1 text-sm leading-relaxed text-gray-700">{detail}</p>
     </div>
   );
 }
@@ -145,19 +152,54 @@ function KpiCard({
   title,
   value,
   subtitle,
+  accentClassName = "from-blue-600 to-cyan-500",
 }: {
   title: string;
   value: string;
   subtitle?: string;
+  accentClassName?: string;
 }) {
   return (
-    <Card>
+    <Card className="overflow-hidden border-gray-200 shadow-sm">
+      <div className={`h-1 w-full bg-gradient-to-r ${accentClassName}`} />
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-gray-600">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-black text-gray-900">{value}</div>
-        {subtitle ? <p className="mt-1 text-xs text-gray-500">{subtitle}</p> : null}
+        <div className="text-3xl font-black tracking-tight text-gray-900">{value}</div>
+        {subtitle ? <p className="mt-2 text-xs leading-relaxed text-gray-500">{subtitle}</p> : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function GrowthCard({
+  title,
+  badge,
+  metricText,
+  hint,
+  toneClassName,
+}: {
+  title: string;
+  badge: { label: string; className: string };
+  metricText: string;
+  hint: string;
+  toneClassName: string;
+}) {
+  return (
+    <Card className="border-gray-200 shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${badge.className}`}>
+            {badge.label}
+          </div>
+          <div className={`text-xs font-bold ${toneClassName}`}>Comparado con 30d previos</div>
+        </div>
+        <p className="text-sm font-semibold text-gray-900">{metricText}</p>
+        <p className="text-xs text-gray-500">{hint}</p>
       </CardContent>
     </Card>
   );
@@ -178,14 +220,44 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard Admin</h1>
-          <p className="text-gray-600">
-            Vista estrategica para producto y operacion (ventana principal: ultimos 30 dias).
-          </p>
+      <div className="rounded-2xl border border-gray-200 bg-gradient-to-r from-white via-blue-50/60 to-cyan-50/60 p-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
+              Admin Strategic Overview
+            </p>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-gray-900">Dashboard Admin</h1>
+            <p className="mt-1 text-gray-600">
+              Vista estrategica para producto y operacion (ventana principal: ultimos 30 dias).
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">Usuarios</p>
+              <p className="text-lg font-black text-gray-900">{formatInt(stats.users.new_30d)}</p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">Partidos</p>
+              <p className="text-lg font-black text-gray-900">{formatInt(stats.matches.with_result_30d)}</p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">Clubes</p>
+              <p className="text-lg font-black text-gray-900">{formatInt(stats.clubs.active_30d)}</p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">Claims</p>
+              <p className="text-lg font-black text-gray-900">{formatInt(stats.clubs.pending_claims)}</p>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-gray-500">Actualizado: {generatedAt}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 font-semibold text-blue-700">
+            Actualizado: {generatedAt}
+          </span>
+          <span className="rounded-full border border-gray-200 bg-white px-3 py-1 font-semibold text-gray-600">
+            Ventana principal: {stats.window.days || 30} dias
+          </span>
+        </div>
       </div>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -193,118 +265,124 @@ export default async function AdminDashboardPage() {
           title="Usuarios nuevos (30d)"
           value={formatInt(stats.users.new_30d)}
           subtitle={`${formatInt(stats.users.new_7d)} en 7d`}
+          accentClassName="from-blue-600 to-sky-500"
         />
         <KpiCard
           title="Onboarding completion (30d)"
           value={formatPercent(stats.users.onboarding_completion_rate_30d)}
           subtitle={`${formatInt(stats.users.onboarding_completed_30d)} completos / ${formatInt(stats.users.player_profiles_created_30d)} perfiles`}
+          accentClassName="from-emerald-600 to-lime-500"
         />
         <KpiCard
           title="Partidos con resultado (30d)"
           value={formatInt(stats.matches.with_result_30d)}
           subtitle={`${formatInt(stats.matches.with_result_7d)} en 7d`}
+          accentClassName="from-indigo-600 to-blue-500"
         />
         <KpiCard
           title="Clubes activos claimed (30d)"
           value={formatInt(stats.clubs.active_30d)}
           subtitle={`${formatInt(stats.clubs.claimed_total)} clubes claimed totales`}
+          accentClassName="from-cyan-600 to-teal-500"
         />
         <KpiCard
           title="Players activos (30d)"
           value={formatInt(stats.users.active_players_30d)}
           subtitle="Participacion en partidos con resultado"
+          accentClassName="from-violet-600 to-fuchsia-500"
         />
         <KpiCard
           title="Completion resultados (30d)"
           value={formatPercent(stats.matches.result_completion_rate_30d)}
           subtitle={`${formatInt(stats.matches.with_result_30d)} con resultado / ${formatInt(stats.matches.created_30d)} creados`}
+          accentClassName="from-amber-500 to-orange-500"
         />
         <KpiCard
           title="Claims pendientes"
           value={formatInt(stats.clubs.pending_claims)}
           subtitle={`Mediana resolucion 30d: ${formatHours(stats.clubs.claim_resolution_median_hours_30d)}`}
+          accentClassName="from-rose-500 to-pink-500"
         />
         <KpiCard
           title="Shares de partidos (30d)"
           value={formatInt(stats.sharing.match_shares_30d)}
           subtitle="Evento share registrado en app"
+          accentClassName="from-slate-700 to-slate-500"
         />
       </section>
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Crecimiento de partidos (30d vs prev. 30d)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${matchesGrowth.className}`}>
-              {matchesGrowth.label}
-            </div>
-            <p className="text-sm text-gray-700">
-              {formatInt(stats.matches.with_result_30d)} partidos con resultado en 30d.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Crecimiento de players activos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${playersGrowth.className}`}>
-              {playersGrowth.label}
-            </div>
-            <p className="text-sm text-gray-700">
-              {formatInt(stats.users.active_players_30d)} players participaron en partidos con resultado.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Crecimiento de clubes activos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${clubsGrowth.className}`}>
-              {clubsGrowth.label}
-            </div>
-            <p className="text-sm text-gray-700">
-              {formatInt(stats.clubs.active_30d)} clubes claimed con actividad en 30d.
-            </p>
-          </CardContent>
-        </Card>
+        <GrowthCard
+          title="Crecimiento de partidos (30d vs prev. 30d)"
+          badge={matchesGrowth}
+          metricText={`${formatInt(stats.matches.with_result_30d)} partidos con resultado en 30d`}
+          hint="Usa partidos con resultado como senal de uso real del producto."
+          toneClassName={trendTone(stats.growth.matches_30d_vs_prev_30d_pct)}
+        />
+        <GrowthCard
+          title="Crecimiento de players activos"
+          badge={playersGrowth}
+          metricText={`${formatInt(stats.users.active_players_30d)} players participaron en partidos con resultado`}
+          hint="Mide amplitud de uso, no solo volumen de partidos."
+          toneClassName={trendTone(stats.growth.active_players_30d_vs_prev_30d_pct)}
+        />
+        <GrowthCard
+          title="Crecimiento de clubes activos"
+          badge={clubsGrowth}
+          metricText={`${formatInt(stats.clubs.active_30d)} clubes claimed con actividad en 30d`}
+          hint="Sirve para detectar concentracion de uso en pocos clubes."
+          toneClassName={trendTone(stats.growth.active_clubs_30d_vs_prev_30d_pct)}
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Salud operativa</CardTitle>
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center justify-between gap-2">
+              <span>Salud operativa</span>
+              <span className="text-xs font-semibold text-gray-500">Monitoreo de friccion</span>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-gray-800">
-            <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3">
-              <span>Claims pendientes</span>
-              <span className="font-black">{formatInt(stats.clubs.pending_claims)}</span>
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-3">
+              <div>
+                <p className="font-semibold text-gray-900">Claims pendientes</p>
+                <p className="text-xs text-gray-500">Backlog de validacion manual</p>
+              </div>
+              <span className="text-lg font-black">{formatInt(stats.clubs.pending_claims)}</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3">
-              <span>Mediana resolucion claims (30d)</span>
-              <span className="font-black">{formatHours(stats.clubs.claim_resolution_median_hours_30d)}</span>
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-3">
+              <div>
+                <p className="font-semibold text-gray-900">Mediana resolucion claims (30d)</p>
+                <p className="text-xs text-gray-500">SLA operativo de revision admin</p>
+              </div>
+              <span className="text-lg font-black">{formatHours(stats.clubs.claim_resolution_median_hours_30d)}</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3">
-              <span>Partidos creados vs con resultado (30d)</span>
-              <span className="font-black">
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-3">
+              <div>
+                <p className="font-semibold text-gray-900">Partidos creados vs con resultado (30d)</p>
+                <p className="text-xs text-gray-500">Calidad del cierre del flujo de partido</p>
+              </div>
+              <span className="text-lg font-black">
                 {formatInt(stats.matches.created_30d)} / {formatInt(stats.matches.with_result_30d)}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3">
-              <span>Usuarios nuevos (7d)</span>
-              <span className="font-black">{formatInt(stats.users.new_7d)}</span>
+            <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-3">
+              <div>
+                <p className="font-semibold text-gray-900">Usuarios nuevos (7d)</p>
+                <p className="text-xs text-gray-500">Pulso reciente de adquisicion</p>
+              </div>
+              <span className="text-lg font-black">{formatInt(stats.users.new_7d)}</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Insights para orientar roadmap</CardTitle>
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center justify-between gap-2">
+              <span>Insights para orientar roadmap</span>
+              <span className="text-xs font-semibold text-gray-500">Reglas automaticas</span>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {insights.map((insight, index) => (
