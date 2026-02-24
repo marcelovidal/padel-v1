@@ -237,6 +237,8 @@ All notable changes to this project will be documented in this file.
 ### Agregado
 - Admin Club Preview read-only: nueva ruta `app/admin/clubs/[id]/preview/page.tsx` para soporte/QA de perfiles de club.
 - Links "Ver preview del club" en `/admin/club-claims` (pendientes, aprobados y sin reclamo).
+- Stage A1 Admin Overview: dashboard estrategico en `/admin` con KPIs de usuarios/partidos/clubes/claims/shares y bloque de insights automáticos.
+- Nueva migracion `admin_get_overview_stats()` para agregados admin-only con validacion de rol.
 
 ### Corregido
 - Normalizacion de texto/encoding en la nueva vista admin preview de club.
