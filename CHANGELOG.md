@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.13.0-q2-club-adoption] - 2026-03-02 (Draft)
+
+### Agregado
+- **Stage Q2 - Club Data Quality & Adoption** con nueva migracion `20260302_stage_q2_club_adoption.sql`.
+- Tabla `match_club_anchoring_events` para medir adopcion de anclaje de clubes.
+- RPC `admin_get_club_anchoring_stats()` para tasa de anclaje y ciudad con mayor deuda de anclaje.
+- RPC `club_get_public_profile(uuid)` y pagina publica `app/club/[id]/page.tsx`.
+- Ruta `app/admin/clubs/review/page.tsx` para revision operativa de duplicados.
+
+### Mejorado
+- `player_create_match_with_players` y `player_update_match` ahora fuerzan `club_id` canonico.
+- Registro automatico de alias cuando el texto tipeado difiere del nombre canonico del club.
+- `player_set_match_club`, `admin_set_match_club` y `admin_backfill_match_clubs` registran telemetry de anclaje.
+- `ClubSelector` sin texto libre en submit + modal de alta con canchas/superficies obligatorias.
+- Dashboard admin incorpora bloque de adopcion de anclaje de clubes.
+- Dashboard club incorpora CTA de compartir link/invitar jugadores e infraestructura declarada.
+
 ## [v1.11.4-stage-c1-club-dashboard] - 2026-02-24 (Draft)
 
 ### Agregado

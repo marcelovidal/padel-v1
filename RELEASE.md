@@ -16,6 +16,8 @@ Any new release tag must pass:
 
 ## Release History
 
+- **v1.13.0-q2-club-adoption** (Draft): Stage Q2 de adopcion/calidad de clubes. Incluye migracion `20260302_stage_q2_club_adoption.sql`, club canonico obligatorio en creacion/edicion de partidos, alias auto al seleccionar club con texto variante, telemetry `match_club_anchoring_events`, RPC admin `admin_get_club_anchoring_stats`, perfil publico `app/club/[id]`, ruta admin `/admin/clubs/review` y mejoras de UX en selector/modal de clubes.
+
 - **v1.12.0-stage-q1-match-club-anchor** (Draft): Stage Q1 para anclar partidos a clubes canonicos. Incluye `club_name_raw`, auditoria `match_club_events`, `club_claim_log`, RPCs de player/admin para busqueda/alta/claim/backfill y nueva herramienta admin `/admin/matches/unlinked`.
 
 - **v1.11.6-admin-overview-a1** (Draft): Dashboard estrategico admin (`/admin`) con KPIs de usuarios, onboarding, partidos, clubes, claims y shares, mas insights automáticos para orientar roadmap. Incluye RPC segura `admin_get_overview_stats()`.
