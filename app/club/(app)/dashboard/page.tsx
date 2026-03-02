@@ -1,6 +1,7 @@
 import { requireClub } from "@/lib/auth";
 import { ClubService } from "@/services/club.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSiteUrl } from "@/lib/utils/url";
 
 function formatInt(value: number) {
   return new Intl.NumberFormat("es-AR").format(value || 0);
@@ -98,6 +99,13 @@ export default async function ClubDashboardPage() {
       hint: "Ultimos 30 dias",
     },
   ];
+  const publicClubUrl = `${getSiteUrl()}/club/${club.id}`;
+  const inviteMessage = encodeURIComponent(
+    `Sumate a jugar en ${club.name}. Mira el perfil del club en PASALA: ${publicClubUrl}`
+  );
+  const declaredSurfaces = Object.entries(stats.surface_types || {})
+    .filter(([, enabled]) => !!enabled)
+    .map(([key]) => key.replace(/_/g, " "));
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4">
@@ -118,7 +126,54 @@ export default async function ClubDashboardPage() {
             ))}
           </div>
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <a
+            href={publicClubUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-gray-700 hover:bg-gray-50"
+          >
+            Compartir link del club
+          </a>
+          <a
+            href={`https://wa.me/?text=${inviteMessage}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-xl bg-green-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-green-700"
+          >
+            Invitar jugadores (WhatsApp)
+          </a>
+        </div>
       </div>
+
+      <Card className="border-gray-200 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle>Infraestructura declarada</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-gray-100 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Cantidad de canchas</p>
+            <p className="mt-1 text-3xl font-black text-gray-900">{stats.courts_count || 0}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Superficies</p>
+            {declaredSurfaces.length === 0 ? (
+              <p className="mt-2 text-sm text-gray-500">Sin superficies cargadas.</p>
+            ) : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {declaredSurfaces.map((surface) => (
+                  <span
+                    key={surface}
+                    className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-700"
+                  >
+                    {surface}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <KpiCard
