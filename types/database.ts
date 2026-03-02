@@ -135,6 +135,7 @@ export interface Database {
           id: string;
           match_at: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name: string;
+          club_name_raw: string | null;
           club_id: string | null;
           max_players: number;
           notes: string | null;
@@ -147,6 +148,7 @@ export interface Database {
           id?: string;
           match_at: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name: string;
+          club_name_raw?: string | null;
           club_id?: string | null;
           max_players?: number;
           notes?: string | null;
@@ -159,6 +161,7 @@ export interface Database {
           id?: string;
           match_at?: string; // CambiÃƒÆ’Ã‚Â³ de datetime a match_at
           club_name?: string;
+          club_name_raw?: string | null;
           club_id?: string | null;
           max_players?: number;
           notes?: string | null;
@@ -309,14 +312,20 @@ export interface Database {
           city_id: string | null;
           created_by: string | null;
           claimed_by: string | null;
+          claimed: boolean;
           claim_status: ClubClaimStatus;
           claimed_at: string | null;
           address: string | null;
           description: string | null;
           access_type: ClubAccessType | null;
           courts_count: number | null;
+          surface_types: Json;
           has_glass: boolean;
           has_synthetic_grass: boolean;
+          responsible_first_name: string | null;
+          responsible_last_name: string | null;
+          responsible_phone: string | null;
+          responsible_email: string | null;
           contact_first_name: string | null;
           contact_last_name: string | null;
           contact_phone: string | null;
@@ -340,14 +349,20 @@ export interface Database {
           city_id?: string | null;
           created_by?: string | null;
           claimed_by?: string | null;
+          claimed?: boolean;
           claim_status?: ClubClaimStatus;
           claimed_at?: string | null;
           address?: string | null;
           description?: string | null;
           access_type?: ClubAccessType | null;
           courts_count?: number | null;
+          surface_types?: Json;
           has_glass?: boolean;
           has_synthetic_grass?: boolean;
+          responsible_first_name?: string | null;
+          responsible_last_name?: string | null;
+          responsible_phone?: string | null;
+          responsible_email?: string | null;
           contact_first_name?: string | null;
           contact_last_name?: string | null;
           contact_phone?: string | null;
@@ -371,14 +386,20 @@ export interface Database {
           city_id?: string | null;
           created_by?: string | null;
           claimed_by?: string | null;
+          claimed?: boolean;
           claim_status?: ClubClaimStatus;
           claimed_at?: string | null;
           address?: string | null;
           description?: string | null;
           access_type?: ClubAccessType | null;
           courts_count?: number | null;
+          surface_types?: Json;
           has_glass?: boolean;
           has_synthetic_grass?: boolean;
+          responsible_first_name?: string | null;
+          responsible_last_name?: string | null;
+          responsible_phone?: string | null;
+          responsible_email?: string | null;
           contact_first_name?: string | null;
           contact_last_name?: string | null;
           contact_phone?: string | null;
@@ -503,6 +524,67 @@ export interface Database {
           created_at?: string;
           resolved_at?: string | null;
           resolved_by?: string | null;
+        };
+      };
+      match_club_events: {
+        Row: {
+          id: string;
+          match_id: string;
+          actor_user_id: string | null;
+          old_club_id: string | null;
+          new_club_id: string | null;
+          old_club_name_raw: string | null;
+          new_club_name_raw: string | null;
+          source: "player" | "admin" | "backfill";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          actor_user_id?: string | null;
+          old_club_id?: string | null;
+          new_club_id?: string | null;
+          old_club_name_raw?: string | null;
+          new_club_name_raw?: string | null;
+          source: "player" | "admin" | "backfill";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          actor_user_id?: string | null;
+          old_club_id?: string | null;
+          new_club_id?: string | null;
+          old_club_name_raw?: string | null;
+          new_club_name_raw?: string | null;
+          source?: "player" | "admin" | "backfill";
+          created_at?: string;
+        };
+      };
+      club_claim_log: {
+        Row: {
+          id: string;
+          club_id: string;
+          claimed_by: string;
+          claimed_at: string;
+          method: string;
+          note: string | null;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          claimed_by: string;
+          claimed_at?: string;
+          method: string;
+          note?: string | null;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          claimed_by?: string;
+          claimed_at?: string;
+          method?: string;
+          note?: string | null;
         };
       };
     };
