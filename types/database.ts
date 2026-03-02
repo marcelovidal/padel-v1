@@ -323,8 +323,6 @@ export interface Database {
           avatar_url: string | null;
           onboarding_completed: boolean;
           onboarding_completed_at: string | null;
-          merged_into: string | null;
-          archived_at: string | null;
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
@@ -354,8 +352,6 @@ export interface Database {
           avatar_url?: string | null;
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
-          merged_into?: string | null;
-          archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
@@ -385,77 +381,9 @@ export interface Database {
           avatar_url?: string | null;
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
-          merged_into?: string | null;
-          archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
-        };
-      };
-      club_aliases: {
-        Row: {
-          id: string;
-          club_id: string;
-          alias_name: string;
-          alias_normalized: string;
-          city_id: string | null;
-          region_code: string | null;
-          country_code: string;
-          region_code_key: string;
-          city_id_key: string;
-          created_by: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          club_id: string;
-          alias_name: string;
-          alias_normalized: string;
-          city_id?: string | null;
-          region_code?: string | null;
-          country_code?: string;
-          created_by?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          club_id?: string;
-          alias_name?: string;
-          alias_normalized?: string;
-          city_id?: string | null;
-          region_code?: string | null;
-          country_code?: string;
-          created_by?: string | null;
-          created_at?: string;
-        };
-      };
-      club_merge_log: {
-        Row: {
-          id: string;
-          source_club_id: string;
-          target_club_id: string;
-          merged_by: string;
-          merged_at: string;
-          affected_matches_count: number;
-          note: string | null;
-        };
-        Insert: {
-          id?: string;
-          source_club_id: string;
-          target_club_id: string;
-          merged_by: string;
-          merged_at?: string;
-          affected_matches_count?: number;
-          note?: string | null;
-        };
-        Update: {
-          id?: string;
-          source_club_id?: string;
-          target_club_id?: string;
-          merged_by?: string;
-          merged_at?: string;
-          affected_matches_count?: number;
-          note?: string | null;
         };
       };
       club_claim_requests: {
