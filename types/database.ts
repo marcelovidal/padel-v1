@@ -303,12 +303,14 @@ export interface Database {
       clubs: {
         Row: {
           id: string;
+          display_name: string;
           name: string;
           normalized_name: string;
           country_code: string;
           region_code: string | null;
           region_name: string | null;
           city: string | null;
+          city_normalized: string | null;
           city_id: string | null;
           created_by: string | null;
           claimed_by: string | null;
@@ -333,6 +335,7 @@ export interface Database {
           onboarding_completed: boolean;
           onboarding_completed_at: string | null;
           merged_into: string | null;
+          merged_into_club_id: string | null;
           archived_at: string | null;
           created_at: string;
           updated_at: string;
@@ -340,12 +343,14 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          display_name?: string;
           name: string;
           normalized_name: string;
           country_code?: string;
           region_code?: string | null;
           region_name?: string | null;
           city?: string | null;
+          city_normalized?: string | null;
           city_id?: string | null;
           created_by?: string | null;
           claimed_by?: string | null;
@@ -370,6 +375,7 @@ export interface Database {
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           merged_into?: string | null;
+          merged_into_club_id?: string | null;
           archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -377,12 +383,14 @@ export interface Database {
         };
         Update: {
           id?: string;
+          display_name?: string;
           name?: string;
           normalized_name?: string;
           country_code?: string;
           region_code?: string | null;
           region_name?: string | null;
           city?: string | null;
+          city_normalized?: string | null;
           city_id?: string | null;
           created_by?: string | null;
           claimed_by?: string | null;
@@ -407,6 +415,7 @@ export interface Database {
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           merged_into?: string | null;
+          merged_into_club_id?: string | null;
           archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -417,6 +426,7 @@ export interface Database {
         Row: {
           id: string;
           club_id: string;
+          alias_text: string;
           alias_name: string;
           alias_normalized: string;
           city_id: string | null;
@@ -430,6 +440,7 @@ export interface Database {
         Insert: {
           id?: string;
           club_id: string;
+          alias_text?: string;
           alias_name: string;
           alias_normalized: string;
           city_id?: string | null;
@@ -441,6 +452,7 @@ export interface Database {
         Update: {
           id?: string;
           club_id?: string;
+          alias_text?: string;
           alias_name?: string;
           alias_normalized?: string;
           city_id?: string | null;
@@ -585,6 +597,32 @@ export interface Database {
           claimed_at?: string;
           method?: string;
           note?: string | null;
+        };
+      };
+      match_club_anchoring_events: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          match_id: string;
+          club_id: string | null;
+          source: "selected" | "created" | "legacy" | "admin" | "backfill";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          match_id: string;
+          club_id?: string | null;
+          source: "selected" | "created" | "legacy" | "admin" | "backfill";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          match_id?: string;
+          club_id?: string | null;
+          source?: "selected" | "created" | "legacy" | "admin" | "backfill";
+          created_at?: string;
         };
       };
     };
