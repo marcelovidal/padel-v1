@@ -15,6 +15,18 @@ export type ClubSearchResult = {
   score: number;
 };
 
+export type PlayerClubSearchResult = {
+  id: string;
+  name: string;
+  city: string | null;
+  city_id: string | null;
+  region_code: string | null;
+  region_name: string | null;
+  country_code: string;
+  claimed: boolean;
+  score: number;
+};
+
 export type ClubClaimCandidate = {
   id: string;
   name: string;
@@ -121,7 +133,7 @@ export class ClubRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("clubs")
-      .select("id,name,normalized_name,country_code,region_code,region_name,city,city_id,created_by,claimed_by,claim_status,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at")
+      .select("id,name,normalized_name,country_code,region_code,region_name,city,city_id,created_by,claimed_by,claimed,claim_status,claimed_at,address,description,access_type,courts_count,surface_types,has_glass,has_synthetic_grass,responsible_first_name,responsible_last_name,responsible_phone,responsible_email,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at")
       .eq("id", clubId)
       .is("deleted_at", null)
       .maybeSingle();
@@ -139,6 +151,17 @@ export class ClubRepository {
 
     if (error) throw error;
     return (data || []) as ClubSearchResult[];
+  }
+
+  async searchForPlayer(query: string, limit: number = 20): Promise<PlayerClubSearchResult[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_search_clubs", {
+      p_query: query,
+      p_limit: limit,
+    });
+
+    if (error) throw error;
+    return (data || []) as PlayerClubSearchResult[];
   }
 
   async create(input: {
@@ -166,6 +189,59 @@ export class ClubRepository {
       throw new Error("CLUB_NOT_FOUND");
     }
     return club;
+  }
+
+  async createClubCandidate(input: {
+    name: string;
+    country_code?: string;
+    region_code?: string;
+    region_name?: string;
+    city?: string;
+    city_id?: string;
+    address?: string;
+    courts_count?: number | null;
+    surface_types?: Record<string, boolean>;
+    responsible_first_name?: string;
+    responsible_last_name?: string;
+    responsible_phone?: string;
+    responsible_email?: string;
+  }): Promise<ClubRow> {
+    const supabase = await this.getClient();
+    const { data: clubId, error } = await (supabase as any).rpc("player_create_club_candidate", {
+      p_name: input.name,
+      p_country_code: input.country_code || "AR",
+      p_region_code: input.region_code || null,
+      p_region_name: input.region_name || null,
+      p_city: input.city || null,
+      p_city_id: input.city_id || null,
+      p_address: input.address || null,
+      p_courts_count: typeof input.courts_count === "number" ? input.courts_count : null,
+      p_surface_types: input.surface_types || {},
+      p_responsible_first_name: input.responsible_first_name || null,
+      p_responsible_last_name: input.responsible_last_name || null,
+      p_responsible_phone: input.responsible_phone || null,
+      p_responsible_email: input.responsible_email || null,
+    });
+
+    if (error) throw error;
+
+    const club = await this.findById(clubId as string);
+    if (!club) {
+      throw new Error("CLUB_NOT_FOUND");
+    }
+    return club;
+  }
+
+  async claimClub(clubId: string, phone: string, email: string): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_claim_club", {
+      p_club_id: clubId,
+      p_phone: phone,
+      p_email: email,
+    });
+
+    if (error) throw error;
+    return data as string;
   }
 
   async requestClaim(input: {

@@ -37,6 +37,8 @@ export default function MatchCard({
 }: MatchCardProps) {
   const {
     clubName,
+    clubLocation,
+    clubUnclaimed,
     matchAt,
     status,
     statusLabel,
@@ -69,6 +71,7 @@ export default function MatchCard({
               {format(matchAt, "EEEE d 'de' MMMM, HH:mm'hs'", { locale: es })}
             </div>
             <h3 className="text-lg font-bold text-gray-900">{clubName}</h3>
+            {clubLocation ? <p className="text-xs text-gray-500 mt-1">{clubLocation}</p> : null}
           </div>
           <div className="flex flex-col items-end gap-2">
             <div
@@ -86,6 +89,11 @@ export default function MatchCard({
                 SIN RESULTADO
               </div>
             )}
+            {clubUnclaimed ? (
+              <div className="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 tracking-wider">
+                CLUB SIN RECLAMAR
+              </div>
+            ) : null}
           </div>
         </div>
 

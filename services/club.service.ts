@@ -16,6 +16,10 @@ export class ClubService {
     return this.repository.search(query, limit);
   }
 
+  async searchClubsForPlayer(query: string, limit: number = 20) {
+    return this.repository.searchForPlayer(query, limit);
+  }
+
   async createClub(input: {
     name: string;
     country_code?: string;
@@ -25,6 +29,28 @@ export class ClubService {
     city_id?: string;
   }) {
     return this.repository.create(input);
+  }
+
+  async createClubCandidate(input: {
+    name: string;
+    country_code?: string;
+    region_code?: string;
+    region_name?: string;
+    city?: string;
+    city_id?: string;
+    address?: string;
+    courts_count?: number | null;
+    surface_types?: Record<string, boolean>;
+    responsible_first_name?: string;
+    responsible_last_name?: string;
+    responsible_phone?: string;
+    responsible_email?: string;
+  }) {
+    return this.repository.createClubCandidate(input);
+  }
+
+  async claimClub(clubId: string, phone: string, email: string) {
+    return this.repository.claimClub(clubId, phone, email);
   }
 
   async requestClubClaim(input: {

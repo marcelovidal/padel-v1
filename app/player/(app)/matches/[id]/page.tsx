@@ -33,6 +33,8 @@ export default async function MatchDetailPage({
         notFound();
     }
 
+    const matchClub = Array.isArray((match as any).clubs) ? (match as any).clubs[0] : (match as any).clubs;
+
     const effectiveStatus = getEffectiveStatus(match);
     const isCreator = match.created_by === user.id;
     const isScheduled = effectiveStatus === "scheduled";
@@ -124,7 +126,19 @@ export default async function MatchDetailPage({
                     <div>
                         <h2 className="text-xl font-black text-gray-900 tracking-tight">{match.club_name}</h2>
                         <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Club</p>
+                        {matchClub?.city || matchClub?.region_name || matchClub?.region_code ? (
+                            <p className="text-xs text-gray-500 mt-1">
+                                {[matchClub?.city, matchClub?.region_name || matchClub?.region_code]
+                                    .filter(Boolean)
+                                    .join(" - ")}
+                            </p>
+                        ) : null}
                     </div>
+                    {matchClub && ((typeof matchClub.claimed === "boolean" && !matchClub.claimed) || matchClub.claim_status !== "claimed") ? (
+                        <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-3 py-1">
+                            Club sin reclamar
+                        </span>
+                    ) : null}
                 </div>
 
                 {match.notes && (

@@ -13,9 +13,14 @@ export default async function MatchesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Partidos</h1>
-        <Link href="/admin/matches/new">
-          <Button>Nuevo Partido</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/matches/unlinked">
+            <Button variant="outline">Sin club anclado</Button>
+          </Link>
+          <Link href="/admin/matches/new">
+            <Button>Nuevo Partido</Button>
+          </Link>
+        </div>
       </div>
 
       <Card>
