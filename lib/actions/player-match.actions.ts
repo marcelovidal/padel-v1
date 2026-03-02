@@ -10,21 +10,19 @@ const createMatchSchema = z
     date: z.string().min(1, "La fecha es requerida"),
     time: z.string().min(1, "La hora es requerida"),
     club_name: z.string().optional().default(""),
-    club_id: z.string().uuid().optional().nullable(),
+    club_query_raw: z.string().optional().default(""),
+    club_id: z.string().uuid("Selecciona un club de la lista").nullable(),
     player_id: z.string().uuid(),
     partner_id: z.string().uuid("Selecciona un companero"),
     opponent1_id: z.string().uuid("Selecciona rival 1"),
     opponent2_id: z.string().uuid("Selecciona rival 2"),
   })
   .superRefine((value, ctx) => {
-    const hasClubName = (value.club_name || "").trim().length > 0;
-    const hasClubId = !!value.club_id;
-
-    if (!hasClubName && !hasClubId) {
+    if (!value.club_id) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Selecciona un club o ingresa su nombre",
-        path: ["club_name"],
+        message: "Selecciona un club publicado para crear el partido.",
+        path: ["club_id"],
       });
     }
   });
@@ -43,6 +41,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     date: formData.get("date"),
     time: formData.get("time"),
     club_name: formData.get("club_name"),
+    club_query_raw: formData.get("club_query_raw"),
     club_id: formData.get("club_id") ? String(formData.get("club_id")) : null,
     player_id: formData.get("player_id"),
     partner_id: formData.get("partner_id"),
@@ -55,7 +54,8 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     return { error: validated.error.errors[0].message };
   }
 
-  const { date, time, club_name, club_id, player_id, partner_id, opponent1_id, opponent2_id } = validated.data;
+  const { date, time, club_name, club_query_raw, club_id, player_id, partner_id, opponent1_id, opponent2_id } =
+    validated.data;
 
   const allPlayers = [player_id, partner_id, opponent1_id, opponent2_id];
   const uniquePlayers = new Set(allPlayers);
@@ -64,13 +64,21 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
   }
 
   const matchTimestamp = `${date}T${time}:00`;
+  if (!club_id) {
+    return { error: "Selecciona un club publicado para actualizar el partido." };
+  }
+
+  const matchDate = new Date(matchTimestamp);
+  if (Number.isNaN(matchDate.getTime())) {
+    return { error: "Fecha u hora invalida para el partido." };
+  }
 
   try {
     const sb = supabase as any;
 
     const { error: matchError } = await sb.rpc("player_create_match_with_players", {
       p_match_at: matchTimestamp,
-      p_club_name: (club_name || "").trim(),
+      p_club_name: (club_query_raw || club_name || "").trim(),
       p_partner_id: partner_id,
       p_opp1_id: opponent1_id,
       p_opp2_id: opponent2_id,
@@ -91,6 +99,9 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     }
     if (err.message?.includes("CLUB_NOT_FOUND")) {
       return { error: "El club seleccionado no existe o no esta disponible." };
+    }
+    if (err.message?.includes("CLUB_REQUIRED")) {
+      return { error: "Debes seleccionar un club para continuar." };
     }
 
     return { error: err.message || "Error al crear el partido" };
@@ -155,6 +166,7 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
   const date = formData.get("date") as string;
   const time = formData.get("time") as string;
   const club_name = (formData.get("club_name") as string) || "";
+  const club_query_raw = (formData.get("club_query_raw") as string) || "";
   const club_id = ((formData.get("club_id") as string) || "").trim() || null;
   const notes = formData.get("notes") as string;
   const partner_id = ((formData.get("partner_id") as string) || "").trim();
@@ -178,7 +190,7 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
     const { error } = await sb.rpc("player_update_match", {
       p_match_id: matchId,
       p_match_at: matchTimestamp,
-      p_club_name: club_name,
+      p_club_name: (club_query_raw || club_name || "").trim(),
       p_notes: notes || null,
       p_club_id: club_id,
     });
@@ -199,6 +211,9 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
     }
     if (err.message?.includes("PLAYER_PROFILE_NOT_FOUND")) {
       return { error: "Tu usuario no tiene un perfil de jugador vinculado." };
+    }
+    if (err.message?.includes("CLUB_REQUIRED")) {
+      return { error: "Debes seleccionar un club para continuar." };
     }
     return { error: err.message || "Error al actualizar el partido" };
   }

@@ -4,6 +4,23 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ClubService } from "@/services/club.service";
 import { createNotificationInternal } from "@/lib/actions/notification.actions";
+import { z } from "zod";
+
+const createClubCandidateSchema = z.object({
+  name: z.string().trim().min(2, "El nombre del club es requerido."),
+  country_code: z.string().trim().default("AR"),
+  region_code: z.string().trim().optional(),
+  region_name: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  city_id: z.string().trim().optional(),
+  address: z.string().trim().optional(),
+  courts_count: z.number().int().positive("La cantidad de canchas debe ser mayor a 0."),
+  surface_types: z.record(z.boolean()).default({}),
+  responsible_first_name: z.string().trim().optional(),
+  responsible_last_name: z.string().trim().optional(),
+  responsible_phone: z.string().trim().optional(),
+  responsible_email: z.string().trim().email("Email invalido").optional(),
+});
 
 type ClubActionErrorCode =
   | "NOT_AUTHENTICATED"
@@ -106,7 +123,21 @@ export async function createClubCandidateAction(input: {
   const clubService = new ClubService();
 
   try {
-    const club = await clubService.createClubCandidate(input);
+    const parsed = createClubCandidateSchema.safeParse({
+      ...input,
+      courts_count: input.courts_count ?? 0,
+      surface_types: input.surface_types || {},
+    });
+
+    if (!parsed.success) {
+      return {
+        success: false as const,
+        code: "INVALID_REQUESTER_DATA" as const,
+        error: parsed.error.errors[0]?.message || "Datos invalidos para crear el club.",
+      };
+    }
+
+    const club = await clubService.createClubCandidate(parsed.data);
     revalidatePath("/player/matches/new");
     revalidatePath("/player/matches");
     return { success: true as const, data: club };

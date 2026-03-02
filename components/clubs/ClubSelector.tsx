@@ -31,7 +31,6 @@ interface ClubSelectorProps {
   };
   initialClub?: { id: string; name: string; claim_status?: ClubOption["claim_status"] } | null;
   required?: boolean;
-  allowUnlisted?: boolean;
 }
 
 function isUnclaimedClub(club: ClubOption) {
@@ -54,9 +53,9 @@ export function ClubSelector({
   currentLocation,
   initialClub = null,
   required = true,
-  allowUnlisted = false,
 }: ClubSelectorProps) {
   const [query, setQuery] = useState(initialClub?.name || "");
+  const [queryBeforeSelection, setQueryBeforeSelection] = useState(initialClub?.name || "");
   const [selectedClub, setSelectedClub] = useState<ClubOption | null>(
     initialClub
       ? {
@@ -93,6 +92,7 @@ export function ClubSelector({
   }, [query]);
 
   function handleSelectClub(club: ClubOption) {
+    setQueryBeforeSelection(query.trim() || club.name);
     setSelectedClub(club);
     setQuery(club.name);
     setError(null);
@@ -102,14 +102,15 @@ export function ClubSelector({
     if (!selectedClub) return;
     if (query.trim().toLowerCase() !== selectedClub.name.toLowerCase()) {
       setSelectedClub(null);
+      setQueryBeforeSelection(query.trim());
     }
   }, [query, selectedClub]);
 
-  const rawClubName = useMemo(() => {
-    if (selectedClub) return selectedClub.name;
-    if (allowUnlisted) return query.trim();
-    return "";
-  }, [allowUnlisted, query, selectedClub]);
+  const rawClubName = useMemo(() => (selectedClub ? selectedClub.name : ""), [selectedClub]);
+  const rawQuery = useMemo(() => {
+    if (selectedClub) return queryBeforeSelection || selectedClub.name;
+    return query.trim();
+  }, [query, queryBeforeSelection, selectedClub]);
 
   return (
     <div className="space-y-2">
@@ -119,6 +120,7 @@ export function ClubSelector({
 
       <input type="hidden" name="club_id" value={selectedClub?.id || ""} />
       <input type="hidden" name="club_name" value={rawClubName} required={required} />
+      <input type="hidden" name="club_query_raw" value={rawQuery} />
 
       <input
         id="club_search"
@@ -184,9 +186,6 @@ export function ClubSelector({
         >
           No encuentro mi club
         </button>
-        {allowUnlisted && !selectedClub && query.trim().length >= 3 && (
-          <p className="text-xs text-amber-700">Si continuas asi, se guardara como texto libre.</p>
-        )}
       </div>
 
       {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
@@ -226,6 +225,12 @@ function CreateClubCandidateModal({
   const [name, setName] = useState(defaultName || "");
   const [address, setAddress] = useState("");
   const [courtsCount, setCourtsCount] = useState("");
+  const [surfaceTypes, setSurfaceTypes] = useState<Record<string, boolean>>({
+    blindex: false,
+    cesped_sintetico: false,
+    cemento: false,
+    ladrillo: false,
+  });
   const [responsibleFirstName, setResponsibleFirstName] = useState("");
   const [responsibleLastName, setResponsibleLastName] = useState("");
   const [responsiblePhone, setResponsiblePhone] = useState("");
@@ -308,6 +313,14 @@ function CreateClubCandidateModal({
       setError("Ingresa el nombre del club.");
       return;
     }
+    if (!courtsCount || Number(courtsCount) <= 0) {
+      setError("La cantidad de canchas es obligatoria y debe ser mayor a 0.");
+      return;
+    }
+    if (!Object.values(surfaceTypes).some(Boolean)) {
+      setError("Selecciona al menos un tipo de superficie.");
+      return;
+    }
 
     setSubmitting(true);
     const response = await createClubCandidateAction({
@@ -318,8 +331,8 @@ function CreateClubCandidateModal({
       city: selectedCity?.nombre || currentLocation?.city || undefined,
       city_id: selectedCity?.id || currentLocation?.city_id || undefined,
       address: address.trim() || undefined,
-      courts_count: courtsCount ? Number(courtsCount) : null,
-      surface_types: {},
+      courts_count: Number(courtsCount),
+      surface_types: surfaceTypes,
       responsible_first_name: responsibleFirstName.trim() || undefined,
       responsible_last_name: responsibleLastName.trim() || undefined,
       responsible_phone: responsiblePhone.trim() || undefined,
@@ -405,7 +418,30 @@ function CreateClubCandidateModal({
                 onChange={(event) => setCourtsCount(event.target.value.replace(/[^\d]/g, ""))}
                 className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
                 placeholder="Ej: 4"
+                required
               />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-black uppercase tracking-widest text-gray-400">Superficies</label>
+              <div className="grid grid-cols-2 gap-2 rounded-xl border border-gray-200 p-3">
+                {Object.entries({
+                  blindex: "Blindex",
+                  cesped_sintetico: "Cesped sintetico",
+                  cemento: "Cemento",
+                  ladrillo: "Ladrillo",
+                }).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={!!surfaceTypes[key]}
+                      onChange={(event) =>
+                        setSurfaceTypes((prev) => ({ ...prev, [key]: event.target.checked }))
+                      }
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 

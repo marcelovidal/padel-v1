@@ -122,6 +122,20 @@ export type ClubDashboardStats = {
   matches_by_hour: Array<{ hour: number; count: number }>;
   top_players: Array<{ player_id: string; display_name: string; matches_count: number }>;
   matches_by_category: Array<{ category: string; count: number }>;
+  courts_count: number;
+  surface_types: Record<string, boolean>;
+};
+
+export type ClubPublicProfile = {
+  id: string;
+  name: string;
+  city: string | null;
+  region_name: string | null;
+  region_code: string | null;
+  country_code: string;
+  courts_count: number | null;
+  surface_types: Record<string, boolean>;
+  claimed: boolean;
 };
 
 export class ClubRepository {
@@ -155,7 +169,7 @@ export class ClubRepository {
 
   async searchForPlayer(query: string, limit: number = 20): Promise<PlayerClubSearchResult[]> {
     const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc("player_search_clubs", {
+    const { data, error } = await (supabase as any).rpc("club_search", {
       p_query: query,
       p_limit: limit,
     });
@@ -207,8 +221,8 @@ export class ClubRepository {
     responsible_email?: string;
   }): Promise<ClubRow> {
     const supabase = await this.getClient();
-    const { data: clubId, error } = await (supabase as any).rpc("player_create_club_candidate", {
-      p_name: input.name,
+    const { data: clubId, error } = await (supabase as any).rpc("club_create_candidate", {
+      p_display_name: input.name,
       p_country_code: input.country_code || "AR",
       p_region_code: input.region_code || null,
       p_region_name: input.region_name || null,
@@ -517,6 +531,8 @@ export class ClubRepository {
         matches_by_hour: [],
         top_players: [],
         matches_by_category: [],
+        courts_count: 0,
+        surface_types: {},
       };
     }
 
@@ -529,6 +545,37 @@ export class ClubRepository {
       matches_by_hour: Array.isArray(row.matches_by_hour) ? row.matches_by_hour : [],
       top_players: Array.isArray(row.top_players) ? row.top_players : [],
       matches_by_category: Array.isArray(row.matches_by_category) ? row.matches_by_category : [],
+      courts_count: Number(row.courts_count || 0),
+      surface_types:
+        row.surface_types && typeof row.surface_types === "object" && !Array.isArray(row.surface_types)
+          ? row.surface_types
+          : {},
+    };
+  }
+
+  async getPublicClubProfile(clubId: string): Promise<ClubPublicProfile | null> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_get_public_profile", {
+      p_club_id: clubId,
+    });
+
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      name: row.name,
+      city: row.city ?? null,
+      region_name: row.region_name ?? null,
+      region_code: row.region_code ?? null,
+      country_code: row.country_code || "AR",
+      courts_count: row.courts_count ?? null,
+      surface_types:
+        row.surface_types && typeof row.surface_types === "object" && !Array.isArray(row.surface_types)
+          ? row.surface_types
+          : {},
+      claimed: !!row.claimed,
     };
   }
 }

@@ -10,7 +10,8 @@ const fmeSchema = z
   .object({
     date: z.string().min(1, "La fecha es requerida"),
     club_name: z.string().optional().default(""),
-    club_id: z.string().uuid().optional().nullable(),
+    club_query_raw: z.string().optional().default(""),
+    club_id: z.string().uuid("Selecciona un club publicado").nullable(),
     player_id: z.string().uuid(),
     partner_id: z.string().uuid("Selecciona un companero"),
     opponent1_id: z.string().uuid("Selecciona rival 1"),
@@ -24,13 +25,11 @@ const fmeSchema = z
     match_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
   })
   .superRefine((value, ctx) => {
-    const hasClubName = (value.club_name || "").trim().length > 0;
-    const hasClubId = !!value.club_id;
-    if (!hasClubName && !hasClubId) {
+    if (!value.club_id) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Selecciona un club publicado o ingresa su nombre",
-        path: ["club_name"],
+        message: "Selecciona un club publicado para continuar.",
+        path: ["club_id"],
       });
     }
     const unique = new Set([value.player_id, value.partner_id, value.opponent1_id, value.opponent2_id]);
@@ -54,6 +53,7 @@ export async function createFirstMatchWithResultAsPlayer(prevState: any, formDat
   const raw = {
     date: String(formData.get("date") || ""),
     club_name: String(formData.get("club_name") || ""),
+    club_query_raw: String(formData.get("club_query_raw") || ""),
     club_id: formData.get("club_id") ? String(formData.get("club_id")) : null,
     player_id: String(formData.get("player_id") || ""),
     partner_id: String(formData.get("partner_id") || ""),
@@ -81,7 +81,7 @@ export async function createFirstMatchWithResultAsPlayer(prevState: any, formDat
 
     const { data: matchId, error: createError } = await sb.rpc("player_create_match_with_players", {
       p_match_at: matchTimestamp,
-      p_club_name: (data.club_name || "").trim(),
+      p_club_name: (data.club_query_raw || data.club_name || "").trim(),
       p_partner_id: data.partner_id,
       p_opp1_id: data.opponent1_id,
       p_opp2_id: data.opponent2_id,
@@ -134,6 +134,7 @@ export async function createFirstMatchWithResultAsPlayer(prevState: any, formDat
     if (msg.includes("PLAYER_PROFILE_NOT_FOUND")) return { error: "Tu usuario no tiene un perfil de jugador vinculado." };
     if (msg.includes("DUPLICATE_PLAYERS")) return { error: "No puedes repetir jugadores en el partido." };
     if (msg.includes("CLUB_NOT_FOUND")) return { error: "El club seleccionado no existe o no esta disponible." };
+    if (msg.includes("CLUB_REQUIRED")) return { error: "Debes seleccionar un club para continuar." };
     if (msg.includes("MATCH_NOT_COMPLETED")) return { error: "La fecha del partido debe ser hoy o anterior para cargar resultado." };
     if (msg.includes("INVALID_SCORES")) return { error: "Los marcadores ingresados no son validos." };
     return { error: msg || "No se pudo guardar tu primer partido." };

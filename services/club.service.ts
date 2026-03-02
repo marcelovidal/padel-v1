@@ -143,4 +143,8 @@ export class ClubService {
   async getDashboardStats(clubId?: string | null) {
     return this.repository.getDashboardStats(clubId);
   }
+
+  async getPublicClubProfile(clubId: string) {
+    return this.repository.getPublicClubProfile(clubId);
+  }
 }

@@ -108,11 +108,19 @@ export function CreateMatchForm({
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const rawClubName = String(formData.get("club_name") || "").trim();
     const rawClubId = String(formData.get("club_id") || "").trim();
+    const date = String(formData.get("date") || "");
+    const time = String(formData.get("time") || "");
 
-    if (!rawClubId && !rawClubName) {
-      setError("Selecciona un club publicado o escribe el nombre del club.");
+    if (!rawClubId) {
+      setError("Selecciona un club publicado antes de crear el partido.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const matchDate = new Date(`${date}T${time}:00`);
+    if (Number.isNaN(matchDate.getTime())) {
+      setError("Fecha u hora invalida.");
       setIsSubmitting(false);
       return;
     }
@@ -171,7 +179,7 @@ export function CreateMatchForm({
           </div>
         </div>
 
-        <ClubSelector currentLocation={currentPlayerLocation} required allowUnlisted />
+        <ClubSelector currentLocation={currentPlayerLocation} required />
 
         <div className="space-y-6 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
           <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 pb-3">Formacion de Equipos</h3>

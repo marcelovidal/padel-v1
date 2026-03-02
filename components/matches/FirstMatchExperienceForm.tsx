@@ -151,7 +151,7 @@ export function FirstMatchExperienceForm({
           />
         </div>
 
-        <ClubSelector currentLocation={currentPlayerLocation} required={false} allowUnlisted />
+        <ClubSelector currentLocation={currentPlayerLocation} required />
 
         <div className="space-y-6 rounded-3xl border border-gray-100 bg-gray-50/50 p-6">
           <h3 className="border-b border-gray-100 pb-3 text-xs font-black uppercase tracking-widest text-gray-400">
