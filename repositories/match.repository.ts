@@ -14,6 +14,15 @@ type MatchResultUpdate = Database["public"]["Tables"]["match_results"]["Update"]
 export interface MatchWithPlayers extends Match {
   match_players: Array<MatchPlayer & { players: { first_name: string; last_name: string; avatar_url: string | null } | null }>;
   match_results: MatchResult | null;
+  clubs?: {
+    id: string;
+    name: string;
+    city: string | null;
+    region_name: string | null;
+    region_code: string | null;
+    claimed: boolean | null;
+    claim_status: string | null;
+  } | null;
 }
 
 type ShareChannel = "whatsapp" | "copylink" | "webshare";
@@ -48,6 +57,15 @@ export class MatchRepository {
       .from("matches")
       .select(`
         *,
+        clubs (
+          id,
+          name,
+          city,
+          region_name,
+          region_code,
+          claimed,
+          claim_status
+        ),
         match_players (
           *,
           players (
@@ -202,6 +220,7 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_name_raw,
         club_id,
         max_players,
         notes,
@@ -209,6 +228,15 @@ export class MatchRepository {
         created_by,
         created_at,
         updated_at,
+        clubs (
+          id,
+          name,
+          city,
+          region_name,
+          region_code,
+          claimed,
+          claim_status
+        ),
         match_results ( match_id, sets, winner_team, recorded_at ),
         match_players!inner (team, player_id)
       `)
@@ -268,6 +296,7 @@ export class MatchRepository {
         id: match.id,
         match_at: match.match_at,
         club_name: match.club_name,
+        club_name_raw: match.club_name_raw ?? null,
         club_id: match.club_id ?? null,
         max_players: match.max_players,
         notes: match.notes,
@@ -278,6 +307,7 @@ export class MatchRepository {
         team: team as TeamType,
         match_results: normalizedResult as any,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
+        clubs: match.clubs || null,
       };
     });
 
@@ -292,13 +322,23 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_name_raw,
         club_id,
         max_players,
         notes,
         status,
         created_by,
         created_at,
-        updated_at
+        updated_at,
+        clubs (
+          id,
+          name,
+          city,
+          region_name,
+          region_code,
+          claimed,
+          claim_status
+        )
       `)
       .order("match_at", { ascending: false });
 
@@ -354,6 +394,7 @@ export class MatchRepository {
         match_results: matchResult,
         hasResults: !!matchResult,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
+        clubs: match.clubs || null,
       };
     });
 
@@ -409,11 +450,16 @@ export class MatchRepository {
         id,
         match_at,
         club_name,
+        club_name_raw,
         club_id,
         status,
         clubs (
           id,
           name,
+          city,
+          region_name,
+          region_code,
+          claimed,
           claim_status
         ),
         match_players (
@@ -462,12 +508,17 @@ export class MatchRepository {
       match_at: match.match_at,
       club_id: match.club_id || clubData?.id || null,
       club_name: clubData?.name || match.club_name,
+      club_name_raw: match.club_name_raw || null,
       status: match.status,
       results: normalizedResult,
       club: clubData
         ? {
             id: clubData.id,
             name: clubData.name,
+            city: clubData.city,
+            region_name: clubData.region_name,
+            region_code: clubData.region_code,
+            claimed: clubData.claimed,
             claim_status: clubData.claim_status,
           }
         : null,

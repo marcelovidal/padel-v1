@@ -24,6 +24,8 @@ export interface MatchCardModel {
     playerTeam?: TeamType; // Context for the current player
     hasAssessment?: boolean;
     hasResults?: boolean;
+    clubLocation?: string | null;
+    clubUnclaimed?: boolean;
 }
 
 export function toMatchCardModel(
@@ -38,6 +40,8 @@ export function toMatchCardModel(
 
     const calculatedHasResults = hasMatchResult(match);
     const effectiveStatus = getEffectiveStatus(match);
+
+    const club = Array.isArray(match?.clubs) ? match.clubs[0] : match?.clubs;
 
     return {
         id: match.id,
@@ -56,5 +60,13 @@ export function toMatchCardModel(
         playerTeam: ctx?.playerTeam,
         hasAssessment: ctx?.hasAssessment ?? match.hasAssessment,
         hasResults: ctx?.hasResults ?? calculatedHasResults,
+        clubLocation: club
+            ? [club.city, club.region_name || club.region_code].filter(Boolean).join(" - ")
+            : null,
+        clubUnclaimed: club
+            ? (typeof club.claimed === "boolean"
+                ? !club.claimed
+                : club.claim_status !== "claimed")
+            : false,
     };
 }

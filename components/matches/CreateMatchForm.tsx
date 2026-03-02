@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { GuestPlayerModal } from "@/components/players/GuestPlayerModal";
 import { PlayerSearchSelect } from "@/components/players/PlayerSearchSelect";
 import { ClubSelector } from "@/components/clubs/ClubSelector";
-import { createMatchAsPlayer, suggestClubLeadAction } from "@/lib/actions/player-match.actions";
+import { createMatchAsPlayer } from "@/lib/actions/player-match.actions";
 
 interface PlayerOption {
   id: string;
@@ -118,17 +118,6 @@ export function CreateMatchForm({
     }
 
     try {
-      if (!rawClubId && rawClubName) {
-        await suggestClubLeadAction({
-          suggested_name: rawClubName,
-          city: currentPlayerLocation?.city,
-          city_id: currentPlayerLocation?.city_id,
-          region_code: currentPlayerLocation?.region_code,
-          region_name: currentPlayerLocation?.region_name,
-          country_code: "AR",
-        });
-      }
-
       const result = await createMatchAsPlayer(null, formData);
       if (result?.error) {
         setError(result.error);

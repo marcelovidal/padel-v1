@@ -63,11 +63,84 @@ export async function searchClubsAction(input: { query: string; limit?: number }
   const clubService = new ClubService();
 
   try {
-    const clubs = await clubService.searchClubs(input.query || "", input.limit || 20);
-    return { success: true as const, data: clubs };
+    const clubs = await clubService.searchClubsForPlayer(input.query || "", input.limit || 20);
+    const mapped = clubs.map((club) => ({
+      ...club,
+      claim_status: club.claimed ? "claimed" : "unclaimed",
+    }));
+    return { success: true as const, data: mapped };
   } catch (error: any) {
     const code = inferClubErrorCode(error);
     return { success: false as const, code, error: errorMessageFor(code), data: [] };
+  }
+}
+
+export async function createClubCandidateAction(input: {
+  name: string;
+  country_code?: string;
+  region_code?: string;
+  region_name?: string;
+  city?: string;
+  city_id?: string;
+  address?: string;
+  courts_count?: number | null;
+  surface_types?: Record<string, boolean>;
+  responsible_first_name?: string;
+  responsible_last_name?: string;
+  responsible_phone?: string;
+  responsible_email?: string;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      success: false as const,
+      code: "NOT_AUTHENTICATED" as const,
+      error: errorMessageFor("NOT_AUTHENTICATED"),
+    };
+  }
+
+  const clubService = new ClubService();
+
+  try {
+    const club = await clubService.createClubCandidate(input);
+    revalidatePath("/player/matches/new");
+    revalidatePath("/player/matches");
+    return { success: true as const, data: club };
+  } catch (error: any) {
+    const code = inferClubErrorCode(error);
+    return { success: false as const, code, error: errorMessageFor(code) };
+  }
+}
+
+export async function claimClubAction(input: { clubId: string; phone: string; email: string }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      success: false as const,
+      code: "NOT_AUTHENTICATED" as const,
+      error: errorMessageFor("NOT_AUTHENTICATED"),
+    };
+  }
+
+  const clubService = new ClubService();
+
+  try {
+    const clubId = await clubService.claimClub(input.clubId, input.phone, input.email);
+    revalidatePath("/player/matches");
+    revalidatePath(`/player/matches/${clubId}`);
+    revalidatePath("/admin/club-claims");
+    return { success: true as const, clubId };
+  } catch (error: any) {
+    const code = inferClubErrorCode(error);
+    return { success: false as const, code, error: errorMessageFor(code) };
   }
 }
 
