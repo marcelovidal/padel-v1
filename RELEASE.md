@@ -16,6 +16,8 @@ Any new release tag must pass:
 
 ## Release History
 
+- **v1.12.0-stage-q1-match-club-anchor** (Draft): Stage Q1 para anclar partidos a clubes canonicos. Incluye `club_name_raw`, auditoria `match_club_events`, `club_claim_log`, RPCs de player/admin para busqueda/alta/claim/backfill y nueva herramienta admin `/admin/matches/unlinked`.
+
 - **v1.11.6-admin-overview-a1** (Draft): Dashboard estrategico admin (`/admin`) con KPIs de usuarios, onboarding, partidos, clubes, claims y shares, mas insights automáticos para orientar roadmap. Incluye RPC segura `admin_get_overview_stats()`.
 - **v1.11.7-dashboard-ui-polish-admin-club** (Draft): Mejora visual/UX de dashboards Admin y Club con foco en legibilidad de metricas, jerarquia de informacion e insights estrategicos.
 - **v1.11.5-admin-club-preview** (Draft): Vista previa read-only de perfil de club para admins (`/admin/clubs/[id]/preview`) con acceso desde `/admin/club-claims`, para soporte y QA sin impersonacion ni acciones.
