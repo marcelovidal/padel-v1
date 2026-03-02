@@ -97,7 +97,7 @@ export function ClubConsolidationForm({
               </span>
               <span className="text-xs text-gray-500">
                 {club.matches_count} partidos
-                {club.claimed ? " · claimed" : ""}
+                {club.claimed ? " - claimed" : ""}
               </span>
             </label>
           ))}

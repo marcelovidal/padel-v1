@@ -30,7 +30,10 @@ function parseErrorMessage(error: any): string {
   return "No pudimos consolidar los clubes. Revisa los datos e intenta nuevamente.";
 }
 
-export async function mergeClubClusterAction(formData: FormData): Promise<MergeActionResult> {
+export async function mergeClubClusterAction(
+  _prevState: MergeActionResult | { success: null } | null,
+  formData: FormData
+): Promise<MergeActionResult> {
   await requireAdmin();
 
   const targetClubId = String(formData.get("targetClubId") || "").trim();

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { ClubAdminService } from "@/services/club-admin.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,8 +29,29 @@ export default async function AdminClubDuplicateClusterPage({
   const service = new ClubAdminService();
   const clusters = await service.findDuplicates(q, 300);
   const cluster = clusters.find((item) => item.cluster_key === clusterKey);
+  const backHref = `/admin/club-claims?tab=duplicates${q ? `&q=${encodeURIComponent(q)}` : ""}`;
 
-  if (!cluster) notFound();
+  if (!cluster) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">Cluster de duplicados</p>
+            <h1 className="text-3xl font-black tracking-tight text-gray-900">Cluster no disponible</h1>
+            <p className="text-sm text-gray-600">
+              Este cluster ya no existe (probablemente fue consolidado o cambio por una nueva busqueda).
+            </p>
+          </div>
+          <Link
+            href={backHref}
+            className="inline-flex rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50"
+          >
+            Volver a duplicados
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -44,7 +64,7 @@ export default async function AdminClubDuplicateClusterPage({
           </p>
         </div>
         <Link
-          href={`/admin/clubs/duplicates${q ? `?q=${encodeURIComponent(q)}` : ""}`}
+          href={backHref}
           className="inline-flex rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50"
         >
           Volver a duplicados
@@ -66,7 +86,7 @@ export default async function AdminClubDuplicateClusterPage({
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{club.name}</p>
                     <p className="text-xs text-gray-500">
-                      {club.normalized_name} · status: {club.claim_status}
+                      {club.normalized_name} - status: {club.claim_status}
                     </p>
                   </div>
                   <div className="text-right">
