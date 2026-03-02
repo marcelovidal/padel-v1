@@ -50,7 +50,7 @@ export default async function AdminUnlinkedMatchesPage() {
       suggestionsByMatch[match.id] = [];
       continue;
     }
-    const { data: suggestions } = await (supabase as any).rpc("player_search_clubs", {
+    const { data: suggestions } = await (supabase as any).rpc("club_search", {
       p_query: q,
       p_limit: 5,
     });

@@ -37,6 +37,18 @@ export type AdminOverviewStats = {
   };
 };
 
+export type ClubAnchoringStats = {
+  anchoring_rate_last_30d: number;
+  matches_total_last_30d: number;
+  matches_anchored_last_30d: number;
+  top_unanchored_city: {
+    city_id: string | null;
+    city: string | null;
+    region_code: string | null;
+    unanchored_matches: number;
+  } | null;
+};
+
 const EMPTY_ADMIN_OVERVIEW: AdminOverviewStats = {
   window: { days: 30, generated_at: null },
   users: {
@@ -130,6 +142,29 @@ export class AdminRepository {
       sharing: {
         match_shares_30d: n(raw.sharing?.match_shares_30d),
       },
+    };
+  }
+
+  async getClubAnchoringStats(): Promise<ClubAnchoringStats> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("admin_get_club_anchoring_stats");
+    if (error) throw error;
+
+    const raw = (data || {}) as any;
+    const city = raw.top_unanchored_city && typeof raw.top_unanchored_city === "object" ? raw.top_unanchored_city : null;
+
+    return {
+      anchoring_rate_last_30d: Number(raw.anchoring_rate_last_30d || 0),
+      matches_total_last_30d: Number(raw.matches_total_last_30d || 0),
+      matches_anchored_last_30d: Number(raw.matches_anchored_last_30d || 0),
+      top_unanchored_city: city
+        ? {
+            city_id: city.city_id ?? null,
+            city: city.city ?? null,
+            region_code: city.region_code ?? null,
+            unanchored_matches: Number(city.unanchored_matches || 0),
+          }
+        : null,
     };
   }
 }

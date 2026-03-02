@@ -10,4 +10,8 @@ export class AdminService {
   async getOverviewStats() {
     return this.repository.getOverviewStats();
   }
+
+  async getClubAnchoringStats() {
+    return this.repository.getClubAnchoringStats();
+  }
 }

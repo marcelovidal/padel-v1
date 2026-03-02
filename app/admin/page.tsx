@@ -207,7 +207,10 @@ function GrowthCard({
 
 export default async function AdminDashboardPage() {
   const service = new AdminService();
-  const stats = await service.getOverviewStats();
+  const [stats, anchoringStats] = await Promise.all([
+    service.getOverviewStats(),
+    service.getClubAnchoringStats(),
+  ]);
   const insights = buildInsights(stats);
 
   const matchesGrowth = growthBadge(stats.growth.matches_30d_vs_prev_30d_pct);
@@ -309,7 +312,45 @@ export default async function AdminDashboardPage() {
           subtitle="Evento share registrado en app"
           accentClassName="from-slate-700 to-slate-500"
         />
+        <KpiCard
+          title="Anchoring club_id (30d)"
+          value={formatPercent(anchoringStats.anchoring_rate_last_30d)}
+          subtitle={`${formatInt(anchoringStats.matches_anchored_last_30d)} de ${formatInt(
+            anchoringStats.matches_total_last_30d
+          )} partidos`}
+          accentClassName="from-purple-600 to-indigo-500"
+        />
       </section>
+
+      <Card className="border-gray-200 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center justify-between gap-2">
+            <span>Adopcion de anclaje de clubes</span>
+            <span className="text-xs font-semibold text-gray-500">Ultimos 30 dias</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-gray-700">
+          <p>
+            Tasa de anclaje actual:{" "}
+            <span className="font-black text-gray-900">{formatPercent(anchoringStats.anchoring_rate_last_30d)}</span>
+          </p>
+          <p>
+            Ciudad con mayor deuda de anclaje:{" "}
+            <span className="font-black text-gray-900">
+              {anchoringStats.top_unanchored_city?.city || "Sin datos"}
+              {anchoringStats.top_unanchored_city?.region_code
+                ? ` (${anchoringStats.top_unanchored_city.region_code})`
+                : ""}
+            </span>
+          </p>
+          <p>
+            Partidos sin club en esa ciudad:{" "}
+            <span className="font-black text-gray-900">
+              {anchoringStats.top_unanchored_city?.unanchored_matches || 0}
+            </span>
+          </p>
+        </CardContent>
+      </Card>
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <GrowthCard
