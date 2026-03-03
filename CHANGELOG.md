@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.13.0-stage-q3-bookings-mvp] - 2026-03-03 (Draft)
+## [v1.13.0-stage-q3-bookings-mvp] - 2026-03-03
 
 ### Agregado
 - **Stage Q3 (Reservas MVP Club-First)**:
