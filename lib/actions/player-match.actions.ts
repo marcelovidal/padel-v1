@@ -68,7 +68,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
   try {
     const sb = supabase as any;
 
-    const { error: matchError } = await sb.rpc("player_create_match_with_players", {
+    const { data: createdMatchId, error: matchError } = await sb.rpc("player_create_match_with_players", {
       p_match_at: matchTimestamp,
       p_club_name: (club_name || "").trim(),
       p_partner_id: partner_id,
@@ -81,6 +81,47 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
 
     if (matchError) {
       throw matchError;
+    }
+
+    // Q3 bridge: if club is selected, auto-create booking request for club approval.
+    if (club_id && createdMatchId) {
+      const [{ data: courtRows }, { data: settingsRow }, { data: matchRow }] = await Promise.all([
+        sb
+          .from("club_courts")
+          .select("id")
+          .eq("club_id", club_id)
+          .eq("active", true)
+          .order("name", { ascending: true })
+          .limit(1),
+        sb.from("club_booking_settings").select("slot_duration_minutes").eq("club_id", club_id).maybeSingle(),
+        sb.from("matches").select("match_at").eq("id", createdMatchId).maybeSingle(),
+      ]);
+
+      const firstCourtId = Array.isArray(courtRows) && courtRows[0]?.id ? String(courtRows[0].id) : null;
+      const matchAt = matchRow?.match_at ? new Date(matchRow.match_at) : null;
+      const slotMinutes =
+        typeof settingsRow?.slot_duration_minutes === "number" ? settingsRow.slot_duration_minutes : 90;
+
+      if (firstCourtId && matchAt && !Number.isNaN(matchAt.getTime())) {
+        const endAt = new Date(matchAt.getTime() + slotMinutes * 60_000);
+        const bookingNote = `Solicitud auto-generada desde partido ${createdMatchId}`;
+
+        const { error: bookingError } = await sb.rpc("player_request_booking", {
+          p_club_id: club_id,
+          p_court_id: firstCourtId,
+          p_start_at: matchAt.toISOString(),
+          p_end_at: endAt.toISOString(),
+          p_note: bookingNote,
+        });
+
+        if (bookingError) {
+          console.error("auto booking from match failed", {
+            createdMatchId,
+            club_id,
+            bookingError,
+          });
+        }
+      }
     }
   } catch (err: any) {
     if (err.message?.includes("PLAYER_PROFILE_NOT_FOUND")) {
@@ -97,6 +138,8 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
   }
 
   revalidatePath("/player/matches");
+  revalidatePath("/player/bookings");
+  revalidatePath("/club/dashboard/bookings");
   revalidatePath("/player");
   redirect("/player/matches");
 }
