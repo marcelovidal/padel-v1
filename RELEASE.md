@@ -16,6 +16,8 @@ Any new release tag must pass:
 
 ## Release History
 
+- **v1.13.0-stage-q3-bookings-mvp** (Draft): Stage Q3 reservas MVP club-first. Incluye tablas `club_courts`, `club_booking_settings`, `court_bookings`, RPCs de solicitud/confirmacion/rechazo/cancelacion y puente `booking_create_match`, mas UI base en club/player para operar reservas.
+- **v1.12.1-stage-q2-stabilization** (Draft): Cierre de Q2 con hotfixes de compatibilidad productiva (`player_create_club_candidate`, ausencia de `matches.deleted_at`, consistencia `claimed/claim_status`) y ajustes de adopcion de clubes.
 - **v1.12.0-stage-q1-match-club-anchor** (Draft): Stage Q1 para anclar partidos a clubes canonicos. Incluye `club_name_raw`, auditoria `match_club_events`, `club_claim_log`, RPCs de player/admin para busqueda/alta/claim/backfill y nueva herramienta admin `/admin/matches/unlinked`.
 
 - **v1.11.6-admin-overview-a1** (Draft): Dashboard estrategico admin (`/admin`) con KPIs de usuarios, onboarding, partidos, clubes, claims y shares, mas insights automáticos para orientar roadmap. Incluye RPC segura `admin_get_overview_stats()`.

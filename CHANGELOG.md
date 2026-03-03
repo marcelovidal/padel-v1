@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.13.0-stage-q3-bookings-mvp] - 2026-03-03 (Draft)
+
+### Agregado
+- **Stage Q3 (Reservas MVP Club-First)**:
+  - Nueva migracion `supabase/migrations/20260303_q3_reservas_mvp.sql`.
+  - Tablas `club_courts`, `club_booking_settings`, `court_bookings` con indices y constraints.
+  - RLS para owner de club, player solicitante y admin.
+  - RPCs SECURITY DEFINER:
+    - `club_upsert_booking_settings`
+    - `club_create_court`
+    - `club_update_court`
+    - `player_request_booking`
+    - `club_confirm_booking`
+    - `club_reject_booking`
+    - `player_cancel_booking`
+    - `booking_create_match` (idempotente si `match_id` ya existe)
+- **Nuevas pantallas**:
+  - Club: `/club/dashboard/courts`, `/club/dashboard/settings`, `/club/dashboard/bookings`
+  - Player: `/player/bookings`, `/player/bookings/[id]`
+  - Booking flow por club: `/clubs/[id]`, `/clubs/[id]/book`
+- **Arquitectura backend Q3**:
+  - `repositories/booking.repository.ts`
+  - `services/booking.service.ts`
+  - `lib/actions/booking.actions.ts`
+  - `schemas/booking.schema.ts`
+
+### Seguridad / Consistencia
+- Confirmacion de reserva con anti solapamiento en DB por cancha y rango horario.
+- Escrituras de reservas via RPC y Server Actions.
+- Update de tipos en `types/database.ts` para entidades de reservas.
+
+## [v1.12.1-stage-q2-stabilization] - 2026-03-03 (Draft)
+
+### Corregido
+- Compatibilidad de `player_create_club_candidate` con columnas nuevas de Q2 (`display_name`, `alias_text`).
+- Compatibilidad de RPCs Q2 cuando `public.matches` no tiene `deleted_at`.
+- Sincronizacion de consistencia `claimed` / `claim_status` / `claimed_by` / `claimed_at` en `clubs`.
+
 ## [v1.11.4-stage-c1-club-dashboard] - 2026-02-24 (Draft)
 
 ### Agregado
