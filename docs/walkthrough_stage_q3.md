@@ -1,5 +1,7 @@
 # Walkthrough Stage Q3 - Reservas MVP Club-First
 
+> Documentacion completa: `docs/README_Q3_RESERVAS_MVP.md`
+
 ## Objetivo
 Implementar reservas simples de canchas:
 - Player solicita (`requested`)

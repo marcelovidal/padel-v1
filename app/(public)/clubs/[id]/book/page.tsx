@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requirePlayer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
@@ -33,7 +33,19 @@ export default async function BookClubCourtPage({ params }: { params: { id: stri
   const slotMinutes = settings?.slot_duration_minutes || 90;
   const submitRequestBooking = async (formData: FormData) => {
     "use server";
-    await requestBookingAction(formData);
+    const result = await requestBookingAction(formData);
+    if (!result.success) return;
+    const startLocal = String(formData.get("start_local") || "");
+    const date = startLocal.slice(0, 10);
+    const time = startLocal.slice(11, 16);
+    const params = new URLSearchParams();
+    params.set("from_booking", "1");
+    params.set("booking_id", result.bookingId);
+    if (date) params.set("date", date);
+    if (time) params.set("time", time);
+    params.set("club_id", id);
+    params.set("club_name", profile.name);
+    redirect(`/player/matches/new?${params.toString()}`);
   };
 
   return (

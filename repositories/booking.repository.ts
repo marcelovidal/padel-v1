@@ -258,4 +258,26 @@ export class BookingRepository {
     if (error) throw error;
     return data as string;
   }
+
+  async createClubConfirmedBookingMatch(input: {
+    club_id: string;
+    court_id: string;
+    player_id: string;
+    start_at: string;
+    end_at: string;
+    note?: string;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_create_confirmed_booking_match", {
+      p_club_id: input.club_id,
+      p_court_id: input.court_id,
+      p_player_id: input.player_id,
+      p_start_at: input.start_at,
+      p_end_at: input.end_at,
+      p_note: input.note || null,
+    });
+
+    if (error) throw error;
+    return (data || null) as { booking_id: string; match_id: string } | null;
+  }
 }

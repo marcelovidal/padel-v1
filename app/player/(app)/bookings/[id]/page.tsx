@@ -57,12 +57,20 @@ export default async function PlayerBookingDetailPage({ params }: { params: { id
 
       <div className="flex flex-wrap gap-2">
         {booking.status === "requested" ? (
-          <form action={submitCancel}>
-            <input type="hidden" name="booking_id" value={booking.id} />
-            <button className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
-              Cancelar solicitud
-            </button>
-          </form>
+          <>
+            <Link
+              href={`/player/matches/new?from_booking=1&booking_id=${booking.id}&date=${booking.start_at.slice(0, 10)}&time=${booking.start_at.slice(11, 16)}&club_id=${booking.club_id}&club_name=${encodeURIComponent(booking.clubs?.name || "")}`}
+              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Continuar generando partido
+            </Link>
+            <form action={submitCancel}>
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+                Cancelar solicitud
+              </button>
+            </form>
+          </>
         ) : null}
 
         {booking.status === "confirmed" && !booking.match_id ? (

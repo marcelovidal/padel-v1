@@ -89,4 +89,15 @@ export class BookingService {
   async createMatchFromBooking(bookingId: string) {
     return this.repository.createMatchFromBooking(bookingId);
   }
+
+  async createClubConfirmedBookingMatch(input: {
+    club_id: string;
+    court_id: string;
+    player_id: string;
+    start_at: string;
+    end_at: string;
+    note?: string;
+  }) {
+    return this.repository.createClubConfirmedBookingMatch(input);
+  }
 }

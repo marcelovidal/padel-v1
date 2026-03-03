@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import {
   bookingIdSchema,
+  clubCreateBookingMatchSchema,
   bookingSettingsSchema,
   createCourtSchema,
   rejectBookingSchema,
@@ -21,6 +21,8 @@ type BookingActionErrorCode =
   | "BOOKING_TOO_FAR"
   | "BOOKING_OVERLAP"
   | "BOOKING_NOT_CONFIRMED"
+  | "PLAYER_NOT_FOUND"
+  | "COURT_NOT_AVAILABLE"
   | "INVALID_STATUS"
   | "UNKNOWN";
 
@@ -36,6 +38,8 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
   if (raw.includes("BOOKING_TOO_FAR")) return "BOOKING_TOO_FAR";
   if (raw.includes("BOOKING_OVERLAP")) return "BOOKING_OVERLAP";
   if (raw.includes("BOOKING_NOT_CONFIRMED")) return "BOOKING_NOT_CONFIRMED";
+  if (raw.includes("PLAYER_NOT_FOUND")) return "PLAYER_NOT_FOUND";
+  if (raw.includes("COURT_NOT_AVAILABLE")) return "COURT_NOT_AVAILABLE";
   if (raw.includes("INVALID_STATUS")) return "INVALID_STATUS";
   return "UNKNOWN";
 }
@@ -56,6 +60,10 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "La cancha ya tiene una reserva confirmada en ese horario.";
     case "BOOKING_NOT_CONFIRMED":
       return "Solo puedes crear partido desde una reserva confirmada.";
+    case "PLAYER_NOT_FOUND":
+      return "El jugador seleccionado no es valido o no esta activo.";
+    case "COURT_NOT_AVAILABLE":
+      return "La cancha seleccionada no esta disponible para reservar.";
     case "INVALID_STATUS":
       return "La reserva no permite esta accion.";
     default:
@@ -79,8 +87,8 @@ export async function upsertBookingSettingsAction(formData: FormData) {
     club_id: String(formData.get("club_id") || ""),
     timezone: String(formData.get("timezone") || "America/Argentina/Buenos_Aires"),
     slot_duration_minutes: Number(formData.get("slot_duration_minutes") || 90),
-    buffer_minutes: Number(formData.get("buffer_minutes") || 10),
-    opening_hours: String(formData.get("opening_hours") || "{}"),
+    buffer_minutes: Number(formData.get("buffer_minutes") || 0),
+    opening_hours: String(formData.get("opening_hours") || ""),
   });
 
   if (!parsed.success) {
@@ -181,15 +189,17 @@ export async function requestBookingAction(formData: FormData) {
   }
 
   const service = new BookingService();
+  let bookingId: string;
   try {
-    const bookingId = await service.requestBooking(parsed.data);
-    revalidatePath("/player/bookings");
-    revalidatePath(`/clubs/${parsed.data.club_id}/book`);
-    redirect(`/player/bookings/${bookingId}`);
+    bookingId = await service.requestBooking(parsed.data);
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
     return { success: false as const, error: errorMessageFor(code), code };
   }
+
+  revalidatePath("/player/bookings");
+  revalidatePath(`/clubs/${parsed.data.club_id}/book`);
+  return { success: true as const, bookingId };
 }
 
 export async function confirmBookingAction(formData: FormData) {
@@ -283,6 +293,52 @@ export async function createMatchFromBookingAction(formData: FormData) {
     revalidatePath("/player/bookings");
     revalidatePath("/club/dashboard/bookings");
     revalidatePath(`/player/matches/${matchId}`);
+    return { success: true as const, matchId };
+  } catch (error: any) {
+    const code = inferBookingErrorCode(error);
+    return { success: false as const, error: errorMessageFor(code), code };
+  }
+}
+
+export async function clubCreateBookingAndMatchAction(
+  _prevState: { success?: boolean; error?: string; matchId?: string } | null,
+  formData: FormData
+) {
+  const user = await requireUser();
+  if (!user) {
+    return { success: false as const, error: errorMessageFor("NOT_AUTHENTICATED") };
+  }
+
+  const date = String(formData.get("selected_date") || "");
+  const time = String(formData.get("start_time") || "");
+  const slotMinutes = Number(formData.get("slot_minutes") || 90);
+  const startDate = new Date(`${date}T${time}:00`);
+  if (Number.isNaN(startDate.getTime())) {
+    return { success: false as const, error: "Fecha/hora invalida." };
+  }
+  const endDate = new Date(startDate.getTime() + slotMinutes * 60000);
+
+  const parsed = clubCreateBookingMatchSchema.safeParse({
+    club_id: String(formData.get("club_id") || ""),
+    court_id: String(formData.get("court_id") || ""),
+    player_id: String(formData.get("player_id") || ""),
+    start_at: startDate.toISOString(),
+    end_at: endDate.toISOString(),
+    note: String(formData.get("note") || ""),
+  });
+
+  if (!parsed.success) {
+    return { success: false as const, error: parsed.error.errors[0]?.message || "Datos invalidos." };
+  }
+
+  const service = new BookingService();
+  try {
+    const result = await service.createClubConfirmedBookingMatch(parsed.data);
+    const matchId = result?.match_id || "";
+    revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/club/matches");
+    revalidatePath("/player/matches");
+    revalidatePath("/player/bookings");
     return { success: true as const, matchId };
   } catch (error: any) {
     const code = inferBookingErrorCode(error);

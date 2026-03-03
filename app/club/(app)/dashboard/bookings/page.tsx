@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { requireClub } from "@/lib/auth";
 import { BookingService } from "@/services/booking.service";
+import { PlayerService } from "@/services/player.service";
 import {
   confirmBookingAction,
   createMatchFromBookingAction,
   rejectBookingAction,
 } from "@/lib/actions/booking.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
-import { CalendarClock, CheckCircle2, History, CircleDashed } from "lucide-react";
+import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
 
 type DayBucket = {
   day: number;
@@ -59,12 +60,44 @@ export default async function ClubBookingsPage({
 
   const { club } = await requireClub();
   const bookingService = new BookingService();
-  const bookings = await bookingService.listClubBookings(club.id);
+  const playerService = new PlayerService();
+  const [bookings, settings, courts, allPlayers] = await Promise.all([
+    bookingService.listClubBookings(club.id),
+    bookingService.getClubBookingSettings(club.id),
+    bookingService.listActiveClubCourts(club.id),
+    playerService.searchPlayersWeighted(""),
+  ]);
 
   const monthBookings = bookings.filter((booking) => {
     const d = new Date(booking.start_at);
     return d.getFullYear() === year && d.getMonth() + 1 === month;
   });
+  const requestedPlayerIds = Array.from(
+    new Set(
+      monthBookings
+        .map((booking) => booking.requested_by_player_id as string | null)
+        .filter((id): id is string => !!id)
+    )
+  );
+  const weightedPlayerIds = new Set((allPlayers || []).map((player: any) => player.id as string));
+  const missingRequestedPlayerIds = requestedPlayerIds.filter((id) => !weightedPlayerIds.has(id));
+  const missingRequestedPlayers = await Promise.all(
+    missingRequestedPlayerIds.map(async (playerId) => {
+      try {
+        return await playerService.getPlayerById(playerId);
+      } catch {
+        return null;
+      }
+    })
+  );
+  const mergedPlayersMap = new Map<string, any>();
+  for (const player of allPlayers || []) {
+    if (player?.id) mergedPlayersMap.set(player.id, player);
+  }
+  for (const player of missingRequestedPlayers) {
+    if (player?.id) mergedPlayersMap.set(player.id, player);
+  }
+  const mergedPlayers = Array.from(mergedPlayersMap.values());
 
   const byDay = new Map<string, DayBucket>();
   for (let day = 1; day <= daysInMonth; day++) {
@@ -88,6 +121,11 @@ export default async function ClubBookingsPage({
   const totalConfirmed = buckets.reduce((acc, b) => acc + b.confirmed, 0);
   const totalHistory = buckets.reduce((acc, b) => acc + b.history, 0);
   const sortedBookings = [...monthBookings].sort((a, b) => a.start_at.localeCompare(b.start_at));
+  const courtOptions = courts.map((court) => ({ id: court.id, label: court.name }));
+  const playerOptions = mergedPlayers.map((player: any) => ({
+    id: player.id,
+    label: player.display_name || `${player.first_name || ""} ${player.last_name || ""}`.trim(),
+  }));
   const submitConfirm = async (formData: FormData) => {
     "use server";
     await confirmBookingAction(formData);
@@ -108,84 +146,20 @@ export default async function ClubBookingsPage({
         <p className="text-sm text-gray-500">Calendario unificado con solicitudes, confirmaciones e historial.</p>
       </div>
 
-      <div className="rounded-2xl border bg-white p-5 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700">
-            <CalendarClock className="h-4 w-4 text-blue-600" />
-            {monthLabel}
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href={`/club/dashboard/bookings?month=${monthString(prevMonth.year, prevMonth.month)}`}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Mes anterior
-            </Link>
-            <Link
-              href={`/club/dashboard/bookings?month=${monthString(nextMonth.year, nextMonth.month)}`}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Mes siguiente
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-3 text-xs font-semibold">
-          <div className="inline-flex items-center gap-2 rounded-lg bg-amber-50 px-2.5 py-1 text-amber-800">
-            <CircleDashed className="h-3.5 w-3.5" />
-            Solicitudes ({totalRequested})
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-2.5 py-1 text-green-800">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Confirmadas ({totalConfirmed})
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1 text-slate-700">
-            <History className="h-3.5 w-3.5" />
-            Historial ({totalHistory})
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-2 text-[11px] font-black uppercase tracking-wider text-gray-500">
-          <div className="px-2">Lun</div>
-          <div className="px-2">Mar</div>
-          <div className="px-2">Mie</div>
-          <div className="px-2">Jue</div>
-          <div className="px-2">Vie</div>
-          <div className="px-2">Sab</div>
-          <div className="px-2">Dom</div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: firstWeekdayMondayBased }).map((_, idx) => (
-            <div key={`empty-${idx}`} className="min-h-[100px] rounded-xl border border-dashed border-gray-100 bg-gray-50/40" />
-          ))}
-          {buckets.map((bucket) => (
-            <div key={bucket.date} className="min-h-[100px] rounded-xl border border-gray-200 bg-white p-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-gray-900">{bucket.day}</span>
-                <span className="text-[11px] text-gray-400">{bucket.bookings.length}</span>
-              </div>
-              <div className="mt-2 space-y-1">
-                {bucket.requested > 0 ? (
-                  <div className="rounded-md bg-amber-50 px-1.5 py-1 text-[11px] font-semibold text-amber-800">
-                    Solicitudes: {bucket.requested}
-                  </div>
-                ) : null}
-                {bucket.confirmed > 0 ? (
-                  <div className="rounded-md bg-green-50 px-1.5 py-1 text-[11px] font-semibold text-green-800">
-                    Confirmadas: {bucket.confirmed}
-                  </div>
-                ) : null}
-                {bucket.history > 0 ? (
-                  <div className="rounded-md bg-slate-100 px-1.5 py-1 text-[11px] font-semibold text-slate-700">
-                    Historial: {bucket.history}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ClubBookingsCalendarPanel
+        monthLabel={monthLabel}
+        prevMonthHref={`/club/dashboard/bookings?month=${monthString(prevMonth.year, prevMonth.month)}`}
+        nextMonthHref={`/club/dashboard/bookings?month=${monthString(nextMonth.year, nextMonth.month)}`}
+        firstWeekdayMondayBased={firstWeekdayMondayBased}
+        buckets={buckets}
+        totalRequested={totalRequested}
+        totalConfirmed={totalConfirmed}
+        totalHistory={totalHistory}
+        clubId={club.id}
+        slotMinutes={settings?.slot_duration_minutes || 90}
+        courts={courtOptions}
+        players={playerOptions}
+      />
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
         <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">Detalle del mes</h2>

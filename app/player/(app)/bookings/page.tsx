@@ -15,6 +15,12 @@ export default async function PlayerBookingsPage() {
           <h1 className="text-2xl font-bold">Mis reservas</h1>
           <p className="text-sm text-gray-500">Seguimiento de solicitudes, confirmaciones y cancelaciones.</p>
         </div>
+        <Link
+          href="/player/bookings/new"
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Nueva reserva
+        </Link>
       </div>
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">

@@ -15,6 +15,7 @@ const createMatchSchema = z
     partner_id: z.string().uuid("Selecciona un companero"),
     opponent1_id: z.string().uuid("Selecciona rival 1"),
     opponent2_id: z.string().uuid("Selecciona rival 2"),
+    booking_id: z.string().uuid().optional().nullable(),
   })
   .superRefine((value, ctx) => {
     const hasClubName = (value.club_name || "").trim().length > 0;
@@ -48,6 +49,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     partner_id: formData.get("partner_id"),
     opponent1_id: formData.get("opponent1_id"),
     opponent2_id: formData.get("opponent2_id"),
+    booking_id: formData.get("booking_id") ? String(formData.get("booking_id")) : null,
   };
 
   const validated = createMatchSchema.safeParse(rawData);
@@ -55,7 +57,8 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     return { error: validated.error.errors[0].message };
   }
 
-  const { date, time, club_name, club_id, player_id, partner_id, opponent1_id, opponent2_id } = validated.data;
+  const { date, time, club_name, club_id, player_id, partner_id, opponent1_id, opponent2_id, booking_id } =
+    validated.data;
 
   const allPlayers = [player_id, partner_id, opponent1_id, opponent2_id];
   const uniquePlayers = new Set(allPlayers);
@@ -65,16 +68,18 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
 
   const matchTimestamp = `${date}T${time}:00`;
 
+  let createdMatchId: string | null = null;
   try {
     const sb = supabase as any;
 
-    const { data: createdMatchId, error: matchError } = await sb.rpc("player_create_match_with_players", {
+    const notesFromBooking = booking_id ? `Partido iniciado desde reserva #${booking_id}.` : null;
+    const { data: rpcMatchId, error: matchError } = await sb.rpc("player_create_match_with_players", {
       p_match_at: matchTimestamp,
       p_club_name: (club_name || "").trim(),
       p_partner_id: partner_id,
       p_opp1_id: opponent1_id,
       p_opp2_id: opponent2_id,
-      p_notes: null,
+      p_notes: notesFromBooking,
       p_max_players: 4,
       p_club_id: club_id || null,
     });
@@ -82,9 +87,10 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
     if (matchError) {
       throw matchError;
     }
+    createdMatchId = rpcMatchId;
 
-    // Q3 bridge: if club is selected, auto-create booking request for club approval.
-    if (club_id && createdMatchId) {
+    // Q3 bridge: if match was not initiated from a booking and club is selected, auto-create booking request.
+    if (!booking_id && club_id && createdMatchId) {
       const [{ data: courtRows }, { data: settingsRow }, { data: matchRow }] = await Promise.all([
         sb
           .from("club_courts")
@@ -141,7 +147,7 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
   revalidatePath("/player/bookings");
   revalidatePath("/club/dashboard/bookings");
   revalidatePath("/player");
-  redirect("/player/matches");
+  return { success: true as const, matchId: createdMatchId };
 }
 
 export async function suggestClubLeadAction(input: {

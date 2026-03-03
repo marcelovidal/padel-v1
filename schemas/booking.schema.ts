@@ -7,6 +7,8 @@ export const bookingSettingsSchema = z.object({
   buffer_minutes: z.coerce.number().int().min(0).max(120),
   opening_hours: z
     .string()
+    .optional()
+    .default("")
     .transform((value, ctx) => {
       const trimmed = value.trim();
       if (!trimmed) return {};
@@ -45,6 +47,15 @@ export const requestBookingSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
+export const clubCreateBookingMatchSchema = z.object({
+  club_id: z.string().uuid(),
+  court_id: z.string().uuid(),
+  player_id: z.string().uuid(),
+  start_at: z.string().datetime({ offset: true }),
+  end_at: z.string().datetime({ offset: true }),
+  note: z.string().max(500).optional(),
+});
+
 export const bookingIdSchema = z.object({
   booking_id: z.string().uuid(),
 });
@@ -58,3 +69,4 @@ export type BookingSettingsInput = z.infer<typeof bookingSettingsSchema>;
 export type CreateCourtInput = z.infer<typeof createCourtSchema>;
 export type UpdateCourtInput = z.infer<typeof updateCourtSchema>;
 export type RequestBookingInput = z.infer<typeof requestBookingSchema>;
+export type ClubCreateBookingMatchInput = z.infer<typeof clubCreateBookingMatchSchema>;

@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.club_booking_settings (
   club_id uuid PRIMARY KEY REFERENCES public.clubs(id) ON DELETE CASCADE,
   timezone text NOT NULL DEFAULT 'America/Argentina/Buenos_Aires',
   slot_duration_minutes int NOT NULL DEFAULT 90,
-  buffer_minutes int NOT NULL DEFAULT 10,
+  buffer_minutes int NOT NULL DEFAULT 0,
   opening_hours jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
@@ -383,7 +383,7 @@ CREATE OR REPLACE FUNCTION public.club_upsert_booking_settings(
   p_club_id uuid,
   p_timezone text DEFAULT 'America/Argentina/Buenos_Aires',
   p_slot_duration_minutes int DEFAULT 90,
-  p_buffer_minutes int DEFAULT 10,
+  p_buffer_minutes int DEFAULT 0,
   p_opening_hours jsonb DEFAULT '{}'::jsonb
 )
 RETURNS uuid

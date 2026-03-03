@@ -51,6 +51,11 @@ export default async function MatchDetailPage({
     // Group players by team for the MatchScore component
     const teamA = match.match_players.filter((p: any) => p.team === "A");
     const teamB = match.match_players.filter((p: any) => p.team === "B");
+    const rosterCount = teamA.length + teamB.length;
+    const clubGeneratedPending =
+        isScheduled &&
+        rosterCount < (match.max_players || 4) &&
+        String(match.notes || "").toLowerCase().includes("partido generado por club");
 
     const statusColors = {
         scheduled: "bg-blue-100 text-blue-800 border-blue-200",
@@ -112,6 +117,13 @@ export default async function MatchDetailPage({
                     <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
                         <p className="text-sm font-medium text-amber-800">
                             Solo quien cargo el partido puede editarlo antes de registrar el resultado.
+                        </p>
+                    </div>
+                )}
+                {clubGeneratedPending && (
+                    <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3">
+                        <p className="text-sm font-medium text-blue-800">
+                            Partido generado por el club y confirmado. Falta completar jugadores y luego cargar resultado.
                         </p>
                     </div>
                 )}

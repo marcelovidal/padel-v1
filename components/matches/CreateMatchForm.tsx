@@ -43,11 +43,24 @@ export function CreateMatchForm({
   currentPlayerId,
   currentPlayerLocation,
   availablePlayers: initialPlayers,
+  initialDate,
+  initialTime,
+  initialClub,
+  fromBooking = false,
+  bookingId,
 }: {
   currentPlayerId: string;
   currentPlayerLocation?: { city?: string; city_id?: string; region_code?: string; region_name?: string };
   availablePlayers: PlayerOption[];
+  initialDate?: string;
+  initialTime?: string;
+  initialClub?: { id: string; name: string; claim_status?: "unclaimed" | "pending" | "claimed" | "rejected" } | null;
+  fromBooking?: boolean;
+  bookingId?: string;
 }) {
+  const initialDateValue = initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) ? initialDate : toDateInputValue(new Date());
+  const initialTimeValue = initialTime && /^\d{2}:\d{2}$/.test(initialTime) ? initialTime : "20:00";
+  const initialCursor = useMemo(() => new Date(`${initialDateValue}T00:00:00`), [initialDateValue]);
   const router = useRouter();
   const [players, setPlayers] = useState(initialPlayers);
   const [partnerId, setPartnerId] = useState("");
@@ -55,16 +68,16 @@ export function CreateMatchForm({
   const [opp2Id, setOpp2Id] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSelector, setActiveSelector] = useState<"partner" | "opp1" | "opp2" | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
-  const [calendarCursor, setCalendarCursor] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<string>(toDateInputValue(new Date()));
-  const [selectedTime, setSelectedTime] = useState<string>("20:00");
+  const [calendarCursor, setCalendarCursor] = useState<Date>(initialCursor);
+  const [selectedDate, setSelectedDate] = useState<string>(initialDateValue);
+  const [selectedTime, setSelectedTime] = useState<string>(initialTimeValue);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(fromBooking);
 
   const openGuestModal = (selector: "partner" | "opp1" | "opp2") => {
     setActiveSelector(selector);
-    setIsModalOpen(true);
+    setIsCreateModalOpen(true);
   };
 
   const handleGuestSuccess = (newId: string, displayName: string) => {
@@ -150,7 +163,7 @@ export function CreateMatchForm({
   const openCreateModalForDate = (date: Date) => {
     setSelectedDate(toDateInputValue(date));
     setError(null);
-    setIsModalOpen(true);
+    setIsCreateModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -176,8 +189,8 @@ export function CreateMatchForm({
         setError(result.error);
         setIsSubmitting(false);
       } else {
-        setIsModalOpen(false);
-        router.push("/player/matches");
+        setIsCreateModalOpen(false);
+        router.push(`/player/matches/${result?.matchId || ""}`);
         router.refresh();
       }
     } catch {
@@ -305,19 +318,26 @@ export function CreateMatchForm({
         )}
       </div>
 
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 md:items-center">
           <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Crear partido</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  {fromBooking ? "Completar partido desde reserva" : "Crear partido"}
+                </h3>
                 <p className="text-sm text-gray-500">
                   Fecha seleccionada: {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("es-AR")}
                 </p>
+                {fromBooking && (
+                  <p className="mt-1 text-xs font-semibold text-blue-700">
+                    La reserva ya fue enviada. Ahora completa los jugadores del partido.
+                  </p>
+                )}
               </div>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsCreateModalOpen(false)}
                 className="rounded-xl border border-gray-200 px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               >
                 Cerrar
@@ -327,6 +347,14 @@ export function CreateMatchForm({
             <form onSubmit={handleSubmit} className="space-y-6">
               <input type="hidden" name="player_id" value={currentPlayerId} />
               <input type="hidden" name="date" value={selectedDate} />
+              <input type="hidden" name="time" value={selectedTime} />
+              <input type="hidden" name="booking_id" value={bookingId || ""} />
+              {fromBooking ? (
+                <>
+                  <input type="hidden" name="club_id" value={initialClub?.id || ""} />
+                  <input type="hidden" name="club_name" value={initialClub?.name || ""} />
+                </>
+              ) : null}
 
               {error && (
                 <div className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-600">
@@ -334,27 +362,43 @@ export function CreateMatchForm({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest text-gray-400">Fecha</Label>
-                  <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+              {fromBooking ? (
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
+                  <p className="text-xs font-black uppercase tracking-widest text-gray-500">Datos de la reserva</p>
+                  <p className="mt-2 text-sm font-semibold text-gray-900">
+                    {new Date(`${selectedDate}T${selectedTime}:00`).toLocaleDateString("es-AR")} - {selectedTime}
+                  </p>
+                  <p className="text-sm text-gray-700">{initialClub?.name || "Club seleccionado"}</p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time" className="text-xs font-black uppercase tracking-widest text-gray-400">
-                    Hora
-                  </Label>
-                  <Input
-                    type="time"
-                    id="time"
-                    name="time"
-                    required
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                  />
-                </div>
-              </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-black uppercase tracking-widest text-gray-400">Fecha</Label>
+                      <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="time" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                        Hora
+                      </Label>
+                      <Input
+                        type="time"
+                        id="time"
+                        required
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
 
-              <ClubSelector currentLocation={currentPlayerLocation} required allowUnlisted />
+                  <ClubSelector
+                    currentLocation={currentPlayerLocation}
+                    initialClub={initialClub || null}
+                    required
+                    allowUnlisted
+                  />
+                </>
+              )}
 
               <div className="space-y-6 rounded-3xl border border-gray-100 bg-gray-50/50 p-6">
                 <h4 className="border-b border-gray-100 pb-3 text-xs font-black uppercase tracking-widest text-gray-400">
@@ -444,9 +488,12 @@ export function CreateMatchForm({
                   className="w-full rounded-2xl bg-blue-600 py-6 text-white"
                   disabled={!isFormValid || isSubmitting}
                 >
-                  {isSubmitting ? "Creando..." : "Crear partido"}
+                  {isSubmitting ? "Guardando..." : fromBooking ? "Continuar generando partido" : "Crear partido"}
                 </Button>
-                <Link href="/player/matches" className="text-center text-sm font-bold text-gray-400 hover:text-gray-600">
+                <Link
+                  href={bookingId ? `/player/bookings/${bookingId}` : "/player/matches"}
+                  className="text-center text-sm font-bold text-gray-400 hover:text-gray-600"
+                >
                   Cancelar
                 </Link>
               </div>
@@ -456,9 +503,9 @@ export function CreateMatchForm({
       )}
 
       <GuestPlayerModal
-        isOpen={isModalOpen && activeSelector !== null}
+        isOpen={isCreateModalOpen && activeSelector !== null}
         onClose={() => {
-          setIsModalOpen(true);
+          setIsCreateModalOpen(true);
           setActiveSelector(null);
         }}
         onSuccess={handleGuestSuccess}

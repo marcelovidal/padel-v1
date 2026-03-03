@@ -94,6 +94,11 @@ export default function MatchCard({
                 CLUB SIN RECLAMAR
               </div>
             ) : null}
+            {variant === "player" && model.clubGeneratedPending ? (
+              <div className="px-3 py-1 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 tracking-wider">
+                GENERADO POR CLUB · PENDIENTE
+              </div>
+            ) : null}
           </div>
         </div>
 

@@ -26,6 +26,7 @@ export interface MatchCardModel {
     hasResults?: boolean;
     clubLocation?: string | null;
     clubUnclaimed?: boolean;
+    clubGeneratedPending?: boolean;
 }
 
 export function toMatchCardModel(
@@ -40,6 +41,13 @@ export function toMatchCardModel(
 
     const calculatedHasResults = hasMatchResult(match);
     const effectiveStatus = getEffectiveStatus(match);
+    const playersByTeam = match.playersByTeam || { A: [], B: [] };
+    const rosterCount = (playersByTeam.A?.length || 0) + (playersByTeam.B?.length || 0);
+    const notesText = String(match?.notes || "");
+    const clubGeneratedPending =
+        effectiveStatus === "scheduled" &&
+        rosterCount < (match.max_players || 4) &&
+        notesText.toLowerCase().includes("partido generado por club");
 
     const club = Array.isArray(match?.clubs) ? match.clubs[0] : match?.clubs;
 
@@ -50,7 +58,7 @@ export function toMatchCardModel(
         status: effectiveStatus,
         statusLabel: statusLabels[effectiveStatus] || effectiveStatus,
         maxPlayers: match.max_players,
-        playersByTeam: match.playersByTeam || { A: [], B: [] },
+        playersByTeam,
         results: calculatedHasResults
             ? {
                 sets: match.match_results.sets,
@@ -68,5 +76,6 @@ export function toMatchCardModel(
                 ? !club.claimed
                 : club.claim_status !== "claimed")
             : false,
+        clubGeneratedPending,
     };
 }
