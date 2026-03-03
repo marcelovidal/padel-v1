@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X } from "lucide-react";
+import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X, CalendarDays } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface PlayerTopNavProps {
@@ -17,6 +17,7 @@ interface PlayerTopNavProps {
 const navItems = [
     { href: "/player", label: "Resumen", icon: Home },
     { href: "/player/matches", label: "Partidos", icon: Trophy },
+    { href: "/player/bookings", label: "Reservas", icon: CalendarDays },
     { href: "/player/players", label: "Jugadores", icon: Users },
     { href: "/player/profile", label: "Perfil", icon: UserCircle },
 ];
