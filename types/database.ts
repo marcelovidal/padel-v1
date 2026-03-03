@@ -13,6 +13,8 @@ export type TeamType = "A" | "B";
 export type ClubClaimStatus = "unclaimed" | "pending" | "claimed" | "rejected";
 export type ClubClaimRequestStatus = "pending" | "approved" | "rejected";
 export type ClubAccessType = "abierta" | "cerrada";
+export type CourtSurfaceType = "synthetic" | "hard" | "clay" | "other";
+export type BookingStatus = "requested" | "confirmed" | "rejected" | "cancelled";
 
 export type Player = Database["public"]["Tables"]["players"]["Row"];
 export type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
@@ -585,6 +587,114 @@ export interface Database {
           claimed_at?: string;
           method?: string;
           note?: string | null;
+        };
+      };
+      club_courts: {
+        Row: {
+          id: string;
+          club_id: string;
+          name: string;
+          surface_type: CourtSurfaceType;
+          is_indoor: boolean;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          name: string;
+          surface_type?: CourtSurfaceType;
+          is_indoor?: boolean;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          name?: string;
+          surface_type?: CourtSurfaceType;
+          is_indoor?: boolean;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      club_booking_settings: {
+        Row: {
+          club_id: string;
+          timezone: string;
+          slot_duration_minutes: number;
+          buffer_minutes: number;
+          opening_hours: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          club_id: string;
+          timezone?: string;
+          slot_duration_minutes?: number;
+          buffer_minutes?: number;
+          opening_hours?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          club_id?: string;
+          timezone?: string;
+          slot_duration_minutes?: number;
+          buffer_minutes?: number;
+          opening_hours?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      court_bookings: {
+        Row: {
+          id: string;
+          club_id: string;
+          court_id: string;
+          requested_by_player_id: string | null;
+          requested_by_user_id: string | null;
+          start_at: string;
+          end_at: string;
+          status: BookingStatus;
+          note: string | null;
+          rejection_reason: string | null;
+          match_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          court_id: string;
+          requested_by_player_id?: string | null;
+          requested_by_user_id?: string | null;
+          start_at: string;
+          end_at: string;
+          status?: BookingStatus;
+          note?: string | null;
+          rejection_reason?: string | null;
+          match_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          court_id?: string;
+          requested_by_player_id?: string | null;
+          requested_by_user_id?: string | null;
+          start_at?: string;
+          end_at?: string;
+          status?: BookingStatus;
+          note?: string | null;
+          rejection_reason?: string | null;
+          match_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };
