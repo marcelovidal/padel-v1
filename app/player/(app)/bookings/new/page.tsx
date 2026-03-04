@@ -11,10 +11,6 @@ function defaultDate() {
   return d.toISOString().slice(0, 10);
 }
 
-function defaultTime() {
-  return "20:00";
-}
-
 function toDateInput(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -82,7 +78,7 @@ export default async function PlayerNewBookingPage({
   const bookingService = new BookingService();
 
   const selectedDate = String(searchParams?.date || defaultDate());
-  const selectedTime = String(searchParams?.time || defaultTime());
+  const selectedTime = String(searchParams?.time || "");
   const selectedClubId = String(searchParams?.club_id || "");
   const selectedCourtId = String(searchParams?.court_id || "");
   const calendarView = searchParams?.view === "month" ? "month" : "week";
@@ -128,7 +124,7 @@ export default async function PlayerNewBookingPage({
     closing_time: string;
     slot_interval_minutes: number | null;
   }> = [];
-  let slotOptions: string[] = [];
+  let clubSlotStates: Array<{ time: string; totalCourts: number; availableCourts: string[] }> = [];
   let availableCourts: Array<{
     id: string;
     name: string;
@@ -139,6 +135,7 @@ export default async function PlayerNewBookingPage({
     slot_interval_minutes: number | null;
   }> = [];
   let checkedAvailability = false;
+  let effectiveCourtId = selectedCourtId;
 
   if (selectedClubId) {
     const settings = await bookingService.getClubBookingSettings(selectedClubId);
@@ -156,33 +153,67 @@ export default async function PlayerNewBookingPage({
       slot_interval_minutes: c.slot_interval_minutes,
     }));
 
-    const selectedCourt = activeCourtsForClub.find((c) => c.id === selectedCourtId) || null;
-    if (selectedCourt) {
-      slotMinutes = selectedCourt.slot_interval_minutes || fallbackSlotMinutes;
-      slotOptions = buildSlotOptions(selectedCourt.opening_time, selectedCourt.closing_time, slotMinutes);
-      if (slotOptions.length > 0 && !slotOptions.includes(selectedTime)) {
-        effectiveTime = slotOptions[0];
+    const dayStart = new Date(`${selectedDate}T00:00:00`);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const { data: confirmedRows, error: confirmedError } = await (supabase as any)
+      .from("court_bookings")
+      .select("court_id,start_at,end_at")
+      .eq("club_id", selectedClubId)
+      .eq("status", "confirmed")
+      .lt("start_at", dayEnd.toISOString())
+      .gt("end_at", dayStart.toISOString());
+    if (confirmedError) throw confirmedError;
+
+    const byTime = new Map<string, { totalCourts: number; availableCourts: string[] }>();
+    for (const court of activeCourtsForClub) {
+      const courtSlotMinutes = court.slot_interval_minutes || fallbackSlotMinutes;
+      const slots = buildSlotOptions(court.opening_time, court.closing_time, courtSlotMinutes);
+      for (const slot of slots) {
+        const start = buildStartAt(selectedDate, slot);
+        if (!start) continue;
+        const end = new Date(start.getTime() + courtSlotMinutes * 60_000);
+        const blocked = (confirmedRows || []).some((row: any) => {
+          if (row.court_id !== court.id) return false;
+          const rowStart = new Date(row.start_at);
+          const rowEnd = new Date(row.end_at);
+          return start < rowEnd && end > rowStart;
+        });
+
+        const current = byTime.get(slot) || { totalCourts: 0, availableCourts: [] as string[] };
+        current.totalCourts += 1;
+        if (!blocked) current.availableCourts.push(court.id);
+        byTime.set(slot, current);
       }
     }
 
-    const selectedStart = buildStartAt(selectedDate, effectiveTime);
-    if (selectedStart) {
-      checkedAvailability = true;
-      const endAt = new Date(selectedStart.getTime() + slotMinutes * 60_000);
-      const { data: blockedRows, error: blockedError } = await (supabase as any)
-        .from("court_bookings")
-        .select("court_id")
-        .eq("club_id", selectedClubId)
-        .eq("status", "confirmed")
-        .lt("start_at", endAt.toISOString())
-        .gt("end_at", selectedStart.toISOString());
-      if (blockedError) throw blockedError;
+    clubSlotStates = Array.from(byTime.entries())
+      .map(([time, value]) => ({
+        time,
+        totalCourts: value.totalCourts,
+        availableCourts: value.availableCourts,
+      }))
+      .sort((a, b) => a.time.localeCompare(b.time));
 
-      const blockedSet = new Set((blockedRows || []).map((b: any) => b.court_id));
-      availableCourts = activeCourtsForClub
-        .filter((c) => !selectedCourtId || c.id === selectedCourtId)
-        .filter((c) => !blockedSet.has(c.id));
+    const selectedState = clubSlotStates.find((state) => state.time === selectedTime && state.availableCourts.length > 0);
+    if (selectedState) {
+      effectiveTime = selectedState.time;
+    } else {
+      effectiveTime = clubSlotStates.find((state) => state.availableCourts.length > 0)?.time || selectedTime;
     }
+
+    const currentSlotState = clubSlotStates.find((state) => state.time === effectiveTime);
+    const availableCourtIds = new Set(currentSlotState?.availableCourts || []);
+    availableCourts = activeCourtsForClub.filter((court) => availableCourtIds.has(court.id));
+
+    if (effectiveCourtId && !availableCourtIds.has(effectiveCourtId)) {
+      effectiveCourtId = "";
+    }
+    if (!effectiveCourtId && availableCourts.length > 0) {
+      effectiveCourtId = availableCourts[0].id;
+    }
+    checkedAvailability = !!currentSlotState;
   }
 
   const buildHref = (
@@ -192,7 +223,7 @@ export default async function PlayerNewBookingPage({
     qs.set("date", overrides.date ?? selectedDate);
     if (overrides.time ?? effectiveTime) qs.set("time", overrides.time ?? effectiveTime);
     if (overrides.club_id ?? selectedClubId) qs.set("club_id", overrides.club_id ?? selectedClubId);
-    if (overrides.court_id ?? selectedCourtId) qs.set("court_id", overrides.court_id ?? selectedCourtId);
+    if (overrides.court_id ?? effectiveCourtId) qs.set("court_id", overrides.court_id ?? effectiveCourtId);
     qs.set("view", overrides.view ?? calendarView);
     qs.set("cursor", overrides.cursor ?? toDateInput(cursorDate));
     return `/player/bookings/new?${qs.toString()}`;
@@ -213,7 +244,7 @@ export default async function PlayerNewBookingPage({
       params.set("date", String(formData.get("start_local") || "").slice(0, 10) || selectedDate);
       params.set("time", String(formData.get("start_local") || "").slice(11, 16) || effectiveTime);
       params.set("club_id", String(formData.get("club_id") || selectedClubId));
-      if (selectedCourtId) params.set("court_id", selectedCourtId);
+      if (effectiveCourtId) params.set("court_id", effectiveCourtId);
       params.set("view", calendarView);
       params.set("cursor", toDateInput(cursorDate));
       params.set("error", result.error || "No pudimos enviar la solicitud");
@@ -229,6 +260,8 @@ export default async function PlayerNewBookingPage({
     if (selectedClub?.name) next.set("club_name", selectedClub.name);
     redirect(`/player/matches/new?${next.toString()}`);
   };
+
+  const selectedSlotState = clubSlotStates.find((state) => state.time === effectiveTime) || null;
 
   return (
     <div className="container mx-auto max-w-4xl space-y-6 px-4">
@@ -252,7 +285,7 @@ export default async function PlayerNewBookingPage({
       ) : null}
 
       <section className="rounded-2xl border bg-white p-5 space-y-4">
-        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">1) Dia, club y horario</h2>
+        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">1) Semana y segmento de turno</h2>
         <div className="space-y-3 rounded-xl border border-gray-100 p-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex rounded-lg border border-gray-200 p-1">
@@ -261,12 +294,6 @@ export default async function PlayerNewBookingPage({
                 className={`rounded-md px-3 py-1.5 text-sm font-semibold ${calendarView === "week" ? "bg-blue-600 text-white" : "text-gray-700"}`}
               >
                 Semana
-              </Link>
-              <Link
-                href={buildHref({ view: "month" })}
-                className={`rounded-md px-3 py-1.5 text-sm font-semibold ${calendarView === "month" ? "bg-blue-600 text-white" : "text-gray-700"}`}
-              >
-                Mes
               </Link>
             </div>
             <div className="flex gap-2">
@@ -327,6 +354,7 @@ export default async function PlayerNewBookingPage({
           <input type="hidden" name="date" value={selectedDate} />
           <input type="hidden" name="view" value={calendarView} />
           <input type="hidden" name="cursor" value={toDateInput(cursorDate)} />
+          <input type="hidden" name="court_id" value={effectiveCourtId} />
 
           <div className="md:col-span-2">
             <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Club</label>
@@ -347,60 +375,74 @@ export default async function PlayerNewBookingPage({
             </select>
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Cancha</label>
-            <select
-              name="court_id"
-              defaultValue={selectedCourtId}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-            >
-              <option value="">Todas</option>
-              {activeCourtsForClub.map((court) => (
-                <option key={court.id} value={court.id}>
-                  {court.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Hora</label>
-            {selectedCourtId && slotOptions.length > 0 ? (
-              <select
-                name="time"
-                defaultValue={effectiveTime}
-                required
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-              >
-                {slotOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type="time"
-                name="time"
-                defaultValue={effectiveTime}
-                required
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-              />
-            )}
-          </div>
-
-          <div className="md:col-span-4">
+          <div className="md:col-span-2 flex items-end">
             <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Ver canchas disponibles
+              Ver horarios disponibles
             </button>
           </div>
         </form>
+
+        {selectedClubId && clubSlotStates.length > 0 ? (
+          <div className="rounded-xl border border-gray-100 p-3 space-y-2">
+            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Horarios del club</p>
+            <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
+              {clubSlotStates.map((slot) => {
+                const isSelected = slot.time === effectiveTime;
+                const hasAvailability = slot.availableCourts.length > 0;
+                if (!hasAvailability) {
+                  return (
+                    <div
+                      key={slot.time}
+                      className="rounded-lg border border-gray-200 bg-gray-100 px-2 py-1.5 text-center text-sm font-semibold text-gray-400"
+                    >
+                      {slot.time}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={slot.time}
+                    href={buildHref({ time: slot.time })}
+                    className={`rounded-lg border px-2 py-1.5 text-center text-sm font-semibold ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+                    }`}
+                  >
+                    {slot.time}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {selectedClubId && selectedSlotState ? (
+          <div className="rounded-xl border border-gray-100 p-3 space-y-2">
+            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Cancha</p>
+            <div className="flex flex-wrap gap-2">
+              {availableCourts.map((court) => (
+                <Link
+                  key={court.id}
+                  href={buildHref({ court_id: court.id })}
+                  className={`rounded-lg border px-3 py-1.5 text-sm font-semibold ${
+                    effectiveCourtId === court.id
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {court.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-2xl border bg-white p-5 space-y-4">
-        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">2) Selecciona cancha y solicita</h2>
         {!checkedAvailability ? (
-          <p className="text-sm text-gray-500">Primero selecciona dia, club y hora para consultar disponibilidad.</p>
+          <p className="text-sm text-gray-500">Primero selecciona dia y club para ver horarios disponibles.</p>
         ) : availableCourts.length === 0 ? (
           <p className="text-sm text-amber-700">
             No hay canchas disponibles para ese club y horario. Prueba otra hora o club.
@@ -410,25 +452,7 @@ export default async function PlayerNewBookingPage({
             <input type="hidden" name="club_id" value={selectedClubId} />
             <input type="hidden" name="slot_minutes" value={slotMinutes} />
             <input type="hidden" name="start_local" value={`${selectedDate}T${effectiveTime}`} />
-
-            <div>
-              <p className="text-sm text-gray-600">
-                Duracion del turno: <span className="font-semibold text-gray-900">{slotMinutes} min</span>
-              </p>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Cancha</label>
-              <select name="court_id" required className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm">
-                <option value="">Selecciona cancha</option>
-                {availableCourts.map((court) => (
-                  <option key={court.id} value={court.id}>
-                    {court.name} - {court.surface_type}
-                    {court.is_indoor ? " (indoor)" : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <input type="hidden" name="court_id" value={effectiveCourtId} />
 
             <div>
               <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Nota (opcional)</label>

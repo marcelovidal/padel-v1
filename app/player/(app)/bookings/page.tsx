@@ -25,7 +25,15 @@ export default async function PlayerBookingsPage() {
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
         {bookings.length === 0 ? (
-          <p className="text-sm text-gray-500">Todavia no tienes reservas.</p>
+          <div className="space-y-3">
+            <p className="text-sm text-gray-500">Todavia no tienes reservas.</p>
+            <Link
+              href="/player/bookings/new"
+              className="inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+            >
+              Realizar una reserva
+            </Link>
+          </div>
         ) : (
           bookings.map((booking) => (
             <Link

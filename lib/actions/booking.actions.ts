@@ -16,6 +16,7 @@ import {
 type BookingActionErrorCode =
   | "NOT_AUTHENTICATED"
   | "NOT_ALLOWED"
+  | "BOOKING_NOT_FOUND"
   | "INVALID_TIME_RANGE"
   | "BOOKING_MUST_BE_FUTURE"
   | "BOOKING_TOO_FAR"
@@ -37,6 +38,7 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
 
   if (raw.includes("NOT_AUTHENTICATED")) return "NOT_AUTHENTICATED";
   if (raw.includes("NOT_ALLOWED")) return "NOT_ALLOWED";
+  if (raw.includes("BOOKING_NOT_FOUND")) return "BOOKING_NOT_FOUND";
   if (raw.includes("INVALID_TIME_RANGE")) return "INVALID_TIME_RANGE";
   if (raw.includes("BOOKING_MUST_BE_FUTURE")) return "BOOKING_MUST_BE_FUTURE";
   if (raw.includes("BOOKING_TOO_FAR")) return "BOOKING_TOO_FAR";
@@ -58,6 +60,8 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "Necesitas iniciar sesion para continuar.";
     case "NOT_ALLOWED":
       return "No tienes permisos para esta accion.";
+    case "BOOKING_NOT_FOUND":
+      return "La reserva no existe o ya no esta disponible.";
     case "INVALID_TIME_RANGE":
       return "El rango horario no es valido.";
     case "BOOKING_MUST_BE_FUTURE":
@@ -250,9 +254,12 @@ export async function confirmBookingAction(formData: FormData) {
 
   const service = new BookingService();
   try {
-    await service.confirmBooking(parsed.data.booking_id);
+    const matchId = await service.confirmBookingAndCreateMatch(parsed.data.booking_id);
     revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/club/matches");
+    revalidatePath(`/club/matches/${matchId}`);
     revalidatePath("/player/bookings");
+    revalidatePath("/player/matches");
     return { success: true as const };
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
@@ -367,6 +374,16 @@ export async function clubCreateBookingAndMatchAction(
 
   const service = new BookingService();
   try {
+    const bookingId = String(formData.get("booking_id") || "").trim();
+    if (bookingId) {
+      const matchId = await service.confirmBookingAndCreateMatch(bookingId);
+      revalidatePath("/club/dashboard/bookings");
+      revalidatePath("/club/matches");
+      revalidatePath("/player/matches");
+      revalidatePath("/player/bookings");
+      return { success: true as const, matchId };
+    }
+
     const result = await service.createClubConfirmedBookingMatch(parsed.data);
     const matchId = result?.match_id || "";
     revalidatePath("/club/dashboard/bookings");

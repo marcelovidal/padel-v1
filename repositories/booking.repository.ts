@@ -250,6 +250,16 @@ export class BookingRepository {
     return data as string;
   }
 
+  async confirmBookingAndCreateMatch(bookingId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_confirm_booking_and_create_match", {
+      p_booking_id: bookingId,
+    });
+
+    if (error) throw error;
+    return data as string;
+  }
+
   async rejectBooking(bookingId: string, reason?: string) {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("club_reject_booking", {

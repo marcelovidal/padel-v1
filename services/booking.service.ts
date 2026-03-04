@@ -87,6 +87,10 @@ export class BookingService {
     return this.repository.confirmBooking(bookingId);
   }
 
+  async confirmBookingAndCreateMatch(bookingId: string) {
+    return this.repository.confirmBookingAndCreateMatch(bookingId);
+  }
+
   async rejectBooking(bookingId: string, reason?: string) {
     return this.repository.rejectBooking(bookingId, reason);
   }

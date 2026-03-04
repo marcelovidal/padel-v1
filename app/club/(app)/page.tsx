@@ -3,6 +3,26 @@ import { requireClub } from "@/lib/auth";
 import { ClubService } from "@/services/club.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+function formatMatchDateTime(value: string) {
+  const date = new Date(value);
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function statusLabel(status: string) {
+  if (status === "scheduled") return "Programado";
+  if (status === "completed") return "Completado";
+  if (status === "cancelled") return "Cancelado";
+  return status;
+}
+
 export default async function ClubHomePage() {
   const { club } = await requireClub();
   const clubService = new ClubService();
@@ -59,10 +79,10 @@ export default async function ClubHomePage() {
               {recent.map((match) => (
                 <div key={match.id} className="rounded-xl border border-gray-200 bg-white p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-900">{new Date(match.match_at).toLocaleString("es-AR")}</p>
+                    <p className="font-semibold text-gray-900">{formatMatchDateTime(match.match_at)}</p>
                     <p className="text-sm text-gray-600">{match.players_count}/{match.max_players} jugadores</p>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600">{match.status}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600">{statusLabel(match.status)}</span>
                 </div>
               ))}
             </div>
