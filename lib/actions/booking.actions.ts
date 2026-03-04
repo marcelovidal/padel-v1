@@ -24,6 +24,10 @@ type BookingActionErrorCode =
   | "PLAYER_NOT_FOUND"
   | "COURT_NOT_AVAILABLE"
   | "INVALID_STATUS"
+  | "INVALID_COURT_HOURS"
+  | "BOOKING_OUTSIDE_HOURS"
+  | "BOOKING_INVALID_SLOT"
+  | "BOOKING_INVALID_DURATION"
   | "UNKNOWN";
 
 function inferBookingErrorCode(error: any): BookingActionErrorCode {
@@ -41,6 +45,10 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
   if (raw.includes("PLAYER_NOT_FOUND")) return "PLAYER_NOT_FOUND";
   if (raw.includes("COURT_NOT_AVAILABLE")) return "COURT_NOT_AVAILABLE";
   if (raw.includes("INVALID_STATUS")) return "INVALID_STATUS";
+  if (raw.includes("INVALID_COURT_HOURS")) return "INVALID_COURT_HOURS";
+  if (raw.includes("BOOKING_OUTSIDE_HOURS")) return "BOOKING_OUTSIDE_HOURS";
+  if (raw.includes("BOOKING_INVALID_SLOT")) return "BOOKING_INVALID_SLOT";
+  if (raw.includes("BOOKING_INVALID_DURATION")) return "BOOKING_INVALID_DURATION";
   return "UNKNOWN";
 }
 
@@ -66,6 +74,14 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "La cancha seleccionada no esta disponible para reservar.";
     case "INVALID_STATUS":
       return "La reserva no permite esta accion.";
+    case "INVALID_COURT_HOURS":
+      return "El horario de apertura/cierre de la cancha es invalido.";
+    case "BOOKING_OUTSIDE_HOURS":
+      return "La reserva esta fuera del horario habilitado de la cancha.";
+    case "BOOKING_INVALID_SLOT":
+      return "La hora elegida no coincide con los turnos disponibles de la cancha.";
+    case "BOOKING_INVALID_DURATION":
+      return "La duracion no coincide con el intervalo configurado para la cancha.";
     default:
       return "No pudimos completar la accion. Intenta nuevamente.";
   }
@@ -118,6 +134,9 @@ export async function createCourtAction(formData: FormData) {
     name: String(formData.get("name") || ""),
     surface_type: String(formData.get("surface_type") || "synthetic"),
     is_indoor: String(formData.get("is_indoor") || "") === "on",
+    opening_time: String(formData.get("opening_time") || "09:00"),
+    closing_time: String(formData.get("closing_time") || "23:00"),
+    slot_interval_minutes: Number(formData.get("slot_interval_minutes") || 90),
   });
 
   if (!parsed.success) {
@@ -126,7 +145,13 @@ export async function createCourtAction(formData: FormData) {
 
   const service = new BookingService();
   try {
-    await service.createCourt(parsed.data);
+    const courtId = await service.createCourt(parsed.data);
+    await service.setCourtSchedule({
+      court_id: courtId,
+      opening_time: parsed.data.opening_time,
+      closing_time: parsed.data.closing_time,
+      slot_interval_minutes: parsed.data.slot_interval_minutes,
+    });
     revalidatePath("/club/dashboard/courts");
     revalidatePath(`/clubs/${parsed.data.club_id}/book`);
     return { success: true as const };
@@ -146,6 +171,9 @@ export async function updateCourtAction(formData: FormData) {
     surface_type: (String(formData.get("surface_type") || "").trim() || undefined) as any,
     is_indoor: String(formData.get("is_indoor") || "") === "on",
     active: String(formData.get("active") || "") === "on",
+    opening_time: String(formData.get("opening_time") || "09:00"),
+    closing_time: String(formData.get("closing_time") || "23:00"),
+    slot_interval_minutes: Number(formData.get("slot_interval_minutes") || 90),
   });
 
   if (!parsed.success) {
@@ -155,6 +183,12 @@ export async function updateCourtAction(formData: FormData) {
   const service = new BookingService();
   try {
     await service.updateCourt(parsed.data);
+    await service.setCourtSchedule({
+      court_id: parsed.data.court_id,
+      opening_time: parsed.data.opening_time,
+      closing_time: parsed.data.closing_time,
+      slot_interval_minutes: parsed.data.slot_interval_minutes,
+    });
     revalidatePath("/club/dashboard/courts");
     return { success: true as const };
   } catch (error: any) {

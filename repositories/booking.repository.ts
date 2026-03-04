@@ -10,6 +10,9 @@ export type ClubCourtRow = {
   surface_type: CourtSurfaceType;
   is_indoor: boolean;
   active: boolean;
+  opening_time: string;
+  closing_time: string;
+  slot_interval_minutes: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -61,7 +64,7 @@ export class BookingRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_courts")
-      .select("id,club_id,name,surface_type,is_indoor,active,created_at,updated_at")
+      .select("id,club_id,name,surface_type,is_indoor,active,opening_time,closing_time,slot_interval_minutes,created_at,updated_at")
       .eq("club_id", clubId)
       .order("name", { ascending: true });
 
@@ -73,7 +76,7 @@ export class BookingRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_courts")
-      .select("id,club_id,name,surface_type,is_indoor,active,created_at,updated_at")
+      .select("id,club_id,name,surface_type,is_indoor,active,opening_time,closing_time,slot_interval_minutes,created_at,updated_at")
       .eq("club_id", clubId)
       .eq("active", true)
       .order("name", { ascending: true });
@@ -172,6 +175,25 @@ export class BookingRepository {
       p_name: input.name,
       p_surface_type: input.surface_type,
       p_is_indoor: input.is_indoor,
+    });
+
+    if (error) throw error;
+    return data as string;
+  }
+
+  async setCourtSchedule(input: {
+    court_id: string;
+    opening_time: string;
+    closing_time: string;
+    slot_interval_minutes?: number | null;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_set_court_schedule", {
+      p_court_id: input.court_id,
+      p_opening_time: input.opening_time,
+      p_closing_time: input.closing_time,
+      p_slot_interval_minutes:
+        typeof input.slot_interval_minutes === "number" ? input.slot_interval_minutes : null,
     });
 
     if (error) throw error;
