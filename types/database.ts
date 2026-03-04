@@ -9,6 +9,7 @@ export type Json =
 export type PlayerPosition = "drive" | "reves" | "cualquiera";
 export type PlayerStatus = "active" | "inactive";
 export type MatchStatus = "scheduled" | "completed" | "cancelled";
+export type MatchSource = "direct" | "booking";
 export type TeamType = "A" | "B";
 export type ClubClaimStatus = "unclaimed" | "pending" | "claimed" | "rejected";
 export type ClubClaimRequestStatus = "pending" | "approved" | "rejected";
@@ -143,6 +144,7 @@ export interface Database {
           notes: string | null;
           status: MatchStatus;
           created_by: string | null; // Nuevo campo
+          match_source: MatchSource;
           created_at: string;
           updated_at: string;
         };
@@ -156,6 +158,7 @@ export interface Database {
           notes?: string | null;
           status?: MatchStatus;
           created_by?: string | null; // Nuevo campo
+          match_source?: MatchSource;
           created_at?: string;
           updated_at?: string;
         };
@@ -169,6 +172,7 @@ export interface Database {
           notes?: string | null;
           status?: MatchStatus;
           created_by?: string | null; // Nuevo campo
+          match_source?: MatchSource;
           created_at?: string;
           updated_at?: string;
         };

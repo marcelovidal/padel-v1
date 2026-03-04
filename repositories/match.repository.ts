@@ -114,6 +114,32 @@ export class MatchRepository {
     return data;
   }
 
+  async createMatchUnified(input: {
+    match_at: string;
+    player_ids: string[];
+    club_id?: string | null;
+    club_name?: string | null;
+    court_id?: string | null;
+    booking_id?: string | null;
+    notes?: string | null;
+    source?: "direct" | "booking";
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_create_match_unified", {
+      p_match_at: input.match_at,
+      p_player_ids: input.player_ids,
+      p_club_id: input.club_id || null,
+      p_club_name: input.club_name || null,
+      p_court_id: input.court_id || null,
+      p_booking_id: input.booking_id || null,
+      p_notes: input.notes || null,
+      p_source: input.source || "direct",
+    });
+
+    if (error) throw error;
+    return data as string;
+  }
+
   async update(id: string, updates: MatchUpdate): Promise<Match> {
     const supabase = await this.getClient();
     // TODO: remove `as any` by switching to a properly typed Supabase server client (createServerClient<Database>)
@@ -226,6 +252,7 @@ export class MatchRepository {
         notes,
         status,
         created_by,
+        match_source,
         created_at,
         updated_at,
         clubs (
@@ -302,6 +329,7 @@ export class MatchRepository {
         notes: match.notes,
         status: match.status,
         created_by: match.created_by,
+        match_source: match.match_source ?? "direct",
         created_at: match.created_at,
         updated_at: match.updated_at,
         team: team as TeamType,
@@ -328,6 +356,7 @@ export class MatchRepository {
         notes,
         status,
         created_by,
+        match_source,
         created_at,
         updated_at,
         clubs (

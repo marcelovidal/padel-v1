@@ -51,6 +51,19 @@ export class MatchService {
     });
   }
 
+  async createMatchUnified(input: {
+    match_at: string;
+    player_ids: string[];
+    club_id?: string | null;
+    club_name?: string | null;
+    court_id?: string | null;
+    booking_id?: string | null;
+    notes?: string | null;
+    source?: "direct" | "booking";
+  }) {
+    return this.repository.createMatchUnified(input);
+  }
+
   async updateMatch(input: UpdateMatchInput) {
     const { id, ...updates } = input;
     return this.repository.update(id, updates);
