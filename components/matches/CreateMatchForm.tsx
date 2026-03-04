@@ -48,6 +48,7 @@ export function CreateMatchForm({
   initialClub,
   fromBooking = false,
   bookingId,
+  clubRequired = true,
 }: {
   currentPlayerId: string;
   currentPlayerLocation?: { city?: string; city_id?: string; region_code?: string; region_name?: string };
@@ -57,6 +58,7 @@ export function CreateMatchForm({
   initialClub?: { id: string; name: string; claim_status?: "unclaimed" | "pending" | "claimed" | "rejected" } | null;
   fromBooking?: boolean;
   bookingId?: string;
+  clubRequired?: boolean;
 }) {
   const initialDateValue = initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) ? initialDate : toDateInputValue(new Date());
   const initialTimeValue = initialTime && /^\d{2}:\d{2}$/.test(initialTime) ? initialTime : "20:00";
@@ -177,7 +179,7 @@ export function CreateMatchForm({
     const rawClubName = String(formData.get("club_name") || "").trim();
     const rawClubId = String(formData.get("club_id") || "").trim();
 
-    if (!rawClubId && !rawClubName) {
+    if (clubRequired && !rawClubId && !rawClubName) {
       setError("Selecciona un club publicado o escribe el nombre del club.");
       setIsSubmitting(false);
       return;
@@ -394,7 +396,7 @@ export function CreateMatchForm({
                   <ClubSelector
                     currentLocation={currentPlayerLocation}
                     initialClub={initialClub || null}
-                    required
+                    required={clubRequired}
                     allowUnlisted
                   />
                 </>
