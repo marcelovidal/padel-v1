@@ -98,6 +98,14 @@ export function ClubBookingsCalendarPanel({
     const mm = String(d.getMinutes()).padStart(2, "0");
     return `${hh}:${mm}`;
   }, [selectedBooking]);
+  const selectedBookingPlayerLabel = useMemo(() => {
+    if (!selectedBooking) return "Jugador sin perfil";
+    return players.find((p) => p.id === selectedBooking.requested_by_player_id)?.label || "Jugador sin perfil";
+  }, [players, selectedBooking]);
+  const selectedBookingCourtLabel = useMemo(() => {
+    if (!selectedBooking) return "Cancha";
+    return courts.find((c) => c.id === selectedBooking.court_id)?.label || selectedBooking.club_courts?.name || "Cancha";
+  }, [courts, selectedBooking]);
 
   return (
     <div className="rounded-2xl border bg-white p-5 space-y-4">
@@ -253,40 +261,58 @@ export function ClubBookingsCalendarPanel({
 
               <div>
                 <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Cancha</label>
-                <select
-                  key={`court-${selectedBooking?.id || "default"}`}
-                  name="court_id"
-                  required
-                  defaultValue={selectedBooking?.court_id || ""}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                >
-                  <option value="">Seleccionar cancha</option>
-                  {courts.map((court) => (
-                    <option key={court.id} value={court.id}>
-                      {court.label}
-                    </option>
-                  ))}
-                </select>
+                {selectedBooking ? (
+                  <>
+                    <input type="hidden" name="court_id" value={selectedBooking.court_id || ""} />
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900">
+                      {selectedBookingCourtLabel}
+                    </div>
+                  </>
+                ) : (
+                  <select
+                    key={`court-${selectedBooking?.id || "default"}`}
+                    name="court_id"
+                    required
+                    defaultValue=""
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  >
+                    <option value="">Seleccionar cancha</option>
+                    {courts.map((court) => (
+                      <option key={court.id} value={court.id}>
+                        {court.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">
                   Jugador que reserva
                 </label>
-                <select
-                  key={`player-${selectedBooking?.id || "default"}`}
-                  name="player_id"
-                  required
-                  defaultValue={selectedBooking?.requested_by_player_id || ""}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                >
-                  <option value="">Seleccionar jugador</option>
-                  {players.map((player) => (
-                    <option key={player.id} value={player.id}>
-                      {player.label}
-                    </option>
-                  ))}
-                </select>
+                {selectedBooking?.requested_by_player_id ? (
+                  <>
+                    <input type="hidden" name="player_id" value={selectedBooking.requested_by_player_id || ""} />
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900">
+                      {selectedBookingPlayerLabel}
+                    </div>
+                  </>
+                ) : (
+                  <select
+                    key={`player-${selectedBooking?.id || "default"}`}
+                    name="player_id"
+                    required
+                    defaultValue=""
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  >
+                    <option value="">Seleccionar jugador</option>
+                    {players.map((player) => (
+                      <option key={player.id} value={player.id}>
+                        {player.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
