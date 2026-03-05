@@ -29,6 +29,7 @@ type BookingActionErrorCode =
   | "BOOKING_OUTSIDE_HOURS"
   | "BOOKING_INVALID_SLOT"
   | "BOOKING_INVALID_DURATION"
+  | "RPC_NOT_FOUND"
   | "UNKNOWN";
 
 function inferBookingErrorCode(error: any): BookingActionErrorCode {
@@ -51,6 +52,7 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
   if (raw.includes("BOOKING_OUTSIDE_HOURS")) return "BOOKING_OUTSIDE_HOURS";
   if (raw.includes("BOOKING_INVALID_SLOT")) return "BOOKING_INVALID_SLOT";
   if (raw.includes("BOOKING_INVALID_DURATION")) return "BOOKING_INVALID_DURATION";
+  if (raw.includes("PGRST202") || raw.includes("Could not find the function")) return "RPC_NOT_FOUND";
   return "UNKNOWN";
 }
 
@@ -86,6 +88,8 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "La hora elegida no coincide con los turnos disponibles de la cancha.";
     case "BOOKING_INVALID_DURATION":
       return "La duracion no coincide con el intervalo configurado para la cancha.";
+    case "RPC_NOT_FOUND":
+      return "Falta una funcion de base de datos requerida. Ejecuta las migraciones pendientes y recarga el esquema.";
     default:
       return "No pudimos completar la accion. Intenta nuevamente.";
   }
@@ -124,7 +128,21 @@ export async function upsertBookingSettingsAction(formData: FormData) {
     revalidatePath("/club/dashboard/settings");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    if (code === "UNKNOWN" && process.env.NODE_ENV !== "production") {
+      const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -161,6 +179,17 @@ export async function createCourtAction(formData: FormData) {
     return { success: true as const };
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
+    if (process.env.NODE_ENV !== "production") {
+      const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+      return {
+        success: false as const,
+        error:
+          code === "UNKNOWN"
+            ? `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`
+            : `${errorMessageFor(code)} (${detail || code})`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -196,7 +225,21 @@ export async function updateCourtAction(formData: FormData) {
     revalidatePath("/club/dashboard/courts");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -262,7 +305,21 @@ export async function confirmBookingAction(formData: FormData) {
     revalidatePath("/player/matches");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -287,7 +344,21 @@ export async function rejectBookingAction(formData: FormData) {
     revalidatePath("/player/bookings");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -392,7 +463,21 @@ export async function clubCreateBookingAndMatchAction(
     revalidatePath("/player/bookings");
     return { success: true as const, matchId };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }

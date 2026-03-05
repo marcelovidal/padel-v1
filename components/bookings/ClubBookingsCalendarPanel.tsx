@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormState } from "react-dom";
 import { CalendarClock, CheckCircle2, CircleDashed, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { clubCreateBookingAndMatchAction } from "@/lib/actions/booking.actions";
@@ -68,19 +68,6 @@ function toTimeLocal(iso: string) {
   return `${hh}:${mm}`;
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-    >
-      {pending ? "Creando..." : "Crear partido confirmado"}
-    </button>
-  );
-}
-
 export function ClubBookingsCalendarPanel({
   weekLabel,
   prevWeekHref,
@@ -112,6 +99,9 @@ export function ClubBookingsCalendarPanel({
   const [selectedCourtId, setSelectedCourtId] = useState<string>(courts[0]?.id || "");
   const [selectedSlot, setSelectedSlot] = useState<SlotSelection | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string>("");
+  const [playerQuery, setPlayerQuery] = useState<string>("");
+  const [manualPlayerId, setManualPlayerId] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const canCreate = courts.length > 0 && players.length > 0;
   const selectedCourt = useMemo(
@@ -140,11 +130,19 @@ export function ClubBookingsCalendarPanel({
 
   useEffect(() => {
     if (state?.success) {
+      setIsSubmitting(false);
       setSelectedSlot(null);
       setSelectedBookingId("");
+      setPlayerQuery("");
+      setManualPlayerId("");
       router.refresh();
+      return;
     }
-  }, [state?.success, router]);
+
+    if (state?.error) {
+      setIsSubmitting(false);
+    }
+  }, [state?.success, state?.error, router]);
 
   const requestedBookingsForSlot = useMemo(() => {
     if (!selectedSlot) return [] as any[];
@@ -174,9 +172,24 @@ export function ClubBookingsCalendarPanel({
     return players.find((p) => p.id === selectedBooking.requested_by_player_id)?.label || "Jugador sin perfil";
   }, [players, selectedBooking]);
   const selectedBookingCourtLabel = useMemo(() => {
-    if (!selectedBooking) return "Cancha";
+    if (!selectedBooking) return "";
     return courts.find((c) => c.id === selectedBooking.court_id)?.label || selectedBooking.club_courts?.name || "Cancha";
   }, [courts, selectedBooking]);
+  const filteredPlayers = useMemo(() => {
+    const q = playerQuery.trim().toLowerCase();
+    if (!q) return players.slice(0, 8);
+    const tokens = q.split(/\s+/).filter(Boolean);
+    return players
+      .filter((player) => {
+        const haystack = player.label.toLowerCase();
+        return tokens.every((token) => haystack.includes(token));
+      })
+      .slice(0, 8);
+  }, [players, playerQuery]);
+  const selectedManualPlayer = useMemo(
+    () => players.find((player) => player.id === manualPlayerId) || null,
+    [players, manualPlayerId]
+  );
 
   return (
     <div className="rounded-2xl border bg-white p-5 space-y-4">
@@ -320,8 +333,11 @@ export function ClubBookingsCalendarPanel({
               <button
                 type="button"
                 onClick={() => {
+                  setIsSubmitting(false);
                   setSelectedSlot(null);
                   setSelectedBookingId("");
+                  setPlayerQuery("");
+                  setManualPlayerId("");
                 }}
                 className="rounded-lg border border-gray-200 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50"
               >
@@ -332,7 +348,17 @@ export function ClubBookingsCalendarPanel({
               Fecha seleccionada: <span className="font-semibold text-gray-800">{selectedSlot.date}</span>
             </p>
 
-            <form action={formAction} className="mt-4 space-y-3">
+            <form
+              action={formAction}
+              className="mt-4 space-y-3"
+              onSubmit={(event) => {
+                if (isSubmitting) {
+                  event.preventDefault();
+                  return;
+                }
+                setIsSubmitting(true);
+              }}
+            >
               <input type="hidden" name="club_id" value={clubId} />
               <input type="hidden" name="selected_date" value={selectedSlot.date} />
               <input type="hidden" name="slot_minutes" value={String(effectiveSlotMinutes)} />
@@ -385,20 +411,47 @@ export function ClubBookingsCalendarPanel({
                     </div>
                   </>
                 ) : (
-                  <select
-                    key={`player-${selectedBooking?.id || "default"}`}
-                    name="player_id"
-                    required
-                    defaultValue=""
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                  >
-                    <option value="">Seleccionar jugador</option>
-                    {players.map((player) => (
-                      <option key={player.id} value={player.id}>
-                        {player.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={playerQuery}
+                      onChange={(event) => {
+                        setPlayerQuery(event.target.value);
+                        setManualPlayerId("");
+                      }}
+                      placeholder="Buscar por nombre y apellido"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                    />
+                    <input type="hidden" name="player_id" value={manualPlayerId} />
+                    <div className="max-h-40 overflow-auto rounded-lg border border-gray-200 bg-white">
+                      {filteredPlayers.length === 0 ? (
+                        <p className="px-3 py-2 text-sm text-gray-500">No hay coincidencias.</p>
+                      ) : (
+                        filteredPlayers.map((player) => (
+                          <button
+                            key={player.id}
+                            type="button"
+                            onClick={() => {
+                              setManualPlayerId(player.id);
+                              setPlayerQuery(player.label);
+                            }}
+                            className={`block w-full px-3 py-2 text-left text-sm ${
+                              manualPlayerId === player.id
+                                ? "bg-blue-50 font-semibold text-blue-700"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {player.label}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    {selectedManualPlayer ? (
+                      <p className="text-xs text-gray-600">
+                        Seleccionado: <span className="font-semibold text-gray-800">{selectedManualPlayer.label}</span>
+                      </p>
+                    ) : null}
+                  </div>
                 )}
               </div>
 
@@ -419,7 +472,13 @@ export function ClubBookingsCalendarPanel({
               ) : null}
 
               <div className="flex justify-end">
-                <SubmitButton />
+                <button
+                  type="submit"
+                  disabled={isSubmitting || (!selectedBooking?.requested_by_player_id && !manualPlayerId)}
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {isSubmitting ? "Creando..." : "Crear partido confirmado"}
+                </button>
               </div>
             </form>
           </div>

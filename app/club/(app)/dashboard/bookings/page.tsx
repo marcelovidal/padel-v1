@@ -84,7 +84,7 @@ export default async function ClubBookingsPage({
     bookingService.listClubBookings(club.id),
     bookingService.getClubBookingSettings(club.id),
     bookingService.listActiveClubCourts(club.id),
-    playerService.searchPlayersWeighted(""),
+    playerService.searchPlayersWeighted("", 200),
     clubService.listMyClubMatches(200),
   ]);
   const matchesById = new Map((clubMatches || []).map((match) => [match.id, match]));
@@ -169,7 +169,10 @@ export default async function ClubBookingsPage({
   }));
   const playerOptions = mergedPlayers.map((player: any) => ({
     id: player.id,
-    label: player.display_name || `${player.first_name || ""} ${player.last_name || ""}`.trim(),
+    label:
+      `${player.first_name || ""} ${player.last_name || ""}`.trim() ||
+      player.display_name ||
+      "Jugador",
   }));
   const submitConfirm = async (formData: FormData) => {
     "use server";
