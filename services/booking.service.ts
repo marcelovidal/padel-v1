@@ -54,6 +54,15 @@ export class BookingService {
     return this.repository.createCourt(input);
   }
 
+  async setCourtSchedule(input: {
+    court_id: string;
+    opening_time: string;
+    closing_time: string;
+    slot_interval_minutes?: number | null;
+  }) {
+    return this.repository.setCourtSchedule(input);
+  }
+
   async updateCourt(input: {
     court_id: string;
     name?: string;
@@ -76,6 +85,10 @@ export class BookingService {
 
   async confirmBooking(bookingId: string) {
     return this.repository.confirmBooking(bookingId);
+  }
+
+  async confirmBookingAndCreateMatch(bookingId: string) {
+    return this.repository.confirmBookingAndCreateMatch(bookingId);
   }
 
   async rejectBooking(bookingId: string, reason?: string) {

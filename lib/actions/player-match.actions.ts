@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createMatchUnifiedAction } from "@/lib/actions/match-create.actions";
 
 const createMatchSchema = z
   .object({
@@ -16,18 +17,6 @@ const createMatchSchema = z
     opponent1_id: z.string().uuid("Selecciona rival 1"),
     opponent2_id: z.string().uuid("Selecciona rival 2"),
     booking_id: z.string().uuid().optional().nullable(),
-  })
-  .superRefine((value, ctx) => {
-    const hasClubName = (value.club_name || "").trim().length > 0;
-    const hasClubId = !!value.club_id;
-
-    if (!hasClubName && !hasClubId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Selecciona un club o ingresa su nombre",
-        path: ["club_name"],
-      });
-    }
   });
 
 export async function createMatchAsPlayer(prevState: any, formData: FormData) {
@@ -68,86 +57,25 @@ export async function createMatchAsPlayer(prevState: any, formData: FormData) {
 
   const matchTimestamp = `${date}T${time}:00`;
 
-  let createdMatchId: string | null = null;
-  try {
-    const sb = supabase as any;
+  const unified = await createMatchUnifiedAction({
+    match_at: new Date(matchTimestamp).toISOString(),
+    player_ids: [player_id, partner_id, opponent1_id, opponent2_id],
+    club_id: club_id || null,
+    club_name: (club_name || "").trim() || null,
+    booking_id: booking_id || null,
+    source: booking_id ? "booking" : "direct",
+    notes: booking_id ? `Partido iniciado desde reserva #${booking_id}.` : null,
+  });
 
-    const notesFromBooking = booking_id ? `Partido iniciado desde reserva #${booking_id}.` : null;
-    const { data: rpcMatchId, error: matchError } = await sb.rpc("player_create_match_with_players", {
-      p_match_at: matchTimestamp,
-      p_club_name: (club_name || "").trim(),
-      p_partner_id: partner_id,
-      p_opp1_id: opponent1_id,
-      p_opp2_id: opponent2_id,
-      p_notes: notesFromBooking,
-      p_max_players: 4,
-      p_club_id: club_id || null,
-    });
-
-    if (matchError) {
-      throw matchError;
-    }
-    createdMatchId = rpcMatchId;
-
-    // Q3 bridge: if match was not initiated from a booking and club is selected, auto-create booking request.
-    if (!booking_id && club_id && createdMatchId) {
-      const [{ data: courtRows }, { data: settingsRow }, { data: matchRow }] = await Promise.all([
-        sb
-          .from("club_courts")
-          .select("id")
-          .eq("club_id", club_id)
-          .eq("active", true)
-          .order("name", { ascending: true })
-          .limit(1),
-        sb.from("club_booking_settings").select("slot_duration_minutes").eq("club_id", club_id).maybeSingle(),
-        sb.from("matches").select("match_at").eq("id", createdMatchId).maybeSingle(),
-      ]);
-
-      const firstCourtId = Array.isArray(courtRows) && courtRows[0]?.id ? String(courtRows[0].id) : null;
-      const matchAt = matchRow?.match_at ? new Date(matchRow.match_at) : null;
-      const slotMinutes =
-        typeof settingsRow?.slot_duration_minutes === "number" ? settingsRow.slot_duration_minutes : 90;
-
-      if (firstCourtId && matchAt && !Number.isNaN(matchAt.getTime())) {
-        const endAt = new Date(matchAt.getTime() + slotMinutes * 60_000);
-        const bookingNote = `Solicitud auto-generada desde partido ${createdMatchId}`;
-
-        const { error: bookingError } = await sb.rpc("player_request_booking", {
-          p_club_id: club_id,
-          p_court_id: firstCourtId,
-          p_start_at: matchAt.toISOString(),
-          p_end_at: endAt.toISOString(),
-          p_note: bookingNote,
-        });
-
-        if (bookingError) {
-          console.error("auto booking from match failed", {
-            createdMatchId,
-            club_id,
-            bookingError,
-          });
-        }
-      }
-    }
-  } catch (err: any) {
-    if (err.message?.includes("PLAYER_PROFILE_NOT_FOUND")) {
-      return { error: "Tu usuario no tiene un perfil de jugador vinculado." };
-    }
-    if (err.message?.includes("DUPLICATE_PLAYERS")) {
-      return { error: "No puedes repetir jugadores en el partido." };
-    }
-    if (err.message?.includes("CLUB_NOT_FOUND")) {
-      return { error: "El club seleccionado no existe o no esta disponible." };
-    }
-
-    return { error: err.message || "Error al crear el partido" };
+  if (!unified.success) {
+    return { error: unified.error };
   }
 
   revalidatePath("/player/matches");
   revalidatePath("/player/bookings");
   revalidatePath("/club/dashboard/bookings");
   revalidatePath("/player");
-  return { success: true as const, matchId: createdMatchId };
+  return { success: true as const, matchId: unified.matchId };
 }
 
 export async function suggestClubLeadAction(input: {

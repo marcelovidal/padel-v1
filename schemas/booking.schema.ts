@@ -29,6 +29,9 @@ export const createCourtSchema = z.object({
   name: z.string().trim().min(1, "Nombre requerido"),
   surface_type: z.enum(["synthetic", "hard", "clay", "other"]),
   is_indoor: z.coerce.boolean().default(false),
+  opening_time: z.string().regex(/^\d{2}:\d{2}$/, "Horario apertura invalido").default("09:00"),
+  closing_time: z.string().regex(/^\d{2}:\d{2}$/, "Horario cierre invalido").default("23:00"),
+  slot_interval_minutes: z.coerce.number().int().min(30).max(240).default(90),
 });
 
 export const updateCourtSchema = z.object({
@@ -37,6 +40,9 @@ export const updateCourtSchema = z.object({
   surface_type: z.enum(["synthetic", "hard", "clay", "other"]).optional(),
   is_indoor: z.boolean().optional(),
   active: z.boolean().optional(),
+  opening_time: z.string().regex(/^\d{2}:\d{2}$/, "Horario apertura invalido"),
+  closing_time: z.string().regex(/^\d{2}:\d{2}$/, "Horario cierre invalido"),
+  slot_interval_minutes: z.coerce.number().int().min(30).max(240),
 });
 
 export const requestBookingSchema = z.object({

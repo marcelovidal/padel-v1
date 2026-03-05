@@ -16,6 +16,7 @@ import {
 type BookingActionErrorCode =
   | "NOT_AUTHENTICATED"
   | "NOT_ALLOWED"
+  | "BOOKING_NOT_FOUND"
   | "INVALID_TIME_RANGE"
   | "BOOKING_MUST_BE_FUTURE"
   | "BOOKING_TOO_FAR"
@@ -24,6 +25,11 @@ type BookingActionErrorCode =
   | "PLAYER_NOT_FOUND"
   | "COURT_NOT_AVAILABLE"
   | "INVALID_STATUS"
+  | "INVALID_COURT_HOURS"
+  | "BOOKING_OUTSIDE_HOURS"
+  | "BOOKING_INVALID_SLOT"
+  | "BOOKING_INVALID_DURATION"
+  | "RPC_NOT_FOUND"
   | "UNKNOWN";
 
 function inferBookingErrorCode(error: any): BookingActionErrorCode {
@@ -33,6 +39,7 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
 
   if (raw.includes("NOT_AUTHENTICATED")) return "NOT_AUTHENTICATED";
   if (raw.includes("NOT_ALLOWED")) return "NOT_ALLOWED";
+  if (raw.includes("BOOKING_NOT_FOUND")) return "BOOKING_NOT_FOUND";
   if (raw.includes("INVALID_TIME_RANGE")) return "INVALID_TIME_RANGE";
   if (raw.includes("BOOKING_MUST_BE_FUTURE")) return "BOOKING_MUST_BE_FUTURE";
   if (raw.includes("BOOKING_TOO_FAR")) return "BOOKING_TOO_FAR";
@@ -41,6 +48,11 @@ function inferBookingErrorCode(error: any): BookingActionErrorCode {
   if (raw.includes("PLAYER_NOT_FOUND")) return "PLAYER_NOT_FOUND";
   if (raw.includes("COURT_NOT_AVAILABLE")) return "COURT_NOT_AVAILABLE";
   if (raw.includes("INVALID_STATUS")) return "INVALID_STATUS";
+  if (raw.includes("INVALID_COURT_HOURS")) return "INVALID_COURT_HOURS";
+  if (raw.includes("BOOKING_OUTSIDE_HOURS")) return "BOOKING_OUTSIDE_HOURS";
+  if (raw.includes("BOOKING_INVALID_SLOT")) return "BOOKING_INVALID_SLOT";
+  if (raw.includes("BOOKING_INVALID_DURATION")) return "BOOKING_INVALID_DURATION";
+  if (raw.includes("PGRST202") || raw.includes("Could not find the function")) return "RPC_NOT_FOUND";
   return "UNKNOWN";
 }
 
@@ -50,6 +62,8 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "Necesitas iniciar sesion para continuar.";
     case "NOT_ALLOWED":
       return "No tienes permisos para esta accion.";
+    case "BOOKING_NOT_FOUND":
+      return "La reserva no existe o ya no esta disponible.";
     case "INVALID_TIME_RANGE":
       return "El rango horario no es valido.";
     case "BOOKING_MUST_BE_FUTURE":
@@ -66,6 +80,16 @@ function errorMessageFor(code: BookingActionErrorCode) {
       return "La cancha seleccionada no esta disponible para reservar.";
     case "INVALID_STATUS":
       return "La reserva no permite esta accion.";
+    case "INVALID_COURT_HOURS":
+      return "El horario de apertura/cierre de la cancha es invalido.";
+    case "BOOKING_OUTSIDE_HOURS":
+      return "La reserva esta fuera del horario habilitado de la cancha.";
+    case "BOOKING_INVALID_SLOT":
+      return "La hora elegida no coincide con los turnos disponibles de la cancha.";
+    case "BOOKING_INVALID_DURATION":
+      return "La duracion no coincide con el intervalo configurado para la cancha.";
+    case "RPC_NOT_FOUND":
+      return "Falta una funcion de base de datos requerida. Ejecuta las migraciones pendientes y recarga el esquema.";
     default:
       return "No pudimos completar la accion. Intenta nuevamente.";
   }
@@ -104,7 +128,21 @@ export async function upsertBookingSettingsAction(formData: FormData) {
     revalidatePath("/club/dashboard/settings");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    if (code === "UNKNOWN" && process.env.NODE_ENV !== "production") {
+      const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -118,6 +156,9 @@ export async function createCourtAction(formData: FormData) {
     name: String(formData.get("name") || ""),
     surface_type: String(formData.get("surface_type") || "synthetic"),
     is_indoor: String(formData.get("is_indoor") || "") === "on",
+    opening_time: String(formData.get("opening_time") || "09:00"),
+    closing_time: String(formData.get("closing_time") || "23:00"),
+    slot_interval_minutes: Number(formData.get("slot_interval_minutes") || 90),
   });
 
   if (!parsed.success) {
@@ -126,12 +167,29 @@ export async function createCourtAction(formData: FormData) {
 
   const service = new BookingService();
   try {
-    await service.createCourt(parsed.data);
+    const courtId = await service.createCourt(parsed.data);
+    await service.setCourtSchedule({
+      court_id: courtId,
+      opening_time: parsed.data.opening_time,
+      closing_time: parsed.data.closing_time,
+      slot_interval_minutes: parsed.data.slot_interval_minutes,
+    });
     revalidatePath("/club/dashboard/courts");
     revalidatePath(`/clubs/${parsed.data.club_id}/book`);
     return { success: true as const };
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
+    if (process.env.NODE_ENV !== "production") {
+      const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+      return {
+        success: false as const,
+        error:
+          code === "UNKNOWN"
+            ? `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`
+            : `${errorMessageFor(code)} (${detail || code})`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -146,6 +204,9 @@ export async function updateCourtAction(formData: FormData) {
     surface_type: (String(formData.get("surface_type") || "").trim() || undefined) as any,
     is_indoor: String(formData.get("is_indoor") || "") === "on",
     active: String(formData.get("active") || "") === "on",
+    opening_time: String(formData.get("opening_time") || "09:00"),
+    closing_time: String(formData.get("closing_time") || "23:00"),
+    slot_interval_minutes: Number(formData.get("slot_interval_minutes") || 90),
   });
 
   if (!parsed.success) {
@@ -155,10 +216,30 @@ export async function updateCourtAction(formData: FormData) {
   const service = new BookingService();
   try {
     await service.updateCourt(parsed.data);
+    await service.setCourtSchedule({
+      court_id: parsed.data.court_id,
+      opening_time: parsed.data.opening_time,
+      closing_time: parsed.data.closing_time,
+      slot_interval_minutes: parsed.data.slot_interval_minutes,
+    });
     revalidatePath("/club/dashboard/courts");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -216,12 +297,29 @@ export async function confirmBookingAction(formData: FormData) {
 
   const service = new BookingService();
   try {
-    await service.confirmBooking(parsed.data.booking_id);
+    const matchId = await service.confirmBookingAndCreateMatch(parsed.data.booking_id);
     revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/club/matches");
+    revalidatePath(`/club/matches/${matchId}`);
     revalidatePath("/player/bookings");
+    revalidatePath("/player/matches");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -246,7 +344,21 @@ export async function rejectBookingAction(formData: FormData) {
     revalidatePath("/player/bookings");
     return { success: true as const };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }
@@ -333,6 +445,16 @@ export async function clubCreateBookingAndMatchAction(
 
   const service = new BookingService();
   try {
+    const bookingId = String(formData.get("booking_id") || "").trim();
+    if (bookingId) {
+      const matchId = await service.confirmBookingAndCreateMatch(bookingId);
+      revalidatePath("/club/dashboard/bookings");
+      revalidatePath("/club/matches");
+      revalidatePath("/player/matches");
+      revalidatePath("/player/bookings");
+      return { success: true as const, matchId };
+    }
+
     const result = await service.createClubConfirmedBookingMatch(parsed.data);
     const matchId = result?.match_id || "";
     revalidatePath("/club/dashboard/bookings");
@@ -341,7 +463,21 @@ export async function clubCreateBookingAndMatchAction(
     revalidatePath("/player/bookings");
     return { success: true as const, matchId };
   } catch (error: any) {
+    console.error("clubCreateBookingAndMatchAction error:", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    });
     const code = inferBookingErrorCode(error);
+    const detail = [error?.message, error?.details, error?.hint, error?.code].filter(Boolean).join(" | ");
+    if (code === "UNKNOWN") {
+      return {
+        success: false as const,
+        error: `No pudimos completar la accion. Detalle: ${detail || "sin detalle"}`,
+        code,
+      };
+    }
     return { success: false as const, error: errorMessageFor(code), code };
   }
 }

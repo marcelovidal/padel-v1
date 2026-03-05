@@ -222,30 +222,34 @@ export class PlayerRepository {
     const ids = ranked.map((r) => r.id);
     const { data: details, error: detailsError } = await (supabase as any)
       .from("players")
-      .select("id, display_name, city, city_id, region_code, region_name, is_guest, position, category, avatar_url, user_id")
+      .select("id, display_name, city, city_id, region_code, region_name, is_guest, position, category, avatar_url, user_id, status, deleted_at")
       .in("id", ids)
+      .eq("status", "active")
       .is("deleted_at", null);
 
     if (detailsError) throw detailsError;
 
     const byId = new Map((details || []).map((p: any) => [p.id, p]));
 
-    return ranked.map((r) => {
-      const d: any = byId.get(r.id) || {};
-      return {
-        id: r.id,
-        display_name: d.display_name ?? r.display_name,
-        city: d.city ?? r.city,
-        city_id: d.city_id ?? r.city_id,
-        region_code: d.region_code ?? r.region_code,
-        region_name: d.region_name ?? r.region_name,
-        is_guest: typeof d.is_guest === "boolean" ? d.is_guest : r.is_guest,
-        position: d.position ?? null,
-        category: d.category ?? null,
-        avatar_url: d.avatar_url ?? null,
-        user_id: d.user_id ?? null,
-        score: r.score,
-      };
+    return ranked.flatMap((r) => {
+      const d: any = byId.get(r.id);
+      if (!d) return [];
+      return [
+        {
+          id: r.id,
+          display_name: d.display_name ?? r.display_name,
+          city: d.city ?? r.city,
+          city_id: d.city_id ?? r.city_id,
+          region_code: d.region_code ?? r.region_code,
+          region_name: d.region_name ?? r.region_name,
+          is_guest: typeof d.is_guest === "boolean" ? d.is_guest : r.is_guest,
+          position: d.position ?? null,
+          category: d.category ?? null,
+          avatar_url: d.avatar_url ?? null,
+          user_id: d.user_id ?? null,
+          score: r.score,
+        },
+      ];
     });
   }
 

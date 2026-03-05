@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireClub } from "@/lib/auth";
 import { BookingService } from "@/services/booking.service";
 import { PlayerService } from "@/services/player.service";
+import { ClubService } from "@/services/club.service";
 import {
   confirmBookingAction,
   createMatchFromBookingAction,
@@ -10,9 +11,10 @@ import {
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
 
-type DayBucket = {
-  day: number;
+type WeekDayBucket = {
   date: string;
+  weekdayLabel: string;
+  dayLabel: string;
   bookings: Array<any>;
   requested: number;
   confirmed: number;
@@ -26,55 +28,82 @@ function asDateKey(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
-function parseMonth(raw?: string) {
-  if (!raw || !/^\d{4}-\d{2}$/.test(raw)) {
-    const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() + 1 };
-  }
-  const [y, m] = raw.split("-").map(Number);
-  if (!y || !m || m < 1 || m > 12) {
-    const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() + 1 };
-  }
-  return { year: y, month: m };
+function parseDate(raw?: string) {
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return new Date();
+  const d = new Date(`${raw}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return new Date();
+  return d;
 }
 
-function monthString(year: number, month: number) {
-  return `${year}-${String(month).padStart(2, "0")}`;
+function toDateInput(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function startOfWeekMonday(d: Date) {
+  const copy = new Date(d);
+  const day = (copy.getDay() + 6) % 7;
+  copy.setDate(copy.getDate() - day);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+function matchStatusLabel(status: string) {
+  if (status === "scheduled") return "Programado";
+  if (status === "completed") return "Completado";
+  if (status === "cancelled") return "Cancelado";
+  return status;
 }
 
 export default async function ClubBookingsPage({
   searchParams,
 }: {
-  searchParams?: { month?: string };
+  searchParams?: { cursor?: string };
 }) {
   const params = searchParams || {};
-  const { year, month } = parseMonth(params.month);
-  const monthStart = new Date(year, month - 1, 1);
-  const monthEnd = new Date(year, month, 0);
-  const firstWeekdayMondayBased = (monthStart.getDay() + 6) % 7;
-  const daysInMonth = monthEnd.getDate();
-  const monthLabel = monthStart.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
-  const prevMonth = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
-  const nextMonth = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
+  const cursorDate = parseDate(params.cursor);
+  const weekStart = startOfWeekMonday(cursorDate);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const weekLabel = `${weekStart.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "short",
+  })} - ${weekEnd.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}`;
+  const prevWeek = new Date(weekStart);
+  prevWeek.setDate(prevWeek.getDate() - 7);
+  const nextWeek = new Date(weekStart);
+  nextWeek.setDate(nextWeek.getDate() + 7);
 
   const { club } = await requireClub();
   const bookingService = new BookingService();
   const playerService = new PlayerService();
-  const [bookings, settings, courts, allPlayers] = await Promise.all([
+  const clubService = new ClubService();
+  const [bookings, settings, courts, allPlayers, clubMatches] = await Promise.all([
     bookingService.listClubBookings(club.id),
     bookingService.getClubBookingSettings(club.id),
     bookingService.listActiveClubCourts(club.id),
-    playerService.searchPlayersWeighted(""),
+    playerService.searchPlayersWeighted("", 200),
+    clubService.listMyClubMatches(200),
   ]);
+  const matchesById = new Map((clubMatches || []).map((match) => [match.id, match]));
 
-  const monthBookings = bookings.filter((booking) => {
+  const weekDateSet = new Set(
+    Array.from({ length: 7 }).map((_, idx) => {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + idx);
+      return asDateKey(d);
+    })
+  );
+
+  const weekBookings = bookings.filter((booking) => {
     const d = new Date(booking.start_at);
-    return d.getFullYear() === year && d.getMonth() + 1 === month;
+    return weekDateSet.has(asDateKey(d));
   });
   const requestedPlayerIds = Array.from(
     new Set(
-      monthBookings
+      weekBookings
         .map((booking) => booking.requested_by_player_id as string | null)
         .filter((id): id is string => !!id)
     )
@@ -99,13 +128,23 @@ export default async function ClubBookingsPage({
   }
   const mergedPlayers = Array.from(mergedPlayersMap.values());
 
-  const byDay = new Map<string, DayBucket>();
-  for (let day = 1; day <= daysInMonth; day++) {
-    const key = asDateKey(new Date(year, month - 1, day));
-    byDay.set(key, { day, date: key, bookings: [], requested: 0, confirmed: 0, history: 0 });
+  const byDay = new Map<string, WeekDayBucket>();
+  for (let idx = 0; idx < 7; idx++) {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + idx);
+    const key = asDateKey(d);
+    byDay.set(key, {
+      date: key,
+      weekdayLabel: d.toLocaleDateString("es-AR", { weekday: "short" }),
+      dayLabel: String(d.getDate()),
+      bookings: [],
+      requested: 0,
+      confirmed: 0,
+      history: 0,
+    });
   }
 
-  for (const booking of monthBookings) {
+  for (const booking of weekBookings) {
     const start = new Date(booking.start_at);
     const key = asDateKey(start);
     const bucket = byDay.get(key);
@@ -120,11 +159,20 @@ export default async function ClubBookingsPage({
   const totalRequested = buckets.reduce((acc, b) => acc + b.requested, 0);
   const totalConfirmed = buckets.reduce((acc, b) => acc + b.confirmed, 0);
   const totalHistory = buckets.reduce((acc, b) => acc + b.history, 0);
-  const sortedBookings = [...monthBookings].sort((a, b) => a.start_at.localeCompare(b.start_at));
-  const courtOptions = courts.map((court) => ({ id: court.id, label: court.name }));
+  const sortedBookings = [...weekBookings].sort((a, b) => a.start_at.localeCompare(b.start_at));
+  const courtOptions = courts.map((court) => ({
+    id: court.id,
+    label: court.name,
+    opening_time: String(court.opening_time || "09:00").slice(0, 5),
+    closing_time: String(court.closing_time || "23:00").slice(0, 5),
+    slot_interval_minutes: court.slot_interval_minutes,
+  }));
   const playerOptions = mergedPlayers.map((player: any) => ({
     id: player.id,
-    label: player.display_name || `${player.first_name || ""} ${player.last_name || ""}`.trim(),
+    label:
+      `${player.first_name || ""} ${player.last_name || ""}`.trim() ||
+      player.display_name ||
+      "Jugador",
   }));
   const submitConfirm = async (formData: FormData) => {
     "use server";
@@ -147,10 +195,9 @@ export default async function ClubBookingsPage({
       </div>
 
       <ClubBookingsCalendarPanel
-        monthLabel={monthLabel}
-        prevMonthHref={`/club/dashboard/bookings?month=${monthString(prevMonth.year, prevMonth.month)}`}
-        nextMonthHref={`/club/dashboard/bookings?month=${monthString(nextMonth.year, nextMonth.month)}`}
-        firstWeekdayMondayBased={firstWeekdayMondayBased}
+        weekLabel={weekLabel}
+        prevWeekHref={`/club/dashboard/bookings?cursor=${toDateInput(prevWeek)}`}
+        nextWeekHref={`/club/dashboard/bookings?cursor=${toDateInput(nextWeek)}`}
         buckets={buckets}
         totalRequested={totalRequested}
         totalConfirmed={totalConfirmed}
@@ -162,9 +209,9 @@ export default async function ClubBookingsPage({
       />
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
-        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">Detalle del mes</h2>
+        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">Detalle de la semana</h2>
         {sortedBookings.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay reservas en {monthLabel}.</p>
+          <p className="text-sm text-gray-500">No hay reservas en la semana seleccionada.</p>
         ) : (
           sortedBookings.map((booking) => (
             <div key={booking.id} className="rounded-xl border border-gray-100 p-4">
@@ -190,7 +237,7 @@ export default async function ClubBookingsPage({
                     <form action={submitConfirm}>
                       <input type="hidden" name="booking_id" value={booking.id} />
                       <button className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-green-700">
-                        Confirmar
+                        Confirmar y crear partido
                       </button>
                     </form>
                     <form action={submitReject} className="flex gap-2">
@@ -217,12 +264,73 @@ export default async function ClubBookingsPage({
                 ) : null}
 
                 {booking.match_id ? (
-                  <Link
-                    href="/club/matches"
-                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                  >
-                    Ver partido
-                  </Link>
+                  <details className="w-full rounded-lg border border-gray-200 bg-gray-50/40 p-3">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-gray-700">
+                      Ver partido
+                    </summary>
+                    <div className="mt-3 space-y-2 text-sm">
+                      {(() => {
+                        const match = matchesById.get(booking.match_id as string);
+                        if (!match) {
+                          return (
+                            <p className="text-gray-500">
+                              No pudimos cargar el detalle del partido. Puedes verlo desde Partidos.
+                            </p>
+                          );
+                        }
+                        return (
+                          <>
+                            <p className="text-gray-700">
+                              Estado: <span className="font-semibold text-gray-900">{matchStatusLabel(match.status)}</span>
+                            </p>
+                            <p className="text-gray-700">
+                              Fecha/Hora:{" "}
+                              <span className="font-semibold text-gray-900">
+                                {new Date(match.match_at).toLocaleString("es-AR", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </p>
+                            <div className="grid gap-2 md:grid-cols-2">
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">Equipo A</p>
+                                {(match.playersByTeam.A || []).length === 0 ? (
+                                  <p className="text-gray-500">Sin jugadores</p>
+                                ) : (
+                                  <ul className="space-y-1 text-gray-900">
+                                    {(match.playersByTeam.A || []).map((player) => (
+                                      <li key={player.id}>{`${player.first_name || ""} ${player.last_name || ""}`.trim()}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">Equipo B</p>
+                                {(match.playersByTeam.B || []).length === 0 ? (
+                                  <p className="text-gray-500">Sin jugadores</p>
+                                ) : (
+                                  <ul className="space-y-1 text-gray-900">
+                                    {(match.playersByTeam.B || []).map((player) => (
+                                      <li key={player.id}>{`${player.first_name || ""} ${player.last_name || ""}`.trim()}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <Link href="/club/matches" className="text-sm font-semibold text-blue-700 hover:underline">
+                                Ir a Partidos
+                              </Link>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </details>
                 ) : null}
               </div>
             </div>
