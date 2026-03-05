@@ -71,6 +71,19 @@ Fecha: 2026-03-04
   - `direct`: partido creado sin reserva.
   - `booking`: partido creado vinculado a reserva.
 
+### Nota de compatibilidad de tipos
+
+- `players.category` se mantiene como `TEXT` por compatibilidad legacy.
+- La normalizacion se aplica en onboarding y servicios de dominio para evitar ruptura de historicos.
+
+### Invariantes booking <-> match
+
+- Invariante A: `court_bookings.match_id` representa un vinculo 1:1 cuando no es `NULL`.
+- Invariante B: `matches.match_source = 'booking'` implica origen desde reserva y vinculo booking -> `match_id`.
+- Estado de blindaje:
+  - Hoy se mantiene como invariante funcional en el flujo.
+  - Hardening recomendado: `UNIQUE` parcial en `court_bookings(match_id) WHERE match_id IS NOT NULL`.
+
 ### Contrato unificado
 
 - Nueva RPC:
@@ -80,6 +93,12 @@ Fecha: 2026-03-04
 - Caso `booking`:
   - Toma booking existente (lock `FOR UPDATE`), valida permisos/estado, crea `matches` + `match_players`, y vincula `court_bookings.match_id`.
   - Si la reserva ya tiene `match_id`, retorna ese id (idempotencia funcional).
+
+### Idempotencia (casos esperados)
+
+- Confirmacion repetida del mismo booking: retorna el mismo `match_id`.
+- Booking en estado no valido para confirmar/crear: error controlado (`INVALID_STATUS` o equivalente).
+- Overlap de cancha detectado: error semantico (`BOOKING_OVERLAP` o equivalente).
 
 ## Cambios implementados
 
@@ -104,7 +123,7 @@ Archivo: `supabase/migrations/20260220_stage_q4_unified_match_flow.sql`
   - `repositories/match.repository.ts`: RPC call `player_create_match_unified`
 - Refactor compat:
   - `lib/actions/player-match.actions.ts` ahora delega en `createMatchUnifiedAction`.
-  - Se elimina la logica duplicada de auto-booking implícito desde `createMatchAsPlayer`.
+  - Se elimina la logica duplicada de auto-booking implicito desde `createMatchAsPlayer`.
 
 ### 3) UI Player
 
@@ -116,13 +135,13 @@ Archivo: `supabase/migrations/20260220_stage_q4_unified_match_flow.sql`
 - Reuso del formulario de jugadores:
   - `components/matches/CreateMatchForm.tsx`
   - Se agrega `clubRequired` para permitir partidos sin club.
-- Compatibilidad navegación:
+- Compatibilidad navegacion:
   - Boton en `app/player/(app)/bookings/page.tsx` pasa a `Reservar y crear partido` y abre el flujo unificado.
 
 ### 4) UI Club
 
 - Archivo: `components/bookings/ClubBookingsCalendarPanel.tsx`
-- En modal de “Crear partido desde reserva”:
+- En modal de "Crear partido desde reserva":
   - Si viene de solicitud, cancha y jugador se muestran precargados en modo resumen.
   - Si falta `requested_by_player_id`, mantiene selector manual para no romper casos legacy.
 
@@ -152,18 +171,18 @@ Archivo: `supabase/migrations/20260220_stage_q4_unified_match_flow.sql`
 
 ## Rollback
 
-Si se necesita reversión rápida:
+En caso de regresion:
 
-1. Revertir deploy de app al commit previo.
-2. Mantener migracion aplicada (es backward-compatible):
-   - `match_source` tiene default y no rompe consultas antiguas.
-   - RPC vieja sigue existiendo.
-3. Si fuera necesario rollback de DB duro:
-   - Drop de `player_create_match_unified`.
-   - Drop de indice `idx_matches_match_source`.
-   - Drop constraint `chk_matches_match_source`.
-   - Drop column `matches.match_source`.
-   - Solo realizar en ventana controlada (impacta lecturas que ya usen el nuevo campo).
+1. UI/app reversible sin revertir migraciones.
+2. RPCs nuevas backward-compatible: pueden quedar sin uso temporal.
+3. Revert de commit o feature flag operacional para cortar el flujo nuevo rapidamente.
+
+## Performance (hardening recomendado)
+
+Siguiente hardening recomendado (sin cambios DB en este documento):
+
+- `idx_matches_club_match_at` en `(club_id, match_at DESC)` para listados por club/fecha.
+- `UNIQUE` parcial en `court_bookings(match_id) WHERE match_id IS NOT NULL` para blindar fisicamente el 1:1 booking-match.
 
 ## QA manual (checklist)
 
@@ -171,7 +190,7 @@ Si se necesita reversión rápida:
    - Ruta: `/player/matches/new?mode=direct`
    - Esperado: crea partido con `match_source=direct`.
 2. Player crea partido con reserva:
-   - Ruta: `/player/matches/new` -> “En un club”.
+   - Ruta: `/player/matches/new` -> "En un club".
    - Reserva en `/player/bookings/new` y continuidad a `/player/matches/new?from_booking=1...`.
    - Esperado: partido creado y booking vinculado (`court_bookings.match_id`).
 3. Club opera calendario reservas:
