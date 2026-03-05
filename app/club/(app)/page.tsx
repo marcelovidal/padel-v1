@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireClub } from "@/lib/auth";
 import { ClubService } from "@/services/club.service";
 import { BookingService } from "@/services/booking.service";
+import { RankingService } from "@/services/ranking.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function formatMatchDateTime(value: string) {
@@ -51,11 +52,13 @@ export default async function ClubHomePage() {
   const { club } = await requireClub();
   const clubService = new ClubService();
   const bookingService = new BookingService();
+  const rankingService = new RankingService();
 
-  const [matches, stats, bookings] = await Promise.all([
+  const [matches, stats, bookings, ranking] = await Promise.all([
     clubService.listMyClubMatches(60),
     clubService.getDashboardStats(club.id),
     bookingService.listClubBookings(club.id),
+    rankingService.getClubRanking(club.id, 20, 0),
   ]);
 
   const scheduled = matches.filter((m) => m.status === "scheduled").length;
@@ -92,6 +95,13 @@ export default async function ClubHomePage() {
   const peakHour = [...stats.matches_by_hour].sort((a, b) => b.count - a.count)[0];
   const peakDay = [...stats.matches_by_weekday].sort((a, b) => b.count - a.count)[0];
   const topPlayer = stats.top_players[0];
+  const topRanked = ranking[0] || null;
+  const rankedPlayers = ranking.length;
+  const avgPointsTop5 = ranking.length
+    ? Math.round(
+        ranking.slice(0, 5).reduce((acc, row) => acc + row.points, 0) / Math.min(5, ranking.length)
+      )
+    : 0;
   const maxWeekday = Math.max(1, ...stats.matches_by_weekday.map((d) => Number(d.count || 0)));
   const weekdayCountMap = new Map(stats.matches_by_weekday.map((d) => [d.dow, Number(d.count || 0)]));
 
@@ -130,6 +140,9 @@ export default async function ClubHomePage() {
   }
   if (decisionRate < 80 && totalBookingsForDecision > 0) {
     operationalAlerts.push("El tiempo de decision de reservas puede mejorar. Prioriza confirmar/rechazar mas rapido.");
+  }
+  if (rankedPlayers < 4 && stats.matches_last_30_days > 0) {
+    operationalAlerts.push("El ranking todavia tiene baja cobertura. Carga mas resultados para mejorar señal competitiva.");
   }
   if (operationalAlerts.length === 0) {
     operationalAlerts.push("Operacion estable: no se detectan alertas criticas para esta semana.");
@@ -209,6 +222,15 @@ export default async function ClubHomePage() {
             <p className="text-2xl font-black text-gray-900">
               {peakHour?.count ? `${String(peakHour.hour).padStart(2, "0")}:00` : "N/D"}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold text-gray-600">Jugadores rankeados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-black text-indigo-700">{formatInt(rankedPlayers)}</p>
           </CardContent>
         </Card>
       </div>
@@ -303,6 +325,18 @@ export default async function ClubHomePage() {
               </p>
             </div>
             <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Lider ranking</p>
+              <p className="mt-1 text-sm font-semibold text-gray-800">
+                {topRanked ? `${topRanked.display_name} (${topRanked.points} pts)` : "Sin ranking calculado"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Promedio top 5</p>
+              <p className="mt-1 text-sm font-semibold text-gray-800">
+                {rankedPlayers > 0 ? `${avgPointsTop5} pts` : "N/D"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
               <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Partidos programados</p>
               <p className="mt-1 text-sm font-semibold text-gray-800">{formatInt(scheduled)}</p>
             </div>
@@ -342,6 +376,41 @@ export default async function ClubHomePage() {
             <div className="pt-4">
               <Link href="/club/matches" className="text-sm font-bold text-blue-700 hover:underline">
                 Ver todos los partidos
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2">
+            <CardTitle>Ranking del club (Top 5)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {ranking.length === 0 ? (
+              <p className="text-sm text-gray-500">No hay ranking disponible aun para este club.</p>
+            ) : (
+              <ol className="space-y-2">
+                {ranking.slice(0, 5).map((row) => (
+                  <li
+                    key={row.player_id}
+                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-900">
+                        #{row.rank} {row.display_name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        W/L {row.wins}/{row.losses} - {row.matches_played} partidos
+                      </p>
+                    </div>
+                    <span className="text-sm font-black text-blue-700">{row.points}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <div className="pt-4">
+              <Link href="/club/dashboard/ranking" className="text-sm font-bold text-blue-700 hover:underline">
+                Ver ranking completo
               </Link>
             </div>
           </CardContent>
