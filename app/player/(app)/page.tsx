@@ -2,6 +2,7 @@ import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
 import { MatchService } from "@/services/match.service";
+import { RankingService } from "@/services/ranking.service";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
@@ -26,6 +27,7 @@ export default async function PlayerDashboard() {
   const playerService = new PlayerService();
   const matchService = new MatchService();
   const assessmentService = new AssessmentService();
+  const rankingService = new RankingService();
   const cookieStore = cookies();
 
   const fmeSeen = cookieStore.get("pasala_fme_seen")?.value === "1";
@@ -65,11 +67,12 @@ export default async function PlayerDashboard() {
   }
 
   // Fetch all data in parallel
-  const [metrics, recentMatches, pendingAssessments, compStats] = await Promise.all([
+  const [metrics, recentMatches, pendingAssessments, compStats, myClubRankings] = await Promise.all([
     playerService.getProfileMetrics(playerId),
     matchService.getPlayerMatches(playerId, { limit: 5 }),
     assessmentService.getPendingAssessments(playerId),
     playerService.getCompetitiveStats(),
+    rankingService.getMyClubRankings(3),
   ]);
 
   // Enrich matches with share messages for completed ones
@@ -226,6 +229,39 @@ export default async function PlayerDashboard() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Ranking por club</h3>
+          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+            Ver detalle
+          </Link>
+        </div>
+
+        {myClubRankings.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            Aun no tenes posicion de ranking por club. Se calcula con partidos completed y resultado cargado.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {myClubRankings.map((row) => (
+              <div key={row.club_id} className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                <p className="truncate text-sm font-black text-gray-900">{row.club_name}</p>
+                <p className="mt-1 text-xs text-gray-500">Posicion #{row.rank}</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Puntos</p>
+                    <p className="text-2xl font-black text-blue-700">{row.points}</p>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    {row.wins}/{row.losses} W/L
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

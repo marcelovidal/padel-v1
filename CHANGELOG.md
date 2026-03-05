@@ -278,6 +278,12 @@ All notable changes to this project will be documented in this file.
 - Stage A1 Admin Overview: dashboard estrategico en `/admin` con KPIs de usuarios/partidos/clubes/claims/shares y bloque de insights automáticos.
 - Nueva migracion `admin_get_overview_stats()` para agregados admin-only con validacion de rol.
 
+ - Stage Q5 Ranking (MVP):
+  - Nueva migracion `supabase/migrations/20260305_stage_q5_club_ranking.sql`.
+  - Tabla materializada `player_club_stats` para lectura rapida por club/jugador.
+  - RPCs nuevas: `club_recalculate_rankings`, `club_get_ranking`, `player_get_my_club_rankings`.
+  - Nueva vista club `/club/dashboard/ranking` y nueva seccion "Ranking por clubes" en `/player/profile`.
+
 ### Mejorado
 - UI/UX de dashboards de Admin y Club: mayor jerarquia visual de metricas, cards con acentos, bloques de insights mas legibles y mejor lectura estrategica.
 
