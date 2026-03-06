@@ -1,5 +1,6 @@
 import { requireClub } from "@/lib/auth";
 import { ClubService } from "@/services/club.service";
+import { LeaguesService } from "@/services/leagues.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function formatInt(value: number) {
@@ -58,7 +59,11 @@ function InsightBox({
 export default async function ClubDashboardPage() {
   const { club } = await requireClub();
   const clubService = new ClubService();
-  const stats = await clubService.getDashboardStats(club.id);
+  const leaguesService = new LeaguesService();
+  const [stats, leagues] = await Promise.all([
+    clubService.getDashboardStats(club.id),
+    leaguesService.listClubLeagues(club.id).catch(() => []),
+  ]);
 
   const maxWeekday = Math.max(1, ...stats.matches_by_weekday.map((d) => Number(d.count || 0)));
   const maxHour = Math.max(1, ...stats.matches_by_hour.map((h) => Number(h.count || 0)));
@@ -97,6 +102,11 @@ export default async function ClubDashboardPage() {
       value: peakHour?.count ? `${String(peakHour.hour).padStart(2, "0")}:00` : "N/D",
       hint: "Ultimos 30 dias",
     },
+    {
+      label: "Ligas activas",
+      value: formatInt(leagues.filter((l) => l.status === "active").length),
+      hint: "Q6 Ligas",
+    },
   ];
 
   return (
@@ -108,7 +118,7 @@ export default async function ClubDashboardPage() {
             <h1 className="mt-1 text-3xl font-black tracking-tight text-gray-900">Dashboard del Club</h1>
             <p className="mt-1 text-gray-600">{club.name}</p>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {strategicSignals.map((s) => (
               <div key={s.label} className="rounded-xl border border-white/80 bg-white/80 px-3 py-2">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">{s.label}</p>

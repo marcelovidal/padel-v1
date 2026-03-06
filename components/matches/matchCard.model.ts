@@ -27,6 +27,12 @@ export interface MatchCardModel {
     clubLocation?: string | null;
     clubUnclaimed?: boolean;
     clubGeneratedPending?: boolean;
+    league?: {
+        id: string;
+        name: string;
+        seasonLabel?: string | null;
+        groupName?: string | null;
+    } | null;
 }
 
 export function toMatchCardModel(
@@ -50,6 +56,27 @@ export function toMatchCardModel(
         notesText.toLowerCase().includes("partido generado por club");
 
     const club = Array.isArray(match?.clubs) ? match.clubs[0] : match?.clubs;
+    const leagueInfo = (() => {
+        if (match?.league?.id && match?.league?.name) {
+            return {
+                id: match.league.id,
+                name: match.league.name,
+                seasonLabel: match.league.season_label ?? null,
+                groupName: match.league.group_name ?? null,
+            };
+        }
+        const lm = Array.isArray(match?.league_matches) ? match.league_matches[0] : match?.league_matches;
+        const lg = Array.isArray(lm?.league_groups) ? lm.league_groups[0] : lm?.league_groups;
+        const ld = Array.isArray(lg?.league_divisions) ? lg.league_divisions[0] : lg?.league_divisions;
+        const cl = Array.isArray(ld?.club_leagues) ? ld.club_leagues[0] : ld?.club_leagues;
+        if (!cl?.id || !cl?.name) return null;
+        return {
+            id: cl.id,
+            name: cl.name,
+            seasonLabel: cl.season_label ?? null,
+            groupName: lg?.name ?? null,
+        };
+    })();
 
     return {
         id: match.id,
@@ -77,5 +104,6 @@ export function toMatchCardModel(
                 : club.claim_status !== "claimed")
             : false,
         clubGeneratedPending,
+        league: leagueInfo,
     };
 }

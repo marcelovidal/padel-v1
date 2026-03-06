@@ -39,6 +39,7 @@ export default function MatchCard({
     clubName,
     clubLocation,
     clubUnclaimed,
+    league,
     matchAt,
     status,
     statusLabel,
@@ -84,6 +85,15 @@ export default function MatchCard({
             >
               {statusLabel}
             </div>
+            {league ? (
+              <div className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">
+                <span aria-hidden>🏆</span>
+                <span>
+                  {league.name}
+                  {league.groupName ? ` · Grupo ${league.groupName}` : ""}
+                </span>
+              </div>
+            ) : null}
             {isCompleted && !model.hasResults && (
               <div className="px-3 py-1 rounded-full text-[10px] font-black bg-red-600 text-white tracking-tighter">
                 SIN RESULTADO

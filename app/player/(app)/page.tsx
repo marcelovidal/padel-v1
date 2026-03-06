@@ -2,6 +2,7 @@ import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
 import { MatchService } from "@/services/match.service";
+import { LeaguesService } from "@/services/leagues.service";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
@@ -26,6 +27,7 @@ export default async function PlayerDashboard() {
   const playerService = new PlayerService();
   const matchService = new MatchService();
   const assessmentService = new AssessmentService();
+  const leaguesService = new LeaguesService();
   const cookieStore = cookies();
 
   const fmeSeen = cookieStore.get("pasala_fme_seen")?.value === "1";
@@ -65,11 +67,12 @@ export default async function PlayerDashboard() {
   }
 
   // Fetch all data in parallel
-  const [metrics, recentMatches, pendingAssessments, compStats] = await Promise.all([
+  const [metrics, recentMatches, pendingAssessments, compStats, clubRankings] = await Promise.all([
     playerService.getProfileMetrics(playerId),
     matchService.getPlayerMatches(playerId, { limit: 5 }),
     assessmentService.getPendingAssessments(playerId),
     playerService.getCompetitiveStats(),
+    leaguesService.getMyClubRankings(5).catch(() => []),
   ]);
 
   // Enrich matches with share messages for completed ones
@@ -227,6 +230,35 @@ export default async function PlayerDashboard() {
           </div>
         </div>
       </div>
+
+      <section className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Ranking por Clubes</h2>
+          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+            Ver detalle
+          </Link>
+        </div>
+        {clubRankings.length === 0 ? (
+          <p className="text-sm text-gray-500">Aun no tienes posicion de ranking disponible.</p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {clubRankings.map((item: any) => (
+              <div key={item.club_id} className="rounded-2xl border border-gray-100 p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-gray-900">{item.club_name}</p>
+                  <p className="text-xs text-gray-500">
+                    {item.matches_played} PJ · {item.wins} G · {item.losses} P
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-black text-blue-700">#{item.rank}</p>
+                  <p className="text-sm font-black text-gray-900">{item.points} pts</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Attributes Chart */}

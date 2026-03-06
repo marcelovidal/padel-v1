@@ -264,6 +264,22 @@ export class MatchRepository {
           claimed,
           claim_status
         ),
+        league_matches (
+          id,
+          group_id,
+          league_groups (
+            id,
+            name,
+            league_divisions (
+              id,
+              club_leagues (
+                id,
+                name,
+                season_label
+              )
+            )
+          )
+        ),
         match_results ( match_id, sets, winner_team, recorded_at ),
         match_players!inner (team, player_id)
       `)
@@ -367,6 +383,22 @@ export class MatchRepository {
           region_code,
           claimed,
           claim_status
+        ),
+        league_matches (
+          id,
+          group_id,
+          league_groups (
+            id,
+            name,
+            league_divisions (
+              id,
+              club_leagues (
+                id,
+                name,
+                season_label
+              )
+            )
+          )
         )
       `)
       .order("match_at", { ascending: false });

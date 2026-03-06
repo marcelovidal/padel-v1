@@ -4,7 +4,7 @@ import { ClubMatches } from "@/components/club/ClubMatches";
 import { getEffectiveStatus } from "@/lib/match/matchUtils";
 
 export default async function ClubMatchesPage() {
-  const { club } = await requireClub();
+  await requireClub();
   const clubService = new ClubService();
   const matches = await clubService.listMyClubMatches(200);
   const categorized = matches.reduce(
@@ -28,7 +28,6 @@ export default async function ClubMatchesPage() {
             + Nuevo Partido
           </a>
         </div>
-        <div className="text-sm text-gray-500 mb-6">Hola, {club.contact_first_name || club.name}</div>
       </div>
 
       {matches.length === 0 ? (

@@ -1,6 +1,7 @@
 import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
+import { LeaguesService } from "@/services/leagues.service";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,13 @@ export default async function PlayerProfilePage() {
 
     const playerService = new PlayerService();
     const assessmentService = new AssessmentService();
+    const leaguesService = new LeaguesService();
 
-    const [metrics, pendingAssessments, compStats] = await Promise.all([
+    const [metrics, pendingAssessments, compStats, clubRankings] = await Promise.all([
         playerService.getProfileMetrics(playerId),
         assessmentService.getPendingAssessments(playerId),
-        playerService.getCompetitiveStats()
+        playerService.getCompetitiveStats(),
+        leaguesService.getMyClubRankings(5).catch(() => [])
     ]);
 
     const hasMatches = metrics.played > 0;
@@ -151,6 +154,38 @@ export default async function PlayerProfilePage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm mb-8 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Ranking por Clubes</h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Q5</span>
+                </div>
+                {clubRankings.length === 0 ? (
+                    <p className="text-xs text-gray-500">
+                        Aun no hay posicion de ranking disponible para tus clubes.
+                    </p>
+                ) : (
+                    <div className="space-y-2">
+                        {clubRankings.map((item: any) => (
+                            <div
+                                key={item.club_id}
+                                className="rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between gap-3"
+                            >
+                                <div className="min-w-0">
+                                    <p className="text-sm font-bold text-gray-900 truncate">{item.club_name}</p>
+                                    <p className="text-[11px] text-gray-500">
+                                        {item.matches_played} PJ · {item.wins} G · {item.losses} P
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs font-black text-blue-700">#{item.rank}</p>
+                                    <p className="text-sm font-black text-gray-900">{item.points} pts</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* LAST 10 & RADAR CHART */}

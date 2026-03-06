@@ -88,6 +88,12 @@ export type ClubManagedMatchListItem = {
     B: Array<{ id: string; first_name: string; last_name: string; avatar_url: string | null }>;
   };
   match_results: { sets: Array<{ a: number | null; b: number | null }>; winner_team: "A" | "B" } | null;
+  league?: {
+    id: string;
+    name: string;
+    season_label: string | null;
+    group_name: string | null;
+  } | null;
 };
 
 export type UnclaimedClubListItem = {
@@ -404,7 +410,7 @@ export class ClubRepository {
     });
 
     if (error) throw error;
-    return ((data || []) as any[]).map((row) => ({
+    const mapped = ((data || []) as any[]).map((row) => ({
       id: row.id,
       match_at: row.match_at,
       club_name: row.club_name,
@@ -420,7 +426,37 @@ export class ClubRepository {
         B: Array.isArray(row.players_by_team?.B) ? row.players_by_team.B : [],
       },
       match_results: row.match_results || null,
+      league: null,
     }));
+
+    const matchIds = mapped.map((m) => m.id);
+    if (matchIds.length === 0) return mapped;
+
+    const { data: leagueRows, error: leagueErr } = await (supabase as any)
+      .from("league_matches")
+      .select("match_id,league_groups(name,league_divisions(league_id,club_leagues(id,name,season_label)))")
+      .in("match_id", matchIds);
+
+    if (!leagueErr && Array.isArray(leagueRows)) {
+      const byMatch = new Map<string, any>();
+      for (const r of leagueRows as any[]) {
+        const lg = Array.isArray(r?.league_groups) ? r.league_groups[0] : r?.league_groups;
+        const ld = Array.isArray(lg?.league_divisions) ? lg.league_divisions[0] : lg?.league_divisions;
+        const cl = Array.isArray(ld?.club_leagues) ? ld.club_leagues[0] : ld?.club_leagues;
+        if (!cl?.id) continue;
+        byMatch.set(r.match_id, {
+          id: cl.id,
+          name: cl.name,
+          season_label: cl.season_label ?? null,
+          group_name: lg?.name ?? null,
+        });
+      }
+      for (const m of mapped) {
+        m.league = byMatch.get(m.id) || null;
+      }
+    }
+
+    return mapped;
   }
 
   async completeOnboarding(input: {
