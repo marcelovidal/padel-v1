@@ -128,9 +128,11 @@ Migraciones adicionales ya versionadas en este branch:
 - `supabase/migrations/20260306_q6_publish_league.sql`
 - `supabase/migrations/20260306_q6_register_team_group_guard.sql`
 - `supabase/migrations/20260306_q6_reopen_division_fixture_for_edit.sql`
+- `supabase/migrations/20260307_q6_schedule_match_status_enum_fix.sql`
 
 Impacto funcional:
 - Fix de scheduling (`FOR UPDATE`, validacion de solapamiento por jugadores).
+- Fix de enum `match_status` en scheduling (elimina literals invalidos `open/full/confirmed` en chequeo de partidos).
 - Guardas para evitar duplicados de jugadores por division/grupo.
 - Eliminacion de equipo desde UI (con bloqueo si tiene fixture).
 - Publicar/finalizar liga desde UI.
