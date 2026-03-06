@@ -119,6 +119,64 @@ Extra:
 3. Deploy backend/frontend.
 4. Smoke test club + player.
 
+## Hotfixes Aplicados (Q6)
+Migraciones adicionales ya versionadas en este branch:
+- `supabase/migrations/20260306_q6_schedule_fix_for_update.sql`
+- `supabase/migrations/20260306_q6_schedule_player_overlap.sql`
+- `supabase/migrations/20260306_q6_fixture_duplicate_player_guards.sql`
+- `supabase/migrations/20260306_q6_remove_league_team.sql`
+- `supabase/migrations/20260306_q6_publish_league.sql`
+- `supabase/migrations/20260306_q6_register_team_group_guard.sql`
+- `supabase/migrations/20260306_q6_reopen_division_fixture_for_edit.sql`
+
+Impacto funcional:
+- Fix de scheduling (`FOR UPDATE`, validacion de solapamiento por jugadores).
+- Guardas para evitar duplicados de jugadores por division/grupo.
+- Eliminacion de equipo desde UI (con bloqueo si tiene fixture).
+- Publicar/finalizar liga desde UI.
+- Bloqueo de altas/asignaciones cuando ya existe fixture.
+- Reapertura controlada de fixture en modo borrador (con confirmacion e impacto).
+
+## Handoff: Continuar En Otra PC (Sin Produccion)
+### 1) Traer codigo exacto
+```bash
+git fetch origin
+git checkout feature/stage-q6-leagues
+git pull
+```
+
+### 2) Instalar dependencias y levantar app local
+```bash
+npm install
+npm run dev
+```
+
+### 3) Sincronizar variables de entorno
+- Copiar `.env.local` de la PC actual a la otra PC.
+- Verificar que apunte a entorno de desarrollo/staging (no prod).
+
+### 4) Sincronizar base de datos (Supabase)
+Si el proyecto usa SQL Editor manual:
+1. Ejecutar las migraciones faltantes de `supabase/migrations/` en orden por fecha.
+2. Confirmar que no hubo errores en cada script.
+
+Si el proyecto usa CLI:
+```bash
+supabase db push
+```
+
+### 5) Verificaciones minimas post-sync
+1. Abrir `/club/dashboard/leagues`.
+2. Entrar a una liga de prueba.
+3. Verificar:
+   - badges `Asignado/Sin grupo`,
+   - bloqueo de altas con fixture,
+   - flujo `Reabrir edicion de fixture` con confirmacion `REABRIR`.
+
+## Nota Operativa Importante
+- Subir commits a `feature/stage-q6-leagues` **no** pasa a produccion.
+- Produccion solo cambia al mergear a la rama de release (`main`/la que use CI para deploy).
+
 ## Rollback
 - Aplicacion:
   - ocultar menu/rutas de Ligas (feature toggle o revert UI/API).
