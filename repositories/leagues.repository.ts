@@ -1,5 +1,7 @@
 ﻿import { createClient } from "@/lib/supabase/server";
 
+import { Database } from "@/types/database";
+
 export type LeagueRow = {
   id: string;
   club_id: string;
@@ -57,6 +59,24 @@ export type LeagueMatchRow = {
   updated_at: string;
 };
 
+export type LeaguePlayoffMatchRow = {
+  id: string;
+  division_id: string;
+  stage: "quarterfinal" | "semifinal" | "final";
+  stage_order: number;
+  match_order: number;
+  team_a_id: string | null;
+  team_b_id: string | null;
+  winner_team_id: string | null;
+  source_match_a_id: string | null;
+  source_match_b_id: string | null;
+  match_id: string;
+  scheduled_at: string | null;
+  court_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type GroupTableRow = {
   team_id: string;
   played: number;
@@ -82,6 +102,14 @@ export type MyClubRankingRow = {
 export class LeaguesRepository {
   private async getClient() {
     return await createClient();
+  }
+
+  private async getServiceClient() {
+    const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+    return createSupabaseClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
   }
 
   async listClubLeagues(clubId: string) {
@@ -153,14 +181,30 @@ export class LeaguesRepository {
   }
 
   async listLeagueMatches(leagueId: string) {
-    const supabase = await this.getClient();
+    // Service client required to read nested match_results for club management views.
+    const supabase = await this.getServiceClient();
     const { data, error } = await (supabase as any)
       .from("league_matches")
       .select(
-        "id,group_id,round_index,team_a_id,team_b_id,match_id,scheduled_at,court_id,created_at,updated_at,league_groups!inner(id,name,division_id,league_divisions!inner(id,league_id)),matches(id,match_at,status),team_a:league_teams!league_matches_team_a_id_fkey(id,player_id_a,player_id_b),team_b:league_teams!league_matches_team_b_id_fkey(id,player_id_a,player_id_b),court:club_courts(id,name)"
+        "id,group_id,round_index,team_a_id,team_b_id,match_id,scheduled_at,court_id,created_at,updated_at,league_groups!inner(id,name,division_id,league_divisions!inner(id,league_id)),matches(id,match_at,status,match_results(match_id,sets,winner_team,recorded_at)),team_a:league_teams!league_matches_team_a_id_fkey(id,player_id_a,player_id_b),team_b:league_teams!league_matches_team_b_id_fkey(id,player_id_a,player_id_b),court:club_courts(id,name)"
       )
       .eq("league_groups.league_divisions.league_id", leagueId)
       .order("round_index", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+
+  async listDivisionPlayoffMatches(divisionId: string) {
+    const supabase = await this.getServiceClient();
+    const { data, error } = await (supabase as any)
+      .from("league_playoff_matches")
+      .select(
+        "id,division_id,stage,stage_order,match_order,team_a_id,team_b_id,winner_team_id,source_match_a_id,source_match_b_id,match_id,scheduled_at,court_id,created_at,updated_at,matches(id,match_at,status,match_results(match_id,sets,winner_team,recorded_at)),court:club_courts(id,name)"
+      )
+      .eq("division_id", divisionId)
+      .order("stage_order", { ascending: true })
+      .order("match_order", { ascending: true })
       .order("created_at", { ascending: true });
     if (error) throw error;
     return (data || []) as any[];
@@ -305,6 +349,82 @@ export class LeaguesRepository {
       scheduled_at: string;
       court_id: string;
     };
+  }
+
+  async submitLeagueMatchResult(input: {
+    league_match_id: string;
+    set1_a: number;
+    set1_b: number;
+    set2_a: number;
+    set2_b: number;
+    set3_a?: number | null;
+    set3_b?: number | null;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_submit_league_match_result", {
+      p_league_match_id: input.league_match_id,
+      p_set1_a: input.set1_a,
+      p_set1_b: input.set1_b,
+      p_set2_a: input.set2_a,
+      p_set2_b: input.set2_b,
+      p_set3_a: input.set3_a ?? null,
+      p_set3_b: input.set3_b ?? null,
+    });
+    if (error) throw error;
+    return data as string;
+  }
+
+  async generateDivisionPlayoffs(divisionId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_generate_division_playoffs", {
+      p_division_id: divisionId,
+    });
+    if (error) throw error;
+    return Number(data || 0);
+  }
+
+  async schedulePlayoffMatch(input: {
+    playoff_match_id: string;
+    court_id: string;
+    match_at: string;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_schedule_playoff_match", {
+      p_playoff_match_id: input.playoff_match_id,
+      p_court_id: input.court_id,
+      p_match_at: input.match_at,
+    });
+    if (error) throw error;
+    return data as {
+      playoff_match_id: string;
+      match_id: string;
+      booking_id: string;
+      scheduled_at: string;
+      court_id: string;
+    };
+  }
+
+  async submitPlayoffMatchResult(input: {
+    playoff_match_id: string;
+    set1_a: number;
+    set1_b: number;
+    set2_a: number;
+    set2_b: number;
+    set3_a?: number | null;
+    set3_b?: number | null;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_submit_playoff_match_result", {
+      p_playoff_match_id: input.playoff_match_id,
+      p_set1_a: input.set1_a,
+      p_set1_b: input.set1_b,
+      p_set2_a: input.set2_a,
+      p_set2_b: input.set2_b,
+      p_set3_a: input.set3_a ?? null,
+      p_set3_b: input.set3_b ?? null,
+    });
+    if (error) throw error;
+    return data as string;
   }
 
   async getGroupTable(groupId: string) {

@@ -5,9 +5,14 @@ import { LeaguesService } from "@/services/leagues.service";
 import { PlayerService } from "@/services/player.service";
 import { BookingService } from "@/services/booking.service";
 import { LeagueMatchScheduleForm } from "@/components/club/LeagueMatchScheduleForm";
+import { LeagueMatchResultForm } from "@/components/club/LeagueMatchResultForm";
+import { PlayoffMatchScheduleForm } from "@/components/club/PlayoffMatchScheduleForm";
+import { PlayoffMatchResultForm } from "@/components/club/PlayoffMatchResultForm";
+import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
 import {
   assignTeamToGroupAction,
   autoCreateGroupsAction,
+  generateDivisionPlayoffsAction,
   generateFixtureAction,
   reopenDivisionFixtureForEditAction,
   removeLeagueTeamAction,
@@ -31,6 +36,18 @@ function divisionModeLabel(mode: "OPEN" | "SINGLE" | "SUM") {
   if (mode === "OPEN") return "Abierta";
   if (mode === "SINGLE") return "Categoria unica";
   return "Suma";
+}
+
+function playoffStageLabel(stage: "quarterfinal" | "semifinal" | "final") {
+  if (stage === "quarterfinal") return "Cuartos de final";
+  if (stage === "semifinal") return "Semifinales";
+  return "Final";
+}
+
+function playoffStageShort(stage: "quarterfinal" | "semifinal" | "final", order: number) {
+  if (stage === "quarterfinal") return `QF${order}`;
+  if (stage === "semifinal") return `SF${order}`;
+  return "F";
 }
 
 function toInputDate(value?: string | null) {
@@ -94,6 +111,8 @@ export default async function ClubLeagueDetailPage({
     ok?: string;
     error?: string;
     debug?: string;
+    league_match_id?: string;
+    playoff_match_id?: string;
     removed_matches?: string;
     removed_bookings?: string;
   };
@@ -124,9 +143,10 @@ export default async function ClubLeagueDetailPage({
 
   const divisionData = await Promise.all(
     divisions.map(async (division) => {
-      const [teams, groups] = await Promise.all([
+      const [teams, groups, playoffMatches] = await Promise.all([
         leaguesService.listTeams(division.id),
         leaguesService.listGroups(division.id),
+        leaguesService.listDivisionPlayoffMatches(division.id),
       ]);
 
       const groupData = await Promise.all(
@@ -139,7 +159,7 @@ export default async function ClubLeagueDetailPage({
         })
       );
 
-      return { division, teams, groups, groupData };
+      return { division, teams, groups, groupData, playoffMatches };
     })
   );
 
@@ -155,6 +175,10 @@ export default async function ClubLeagueDetailPage({
   const submitGenerateFixture = async (formData: FormData) => {
     "use server";
     await generateFixtureAction(formData);
+  };
+  const submitGeneratePlayoffs = async (formData: FormData) => {
+    "use server";
+    await generateDivisionPlayoffsAction(formData);
   };
   const submitAssignTeamToGroup = async (formData: FormData) => {
     "use server";
@@ -176,6 +200,8 @@ export default async function ClubLeagueDetailPage({
   const okCode = searchParams?.ok || "";
   const errorCode = searchParams?.error || "";
   const errorDebug = searchParams?.debug || "";
+  const errorLeagueMatchId = searchParams?.league_match_id || "";
+  const errorPlayoffMatchId = searchParams?.playoff_match_id || "";
   const removedMatches = Number(searchParams?.removed_matches || 0);
   const removedBookings = Number(searchParams?.removed_bookings || 0);
 
@@ -186,7 +212,9 @@ export default async function ClubLeagueDetailPage({
     TEAM_REMOVED: "Equipo eliminado correctamente.",
     GROUPS_CREATED: "Grupos generados correctamente.",
     FIXTURE_CREATED: "Fixture generado correctamente.",
+    PLAYOFFS_CREATED: "Playoffs generados correctamente.",
     MATCH_SCHEDULED: "Partido programado correctamente.",
+    MATCH_RESULT_SAVED: "Resultado cargado correctamente.",
     LEAGUE_STATUS_UPDATED: "Estado de liga actualizado correctamente.",
     FIXTURE_REOPENED_FOR_EDIT: "Fixture reabierto para edicion.",
   };
@@ -194,6 +222,7 @@ export default async function ClubLeagueDetailPage({
   const errorMessages: Record<string, string> = {
     COMPLETE_REQUIRED_FIELDS: "Completa los campos obligatorios.",
     COMPLETE_SCHEDULE_FIELDS: "Completa fecha, hora y cancha.",
+    COMPLETE_RESULT_FIELDS: "Completa los sets obligatorios del resultado.",
     INVALID_DATE_TIME: "Fecha/hora invalida.",
     NOT_AUTHENTICATED: "Necesitas iniciar sesion.",
     NOT_ALLOWED: "No tienes permisos para esta accion.",
@@ -224,12 +253,47 @@ export default async function ClubLeagueDetailPage({
     BOOKING_PLAYER_OVERLAP: "Uno o mas jugadores ya tienen partido en ese mismo horario.",
     BOOKING_OUTSIDE_HOURS: "Horario fuera de disponibilidad de la cancha.",
     BOOKING_INVALID_SLOT: "Horario invalido para la grilla de la cancha.",
+    PLAYOFF_ALREADY_EXISTS: "La division ya tiene playoffs generados.",
+    GROUP_STAGE_INCOMPLETE: "No se pueden generar playoffs: hay grupos con resultados pendientes.",
+    NO_FIXTURE_FOR_GROUP: "No se pueden generar playoffs: hay grupos sin fixture.",
+    NOT_ENOUGH_QUALIFIED_TEAMS: "No hay equipos suficientes clasificados para playoffs.",
+    UNSUPPORTED_GROUP_COUNT_FOR_PLAYOFF: "Cantidad de grupos no soportada para generar playoffs.",
+    PLAYOFF_MATCH_NOT_FOUND: "Partido de playoff no encontrado.",
+    PLAYOFF_TEAMS_NOT_DEFINED: "Este cruce aun no tiene equipos definidos.",
+    LEAGUE_ALREADY_FINISHED: "La liga ya esta finalizada.",
+    RESULT_ALREADY_EXISTS: "Este partido ya tiene resultado cargado.",
+    MATCH_NOT_COMPLETED: "Solo se pueden cargar resultados en partidos finalizados.",
+    INVALID_SCORES: "Los marcadores ingresados no son validos.",
     RLS_VIOLATION: "La operacion fue bloqueada por politicas de seguridad.",
     NOT_NULL_VIOLATION: "Falta un dato obligatorio para guardar.",
     FK_VIOLATION: "La referencia de datos no es valida.",
     DUPLICATE_KEY: "Ya existe un registro con esos datos.",
     INVALID_INPUT_SYNTAX: "Formato de dato invalido.",
   };
+
+  const scheduleInlineErrorCodes = new Set([
+    "COMPLETE_SCHEDULE_FIELDS",
+    "INVALID_DATE_TIME",
+    "LEAGUE_MATCH_NOT_FOUND",
+    "BOOKING_OVERLAP",
+    "BOOKING_PLAYER_OVERLAP",
+    "BOOKING_OUTSIDE_HOURS",
+    "BOOKING_INVALID_SLOT",
+    "22P02",
+  ]);
+  const hasInlineScheduleError = Boolean(
+    errorCode && (errorLeagueMatchId || errorPlayoffMatchId) && scheduleInlineErrorCodes.has(errorCode)
+  );
+  const resultInlineErrorCodes = new Set([
+    "COMPLETE_RESULT_FIELDS",
+    "LEAGUE_MATCH_NOT_FOUND",
+    "RESULT_ALREADY_EXISTS",
+    "MATCH_NOT_COMPLETED",
+    "INVALID_SCORES",
+  ]);
+  const hasInlineResultError = Boolean(
+    errorCode && (errorLeagueMatchId || errorPlayoffMatchId) && resultInlineErrorCodes.has(errorCode)
+  );
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6 p-4">
@@ -240,7 +304,7 @@ export default async function ClubLeagueDetailPage({
             : okMessages[okCode] || "Operacion completada."}
         </div>
       ) : null}
-      {errorCode ? (
+      {errorCode && !hasInlineScheduleError && !hasInlineResultError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
           <p>{errorMessages[errorCode] || `No se pudo completar la accion (${errorCode}).`}</p>
           {errorDebug ? (
@@ -284,9 +348,10 @@ export default async function ClubLeagueDetailPage({
         </div>
       </div>
 
-      {divisionData.map(({ division, teams, groupData }) => {
+      {divisionData.map(({ division, teams, groupData, playoffMatches }) => {
         const teamMap = new Map(teams.map((t) => [t.id, t]));
         const divisionMatches = leagueMatches.filter((m) => m.league_groups?.league_divisions?.id === division.id);
+        const hasPlayoffs = playoffMatches.length > 0;
         const assignedTeamIds = new Set<string>();
         const assignedGroupByTeamId = new Map<string, string>();
         for (const g of groupData) {
@@ -611,13 +676,42 @@ export default async function ClubLeagueDetailPage({
                             .map((m: any) => {
                               const ta = teamMap.get(m.team_a_id);
                               const tb = teamMap.get(m.team_b_id);
-                              const scheduledAt = m.scheduled_at || m.matches?.match_at || null;
+                              const matchRow = Array.isArray(m.matches) ? m.matches[0] ?? null : m.matches ?? null;
+                              const scheduledAt = m.scheduled_at || matchRow?.match_at || null;
                               const dateDefault = toInputDate(scheduledAt);
                               const timeDefault = toInputTime(scheduledAt);
                               const courtDefault = m.court_id || "";
                               const courtName =
                                 m.court?.name || courts.find((court) => court.id === courtDefault)?.name || "Cancha no asignada";
                               const isScheduled = Boolean(scheduledAt && courtDefault);
+                              const rawResult = Array.isArray(matchRow?.match_results)
+                                ? matchRow.match_results[0] ?? null
+                                : matchRow?.match_results ?? null;
+                              const normalizedSets = normalizeSets(rawResult?.sets || null).filter(
+                                (s: any) => s.a !== null && s.b !== null
+                              );
+                              const hasResult = normalizedSets.length > 0 && Boolean(rawResult?.winner_team);
+                              const setsLabel =
+                                normalizedSets.length > 0
+                                  ? normalizedSets.map((s: any) => `${s.a}-${s.b}`).join(" ")
+                                  : "Sin sets cargados";
+                              const winnerLabel = rawResult?.winner_team
+                                ? `Gana equipo ${rawResult.winner_team}`
+                                : "Sin ganador";
+                              const effectiveStatus =
+                                matchRow?.match_at || scheduledAt
+                                  ? getEffectiveStatus({
+                                      status: matchRow?.status || "scheduled",
+                                      match_at: matchRow?.match_at || scheduledAt,
+                                    })
+                                  : "scheduled";
+                              const canSubmitResult = effectiveStatus === "completed" && !hasResult;
+                              const inlineResultError =
+                                hasInlineResultError && errorLeagueMatchId === m.id
+                                  ? errorMessages[errorCode] || `No se pudo completar la accion (${errorCode}).`
+                                  : undefined;
+                              const inlineResultErrorDebug =
+                                hasInlineResultError && errorLeagueMatchId === m.id ? errorDebug : undefined;
                               return (
                                 <div
                                   key={m.id}
@@ -634,6 +728,16 @@ export default async function ClubLeagueDetailPage({
                                   ) : (
                                     <p className="mt-1 text-xs text-amber-700">Pendiente de programacion</p>
                                   )}
+                                  {hasInlineScheduleError && errorLeagueMatchId === m.id ? (
+                                    <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800">
+                                      <p>{errorMessages[errorCode] || `No se pudo completar la accion (${errorCode}).`}</p>
+                                      {errorDebug ? (
+                                        <p className="mt-1 text-[11px] font-normal text-red-700">
+                                          Detalle tecnico: {errorDebug}
+                                        </p>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
                                   <LeagueMatchScheduleForm
                                     leagueId={league.id}
                                     leagueMatchId={m.id}
@@ -650,6 +754,16 @@ export default async function ClubLeagueDetailPage({
                                     isScheduled={isScheduled}
                                     defaultSlotDurationMinutes={bookingSettings?.slot_duration_minutes || 90}
                                   />
+                                  <LeagueMatchResultForm
+                                    leagueId={league.id}
+                                    leagueMatchId={m.id}
+                                    canSubmit={canSubmitResult}
+                                    hasResult={hasResult}
+                                    setsLabel={setsLabel}
+                                    winnerLabel={winnerLabel}
+                                    inlineError={inlineResultError}
+                                    inlineErrorDebug={inlineResultErrorDebug}
+                                  />
                                 </div>
                               );
                             })}
@@ -659,9 +773,201 @@ export default async function ClubLeagueDetailPage({
                 </div>
               )}
             </div>
+
+            <div className="rounded-xl border border-gray-100 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="text-sm font-black uppercase tracking-wider text-gray-600">Playoffs</h4>
+                {!hasPlayoffs ? (
+                  <form action={submitGeneratePlayoffs}>
+                    <input type="hidden" name="league_id" value={league.id} />
+                    <input type="hidden" name="division_id" value={division.id} />
+                    <button className="rounded-lg border border-indigo-200 px-2 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">
+                      Generar playoffs
+                    </button>
+                  </form>
+                ) : (
+                  <span className="rounded border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+                    Generados ({playoffMatches.length})
+                  </span>
+                )}
+              </div>
+
+              {!hasPlayoffs ? (
+                <p className="mt-2 text-sm text-gray-500">
+                  Se generan al finalizar todos los resultados de fase de grupos.
+                </p>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  {(["quarterfinal", "semifinal", "final"] as const).map((stage) => {
+                    const stageMatches = playoffMatches
+                      .filter((pm: any) => pm.stage === stage)
+                      .sort((a: any, b: any) => a.match_order - b.match_order);
+                    if (stageMatches.length === 0) return null;
+
+                    const playoffMap = new Map(
+                      playoffMatches.map((pm: any) => [pm.id, pm] as const)
+                    );
+
+                    return (
+                      <div key={stage} className="rounded-lg border border-gray-100 bg-gray-50/50 p-2">
+                        <p className="text-xs font-black uppercase tracking-wider text-gray-600">
+                          {playoffStageLabel(stage)}
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          {stageMatches.map((pm: any) => {
+                            const matchRow = Array.isArray(pm.matches) ? pm.matches[0] ?? null : pm.matches ?? null;
+                            const scheduledAt = pm.scheduled_at || matchRow?.match_at || null;
+                            const dateDefault = toInputDate(scheduledAt);
+                            const timeDefault = toInputTime(scheduledAt);
+                            const courtDefault = pm.court_id || "";
+                            const courtName =
+                              pm.court?.name || courts.find((court) => court.id === courtDefault)?.name || "Cancha no asignada";
+                            const isScheduled = Boolean(scheduledAt && courtDefault);
+
+                            const teamALabel = (() => {
+                              if (pm.team_a_id) {
+                                const team = teamMap.get(pm.team_a_id);
+                                return team ? teamLabel(team, playersMap) : pm.team_a_id;
+                              }
+                              if (pm.source_match_a_id) {
+                                const source = playoffMap.get(pm.source_match_a_id);
+                                if (source) {
+                                  return `Ganador ${playoffStageShort(source.stage, source.match_order)}`;
+                                }
+                              }
+                              return "Por definir";
+                            })();
+
+                            const teamBLabel = (() => {
+                              if (pm.team_b_id) {
+                                const team = teamMap.get(pm.team_b_id);
+                                return team ? teamLabel(team, playersMap) : pm.team_b_id;
+                              }
+                              if (pm.source_match_b_id) {
+                                const source = playoffMap.get(pm.source_match_b_id);
+                                if (source) {
+                                  return `Ganador ${playoffStageShort(source.stage, source.match_order)}`;
+                                }
+                              }
+                              return "Por definir";
+                            })();
+
+                            const rawResult = Array.isArray(matchRow?.match_results)
+                              ? matchRow.match_results[0] ?? null
+                              : matchRow?.match_results ?? null;
+                            const normalizedSets = normalizeSets(rawResult?.sets || null).filter(
+                              (s: any) => s.a !== null && s.b !== null
+                            );
+                            const hasResult = normalizedSets.length > 0 && Boolean(rawResult?.winner_team);
+                            const setsLabel =
+                              normalizedSets.length > 0
+                                ? normalizedSets.map((s: any) => `${s.a}-${s.b}`).join(" ")
+                                : "Sin sets cargados";
+                            const winnerLabel = pm.winner_team_id
+                              ? (() => {
+                                  const winnerTeam = teamMap.get(pm.winner_team_id);
+                                  return winnerTeam ? teamLabel(winnerTeam, playersMap) : pm.winner_team_id;
+                                })()
+                              : rawResult?.winner_team
+                                ? `Gana equipo ${rawResult.winner_team}`
+                                : "Sin ganador";
+
+                            const effectiveStatus =
+                              matchRow?.match_at || scheduledAt
+                                ? getEffectiveStatus({
+                                    status: matchRow?.status || "scheduled",
+                                    match_at: matchRow?.match_at || scheduledAt,
+                                  })
+                                : "scheduled";
+
+                            const teamsDefined = Boolean(pm.team_a_id && pm.team_b_id);
+                            const canSubmitResult = teamsDefined && effectiveStatus === "completed" && !hasResult;
+                            const inlineScheduleError =
+                              hasInlineScheduleError && errorPlayoffMatchId === pm.id
+                                ? errorMessages[errorCode] || `No se pudo completar la accion (${errorCode}).`
+                                : undefined;
+                            const inlineScheduleErrorDebug =
+                              hasInlineScheduleError && errorPlayoffMatchId === pm.id ? errorDebug : undefined;
+                            const inlineResultError =
+                              hasInlineResultError && errorPlayoffMatchId === pm.id
+                                ? errorMessages[errorCode] || `No se pudo completar la accion (${errorCode}).`
+                                : undefined;
+                            const inlineResultErrorDebug =
+                              hasInlineResultError && errorPlayoffMatchId === pm.id ? errorDebug : undefined;
+
+                            return (
+                              <div
+                                key={pm.id}
+                                className={`rounded-lg border p-2 ${isScheduled ? "border-green-200 bg-green-50/40" : "border-gray-100 bg-white"}`}
+                              >
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {playoffStageShort(pm.stage, pm.match_order)} · {teamALabel} vs {teamBLabel}
+                                </p>
+                                {isScheduled ? (
+                                  <p className="mt-1 text-xs font-semibold text-green-700">
+                                    Programado: {toHumanDateTime(scheduledAt)} · {courtName}
+                                  </p>
+                                ) : (
+                                  <p className="mt-1 text-xs text-amber-700">Pendiente de programacion</p>
+                                )}
+
+                                {pm.winner_team_id ? (
+                                  <p className="mt-1 text-xs font-semibold text-indigo-700">Clasifica: {winnerLabel}</p>
+                                ) : null}
+
+                                {inlineScheduleError ? (
+                                  <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800">
+                                    <p>{inlineScheduleError}</p>
+                                    {inlineScheduleErrorDebug ? (
+                                      <p className="mt-1 text-[11px] font-normal text-red-700">
+                                        Detalle tecnico: {inlineScheduleErrorDebug}
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                ) : null}
+
+                                <PlayoffMatchScheduleForm
+                                  leagueId={league.id}
+                                  playoffMatchId={pm.id}
+                                  courts={courts.map((court) => ({
+                                    id: court.id,
+                                    name: court.name,
+                                    opening_time: court.opening_time,
+                                    closing_time: court.closing_time,
+                                    slot_interval_minutes: court.slot_interval_minutes,
+                                  }))}
+                                  defaultDate={dateDefault}
+                                  defaultTime={timeDefault}
+                                  defaultCourtId={courtDefault}
+                                  isScheduled={isScheduled}
+                                  defaultSlotDurationMinutes={bookingSettings?.slot_duration_minutes || 90}
+                                  disabled={!teamsDefined}
+                                />
+
+                                <PlayoffMatchResultForm
+                                  leagueId={league.id}
+                                  playoffMatchId={pm.id}
+                                  canSubmit={canSubmitResult}
+                                  hasResult={hasResult}
+                                  setsLabel={setsLabel}
+                                  winnerLabel={winnerLabel}
+                                  inlineError={inlineResultError}
+                                  inlineErrorDebug={inlineResultErrorDebug}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </section>
         );
-      })}
+      })
+      }
     </div>
   );
 }

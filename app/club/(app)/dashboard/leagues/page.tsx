@@ -2,6 +2,7 @@
 import { requireClub } from "@/lib/auth";
 import { LeaguesService } from "@/services/leagues.service";
 import { createLeagueAction } from "@/lib/actions/leagues.actions";
+import { LeagueRulesGuide } from "@/components/leagues/LeagueRulesGuide";
 
 function leagueStatusLabel(status: "draft" | "active" | "finished") {
   if (status === "draft") return "Borrador";
@@ -26,6 +27,8 @@ export default async function ClubLeaguesPage() {
           Crea ligas por temporada, define divisiones y organiza grupos, fixture y agenda.
         </p>
       </div>
+
+      <LeagueRulesGuide />
 
       <section className="rounded-2xl border bg-white p-4">
         <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">Nueva liga</h2>

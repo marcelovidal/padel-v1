@@ -40,6 +40,17 @@ function errCode(error: any): string {
   if (raw.includes("BOOKING_PLAYER_OVERLAP")) return "BOOKING_PLAYER_OVERLAP";
   if (raw.includes("BOOKING_OUTSIDE_HOURS")) return "BOOKING_OUTSIDE_HOURS";
   if (raw.includes("BOOKING_INVALID_SLOT")) return "BOOKING_INVALID_SLOT";
+  if (raw.includes("RESULT_ALREADY_EXISTS")) return "RESULT_ALREADY_EXISTS";
+  if (raw.includes("MATCH_NOT_COMPLETED")) return "MATCH_NOT_COMPLETED";
+  if (raw.includes("INVALID_SCORES")) return "INVALID_SCORES";
+  if (raw.includes("PLAYOFF_ALREADY_EXISTS")) return "PLAYOFF_ALREADY_EXISTS";
+  if (raw.includes("GROUP_STAGE_INCOMPLETE")) return "GROUP_STAGE_INCOMPLETE";
+  if (raw.includes("NO_FIXTURE_FOR_GROUP")) return "NO_FIXTURE_FOR_GROUP";
+  if (raw.includes("NOT_ENOUGH_QUALIFIED_TEAMS")) return "NOT_ENOUGH_QUALIFIED_TEAMS";
+  if (raw.includes("UNSUPPORTED_GROUP_COUNT_FOR_PLAYOFF")) return "UNSUPPORTED_GROUP_COUNT_FOR_PLAYOFF";
+  if (raw.includes("PLAYOFF_MATCH_NOT_FOUND")) return "PLAYOFF_MATCH_NOT_FOUND";
+  if (raw.includes("PLAYOFF_TEAMS_NOT_DEFINED")) return "PLAYOFF_TEAMS_NOT_DEFINED";
+  if (raw.includes("LEAGUE_ALREADY_FINISHED")) return "LEAGUE_ALREADY_FINISHED";
   if (raw.includes("PLAYER_ALREADY_REGISTERED_IN_DIVISION")) return "PLAYER_ALREADY_REGISTERED_IN_DIVISION";
   if (raw.includes("DUPLICATE_PLAYER_IN_GROUP")) return "DUPLICATE_PLAYER_IN_GROUP";
   if (raw.includes("unique_player_match")) return "DUPLICATE_PLAYER_IN_GROUP";
@@ -63,9 +74,19 @@ function errDebug(error: any) {
   return raw.slice(0, 180);
 }
 
-function redirectWithError(basePath: string, code: string, debug?: string) {
+function redirectWithError(
+  basePath: string,
+  code: string,
+  debug?: string,
+  extra?: Record<string, string | number>
+) {
   const qs = new URLSearchParams({ error: code });
   if (debug) qs.set("debug", debug);
+  if (extra) {
+    for (const [k, v] of Object.entries(extra)) {
+      qs.set(k, String(v));
+    }
+  }
   redirect(`${basePath}?${qs.toString()}`);
 }
 
@@ -326,14 +347,15 @@ export async function scheduleLeagueMatchAction(formData: FormData) {
   const date = String(formData.get("match_date") || "");
   const time = String(formData.get("match_time") || "");
   const path = detailPath(leagueId);
+  const errorExtra = leagueMatchId ? { league_match_id: leagueMatchId } : undefined;
 
   if (!leagueMatchId || !courtId || !date || !time) {
-    redirectWithError(path, "COMPLETE_SCHEDULE_FIELDS");
+    redirectWithError(path, "COMPLETE_SCHEDULE_FIELDS", undefined, errorExtra);
   }
 
   const when = new Date(`${date}T${time}:00`);
   if (Number.isNaN(when.getTime())) {
-    redirectWithError(path, "INVALID_DATE_TIME");
+    redirectWithError(path, "INVALID_DATE_TIME", undefined, errorExtra);
   }
 
   try {
@@ -343,11 +365,171 @@ export async function scheduleLeagueMatchAction(formData: FormData) {
       match_at: when.toISOString(),
     });
     revalidatePath(path);
+    revalidatePath("/club");
     revalidatePath("/club/dashboard/bookings");
     redirectWithOk(path, "MATCH_SCHEDULED", { match_id: result?.match_id || "" });
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6 scheduleLeagueMatchAction] RPC error", error);
+    redirectWithError(path, errCode(error), errDebug(error), errorExtra);
+  }
+}
+
+export async function generateDivisionPlayoffsAction(formData: FormData) {
+  const service = new LeaguesService();
+  const divisionId = String(formData.get("division_id") || "");
+  const leagueId = String(formData.get("league_id") || "");
+  const path = detailPath(leagueId);
+
+  if (!divisionId) {
+    redirectWithError(path, "DIVISION_NOT_FOUND");
+  }
+
+  try {
+    const created = await service.generateDivisionPlayoffs(divisionId);
+    revalidatePath(path);
+    revalidatePath("/club");
+    revalidatePath("/club/dashboard/bookings");
+    redirectWithOk(path, "PLAYOFFS_CREATED", { created });
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6 generateDivisionPlayoffsAction] RPC error", error);
     redirectWithError(path, errCode(error), errDebug(error));
+  }
+}
+
+export async function submitLeagueMatchResultAction(formData: FormData) {
+  const service = new LeaguesService();
+  const leagueMatchId = String(formData.get("league_match_id") || "");
+  const leagueId = String(formData.get("league_id") || "");
+  const path = detailPath(leagueId);
+  const errorExtra = leagueMatchId ? { league_match_id: leagueMatchId } : undefined;
+
+  const set1a = Number(formData.get("set1_a"));
+  const set1b = Number(formData.get("set1_b"));
+  const set2a = Number(formData.get("set2_a"));
+  const set2b = Number(formData.get("set2_b"));
+  const rawSet3a = String(formData.get("set3_a") || "").trim();
+  const rawSet3b = String(formData.get("set3_b") || "").trim();
+  const set3a = rawSet3a === "" ? null : Number(rawSet3a);
+  const set3b = rawSet3b === "" ? null : Number(rawSet3b);
+
+  if (!leagueMatchId || !leagueId) {
+    redirectWithError(path, "LEAGUE_MATCH_NOT_FOUND", undefined, errorExtra);
+  }
+
+  if (
+    [set1a, set1b, set2a, set2b].some((n) => Number.isNaN(n)) ||
+    (set3a !== null && Number.isNaN(set3a)) ||
+    (set3b !== null && Number.isNaN(set3b))
+  ) {
+    redirectWithError(path, "COMPLETE_RESULT_FIELDS", undefined, errorExtra);
+  }
+
+  try {
+    await service.submitLeagueMatchResult({
+      league_match_id: leagueMatchId,
+      set1_a: set1a,
+      set1_b: set1b,
+      set2_a: set2a,
+      set2_b: set2b,
+      set3_a: set3a,
+      set3_b: set3b,
+    });
+    revalidatePath(path);
+    revalidatePath("/club");
+    revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/player/matches");
+    redirectWithOk(path, "MATCH_RESULT_SAVED", { league_match_id: leagueMatchId });
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6 submitLeagueMatchResultAction] RPC error", error);
+    redirectWithError(path, errCode(error), errDebug(error), errorExtra);
+  }
+}
+
+export async function schedulePlayoffMatchAction(formData: FormData) {
+  const service = new LeaguesService();
+  const playoffMatchId = String(formData.get("playoff_match_id") || "");
+  const leagueId = String(formData.get("league_id") || "");
+  const courtId = String(formData.get("court_id") || "");
+  const date = String(formData.get("match_date") || "");
+  const time = String(formData.get("match_time") || "");
+  const path = detailPath(leagueId);
+  const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
+
+  if (!playoffMatchId || !courtId || !date || !time) {
+    redirectWithError(path, "COMPLETE_SCHEDULE_FIELDS", undefined, errorExtra);
+  }
+
+  const when = new Date(`${date}T${time}:00`);
+  if (Number.isNaN(when.getTime())) {
+    redirectWithError(path, "INVALID_DATE_TIME", undefined, errorExtra);
+  }
+
+  try {
+    await service.schedulePlayoffMatch({
+      playoff_match_id: playoffMatchId,
+      court_id: courtId,
+      match_at: when.toISOString(),
+    });
+    revalidatePath(path);
+    revalidatePath("/club");
+    revalidatePath("/club/dashboard/bookings");
+    redirectWithOk(path, "MATCH_SCHEDULED", { playoff_match_id: playoffMatchId });
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6 schedulePlayoffMatchAction] RPC error", error);
+    redirectWithError(path, errCode(error), errDebug(error), errorExtra);
+  }
+}
+
+export async function submitPlayoffMatchResultAction(formData: FormData) {
+  const service = new LeaguesService();
+  const playoffMatchId = String(formData.get("playoff_match_id") || "");
+  const leagueId = String(formData.get("league_id") || "");
+  const path = detailPath(leagueId);
+  const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
+
+  const set1a = Number(formData.get("set1_a"));
+  const set1b = Number(formData.get("set1_b"));
+  const set2a = Number(formData.get("set2_a"));
+  const set2b = Number(formData.get("set2_b"));
+  const rawSet3a = String(formData.get("set3_a") || "").trim();
+  const rawSet3b = String(formData.get("set3_b") || "").trim();
+  const set3a = rawSet3a === "" ? null : Number(rawSet3a);
+  const set3b = rawSet3b === "" ? null : Number(rawSet3b);
+
+  if (!playoffMatchId || !leagueId) {
+    redirectWithError(path, "PLAYOFF_MATCH_NOT_FOUND", undefined, errorExtra);
+  }
+
+  if (
+    [set1a, set1b, set2a, set2b].some((n) => Number.isNaN(n)) ||
+    (set3a !== null && Number.isNaN(set3a)) ||
+    (set3b !== null && Number.isNaN(set3b))
+  ) {
+    redirectWithError(path, "COMPLETE_RESULT_FIELDS", undefined, errorExtra);
+  }
+
+  try {
+    await service.submitPlayoffMatchResult({
+      playoff_match_id: playoffMatchId,
+      set1_a: set1a,
+      set1_b: set1b,
+      set2_a: set2a,
+      set2_b: set2b,
+      set3_a: set3a,
+      set3_b: set3b,
+    });
+    revalidatePath(path);
+    revalidatePath("/club");
+    revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/player/matches");
+    redirectWithOk(path, "MATCH_RESULT_SAVED", { playoff_match_id: playoffMatchId });
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6 submitPlayoffMatchResultAction] RPC error", error);
+    redirectWithError(path, errCode(error), errDebug(error), errorExtra);
   }
 }

@@ -35,6 +35,10 @@ export class LeaguesService {
     return this.repository.listLeagueMatches(leagueId);
   }
 
+  async listDivisionPlayoffMatches(divisionId: string) {
+    return this.repository.listDivisionPlayoffMatches(divisionId);
+  }
+
   async createLeague(input: {
     club_id: string;
     name: string;
@@ -94,6 +98,42 @@ export class LeaguesService {
     match_at: string;
   }) {
     return this.repository.scheduleLeagueMatch(input);
+  }
+
+  async submitLeagueMatchResult(input: {
+    league_match_id: string;
+    set1_a: number;
+    set1_b: number;
+    set2_a: number;
+    set2_b: number;
+    set3_a?: number | null;
+    set3_b?: number | null;
+  }) {
+    return this.repository.submitLeagueMatchResult(input);
+  }
+
+  async generateDivisionPlayoffs(divisionId: string) {
+    return this.repository.generateDivisionPlayoffs(divisionId);
+  }
+
+  async schedulePlayoffMatch(input: {
+    playoff_match_id: string;
+    court_id: string;
+    match_at: string;
+  }) {
+    return this.repository.schedulePlayoffMatch(input);
+  }
+
+  async submitPlayoffMatchResult(input: {
+    playoff_match_id: string;
+    set1_a: number;
+    set1_b: number;
+    set2_a: number;
+    set2_b: number;
+    set3_a?: number | null;
+    set3_b?: number | null;
+  }) {
+    return this.repository.submitPlayoffMatchResult(input);
   }
 
   async getGroupTable(groupId: string) {
