@@ -25,6 +25,7 @@
     "react-dom": "18.3.0",
     "react-hook-form": "^7.50.0",
     "recharts": "^3.7.0",
+    "resend": "^6.9.3",
     "tailwind-merge": "^2.2.0",
     "zod": "^3.22.4"
   },
