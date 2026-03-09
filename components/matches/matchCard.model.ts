@@ -33,6 +33,15 @@ export interface MatchCardModel {
         seasonLabel?: string | null;
         groupName?: string | null;
     } | null;
+    tournament?: {
+        id: string;
+        name: string;
+        seasonLabel?: string | null;
+        groupName?: string | null;
+        isPlayoff: boolean;
+        playoffStage?: "quarterfinal" | "semifinal" | "final" | null;
+        playoffOrder?: number | null;
+    } | null;
 }
 
 export function toMatchCardModel(
@@ -78,6 +87,41 @@ export function toMatchCardModel(
         };
     })();
 
+    // Tournament info: group stage match
+    const tournamentInfo = (() => {
+        const tm = Array.isArray(match?.tournament_matches) ? match.tournament_matches[0] : match?.tournament_matches;
+        if (tm?.id) {
+            const tg = Array.isArray(tm.tournament_groups) ? tm.tournament_groups[0] : tm.tournament_groups;
+            const ct = Array.isArray(tg?.club_tournaments) ? tg.club_tournaments[0] : tg?.club_tournaments;
+            if (!ct?.id || !ct?.name) return null;
+            return {
+                id: ct.id,
+                name: ct.name,
+                seasonLabel: ct.season_label ?? null,
+                groupName: tg?.name ?? null,
+                isPlayoff: false,
+                playoffStage: null,
+                playoffOrder: null,
+            };
+        }
+        // Playoff match
+        const tp = Array.isArray(match?.tournament_playoff_matches) ? match.tournament_playoff_matches[0] : match?.tournament_playoff_matches;
+        if (tp?.id) {
+            const ct = Array.isArray(tp.club_tournaments) ? tp.club_tournaments[0] : tp.club_tournaments;
+            if (!ct?.id || !ct?.name) return null;
+            return {
+                id: ct.id,
+                name: ct.name,
+                seasonLabel: ct.season_label ?? null,
+                groupName: null,
+                isPlayoff: true,
+                playoffStage: tp.stage ?? null,
+                playoffOrder: tp.match_order ?? null,
+            };
+        }
+        return null;
+    })();
+
     return {
         id: match.id,
         clubName: match.club_name,
@@ -105,5 +149,6 @@ export function toMatchCardModel(
             : false,
         clubGeneratedPending,
         league: leagueInfo,
+        tournament: tournamentInfo,
     };
 }

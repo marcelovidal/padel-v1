@@ -127,7 +127,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
       .eq("id", leagueId)
       .maybeSingle();
     if (error) throw error;

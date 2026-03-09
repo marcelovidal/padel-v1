@@ -9,6 +9,9 @@ import { LeagueMatchResultForm } from "@/components/club/LeagueMatchResultForm";
 import { PlayoffMatchScheduleForm } from "@/components/club/PlayoffMatchScheduleForm";
 import { PlayoffMatchResultForm } from "@/components/club/PlayoffMatchResultForm";
 import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
+import { RegistrationsPanel } from "@/components/club/RegistrationsPanel";
+import { RegistrationsService } from "@/services/registrations.service";
+import { EventDiffusionForm } from "@/components/club/EventDiffusionForm";
 import {
   assignTeamToGroupAction,
   autoCreateGroupsAction,
@@ -124,6 +127,7 @@ export default async function ClubLeagueDetailPage({
   const bookingService = new BookingService();
   const playerService = new PlayerService();
 
+  const registrationsService = new RegistrationsService();
   const [league, divisions, players, courts, bookingSettings] = await Promise.all([
     leaguesService.getLeagueById(leagueId),
     leaguesService.listDivisions(leagueId),
@@ -131,6 +135,17 @@ export default async function ClubLeagueDetailPage({
     bookingService.listActiveClubCourts(club.id),
     bookingService.getClubBookingSettings(club.id),
   ]);
+
+  let leagueRegistrations: any[] = [];
+  let registrationsLoadError: string | null = null;
+  try {
+    leagueRegistrations = await registrationsService.getLeagueRegistrations(leagueId);
+  } catch (error: any) {
+    registrationsLoadError = [error?.message, error?.details, error?.hint, error?.code]
+      .filter(Boolean)
+      .join(" | ")
+      .slice(0, 180);
+  }
 
   if (!league || league.club_id !== club.id) {
     return notFound();
@@ -217,6 +232,9 @@ export default async function ClubLeagueDetailPage({
     MATCH_RESULT_SAVED: "Resultado cargado correctamente.",
     LEAGUE_STATUS_UPDATED: "Estado de liga actualizado correctamente.",
     FIXTURE_REOPENED_FOR_EDIT: "Fixture reabierto para edicion.",
+    LEAGUE_INFO_UPDATED: "Información de difusión actualizada.",
+    REGISTRATION_CONFIRMED: "Inscripción confirmada. Se notificó al jugador.",
+    REGISTRATION_REJECTED: "Inscripción rechazada.",
   };
 
   const errorMessages: Record<string, string> = {
@@ -347,6 +365,40 @@ export default async function ClubLeagueDetailPage({
           </Link>
         </div>
       </div>
+
+      {/* Difusión: fechas y ciudades */}
+      <section className="rounded-2xl border bg-white p-4">
+        <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
+          Difusión geográfica
+        </h2>
+        <p className="mb-4 text-xs text-gray-500">
+          Cuando la liga está activa, los jugadores de las ciudades seleccionadas recibirán una notificación de inscripción.
+        </p>
+        <EventDiffusionForm
+          entityType="league"
+          entityId={league.id}
+          startDate={(league as any).start_date ?? null}
+          endDate={(league as any).end_date ?? null}
+          targetCityIds={(league as any).target_city_ids ?? []}
+        />
+      </section>
+
+      {/* Solicitudes de inscripción */}
+      <section id="registrations" className="scroll-mt-24 rounded-2xl border bg-white p-4">
+        <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
+          Solicitudes de inscripción ({leagueRegistrations.length})
+        </h2>
+        {registrationsLoadError ? (
+          <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+            No se pudo leer el listado completo de solicitudes. Detalle: {registrationsLoadError}
+          </p>
+        ) : null}
+        <RegistrationsPanel
+          entityId={league.id}
+          entityType="league"
+          registrations={leagueRegistrations}
+        />
+      </section>
 
       {divisionData.map(({ division, teams, groupData, playoffMatches }) => {
         const teamMap = new Map(teams.map((t) => [t.id, t]));

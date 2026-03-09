@@ -74,7 +74,23 @@ export class MatchRepository {
             avatar_url
           )
         ),
-        match_results (*)
+        match_results (*),
+        league_matches (
+          id,
+          group_id,
+          league_groups (
+            id,
+            name,
+            league_divisions (
+              id,
+              club_leagues (
+                id,
+                name,
+                season_label
+              )
+            )
+          )
+        )
       `)
       .eq("id", id)
       .single();
@@ -94,9 +110,26 @@ export class MatchRepository {
     // Apply normalization to sets
     const finalResult = normalizeMatchResult(normalizedResult);
 
+    // Fetch tournament context via service client (bypasses RLS)
+    const serviceSupabase = await this.getServiceClient();
+    const [tmRes, tpmRes] = await Promise.all([
+      (serviceSupabase as any)
+        .from("tournament_matches")
+        .select("id, match_id, group_id, tournament_groups ( id, name, club_tournaments ( id, name, season_label ) )")
+        .eq("match_id", id)
+        .maybeSingle(),
+      (serviceSupabase as any)
+        .from("tournament_playoff_matches")
+        .select("id, match_id, tournament_id, stage, match_order, club_tournaments ( id, name, season_label )")
+        .eq("match_id", id)
+        .maybeSingle(),
+    ]);
+
     return {
       ...match,
-      match_results: finalResult
+      match_results: finalResult,
+      tournament_matches: tmRes.data || null,
+      tournament_playoff_matches: tpmRes.data || null,
     } as MatchWithPlayers;
   }
 
@@ -320,6 +353,28 @@ export class MatchRepository {
       else bucket.B.push(playerInfo);
     }
 
+    // 3b. Fetch tournament context via service client (bypasses RLS on tournament tables)
+    const serviceSupabase = await this.getServiceClient();
+    const [tmResult, tpmResult] = await Promise.all([
+      (serviceSupabase as any)
+        .from("tournament_matches")
+        .select("id, match_id, group_id, tournament_groups ( id, name, club_tournaments ( id, name, season_label ) )")
+        .in("match_id", matchIds),
+      (serviceSupabase as any)
+        .from("tournament_playoff_matches")
+        .select("id, match_id, tournament_id, stage, match_order, club_tournaments ( id, name, season_label )")
+        .in("match_id", matchIds),
+    ]);
+
+    const tmByMatch = new Map<string, any>();
+    for (const row of (tmResult.data || [])) {
+      tmByMatch.set(row.match_id, row);
+    }
+    const tpmByMatch = new Map<string, any>();
+    for (const row of (tpmResult.data || [])) {
+      tpmByMatch.set(row.match_id, row);
+    }
+
     // 4. Map results
     const items = matchesArr.map((match: any) => {
       // 'match_players' in 'match' object is an array because of the join, but it only contains our player
@@ -352,6 +407,9 @@ export class MatchRepository {
         match_results: normalizedResult as any,
         playersByTeam: playersByMatch.get(match.id) ?? { A: [], B: [] },
         clubs: match.clubs || null,
+        league_matches: match.league_matches || null,
+        tournament_matches: tmByMatch.get(match.id) || null,
+        tournament_playoff_matches: tpmByMatch.get(match.id) || null,
       };
     });
 

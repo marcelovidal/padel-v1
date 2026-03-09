@@ -7,7 +7,13 @@ export type NotificationType =
   | "player_match_result_ready"
   | "player_claim_success"
   | "club_claim_requested"
-  | "club_match_created";
+  | "club_match_created"
+  | "tournament_open_for_registration"
+  | "league_open_for_registration"
+  | "tournament_registration_requested"
+  | "league_registration_requested"
+  | "tournament_registration_confirmed"
+  | "league_registration_confirmed";
 
 export interface NotificationItem {
   id: string;

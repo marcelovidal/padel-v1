@@ -40,6 +40,7 @@ export default function MatchCard({
     clubLocation,
     clubUnclaimed,
     league,
+    tournament,
     matchAt,
     status,
     statusLabel,
@@ -48,6 +49,13 @@ export default function MatchCard({
     playerTeam,
     maxPlayers,
   } = model;
+
+  const tournamentStageLabel = (stage: string | null | undefined, order: number | null | undefined): string => {
+    if (stage === "quarterfinal") return `Cuartos de Final${order ? ` · Cruce ${order}` : ""}`;
+    if (stage === "semifinal") return `Semifinal${order ? ` · SF${order}` : ""}`;
+    if (stage === "final") return "Final";
+    return "Playoff";
+  };
 
   const isCompleted = status === "completed";
   const hasPrimaryLoadResult = primaryAction?.href === `/player/matches/${model.id}/result`;
@@ -87,10 +95,34 @@ export default function MatchCard({
             </div>
             {league ? (
               <div className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">
-                <span aria-hidden>🏆</span>
+                <svg className="w-3 h-3 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
                 <span>
                   {league.name}
+                  {league.seasonLabel ? ` ${league.seasonLabel}` : ""}
                   {league.groupName ? ` · Grupo ${league.groupName}` : ""}
+                </span>
+              </div>
+            ) : null}
+            {tournament ? (
+              <div className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${
+                tournament.isPlayoff
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-orange-200 bg-orange-50 text-orange-700"
+              }`}>
+                {/* Trophy/medal icon — tournament */}
+                <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M11 2a1 1 0 011 1v1h5a1 1 0 01.98 1.199l-1 5A1 1 0 0116 11h-2.382l-1.723 3.447A1 1 0 0111 15H9v3h2a1 1 0 010 2H7a1 1 0 010-2h0V15H6a1 1 0 01-.894-1.447L6.618 11H4a1 1 0 01-.98-.801l-1-5A1 1 0 013 4h5V3a1 1 0 011-1h2zm1 4H8.28l.6 3H11V6zm2 3h2.12l.6-3H13v3z" />
+                </svg>
+                <span>
+                  {tournament.name}
+                  {tournament.seasonLabel ? ` ${tournament.seasonLabel}` : ""}
+                  {tournament.isPlayoff
+                    ? ` · ${tournamentStageLabel(tournament.playoffStage, tournament.playoffOrder)}`
+                    : tournament.groupName
+                    ? ` · Grupo ${tournament.groupName}`
+                    : ""}
                 </span>
               </div>
             ) : null}
