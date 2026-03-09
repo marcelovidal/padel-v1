@@ -486,6 +486,7 @@ type Props = {
   confirmAction: (fd: FormData) => Promise<void>;
   rejectAction: (fd: FormData) => Promise<void>;
   cancelAction: (fd: FormData) => Promise<void>;
+  baseHref?: string;
 };
 
 export function AgendaGrid({
@@ -496,6 +497,7 @@ export function AgendaGrid({
   confirmAction,
   rejectAction,
   cancelAction,
+  baseHref = "/club/dashboard/bookings",
 }: Props) {
   const router = useRouter();
   const [view, setView] = useState<View>(initialView);
@@ -507,9 +509,9 @@ export function AgendaGrid({
   const navigate = useCallback(
     (date: Date, v: View) => {
       const dateStr = toDateStr(date);
-      router.push(`/club/dashboard/agenda?date=${dateStr}&view=${v}`);
+      router.push(`${baseHref}?date=${dateStr}&view=${v}`);
     },
-    [router],
+    [router, baseHref],
   );
 
   function prevPeriod() {

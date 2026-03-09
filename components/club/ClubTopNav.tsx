@@ -6,7 +6,6 @@ import {
   Building2,
   CalendarDays,
   Home,
-  LayoutGrid,
   Trophy,
   Medal,
   LogOut,
@@ -28,7 +27,6 @@ interface ClubTopNavProps {
 const navItems = [
   { href: "/club", label: "Resumen", icon: Home },
   { href: "/club/dashboard/bookings", label: "Reservas", icon: CalendarDays },
-  { href: "/club/dashboard/agenda", label: "Agenda", icon: LayoutGrid },
   { href: "/club/dashboard/courts", label: "Canchas", icon: Building2 },
   { href: "/club/dashboard/leagues", label: "Ligas", icon: Trophy },
   { href: "/club/dashboard/tournaments", label: "Torneos", icon: Medal },
