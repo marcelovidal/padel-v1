@@ -47,6 +47,15 @@ const SLOT_STYLES: Record<string, { bg: string; border: string; text: string; la
   },
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Convierte "HH:mm" o "HH:mm:ss" a minutos desde medianoche */
+function timeStrToMinutes(t: string | null | undefined): number {
+  if (!t) return 0;
+  const parts = String(t).split(":");
+  return parseInt(parts[0] || "0", 10) * 60 + parseInt(parts[1] || "0", 10);
+}
+
 // ─── Helpers de fecha/hora ────────────────────────────────────────────────────
 
 function toLocalMinutes(iso: string): number {
@@ -520,11 +529,17 @@ function DayView({
     const y = e.clientY - rect.top;
     const totalMinutes = GRID_START_MIN + y / MIN_PX;
     const rounded = Math.floor(totalMinutes / 30) * 30; // snap a 30 min
+
+    // Validar horario de la cancha
+    const openMin = timeStrToMinutes(court.opening_time);
+    const closeMin = timeStrToMinutes(court.closing_time);
+    const slotMinutes = court.slot_interval_minutes || 90;
+    if (rounded < openMin || rounded + slotMinutes > closeMin) return; // fuera de horario
+
     const clamped = Math.max(GRID_START_MIN, Math.min(GRID_END_MIN - 30, rounded));
     const h = Math.floor(clamped / 60);
     const m = clamped % 60;
     const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    const slotMinutes = court.slot_interval_minutes || 90;
     onCellClick?.(court.id, court.name, time, slotMinutes);
   }
 
@@ -557,6 +572,13 @@ function DayView({
         {/* Columnas de cancha */}
         {courts.map((court) => {
           const courtSlots = slots.filter((s) => s.court_id === court.id);
+          const openMin = timeStrToMinutes(court.opening_time);
+          const closeMin = timeStrToMinutes(court.closing_time);
+          // Zonas cerradas en px relativas al grid
+          const closedTopHeight = Math.max(0, (openMin - GRID_START_MIN) * MIN_PX);
+          const closedBottomTop = Math.min(GRID_TOTAL_PX, (closeMin - GRID_START_MIN) * MIN_PX);
+          const closedBottomHeight = Math.max(0, GRID_TOTAL_PX - closedBottomTop);
+
           return (
             <div
               key={court.id}
@@ -565,6 +587,33 @@ function DayView({
               onClick={(e) => handleColumnClick(e, court)}
             >
               <GridLines />
+
+              {/* Zona cerrada superior (antes de apertura) */}
+              {closedTopHeight > 0 && (
+                <div
+                  style={{ top: 0, height: closedTopHeight }}
+                  className="absolute inset-x-0 pointer-events-none"
+                  aria-hidden
+                >
+                  <div className="w-full h-full bg-gray-100/80" style={{
+                    backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.04) 4px, rgba(0,0,0,0.04) 8px)"
+                  }} />
+                </div>
+              )}
+
+              {/* Zona cerrada inferior (después de cierre) */}
+              {closedBottomHeight > 0 && (
+                <div
+                  style={{ top: closedBottomTop, height: closedBottomHeight }}
+                  className="absolute inset-x-0 pointer-events-none"
+                  aria-hidden
+                >
+                  <div className="w-full h-full bg-gray-100/80" style={{
+                    backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.04) 4px, rgba(0,0,0,0.04) 8px)"
+                  }} />
+                </div>
+              )}
+
               {courtSlots.map((slot) => (
                 <SlotPill key={slot.slot_id} slot={slot} onClick={() => onSelect(slot)} />
               ))}
