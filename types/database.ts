@@ -16,6 +16,8 @@ export type ClubClaimRequestStatus = "pending" | "approved" | "rejected";
 export type ClubAccessType = "abierta" | "cerrada";
 export type CourtSurfaceType = "synthetic" | "hard" | "clay" | "other";
 export type BookingStatus = "requested" | "confirmed" | "rejected" | "cancelled";
+export type LeagueStatus = "draft" | "active" | "finished";
+export type LeagueCategoryMode = "SINGLE" | "SUM" | "OPEN";
 
 export type Player = Database["public"]["Tables"]["players"]["Row"];
 export type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
@@ -697,6 +699,186 @@ export interface Database {
           note?: string | null;
           rejection_reason?: string | null;
           match_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      club_leagues: {
+        Row: {
+          id: string;
+          club_id: string;
+          name: string;
+          season_label: string | null;
+          description: string | null;
+          status: LeagueStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          club_id: string;
+          name: string;
+          season_label?: string | null;
+          description?: string | null;
+          status?: LeagueStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          club_id?: string;
+          name?: string;
+          season_label?: string | null;
+          description?: string | null;
+          status?: LeagueStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      league_divisions: {
+        Row: {
+          id: string;
+          league_id: string;
+          name: string;
+          category_mode: LeagueCategoryMode;
+          category_value_int: number | null;
+          allow_override: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          league_id: string;
+          name: string;
+          category_mode: LeagueCategoryMode;
+          category_value_int?: number | null;
+          allow_override?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          league_id?: string;
+          name?: string;
+          category_mode?: LeagueCategoryMode;
+          category_value_int?: number | null;
+          allow_override?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      league_teams: {
+        Row: {
+          id: string;
+          division_id: string;
+          player_id_a: string;
+          player_id_b: string;
+          entry_category_int: number | null;
+          seed_strength: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          division_id: string;
+          player_id_a: string;
+          player_id_b: string;
+          entry_category_int?: number | null;
+          seed_strength?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          division_id?: string;
+          player_id_a?: string;
+          player_id_b?: string;
+          entry_category_int?: number | null;
+          seed_strength?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      league_groups: {
+        Row: {
+          id: string;
+          division_id: string;
+          name: string;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          division_id: string;
+          name: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          division_id?: string;
+          name?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      league_group_teams: {
+        Row: {
+          group_id: string;
+          team_id: string;
+          seed_order: number | null;
+          created_at: string;
+        };
+        Insert: {
+          group_id: string;
+          team_id: string;
+          seed_order?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          group_id?: string;
+          team_id?: string;
+          seed_order?: number | null;
+          created_at?: string;
+        };
+      };
+      league_matches: {
+        Row: {
+          id: string;
+          group_id: string;
+          round_index: number;
+          team_a_id: string;
+          team_b_id: string;
+          match_id: string;
+          scheduled_at: string | null;
+          court_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          round_index: number;
+          team_a_id: string;
+          team_b_id: string;
+          match_id: string;
+          scheduled_at?: string | null;
+          court_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          round_index?: number;
+          team_a_id?: string;
+          team_b_id?: string;
+          match_id?: string;
+          scheduled_at?: string | null;
+          court_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

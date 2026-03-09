@@ -19,6 +19,11 @@ export default async function PlayerLayout({
                 avatarSrc={avatarData.src}
                 avatarInitials={avatarData.initials}
             />
+            {process.env.NODE_ENV === "development" ? (
+                <div className="fixed bottom-3 left-3 z-50 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-mono font-bold text-white backdrop-blur-sm pointer-events-none select-none">
+                    DEV · {new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                </div>
+            ) : null}
             <main className="py-6">
                 {children}
             </main>
