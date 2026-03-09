@@ -22,6 +22,7 @@ import { getPrimaryCtaHref } from "@/lib/auth/public-cta";
 import { getRegisterClubHref } from "@/lib/auth/public-cta.shared";
 import { publicFaqItems, shareDemoMessage } from "@/lib/public/content";
 import { ClubDemoPanel } from "@/components/public/ClubDemoPanel";
+import { PlayerEventsDemoPanel } from "@/components/public/PlayerEventsDemoPanel";
 
 export const metadata: Metadata = {
   title: "PASALA | Padel amateur con historial, ligas y torneos",
@@ -219,6 +220,19 @@ export default async function PublicHomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </PublicSection>
+
+      <PublicSection eyebrow="Inscripción a eventos" title="Así se inscribe un jugador a una liga o torneo" description="Buscá tu companero, mandá la solicitud y seguí el estado desde tu perfil. Todo en un solo lugar." className="bg-slate-50/70">
+        <PlayerEventsDemoPanel />
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <Link href={primaryHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
+            Crear mi perfil
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/players" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
+            Ver jugadores
+          </Link>
         </div>
       </PublicSection>
 
