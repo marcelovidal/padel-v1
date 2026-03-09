@@ -117,7 +117,7 @@ export default async function PublicHomePage() {
               </h1>
 
               <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Registra tus partidos de padel. Medi tu progreso. Construi tu historia deportiva.
+                Registrá tus partidos de padel. Medí tu progreso. Construí tu historia deportiva.
                 Pensado para dobles, grupos de WhatsApp y clubes reales.
               </p>
 
@@ -126,16 +126,16 @@ export default async function PublicHomePage() {
                   Crear mi perfil
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="#demo-share" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
-                  Ver cómo funciona
+                <Link href={clubHref} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
+                  Registrar mi club
                 </Link>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["Historial", "Registra todos tus partidos y analiza tus resultados"],
-                  ["Progreso", "Evaluacion de tu juego y tus golpes"],
-                  ["WhatsApp", "Comparti el resultado e invita a tus compañeros GRATIS"],
+                  ["Historial", "Registrá todos tus partidos y analizá tus resultados"],
+                  ["Eventos", "Inscribite a ligas y torneos del club desde tu perfil"],
+                  ["WhatsApp", "Compartí el resultado e invitá a tus compañeros gratis"],
                 ].map(([k, v]) => (
                   <div key={k} className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-[0_8px_24px_rgba(2,6,23,0.05)]">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{k}</p>
@@ -161,7 +161,7 @@ export default async function PublicHomePage() {
       </PublicSection>
 
       <PublicSection eyebrow="Cómo funciona" title="Se adapta al flujo real del grupo" description="PASALA ordena el juego sin romper el hábito de organizar por WhatsApp." className="bg-slate-50/70">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 1</p>
             <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Cargás tu juego</h3>
@@ -174,6 +174,11 @@ export default async function PublicHomePage() {
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 3</p>
+            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Te inscribís a eventos</h3>
+            <p className="mt-2 text-sm text-slate-600">Buscás liga o torneo abierto, elegís companero y mandás la solicitud.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 4</p>
             <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Compartís por WhatsApp</h3>
             <p className="mt-2 text-sm text-slate-600">El grupo entra por link y reclama perfil cuando quiere.</p>
           </div>
@@ -288,7 +293,7 @@ export default async function PublicHomePage() {
         </div>
       </PublicSection>
 
-      <PublicSection id="demo-share" eyebrow="Loop viral" title="WhatsApp sigue siendo el centro. PASALA ordena el juego." description="No vende, informa. Por eso se adapta al uso real.">
+      <PublicSection id="demo-share" eyebrow="Compartí el resultado" title="WhatsApp sigue siendo el centro. PASALA ordena el juego." description="No vende, informa. Por eso se adapta al uso real.">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
           <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_18px_50px_rgba(2,6,23,0.24)]">
             <div className="mb-3 flex items-center gap-2">
