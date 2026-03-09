@@ -2,6 +2,28 @@ import { createClient } from "@/lib/supabase/server";
 
 export type CourtSurfaceType = "synthetic" | "hard" | "clay" | "other";
 export type BookingStatus = "requested" | "confirmed" | "rejected" | "cancelled";
+export type AgendaSlotType =
+  | "booking_requested"
+  | "booking_confirmed"
+  | "league_match"
+  | "tournament_match";
+
+export type AgendaSlot = {
+  slot_id: string;
+  slot_type: AgendaSlotType;
+  court_id: string;
+  court_name: string;
+  start_at: string;
+  end_at: string;
+  entity_id: string;
+  entity_name: string | null;
+  match_id: string | null;
+  team_a: string | null;
+  team_b: string | null;
+  requester_name: string | null;
+  note: string | null;
+  booking_status: string | null;
+};
 
 export type ClubCourtRow = {
   id: string;
@@ -289,6 +311,22 @@ export class BookingRepository {
 
     if (error) throw error;
     return data as string;
+  }
+
+  async getAgendaSlots(
+    clubId: string,
+    from: string,
+    to: string
+  ): Promise<AgendaSlot[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_get_agenda_slots", {
+      p_club_id: clubId,
+      p_from: from,
+      p_to: to,
+    });
+
+    if (error) throw error;
+    return (data || []) as AgendaSlot[];
   }
 
   async createClubConfirmedBookingMatch(input: {
