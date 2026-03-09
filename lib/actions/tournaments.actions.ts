@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { TournamentsService } from "@/services/tournaments.service";
+import { RegistrationsService } from "@/services/registrations.service";
 
 function isNextRedirectError(error: any): boolean {
   return typeof error?.digest === "string" && error.digest.startsWith("NEXT_REDIRECT");
@@ -109,6 +110,53 @@ export async function createTournamentAction(formData: FormData) {
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6.2 createTournamentAction]", error);
+    redirectWithError("/club/dashboard/tournaments", errCode(error), errDebug(error));
+  }
+}
+
+export async function createTournamentWizardAction(formData: FormData) {
+  const tournaments = new TournamentsService();
+  const reg = new RegistrationsService();
+
+  const clubId = String(formData.get("club_id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const seasonLabel = String(formData.get("season_label") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  const rawCat = String(formData.get("target_category_int") || "").trim();
+  const allowLower = formData.get("allow_lower_category") === "on";
+  const startDate = String(formData.get("start_date") || "").trim() || null;
+  const endDate = String(formData.get("end_date") || "").trim() || null;
+  const rawCities = String(formData.get("target_city_ids") || "").trim();
+  const targetCityIds = rawCities ? rawCities.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  if (!clubId || !name || !rawCat) {
+    redirectWithError("/club/dashboard/tournaments", "COMPLETE_REQUIRED_FIELDS");
+  }
+
+  const targetCategory = Number(rawCat);
+  if (Number.isNaN(targetCategory) || targetCategory < 1) {
+    redirectWithError("/club/dashboard/tournaments", "INVALID_CATEGORY_VALUE");
+  }
+
+  try {
+    const tournamentId = await tournaments.createTournament({
+      club_id: clubId,
+      name,
+      target_category_int: targetCategory,
+      allow_lower_category: allowLower,
+      season_label: seasonLabel || undefined,
+      description: description || undefined,
+    });
+
+    if (startDate || endDate || targetCityIds.length > 0) {
+      await reg.updateTournamentInfo({ tournament_id: tournamentId, start_date: startDate, end_date: endDate, target_city_ids: targetCityIds });
+    }
+
+    revalidatePath("/club/dashboard/tournaments");
+    redirect(detailPath(tournamentId));
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6.2 createTournamentWizardAction]", error);
     redirectWithError("/club/dashboard/tournaments", errCode(error), errDebug(error));
   }
 }

@@ -11,7 +11,8 @@ import { PlayoffMatchResultForm } from "@/components/club/PlayoffMatchResultForm
 import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
 import { RegistrationsPanel } from "@/components/club/RegistrationsPanel";
 import { RegistrationsService } from "@/services/registrations.service";
-import { EventDiffusionForm } from "@/components/club/EventDiffusionForm";
+import { EventDiffusionSection } from "@/components/club/EventDiffusionSection";
+import { LeagueRegisterTeamForm } from "@/components/club/LeagueRegisterTeamForm";
 import {
   assignTeamToGroupAction,
   autoCreateGroupsAction,
@@ -19,7 +20,6 @@ import {
   generateFixtureAction,
   reopenDivisionFixtureForEditAction,
   removeLeagueTeamAction,
-  registerLeagueTeamAction,
   updateLeagueStatusAction,
 } from "@/lib/actions/leagues.actions";
 
@@ -33,12 +33,6 @@ function leagueStatusLabel(status: "draft" | "active" | "finished") {
   if (status === "draft") return "Borrador";
   if (status === "active") return "Activa";
   return "Finalizada";
-}
-
-function divisionModeLabel(mode: "OPEN" | "SINGLE" | "SUM") {
-  if (mode === "OPEN") return "Abierta";
-  if (mode === "SINGLE") return "Categoria unica";
-  return "Suma";
 }
 
 function playoffStageLabel(stage: "quarterfinal" | "semifinal" | "final") {
@@ -179,10 +173,6 @@ export default async function ClubLeagueDetailPage({
   );
 
   const leagueMatches = await leaguesService.listLeagueMatches(leagueId);
-  const submitRegisterTeam = async (formData: FormData) => {
-    "use server";
-    await registerLeagueTeamAction(formData);
-  };
   const submitAutoGroups = async (formData: FormData) => {
     "use server";
     await autoCreateGroupsAction(formData);
@@ -211,7 +201,6 @@ export default async function ClubLeagueDetailPage({
     "use server";
     await removeLeagueTeamAction(formData);
   };
-
   const okCode = searchParams?.ok || "";
   const errorCode = searchParams?.error || "";
   const errorDebug = searchParams?.debug || "";
@@ -366,15 +355,37 @@ export default async function ClubLeagueDetailPage({
         </div>
       </div>
 
+      {/* Navegación interna */}
+      <nav className="sticky top-0 z-10 -mx-4 flex gap-1 overflow-x-auto bg-white/95 px-4 py-2 backdrop-blur border-b border-gray-100 shadow-sm">
+        <a href="#diffusion" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Difusión
+        </a>
+        <a href="#registrations" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Solicitudes ({leagueRegistrations.length})
+        </a>
+        <a href="#teams" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Parejas ({divisionData.reduce((sum, d) => sum + d.teams.length, 0)})
+        </a>
+        {divisionData.map(({ division }) => (
+          <a
+            key={division.id}
+            href={`#division-${division.id}`}
+            className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+          >
+            {division.name}
+          </a>
+        ))}
+      </nav>
+
       {/* Difusión: fechas y ciudades */}
-      <section className="rounded-2xl border bg-white p-4">
+      <section id="diffusion" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
           Difusión geográfica
         </h2>
         <p className="mb-4 text-xs text-gray-500">
           Cuando la liga está activa, los jugadores de las ciudades seleccionadas recibirán una notificación de inscripción.
         </p>
-        <EventDiffusionForm
+        <EventDiffusionSection
           entityType="league"
           entityId={league.id}
           startDate={(league as any).start_date ?? null}
@@ -384,7 +395,7 @@ export default async function ClubLeagueDetailPage({
       </section>
 
       {/* Solicitudes de inscripción */}
-      <section id="registrations" className="scroll-mt-24 rounded-2xl border bg-white p-4">
+      <section id="registrations" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
           Solicitudes de inscripción ({leagueRegistrations.length})
         </h2>
@@ -399,6 +410,109 @@ export default async function ClubLeagueDetailPage({
           registrations={leagueRegistrations}
         />
       </section>
+
+      {/* Parejas inscriptas */}
+      {(() => {
+        const allTeams = divisionData.flatMap(({ teams }) => teams);
+        const allAssignedTeamIds = new Set<string>();
+        const allAssignedGroupByTeamId = new Map<string, string>();
+        for (const { groupData } of divisionData) {
+          for (const g of groupData) {
+            for (const gt of g.groupTeams as any[]) {
+              if (gt.team_id) {
+                allAssignedTeamIds.add(gt.team_id);
+                allAssignedGroupByTeamId.set(gt.team_id, g.group.name);
+              }
+            }
+          }
+        }
+        const hasAnyFixture = leagueMatches.length > 0;
+        const soloConfirmed = leagueRegistrations.filter(
+          (r: any) =>
+            r.status === "confirmed" &&
+            !r.teammate_player_id &&
+            !allTeams.some((t) => t.player_id_a === r.player_id || t.player_id_b === r.player_id)
+        );
+
+        return (
+          <section id="teams" className="scroll-mt-20 rounded-2xl border bg-white p-4">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">
+                Parejas inscriptas ({allTeams.length})
+              </h2>
+            </div>
+
+            {!hasAnyFixture ? (
+              <LeagueRegisterTeamForm
+                leagueId={league.id}
+                players={players as any[]}
+              />
+            ) : (
+              <p className="mt-2 text-xs text-amber-700">
+                El fixture ya fue generado. Reabrilo para inscribir o quitar parejas.
+              </p>
+            )}
+
+            {allTeams.length > 0 ? (
+              <div className="mt-4 space-y-2">
+                {allTeams.map((team) => (
+                  <div key={team.id} className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 px-3 py-2">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {teamLabel(team, playersMap)}
+                      </p>
+                      {team.entry_category_int ? (
+                        <p className="text-xs text-gray-500">Cat. inscripcion: {team.entry_category_int}</p>
+                      ) : null}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {allAssignedTeamIds.has(team.id) ? (
+                        <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+                          Grupo {allAssignedGroupByTeamId.get(team.id)}
+                        </span>
+                      ) : (
+                        <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                          Sin grupo
+                        </span>
+                      )}
+                      {!hasAnyFixture ? (
+                        <form action={submitRemoveTeam}>
+                          <input type="hidden" name="league_id" value={league.id} />
+                          <input type="hidden" name="team_id" value={team.id} />
+                          <button className="rounded-lg border border-red-200 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">
+                            Quitar
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-gray-500">Todavia no hay parejas inscriptas.</p>
+            )}
+
+            {soloConfirmed.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-amber-800">
+                  Confirmados sin pareja asignada ({soloConfirmed.length})
+                </p>
+                <p className="mb-2 text-xs text-amber-700">
+                  Estas inscripciones fueron confirmadas pero son individuales. Inscribí manualmente la pareja completa desde el formulario de arriba.
+                </p>
+                <ul className="space-y-1">
+                  {soloConfirmed.map((r: any) => (
+                    <li key={r.registration_id} className="text-sm font-medium text-amber-900">
+                      {r.player_name}
+                      {r.player_city ? <span className="ml-1 text-xs font-normal text-amber-700">— {r.player_city}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </section>
+        );
+      })()}
 
       {divisionData.map(({ division, teams, groupData, playoffMatches }) => {
         const teamMap = new Map(teams.map((t) => [t.id, t]));
@@ -419,83 +533,9 @@ export default async function ClubLeagueDetailPage({
         const canAssignUnassigned = groupData.length > 0 && !hasGeneratedFixture && unassignedTeams.length > 0;
 
         return (
-          <section key={division.id} className="rounded-2xl border bg-white p-4 space-y-5">
+          <section key={division.id} id={`division-${division.id}`} className="scroll-mt-20 rounded-2xl border bg-white p-4 space-y-5">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">
-                {division.name} · {divisionModeLabel(division.category_mode)}
-                {division.category_value_int ? ` ${division.category_value_int}` : ""}
-              </h3>
-              <p className="text-xs text-gray-500">
-                Permite excepcion: {division.allow_override ? "si" : "no"}
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-100 p-3">
-              <h4 className="text-sm font-black uppercase tracking-wider text-gray-600">Inscribir equipo</h4>
-              <form action={submitRegisterTeam} className="mt-3 space-y-2">
-                <input type="hidden" name="league_id" value={league.id} />
-                <input type="hidden" name="division_id" value={division.id} />
-                <select name="player_id_a" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" required>
-                  <option value="">Jugador A</option>
-                  {players.map((p: any) => (
-                    <option key={`a-${p.id}`} value={p.id}>
-                      {p.display_name}
-                    </option>
-                  ))}
-                </select>
-                <select name="player_id_b" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" required>
-                  <option value="">Jugador B</option>
-                  {players.map((p: any) => (
-                    <option key={`b-${p.id}`} value={p.id}>
-                      {p.display_name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  name="entry_category_int"
-                  type="number"
-                  min={1}
-                  placeholder="Categoria inscripcion (opcional)"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                />
-                <button className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700">
-                  Inscribir pareja
-                </button>
-              </form>
-            </div>
-
-            <div className="rounded-xl border border-gray-100 p-3">
-              <h4 className="text-sm font-black uppercase tracking-wider text-gray-600">Equipos inscriptos</h4>
-              {teams.length === 0 ? (
-                <p className="mt-2 text-sm text-gray-500">No hay equipos registrados todavia.</p>
-              ) : (
-                <ul className="mt-2 space-y-1 text-sm text-gray-800">
-                  {teams.map((team) => (
-                    <li key={team.id} className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {teamLabel(team, playersMap)}
-                        {team.entry_category_int ? ` · Cat ${team.entry_category_int}` : ""}
-                      </span>
-                      {assignedTeamIds.has(team.id) ? (
-                        <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                          Asignado · Grupo {assignedGroupByTeamId.get(team.id)}
-                        </span>
-                      ) : (
-                        <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
-                          Sin grupo
-                        </span>
-                      )}
-                      <form action={submitRemoveTeam}>
-                        <input type="hidden" name="league_id" value={league.id} />
-                        <input type="hidden" name="team_id" value={team.id} />
-                        <button type="submit" className="rounded border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-700 hover:bg-red-50">
-                          Quitar
-                        </button>
-                      </form>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <h3 className="text-lg font-bold text-gray-900">Grupos y fixture</h3>
             </div>
 
             <div className="rounded-xl border border-gray-100 p-3">

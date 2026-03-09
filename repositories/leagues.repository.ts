@@ -9,6 +9,9 @@ export type LeagueRow = {
   season_label: string | null;
   description: string | null;
   status: "draft" | "active" | "finished";
+  start_date: string | null;
+  end_date: string | null;
+  target_city_ids: string[] | null;
   created_at: string;
   updated_at: string;
 };
@@ -116,7 +119,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
       .eq("club_id", clubId)
       .order("updated_at", { ascending: false });
     if (error) throw error;
@@ -440,7 +443,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
       .eq("club_id", clubId)
       .eq("status", "active")
       .order("updated_at", { ascending: false });

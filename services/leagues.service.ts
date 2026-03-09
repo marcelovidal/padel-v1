@@ -63,6 +63,17 @@ export class LeaguesService {
     return this.repository.createDivision(input);
   }
 
+  async getOrCreateDefaultDivision(leagueId: string): Promise<string> {
+    const divisions = await this.repository.listDivisions(leagueId);
+    if (divisions.length > 0) return (divisions[0] as any).id as string;
+    return this.repository.createDivision({
+      league_id: leagueId,
+      name: "Principal",
+      category_mode: "OPEN",
+      allow_override: true,
+    }) as Promise<string>;
+  }
+
   async registerTeam(input: {
     division_id: string;
     player_id_a: string;

@@ -7,6 +7,7 @@ import {
 } from "@/lib/actions/registrations.actions";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { TeammateCombobox } from "@/components/player/TeammateCombobox";
 
 type TeammateOption = {
   id: string;
@@ -237,19 +238,7 @@ function EventCard({
             <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-gray-500">
               Companero (opcional)
             </label>
-            <select
-              name="teammate_player_id"
-              defaultValue=""
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-            >
-              <option value="">Inscripcion individual</option>
-              {teammateOptions.map((teammate) => (
-                <option key={teammate.id} value={teammate.id}>
-                  {teammate.display_name}
-                  {teammate.city ? ` - ${teammate.city}` : ""}
-                </option>
-              ))}
-            </select>
+            <TeammateCombobox options={teammateOptions} />
           </div>
           <button
             type="submit"

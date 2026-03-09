@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  BarChart3,
   Building2,
   CalendarDays,
   Home,
@@ -27,7 +26,6 @@ interface ClubTopNavProps {
 
 const navItems = [
   { href: "/club", label: "Resumen", icon: Home },
-  { href: "/club/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/club/dashboard/bookings", label: "Reservas", icon: CalendarDays },
   { href: "/club/dashboard/courts", label: "Canchas", icon: Building2 },
   { href: "/club/dashboard/leagues", label: "Ligas", icon: Trophy },

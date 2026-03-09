@@ -16,6 +16,8 @@ import { redirect } from "next/navigation";
 
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { RegistrationsService } from "@/services/registrations.service";
+import { PlayerEventsWidget } from "@/components/player/PlayerEventsWidget";
 
 export const dynamic = "force-dynamic";
 
@@ -66,14 +68,18 @@ export default async function PlayerDashboard() {
     );
   }
 
+  const registrationsService = new RegistrationsService();
+
   // Fetch all data in parallel
-  const [metrics, recentMatches, pendingAssessments, compStats, clubRankings] = await Promise.all([
-    playerService.getProfileMetrics(playerId),
-    matchService.getPlayerMatches(playerId, { limit: 5 }),
-    assessmentService.getPendingAssessments(playerId),
-    playerService.getCompetitiveStats(),
-    leaguesService.getMyClubRankings(5).catch(() => []),
-  ]);
+  const [metrics, recentMatches, pendingAssessments, compStats, clubRankings, openEvents] =
+    await Promise.all([
+      playerService.getProfileMetrics(playerId),
+      matchService.getPlayerMatches(playerId, { limit: 5 }),
+      assessmentService.getPendingAssessments(playerId),
+      playerService.getCompetitiveStats(),
+      leaguesService.getMyClubRankings(5).catch(() => []),
+      registrationsService.getOpenEvents().catch(() => []),
+    ]);
 
   // Enrich matches with share messages for completed ones
   const siteUrl = getSiteUrl();
@@ -135,6 +141,9 @@ export default async function PlayerDashboard() {
           </Link>
         </div>
       </div>
+
+      {/* Events widget */}
+      <PlayerEventsWidget events={openEvents} />
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

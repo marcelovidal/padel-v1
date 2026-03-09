@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { LeaguesService } from "@/services/leagues.service";
+import { RegistrationsService } from "@/services/registrations.service";
 
 function isNextRedirectError(error: any): boolean {
   return typeof error?.digest === "string" && error.digest.startsWith("NEXT_REDIRECT");
@@ -129,6 +130,45 @@ export async function createLeagueAction(formData: FormData) {
   }
 }
 
+export async function createLeagueWizardAction(formData: FormData) {
+  const leagues = new LeaguesService();
+  const reg = new RegistrationsService();
+
+  const clubId = String(formData.get("club_id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const seasonLabel = String(formData.get("season_label") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  const startDate = String(formData.get("start_date") || "").trim() || null;
+  const endDate = String(formData.get("end_date") || "").trim() || null;
+  const rawCities = String(formData.get("target_city_ids") || "").trim();
+  const targetCityIds = rawCities ? rawCities.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  if (!clubId || !name) {
+    redirectWithError("/club/dashboard/leagues", "COMPLETE_REQUIRED_FIELDS");
+  }
+
+  try {
+    const leagueId = await leagues.createLeague({
+      club_id: clubId,
+      name,
+      season_label: seasonLabel || undefined,
+      description: description || undefined,
+      status: "draft",
+    });
+
+    if (startDate || endDate || targetCityIds.length > 0) {
+      await reg.updateLeagueInfo({ league_id: leagueId, start_date: startDate, end_date: endDate, target_city_ids: targetCityIds });
+    }
+
+    revalidatePath("/club/dashboard/leagues");
+    redirect(detailPath(leagueId));
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6 createLeagueWizardAction]", error);
+    redirectWithError("/club/dashboard/leagues", errCode(error), errDebug(error));
+  }
+}
+
 export async function createDivisionAction(formData: FormData) {
   const service = new LeaguesService();
   const leagueId = String(formData.get("league_id") || "");
@@ -187,18 +227,18 @@ export async function updateLeagueStatusAction(formData: FormData) {
 
 export async function registerLeagueTeamAction(formData: FormData) {
   const service = new LeaguesService();
-  const divisionId = String(formData.get("division_id") || "");
   const leagueId = String(formData.get("league_id") || "");
   const playerA = String(formData.get("player_id_a") || "");
   const playerB = String(formData.get("player_id_b") || "");
   const rawEntry = String(formData.get("entry_category_int") || "").trim();
   const path = detailPath(leagueId);
 
-  if (!divisionId || !playerA || !playerB) {
+  if (!leagueId || !playerA || !playerB) {
     redirectWithError(path, "INVALID_TEAM_PLAYERS");
   }
 
   try {
+    const divisionId = await service.getOrCreateDefaultDivision(leagueId);
     const teamId = await service.registerTeam({
       division_id: divisionId,
       player_id_a: playerA,

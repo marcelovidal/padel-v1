@@ -1,12 +1,17 @@
 export function LeagueRulesGuide() {
   return (
-    <section className="rounded-2xl border bg-white p-4">
-      <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">Reglas de ligas</h2>
-      <p className="mt-2 text-sm text-gray-600">
+    <details className="group rounded-2xl border bg-white">
+      <summary className="flex cursor-pointer select-none list-none items-center justify-between rounded-2xl p-4 hover:bg-gray-50">
+        <span className="text-sm font-black uppercase tracking-wider text-gray-600">¿Cómo funciona una liga?</span>
+        <span className="text-xs text-gray-400 transition-transform group-open:rotate-180">▾</span>
+      </summary>
+
+      <div className="px-4 pb-4">
+      <p className="mb-3 text-sm text-gray-600">
         Lee esta guia antes de crear una liga. Define como se organiza la competencia y que condiciones deben cumplirse.
       </p>
 
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
           <p className="text-sm font-semibold text-blue-900">Flujo de gestion</p>
           <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-blue-900">
@@ -51,7 +56,8 @@ export function LeagueRulesGuide() {
       <p className="mt-3 text-xs text-gray-500">
         Esta misma seccion puede reutilizarse en la vista de jugadores en una etapa posterior.
       </p>
-    </section>
+      </div>
+    </details>
   );
 }
 

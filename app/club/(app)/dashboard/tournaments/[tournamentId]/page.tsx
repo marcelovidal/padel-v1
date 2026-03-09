@@ -22,7 +22,7 @@ import {
 import { TournamentBracketView } from "@/components/club/TournamentBracketView";
 import { RegistrationsPanel } from "@/components/club/RegistrationsPanel";
 import { RegistrationsService } from "@/services/registrations.service";
-import { EventDiffusionForm } from "@/components/club/EventDiffusionForm";
+import { EventDiffusionSection } from "@/components/club/EventDiffusionSection";
 
 function teamLabel(team: any, playersMap: Map<string, string>) {
   const a = playersMap.get(team.player_id_a) || "Jugador A";
@@ -287,15 +287,38 @@ export default async function ClubTournamentDetailPage({
         </div>
       ) : null}
 
-      {/* DifusiÃ³n: fechas y ciudades */}
-      <section className="rounded-2xl border bg-white p-4">
+      {/* Navegación interna */}
+      <nav className="sticky top-0 z-10 -mx-4 flex gap-1 overflow-x-auto bg-white/95 px-4 py-2 backdrop-blur border-b border-gray-100 shadow-sm">
+        <a href="#diffusion" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Difusión
+        </a>
+        <a href="#registrations" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Solicitudes ({registrations.length})
+        </a>
+        <a href="#teams" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+          Parejas ({teams.length})
+        </a>
+        {hasGroups ? (
+          <a href="#groups" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50">
+            Grupos y fixture
+          </a>
+        ) : null}
+        {hasPlayoffs ? (
+          <a href="#playoffs" className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">
+            Playoffs
+          </a>
+        ) : null}
+      </nav>
+
+      {/* Difusión: fechas y ciudades */}
+      <section id="diffusion" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
           Difusion geografica
         </h2>
         <p className="mb-4 text-xs text-gray-500">
           Cuando el torneo esta activo, los jugadores de las ciudades seleccionadas recibiran una notificacion de inscripcion.
         </p>
-        <EventDiffusionForm
+        <EventDiffusionSection
           entityType="tournament"
           entityId={tournament.id}
           startDate={(tournament as any).start_date ?? null}
@@ -305,7 +328,7 @@ export default async function ClubTournamentDetailPage({
       </section>
 
       {/* Solicitudes de inscripcion */}
-      <section id="registrations" className="scroll-mt-24 rounded-2xl border bg-white p-4">
+      <section id="registrations" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
           Solicitudes de inscripcion ({registrations.length})
         </h2>
@@ -322,7 +345,7 @@ export default async function ClubTournamentDetailPage({
       </section>
 
       {/* Inscripcion de parejas */}
-      <section className="rounded-2xl border bg-white p-4">
+      <section id="teams" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">
             Parejas inscriptas ({teams.length})
@@ -369,11 +392,40 @@ export default async function ClubTournamentDetailPage({
         ) : (
           <p className="mt-3 text-sm text-gray-500">Todavia no hay parejas inscriptas.</p>
         )}
+
+        {/* Inscripciones confirmadas individuales (sin compañero asignado) */}
+        {(() => {
+          const soloConfirmed = registrations.filter(
+            (r: any) =>
+              r.status === "confirmed" &&
+              !r.teammate_player_id &&
+              !teams.some((t) => t.player_id_a === r.player_id || t.player_id_b === r.player_id)
+          );
+          if (soloConfirmed.length === 0) return null;
+          return (
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-amber-800">
+                Confirmados sin pareja asignada ({soloConfirmed.length})
+              </p>
+              <p className="mb-2 text-xs text-amber-700">
+                Estas inscripciones fueron confirmadas pero son individuales. Inscribí manualmente la pareja completa desde el formulario de arriba.
+              </p>
+              <ul className="space-y-1">
+                {soloConfirmed.map((r: any) => (
+                  <li key={r.registration_id} className="text-sm text-amber-900 font-medium">
+                    {r.player_name}
+                    {r.player_city ? <span className="ml-1 text-xs font-normal text-amber-700">— {r.player_city}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
       </section>
 
       {/* Armado de grupos */}
       {teams.length >= 2 ? (
-        <section className="rounded-2xl border bg-white p-4">
+        <section id="groups" className="scroll-mt-20 rounded-2xl border bg-white p-4">
           <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">Grupos y fixture</h2>
 
           {!hasFixture ? (
@@ -636,7 +688,7 @@ export default async function ClubTournamentDetailPage({
 
       {/* Bracket de playoffs */}
       {hasPlayoffs ? (
-        <section className="rounded-2xl border bg-white p-4 space-y-6">
+        <section id="playoffs" className="scroll-mt-20 rounded-2xl border bg-white p-4 space-y-6">
           <h2 className="text-sm font-black uppercase tracking-wider text-gray-600">Playoffs - Cuadro de eliminacion</h2>
 
           {/* Visual bracket */}
