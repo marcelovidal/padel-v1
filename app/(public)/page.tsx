@@ -23,9 +23,9 @@ import { getRegisterClubHref } from "@/lib/auth/public-cta.shared";
 import { publicFaqItems, shareDemoMessage } from "@/lib/public/content";
 
 export const metadata: Metadata = {
-  title: "PASALA | Padel amateur con historial y progreso",
+  title: "PASALA | Padel amateur con historial, ligas y torneos",
   description:
-    "Registra tu juego de padel, comparte por WhatsApp, mide rendimiento y construye historial deportivo.",
+    "Registra tus partidos de padel, participá en ligas y torneos, reservá canchas y construí tu historial deportivo.",
 };
 
 const samplePlayersByTeam = {
@@ -149,11 +149,12 @@ export default async function PublicHomePage() {
       </section>
 
       <PublicSection className="pt-10 sm:pt-14">
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <FeatureCard title="Historial automático" description="Cada partido queda registrado con contexto de club y equipos." icon={<BarChart3 className="h-5 w-5" />} />
           <FeatureCard title="Índice PASALA" description="Seguimiento de rendimiento y evolución con lectura clara." icon={<Zap className="h-5 w-5" />} />
           <FeatureCard title="Reclamo de perfil" description="Te cargan como invitado y reclamás después desde el link." icon={<ShieldCheck className="h-5 w-5" />} />
-          <FeatureCard title="Comunidad real" description="Flujo pensado para grupos recurrentes y competencia amateur." icon={<Users className="h-5 w-5" />} />
+          <FeatureCard title="Ligas y torneos" description="Inscribite como dupla, seguí el fixture y los playoffs desde la app." icon={<Trophy className="h-5 w-5" />} />
+          <FeatureCard title="Reservas de canchas" description="Reservá turnos directamente desde el flujo del partido." icon={<Users className="h-5 w-5" />} />
         </div>
       </PublicSection>
 
@@ -220,7 +221,7 @@ export default async function PublicHomePage() {
         </div>
       </PublicSection>
 
-      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking interno, torneos, grupos de sabado y actividad local." className="bg-slate-50/70">
+      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking, ligas, torneos, reservas y actividad real desde un solo lugar." className="bg-slate-50/70">
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
             <div className="mb-4 flex items-center gap-2">
@@ -228,10 +229,10 @@ export default async function PublicHomePage() {
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Club / comunidad</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <FeatureCard title="Ranking interno" description="Base para comunidad y seguimiento competitivo." className="p-4" />
-              <FeatureCard title="Torneos y grupos" description="Desde el grupo del sábado a eventos recurrentes." className="p-4" />
-              <FeatureCard title="Ficha pública" description="Presencia digital de tu club y sus canchas." className="p-4" />
-              <FeatureCard title="Próximamente reservas" description="Gestión sobre la misma base de comunidad." className="p-4" />
+              <FeatureCard title="Ranking interno" description="Posiciones reales basadas en partidos registrados en el club." className="p-4" />
+              <FeatureCard title="Ligas y torneos" description="Crea ligas con fixture, grupos y playoffs. Gestión completa." className="p-4" />
+              <FeatureCard title="Reservas de canchas" description="Turnos de cancha integrados al flujo de partidos y grupos." className="p-4" />
+              <FeatureCard title="Ficha pública" description="Presencia digital de tu club, canchas y eventos activos." className="p-4" />
             </div>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_16px_48px_rgba(2,6,23,0.24)]">
@@ -240,9 +241,10 @@ export default async function PublicHomePage() {
             <p className="mt-3 text-sm leading-relaxed text-white/75">PASALA no reemplaza el vínculo social. Lo ordena, lo registra y lo vuelve medible.</p>
             <div className="mt-5 space-y-3">
               {[
-                "Partidos asociados a clubes de padel",
-                "Flujo real de grupos y dobles",
-                "Base para ranking y torneos",
+                "Ranking interno basado en partidos reales",
+                "Ligas con fixture, grupos y playoffs",
+                "Torneos con inscripción en duo y bracket",
+                "Reservas de canchas integradas al flujo",
               ].map((line) => (
                 <div key={line} className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
@@ -286,7 +288,7 @@ export default async function PublicHomePage() {
           <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-[0_10px_30px_rgba(59,130,246,0.08)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">Clubes</p>
             <p className="mt-2 text-3xl font-black text-slate-900">Gratis por lanzamiento</p>
-            <p className="mt-2 text-sm text-slate-600">Ranking interno + ficha publica + actividad de comunidad.</p>
+            <p className="mt-2 text-sm text-slate-600">Ranking + ligas + torneos + reservas + ficha pública.</p>
             <div className="mt-5"><Link href={clubHref} className="inline-flex rounded-xl bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-slate-800">Registrar club</Link></div>
           </div>
         </div>
