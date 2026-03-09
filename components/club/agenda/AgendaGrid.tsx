@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, X, CheckCircle2, XCircle, Calendar } from "lucide-react";
+import { useFormState } from "react-dom";
+import { ChevronLeft, ChevronRight, X, CheckCircle2, XCircle, Calendar, Plus } from "lucide-react";
 import type { AgendaSlot, ClubCourtRow } from "@/repositories/booking.repository";
 
 // ─── Constantes visuales ──────────────────────────────────────────────────────
@@ -162,6 +163,18 @@ function GridLines() {
   );
 }
 
+// ─── Tipos de creación ────────────────────────────────────────────────────────
+
+type PlayerOption = { id: string; label: string };
+
+type CreateTarget = {
+  courtId: string;
+  courtName: string;
+  dateStr: string;   // YYYY-MM-DD
+  time: string;      // HH:mm
+  slotMinutes: number;
+};
+
 // ─── Modal de detalle ─────────────────────────────────────────────────────────
 
 function SlotModal({
@@ -173,9 +186,9 @@ function SlotModal({
 }: {
   slot: AgendaSlot;
   onClose: () => void;
-  confirmAction: (fd: FormData) => Promise<void>;
-  rejectAction: (fd: FormData) => Promise<void>;
-  cancelAction: (fd: FormData) => Promise<void>;
+  confirmAction: (fd: FormData) => Promise<any>;
+  rejectAction: (fd: FormData) => Promise<any>;
+  cancelAction: (fd: FormData) => Promise<any>;
 }) {
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
@@ -324,16 +337,171 @@ function SlotModal({
   );
 }
 
+// ─── Modal de creación ────────────────────────────────────────────────────────
+
+function CreateBookingModal({
+  target,
+  clubId,
+  players,
+  createAction,
+  onClose,
+}: {
+  target: CreateTarget;
+  clubId: string;
+  players: PlayerOption[];
+  createAction: (prev: any, fd: FormData) => Promise<{ success: boolean; error?: string }>;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [state, formAction] = useFormState(createAction, null);
+  const [query, setQuery] = useState("");
+  const [playerId, setPlayerId] = useState("");
+  const [playerLabel, setPlayerLabel] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const filtered = query.trim()
+    ? players.filter((p) => p.label.toLowerCase().includes(query.toLowerCase()))
+    : players.slice(0, 8);
+
+  // Cierra dropdown al hacer click fuera
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Cierra el modal al crear con éxito
+  useEffect(() => {
+    if ((state as any)?.success) {
+      router.refresh();
+      onClose();
+    }
+  }, [state, router, onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <button
+        aria-label="Cerrar"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]"
+        onClick={onClose}
+      />
+      <div className="relative z-[51] w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+        {/* Header */}
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-blue-700">
+              Nueva reserva
+            </span>
+            <p className="mt-1.5 text-base font-black text-slate-900">{target.courtName}</p>
+            <p className="text-sm text-slate-500">
+              {target.dateStr} · {target.time} ({target.slotMinutes} min)
+            </p>
+          </div>
+          <button onClick={onClose} className="shrink-0 rounded-xl p-1.5 hover:bg-slate-100">
+            <X className="h-4 w-4 text-slate-500" />
+          </button>
+        </div>
+
+        <form action={formAction} className="space-y-3">
+          {/* Campos ocultos */}
+          <input type="hidden" name="club_id" value={clubId} />
+          <input type="hidden" name="court_id" value={target.courtId} />
+          <input type="hidden" name="selected_date" value={target.dateStr} />
+          <input type="hidden" name="start_time" value={target.time} />
+          <input type="hidden" name="slot_minutes" value={target.slotMinutes} />
+          <input type="hidden" name="player_id" value={playerId} />
+
+          {/* Selector de jugador */}
+          <div ref={dropdownRef} className="relative">
+            <label className="mb-1 block text-xs font-bold text-slate-600">Jugador</label>
+            <input
+              type="text"
+              value={playerLabel || query}
+              placeholder="Buscar jugador..."
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPlayerLabel("");
+                setPlayerId("");
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              autoComplete="off"
+            />
+            {showDropdown && filtered.length > 0 && (
+              <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+                {filtered.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setPlayerId(p.id);
+                      setPlayerLabel(p.label);
+                      setQuery("");
+                      setShowDropdown(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Nota */}
+          <div>
+            <label className="mb-1 block text-xs font-bold text-slate-600">Nota (opcional)</label>
+            <textarea
+              name="note"
+              rows={2}
+              placeholder="Agrega una nota..."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 resize-none"
+            />
+          </div>
+
+          {/* Error */}
+          {(state as any)?.error && (
+            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
+              {(state as any).error}
+            </p>
+          )}
+
+          {/* Botón */}
+          <button
+            type="submit"
+            disabled={!playerId}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-40"
+          >
+            <Plus className="h-4 w-4" />
+            Crear reserva confirmada
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Vista diaria ─────────────────────────────────────────────────────────────
 
 function DayView({
   courts,
   slots,
+  dateStr,
   onSelect,
+  onCellClick,
 }: {
   courts: ClubCourtRow[];
   slots: AgendaSlot[];
+  dateStr: string;
   onSelect: (slot: AgendaSlot) => void;
+  onCellClick?: (courtId: string, courtName: string, time: string, slotMinutes: number) => void;
 }) {
   if (courts.length === 0) {
     return (
@@ -341,6 +509,23 @@ function DayView({
         No hay canchas activas configuradas.
       </div>
     );
+  }
+
+  function handleColumnClick(
+    e: React.MouseEvent<HTMLDivElement>,
+    court: ClubCourtRow,
+  ) {
+    if ((e.target as HTMLElement).closest("button")) return; // click en slot existente
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const totalMinutes = GRID_START_MIN + y / MIN_PX;
+    const rounded = Math.floor(totalMinutes / 30) * 30; // snap a 30 min
+    const clamped = Math.max(GRID_START_MIN, Math.min(GRID_END_MIN - 30, rounded));
+    const h = Math.floor(clamped / 60);
+    const m = clamped % 60;
+    const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    const slotMinutes = court.slot_interval_minutes || 90;
+    onCellClick?.(court.id, court.name, time, slotMinutes);
   }
 
   return (
@@ -376,7 +561,8 @@ function DayView({
             <div
               key={court.id}
               style={{ minWidth: COURT_COL_W, height: GRID_TOTAL_PX }}
-              className="relative flex-1 border-l border-gray-100"
+              className="relative flex-1 border-l border-gray-100 cursor-crosshair"
+              onClick={(e) => handleColumnClick(e, court)}
             >
               <GridLines />
               {courtSlots.map((slot) => (
@@ -483,9 +669,12 @@ type Props = {
   slots: AgendaSlot[];
   initialDate: string;
   initialView: View;
-  confirmAction: (fd: FormData) => Promise<void>;
-  rejectAction: (fd: FormData) => Promise<void>;
-  cancelAction: (fd: FormData) => Promise<void>;
+  confirmAction: (fd: FormData) => Promise<any>;
+  rejectAction: (fd: FormData) => Promise<any>;
+  cancelAction: (fd: FormData) => Promise<any>;
+  createAction?: (prev: any, fd: FormData) => Promise<{ success: boolean; error?: string }>;
+  clubId?: string;
+  players?: PlayerOption[];
   baseHref?: string;
 };
 
@@ -497,11 +686,15 @@ export function AgendaGrid({
   confirmAction,
   rejectAction,
   cancelAction,
+  createAction,
+  clubId,
+  players = [],
   baseHref = "/club/dashboard/bookings",
 }: Props) {
   const router = useRouter();
   const [view, setView] = useState<View>(initialView);
   const [selectedSlot, setSelectedSlot] = useState<AgendaSlot | null>(null);
+  const [createTarget, setCreateTarget] = useState<CreateTarget | null>(null);
 
   const currentDate = parseDate(initialDate);
   const weekStart = startOfWeekMonday(currentDate);
@@ -595,7 +788,18 @@ export function AgendaGrid({
 
       {/* Grid */}
       {view === "day" ? (
-        <DayView courts={courts} slots={slots} onSelect={setSelectedSlot} />
+        <DayView
+          courts={courts}
+          slots={slots}
+          dateStr={toDateStr(currentDate)}
+          onSelect={setSelectedSlot}
+          onCellClick={
+            createAction && clubId
+              ? (courtId, courtName, time, slotMinutes) =>
+                  setCreateTarget({ courtId, courtName, dateStr: toDateStr(currentDate), time, slotMinutes })
+              : undefined
+          }
+        />
       ) : (
         <WeekView
           courts={courts}
@@ -605,7 +809,7 @@ export function AgendaGrid({
         />
       )}
 
-      {/* Modal */}
+      {/* Modal detalle */}
       {selectedSlot && (
         <SlotModal
           slot={selectedSlot}
@@ -613,6 +817,17 @@ export function AgendaGrid({
           confirmAction={confirmAction}
           rejectAction={rejectAction}
           cancelAction={cancelAction}
+        />
+      )}
+
+      {/* Modal creación */}
+      {createTarget && createAction && clubId && (
+        <CreateBookingModal
+          target={createTarget}
+          clubId={clubId}
+          players={players}
+          createAction={createAction}
+          onClose={() => setCreateTarget(null)}
         />
       )}
     </div>

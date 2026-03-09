@@ -8,6 +8,7 @@ import {
   createMatchFromBookingAction,
   rejectBookingAction,
   cancelBookingAction,
+  clubCreateBookingAndMatchAction,
 } from "@/lib/actions/booking.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
@@ -105,10 +106,17 @@ export default async function ClubBookingsPage({
       to.setDate(to.getDate() + 1);
     }
 
-    const [courts, slots] = await Promise.all([
+    const playerService = new PlayerService();
+    const [courts, slots, allPlayers] = await Promise.all([
       bookingService.listActiveClubCourts(club.id),
       bookingService.getAgendaSlots(club.id, from.toISOString(), to.toISOString()),
+      playerService.searchPlayersWeighted("", 200),
     ]);
+
+    const playerOptions = (allPlayers || []).map((p: any) => ({
+      id: p.id,
+      label: `${p.first_name || ""} ${p.last_name || ""}`.trim() || p.display_name || "Jugador",
+    }));
 
     return (
       <div className="container mx-auto max-w-7xl space-y-4 p-4">
@@ -130,6 +138,9 @@ export default async function ClubBookingsPage({
           confirmAction={confirmBookingAction}
           rejectAction={rejectBookingAction}
           cancelAction={cancelBookingAction}
+          createAction={clubCreateBookingAndMatchAction}
+          clubId={club.id}
+          players={playerOptions}
           baseHref="/club/dashboard/bookings"
         />
       </div>
