@@ -62,8 +62,11 @@ export default async function PlayerProfilePage() {
             <div className="mb-8">
                 <PasalaIndex
                     value={metrics.pasala_index}
-                    winScore={metrics.win_rate}
+                    winRateScore={metrics.win_rate_score}
+                    rivalLevelScore={metrics.rival_level_score}
                     perfScore={metrics.perf_score}
+                    recentScore={metrics.recent_score}
+                    volumeScore={metrics.volume_score}
                 />
             </div>
 

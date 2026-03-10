@@ -151,8 +151,11 @@ export default async function PlayerDashboard() {
         <div className="lg:col-span-1">
           <PasalaIndex
             value={metrics.pasala_index}
-            winScore={metrics.win_rate}
+            winRateScore={metrics.win_rate_score}
+            rivalLevelScore={metrics.rival_level_score}
             perfScore={metrics.perf_score}
+            recentScore={metrics.recent_score}
+            volumeScore={metrics.volume_score}
           />
         </div>
 
