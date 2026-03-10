@@ -1,9 +1,14 @@
-import { AssessmentRepository } from "@/repositories/assessment.repository";
+﻿import { AssessmentRepository } from "@/repositories/assessment.repository";
 import { MatchRepository } from "@/repositories/match.repository";
 import { Database } from "@/types/database";
 
 type AssessmentInsert = Database["public"]["Tables"]["player_match_assessments"]["Insert"];
 type Assessment = Database["public"]["Tables"]["player_match_assessments"]["Row"];
+type AssessmentUpdate = Database["public"]["Tables"]["player_match_assessments"]["Update"];
+type AssessmentProgressInput = Partial<AssessmentInsert> & {
+  match_id: string;
+  player_id: string;
+};
 
 export class AssessmentService {
   private repository: AssessmentRepository;
@@ -22,7 +27,7 @@ export class AssessmentService {
     }
 
     // Validar que el partido está completado
-    if (match.status !== "completed") {
+    if (match.status !== "completed" && !match.match_results) {
       throw new Error("Solo se puede enviar una autoevaluación para partidos completados");
     }
 
@@ -41,6 +46,67 @@ export class AssessmentService {
       }
       throw error;
     }
+  }
+
+  async saveAssessmentProgress(
+    input: AssessmentProgressInput,
+    options?: { allowEmpty?: boolean }
+  ): Promise<Assessment> {
+    const match = await this.matchRepository.findById(input.match_id);
+    if (!match) {
+      throw new Error("Partido no encontrado");
+    }
+
+    if (match.status !== "completed" && !match.match_results) {
+      throw new Error("Solo se puede enviar una autoevaluación para partidos completados");
+    }
+
+    const participated = match.match_players.some((mp) => mp.player_id === input.player_id);
+    if (!participated) {
+      throw new Error("El jugador no participó en este partido");
+    }
+
+    const payload: AssessmentProgressInput = {
+      match_id: input.match_id,
+      player_id: input.player_id,
+    };
+
+    if ("volea" in input) payload.volea = input.volea ?? null;
+    if ("globo" in input) payload.globo = input.globo ?? null;
+    if ("remate" in input) payload.remate = input.remate ?? null;
+    if ("bandeja" in input) payload.bandeja = input.bandeja ?? null;
+    if ("vibora" in input) payload.vibora = input.vibora ?? null;
+    if ("bajada_pared" in input) payload.bajada_pared = input.bajada_pared ?? null;
+    if ("saque" in input) payload.saque = input.saque ?? null;
+    if ("recepcion_saque" in input) payload.recepcion_saque = input.recepcion_saque ?? null;
+    if ("comments" in input) payload.comments = input.comments ?? null;
+    if ("submitted_by" in input) payload.submitted_by = input.submitted_by ?? null;
+
+    const hasAnyValue = [
+      payload.volea,
+      payload.globo,
+      payload.remate,
+      payload.bandeja,
+      payload.vibora,
+      payload.bajada_pared,
+      payload.saque,
+      payload.recepcion_saque,
+    ].some((value) => value !== null)
+      || (typeof payload.comments === "string" && payload.comments.trim() !== "");
+
+    if (!options?.allowEmpty && !hasAnyValue) {
+      throw new Error("Debes completar al menos un golpe o un comentario");
+    }
+
+    return this.repository.upsert(payload);
+  }
+
+  async patchAssessmentByMatchAndPlayer(
+    matchId: string,
+    playerId: string,
+    input: AssessmentUpdate
+  ): Promise<Assessment> {
+    return this.repository.updateByMatchAndPlayer(matchId, playerId, input);
   }
 
   async getAssessmentsByPlayer(playerId: string) {
@@ -106,3 +172,4 @@ export class AssessmentService {
     return averages;
   }
 }
+

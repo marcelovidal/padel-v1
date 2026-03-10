@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { Database, TeamType } from "@/types/database";
 import { normalizeMatchResult } from "@/lib/match/matchUtils";
 
@@ -211,7 +211,7 @@ export class MatchRepository {
 
     if (error) {
       if (error.code === "23505") {
-        throw new Error("El jugador ya estÃ¡ asignado a este partido");
+        throw new Error("El jugador ya está asignado a este partido");
       }
       throw error;
     }
@@ -382,7 +382,7 @@ export class MatchRepository {
       const myPlayerEntry = match.match_players && match.match_players[0];
       const team = myPlayerEntry ? myPlayerEntry.team : null;
 
-      // NormalizaciÃ³n del resultado (Array -> Objeto)
+    // Normalización del resultado (Array -> Objeto)
       const rawResult = Array.isArray(match.match_results)
         ? match.match_results[0] ?? null
         : match.match_results ?? null;
@@ -645,4 +645,5 @@ export class MatchRepository {
     };
   }
 }
+
 

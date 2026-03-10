@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { getPlayerMatchAssessmentAction } from "@/app/actions/assessment.actions";
 import { ChevronDown, ChevronUp, Star, MessageSquare, Loader2 } from "lucide-react";
 
@@ -36,10 +37,16 @@ export default function PlayerMatchAssessmentPanel({
     if (!hasAssessment) {
         return (
             <div className="pt-4 border-t border-gray-100 px-1 mt-4">
-                <div className="flex items-center text-amber-600 bg-amber-50 px-3 py-2 rounded-lg text-sm">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    <span>Autoevaluación pendiente</span>
-                </div>
+                <Link
+                    href={`/player/matches/${matchId}/assessment`}
+                    className="flex items-center justify-between text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                    <span className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4" />
+                        Autoevaluación pendiente
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wide">Completar →</span>
+                </Link>
             </div>
         );
     }
