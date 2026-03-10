@@ -100,6 +100,10 @@ export class BookingService {
     return this.repository.cancelBooking(bookingId);
   }
 
+  async clubCancelBooking(bookingId: string) {
+    return this.repository.clubCancelBooking(bookingId);
+  }
+
   async createMatchFromBooking(bookingId: string) {
     return this.repository.createMatchFromBooking(bookingId);
   }

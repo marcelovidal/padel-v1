@@ -387,6 +387,30 @@ export async function cancelBookingAction(formData: FormData) {
   }
 }
 
+export async function clubCancelBookingAction(formData: FormData) {
+  const user = await requireUser();
+  if (!user) return { success: false as const, error: errorMessageFor("NOT_AUTHENTICATED") };
+
+  const parsed = bookingIdSchema.safeParse({
+    booking_id: String(formData.get("booking_id") || ""),
+  });
+
+  if (!parsed.success) {
+    return { success: false as const, error: "Reserva invalida" };
+  }
+
+  const service = new BookingService();
+  try {
+    await service.clubCancelBooking(parsed.data.booking_id);
+    revalidatePath("/club/dashboard/bookings");
+    revalidatePath("/player/bookings");
+    return { success: true as const };
+  } catch (error: any) {
+    const code = inferBookingErrorCode(error);
+    return { success: false as const, error: errorMessageFor(code), code };
+  }
+}
+
 export async function createMatchFromBookingAction(formData: FormData) {
   const user = await requireUser();
   if (!user) return { success: false as const, error: errorMessageFor("NOT_AUTHENTICATED") };

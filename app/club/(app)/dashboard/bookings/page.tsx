@@ -7,7 +7,7 @@ import {
   confirmBookingAction,
   createMatchFromBookingAction,
   rejectBookingAction,
-  cancelBookingAction,
+  clubCancelBookingAction,
   clubCreateBookingAndMatchAction,
 } from "@/lib/actions/booking.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
@@ -137,7 +137,7 @@ export default async function ClubBookingsPage({
           initialView={agendaView}
           confirmAction={confirmBookingAction}
           rejectAction={rejectBookingAction}
-          cancelAction={cancelBookingAction}
+          cancelAction={clubCancelBookingAction}
           createAction={clubCreateBookingAndMatchAction}
           clubId={club.id}
           players={playerOptions}
