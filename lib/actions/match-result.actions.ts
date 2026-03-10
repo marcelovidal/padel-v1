@@ -60,6 +60,13 @@ export async function submitMatchResultAsPlayer(prevState: any, formData: FormDa
             throw error;
         }
 
+        // Recalcular índice PASALA para los 4 jugadores del partido
+        try {
+            await sb.rpc("recalculate_indexes_for_match", { p_match_id: match_id });
+        } catch (indexError) {
+            console.error("recalculate_indexes_for_match failed", indexError);
+        }
+
     } catch (err: any) {
         // Map common errors
         if (err.message?.includes('MATCH_NOT_FOUND_OR_NOT_PARTICIPANT')) {

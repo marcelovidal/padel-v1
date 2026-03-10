@@ -104,6 +104,13 @@ export async function createFirstMatchWithResultAsPlayer(prevState: any, formDat
 
     if (resultError) throw resultError;
 
+    // Recalcular índice PASALA para los 4 jugadores del partido
+    try {
+      await sb.rpc("recalculate_indexes_for_match", { p_match_id: matchId });
+    } catch (indexError) {
+      console.error("recalculate_indexes_for_match (fme) failed", indexError);
+    }
+
     try {
       await createNotificationInternal({
         userId: user.id,
