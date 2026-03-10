@@ -53,6 +53,7 @@ export async function completePlayerSignupOnboardingAction(input: {
       country_code: input.country_code || "AR",
       birth_year: input.birth_year ?? undefined,
       avatar_url: input.avatar_url || undefined,
+      email: user.email ?? undefined,
     });
 
     const claimCandidates = await playerService.findClaimCandidates({

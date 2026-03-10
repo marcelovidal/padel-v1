@@ -1,4 +1,4 @@
-import { MatchService } from "@/services/match.service";
+﻿import { MatchService } from "@/services/match.service";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -167,8 +167,8 @@ export default async function PublicMatchPage({
         </div>
 
         <div className="bg-white rounded-[24px] p-6 border border-gray-100 shadow-sm space-y-4">
-          <h4 className="text-sm font-black text-gray-900 text-center">Â¿Sos uno de estos jugadores?</h4>
-          <p className="text-xs text-gray-500 text-center -mt-2">ReclamÃ¡ tu perfil para ver tu historial y estadÃ­sticas.</p>
+          <h4 className="text-sm font-black text-gray-900 text-center">¿Sos uno de estos jugadores?</h4>
+          <p className="text-xs text-gray-500 text-center -mt-2">Reclamá tu perfil para ver tu historial y estadísticas.</p>
           <div className="grid grid-cols-1 gap-2">
             {unclaimedRoster.map((p: any) => (
               <Link
@@ -206,21 +206,21 @@ export default async function PublicMatchPage({
           <div className="space-y-2">
             <h3 className="text-xl font-bold tracking-tight">
               {unclaimedRoster.length > 0
-                ? "Primero reclamÃ¡ tu perfil"
+                ? "Primero reclamá tu perfil"
                 : userState === "anonymous"
-                  ? "Â¿Jugaste este partido?"
+                  ? "¿Jugaste este partido?"
                   : userState === "unonboarded"
-                    ? "Â¡Casi listo!"
-                    : "SeguÃ­ tu evoluciÃ³n"}
+                    ? "¡Casi listo!"
+                    : "Seguí tu evolución"}
             </h3>
             <p className="text-blue-100 text-sm font-medium">
               {unclaimedRoster.length > 0
-                ? "Si aparecÃ©s en esta lista, reclamÃ¡ tu perfil antes de continuar."
+                ? "Si aparecés en esta lista, reclamá tu perfil antes de continuar."
                 : userState === "anonymous"
-                  ? "EntrÃ¡ para ver tu historial completo y estadÃ­sticas avanzadas."
+                  ? "Entrá para ver tu historial completo y estadísticas avanzadas."
                   : userState === "unonboarded"
-                    ? "CompletÃ¡ tu registro para activar tu perfil en PASALA."
-                    : "RevisÃ¡ tus estadÃ­sticas competitivas en tu perfil."}
+                    ? "Completá tu registro para activar tu perfil en PASALA."
+                    : "Revisá tus estadísticas competitivas en tu perfil."}
             </p>
           </div>
 
@@ -254,3 +254,4 @@ export default async function PublicMatchPage({
     </div>
   );
 }
+

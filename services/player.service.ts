@@ -233,6 +233,10 @@ export class PlayerService {
     region_name?: string;
     country_code?: string;
     avatar_url?: string;
+    phone?: string;
+    email?: string;
+    category?: number;
+    birth_year?: number;
   }) {
     return this.repository.updatePlayerProfile(input);
   }
@@ -243,6 +247,22 @@ export class PlayerService {
 
   async getCompetitiveStats() {
     return this.repository.getCompetitiveStats();
+  }
+
+  async getGlobalRanking(playerId: string) {
+    return this.repository.getGlobalRanking(playerId);
+  }
+
+  async getTopRivals(playerId: string, limit = 5) {
+    return this.repository.getTopRivals(playerId, limit);
+  }
+
+  async getIndexHistory(playerId: string, limit = 30) {
+    return this.repository.getIndexHistory(playerId, limit);
+  }
+
+  async getPlayerBadges(playerId: string) {
+    return this.repository.getPlayerBadges(playerId);
   }
 
   async getPlayerByUserId(userId: string) {

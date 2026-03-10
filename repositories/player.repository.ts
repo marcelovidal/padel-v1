@@ -294,18 +294,26 @@ export class PlayerRepository {
     region_name?: string;
     country_code?: string;
     avatar_url?: string;
+    phone?: string;
+    email?: string;
+    category?: number;
+    birth_year?: number;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_update_profile", {
       p_player_id: input.player_id,
       p_display_name: input.display_name,
       p_position: input.position,
-      p_city: input.city,
-      p_city_id: input.city_id,
-      p_region_code: input.region_code,
-      p_region_name: input.region_name,
+      p_city: input.city ?? null,
+      p_city_id: input.city_id ?? null,
+      p_region_code: input.region_code ?? null,
+      p_region_name: input.region_name ?? null,
       p_country_code: input.country_code || 'AR',
-      p_avatar_url: input.avatar_url
+      p_avatar_url: input.avatar_url ?? null,
+      p_phone: input.phone ?? null,
+      p_email: input.email ?? null,
+      p_category: input.category ?? null,
+      p_birth_year: input.birth_year ?? null,
     });
 
     if (error) throw error;
@@ -340,6 +348,7 @@ export class PlayerRepository {
     city_id?: string;
     birth_year?: number;
     avatar_url?: string;
+    email?: string;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_complete_onboarding", {
@@ -355,7 +364,8 @@ export class PlayerRepository {
       p_city: input.city,
       p_city_id: input.city_id,
       p_birth_year: input.birth_year,
-      p_avatar_url: input.avatar_url
+      p_avatar_url: input.avatar_url,
+      p_email: input.email ?? null,
     });
 
     if (error) throw error;
@@ -392,5 +402,47 @@ export class PlayerRepository {
       region_name: string | null;
       city_match: boolean;
     }>;
+  }
+
+  async getGlobalRanking(playerId: string): Promise<{ rank: number | null; total: number | null }> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_global_ranking', { p_player_id: playerId });
+    if (error) throw error;
+    return data ?? { rank: null, total: null };
+  }
+
+  async getTopRivals(playerId: string, limit = 5) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_top_rivals', {
+      p_player_id: playerId,
+      p_limit: limit,
+    });
+    if (error) throw error;
+    return (data ?? []) as Array<{
+      rival_id: string;
+      display_name: string;
+      avatar_url: string | null;
+      matches_played: number;
+      player_wins: number;
+      rival_wins: number;
+      player_winrate: number;
+    }>;
+  }
+
+  async getIndexHistory(playerId: string, limit = 30) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_index_history', {
+      p_player_id: playerId,
+      p_limit: limit,
+    });
+    if (error) throw error;
+    return (data ?? []) as Array<{ date: string; value: number }>;
+  }
+
+  async getPlayerBadges(playerId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_badges', { p_player_id: playerId });
+    if (error) throw error;
+    return (data ?? []) as Array<{ badge_key: string; unlocked_at: string }>;
   }
 }
