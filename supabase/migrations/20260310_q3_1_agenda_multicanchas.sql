@@ -40,10 +40,11 @@ BEGIN
 
   -- Club ownership check
   PERFORM 1
-  FROM public.club_claims cc
-  WHERE cc.club_id  = p_club_id
-    AND cc.user_id  = v_user_id
-    AND cc.status   = 'confirmed';
+  FROM public.clubs c
+  WHERE c.id           = p_club_id
+    AND c.deleted_at   IS NULL
+    AND c.claim_status = 'claimed'
+    AND c.claimed_by   = v_user_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'NOT_ALLOWED';
