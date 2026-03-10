@@ -199,6 +199,7 @@ function SlotModal({
   rejectAction: (fd: FormData) => Promise<any>;
   cancelAction: (fd: FormData) => Promise<any>;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState(false);
@@ -208,7 +209,7 @@ function SlotModal({
   const isBookingConfirmed = slot.slot_type === "booking_confirmed";
   const isEvent = slot.slot_type === "league_match" || slot.slot_type === "tournament_match";
 
-  function runAction(action: (fd: FormData) => Promise<void>, extraFields?: Record<string, string>) {
+  function runAction(action: (fd: FormData) => Promise<any>, extraFields?: Record<string, string>) {
     startTransition(async () => {
       const fd = new FormData();
       fd.set("booking_id", slot.entity_id);
@@ -216,6 +217,7 @@ function SlotModal({
         Object.entries(extraFields).forEach(([k, v]) => fd.set(k, v));
       }
       await action(fd);
+      router.refresh();
       onClose();
     });
   }
