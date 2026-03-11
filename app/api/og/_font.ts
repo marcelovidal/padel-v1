@@ -17,14 +17,14 @@ export function getOgFont(): Buffer {
 }
 
 export function ogFontOptions() {
+  const data = getOgFont();
   return {
     fonts: [
-      {
-        name: "sans-serif",
-        data: getOgFont(),
-        style: "normal" as const,
-        weight: 400 as const,
-      },
+      { name: "sans-serif", data, style: "normal" as const, weight: 400 as const },
+      // Register same TTF for bold weights so Satori uses our font instead of
+      // system fallback. True bold glyphs require a separate Bold TTF file.
+      { name: "sans-serif", data, style: "normal" as const, weight: 700 as const },
+      { name: "sans-serif", data, style: "normal" as const, weight: 900 as const },
     ],
   };
 }

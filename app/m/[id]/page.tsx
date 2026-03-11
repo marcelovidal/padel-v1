@@ -1,4 +1,5 @@
-﻿import { MatchService } from "@/services/match.service";
+﻿import type { Metadata } from "next";
+import { MatchService } from "@/services/match.service";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -6,6 +7,32 @@ import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Calendar, MapPin, ArrowRight, UserPlus, Building2 } from "lucide-react";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pasala.com.ar";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const ogImage = `${SITE_URL}/api/og/match?id=${encodeURIComponent(params.id)}`;
+  const pageUrl = `${SITE_URL}/m/${params.id}`;
+  return {
+    title: "Resultado de partido | PASALA",
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: "Resultado de partido | PASALA",
+      description: "Mirá el resultado completo de este partido en PASALA.",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "Resultado de partido PASALA" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Resultado de partido | PASALA",
+      images: [ogImage],
+    },
+  };
+}
 
 function formatShortName(fullName: string) {
   const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
@@ -150,7 +177,9 @@ export default async function PublicMatchPage({
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-400" />
               <p className="text-xs font-medium text-gray-600">
-                {format(new Date(match.match_at), "d 'de' MMMM", { locale: es })}
+                {match.match_at
+                ? format(new Date(match.match_at), "d 'de' MMMM", { locale: es })
+                : "Fecha no disponible"}
               </p>
             </div>
             <div className="flex items-center gap-2 justify-end">

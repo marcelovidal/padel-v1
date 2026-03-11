@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -8,6 +9,31 @@ import { buildOgPlayerUrl, buildPlayerInviteMessage, buildPublicPlayerUrl, build
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 import { PlayerHeroCard } from "@/components/player/PlayerHeroCard";
+
+export async function generateMetadata({
+    params,
+}: {
+    params: { playerId: string };
+}): Promise<Metadata> {
+    const siteUrl = getSiteUrl();
+    const ogImage = buildOgPlayerUrl(params.playerId, siteUrl);
+    const pageUrl = buildPublicPlayerUrl(params.playerId, siteUrl);
+    return {
+        title: "Perfil de jugador | PASALA",
+        openGraph: {
+            type: "website",
+            url: pageUrl,
+            title: "Perfil de jugador | PASALA",
+            description: "Mirá el perfil, estadísticas e índice PASALA de este jugador.",
+            images: [{ url: ogImage, width: 1200, height: 630, alt: "Perfil de jugador PASALA" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: "Perfil de jugador | PASALA",
+            images: [ogImage],
+        },
+    };
+}
 
 function positionLabel(value?: string | null) {
     if (!value) return "Cualquiera";
