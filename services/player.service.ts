@@ -558,6 +558,10 @@ export class PlayerService {
     return this.repository.getProfileMetrics(playerId);
   }
 
+  async getPublicHeroStats(playerId: string) {
+    return this.repository.getPublicHeroStats(playerId);
+  }
+
   async getCompetitiveStats() {
     return this.repository.getCompetitiveStats();
   }

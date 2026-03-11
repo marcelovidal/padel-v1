@@ -39,6 +39,11 @@ function levelClass(level: DirectoryRow["level"]) {
   return "bg-slate-100 text-slate-700 border border-slate-200";
 }
 
+function levelLabel(level: DirectoryRow["level"]) {
+  if (level === "ROOKIE") return "INICIAL";
+  return level;
+}
+
 function activityMeta(activity: DirectoryRow["activity_level"]) {
   if (activity === "muy_activo") {
     return { label: "Muy activo", className: "bg-rose-50 text-rose-700 border border-rose-200" };
@@ -239,7 +244,7 @@ export default async function PlayersPage({
                       </div>
                     </td>
                     <td className="px-3 py-2">
-                      <Badge className={levelClass(p.level)}>{p.level}</Badge>
+                      <Badge className={levelClass(p.level)}>{levelLabel(p.level)}</Badge>
                     </td>
                     <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.win_rate.toFixed(1)}%</td>
                     <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.played}</td>

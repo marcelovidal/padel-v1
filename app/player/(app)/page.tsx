@@ -19,6 +19,7 @@ import { redirect } from "next/navigation";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { RegistrationsService } from "@/services/registrations.service";
 import { PlayerEventsWidget } from "@/components/player/PlayerEventsWidget";
+import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
 
 export const dynamic = "force-dynamic";
 
@@ -132,6 +133,7 @@ export default async function PlayerDashboard() {
         playerName={player?.first_name || "Jugador"}
         avatarSrc={avatarData.src ?? null}
         avatarInitials={avatarData.initials ?? "?"}
+        locationLabel={formatCityWithProvinceAbbr(player?.city, player?.region_code, player?.region_name)}
         category={player?.category ? Number(player.category) : null}
         metrics={{
           pasala_index:    metrics.pasala_index,

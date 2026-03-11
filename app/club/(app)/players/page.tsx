@@ -8,6 +8,7 @@ import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildPlayerInviteMessage } from "@/lib/share/shareMessage";
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
+import { ClubPlayerProfileModal } from "@/components/players/ClubPlayerProfileModal";
 import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ type ClubDirectoryRow = {
   region_code: string | null;
   region_name: string | null;
   category: number | null;
+  position: "drive" | "reves" | "cualquiera" | null;
   user_id: string | null;
   pasala_index: number | null;
   level: "ROOKIE" | "AMATEUR" | "COMPETITIVO" | "PRO" | "ELITE";
@@ -48,6 +50,11 @@ function levelClass(level: ClubDirectoryRow["level"]) {
   if (level === "COMPETITIVO") return "bg-blue-50 text-blue-700 border border-blue-200";
   if (level === "AMATEUR") return "bg-emerald-50 text-emerald-700 border border-emerald-200";
   return "bg-slate-100 text-slate-700 border border-slate-200";
+}
+
+function levelLabel(level: ClubDirectoryRow["level"]) {
+  if (level === "ROOKIE") return "INICIAL";
+  return level;
 }
 
 function activityMeta(activity: ClubDirectoryRow["activity_level"]) {
@@ -289,6 +296,7 @@ export default async function ClubPlayersPage({
                 list.map((player) => {
                   const activity = activityMeta(player.activity_level);
                   const pasala = pasalaProgress(player.pasala_index);
+                  const locationLabel = formatCityWithProvinceAbbr(player.city, player.region_code, player.region_name);
 
                   return (
                     <tr key={player.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/70">
@@ -306,7 +314,7 @@ export default async function ClubPlayersPage({
                       </td>
                       <td className="px-2.5 py-2 text-sm text-gray-700">
                         <span className="block truncate">
-                          {formatCityWithProvinceAbbr(player.city, player.region_code, player.region_name)}
+                          {locationLabel}
                         </span>
                       </td>
                       <td className="px-2.5 py-2">
@@ -326,7 +334,7 @@ export default async function ClubPlayersPage({
                         </div>
                       </td>
                       <td className="px-2.5 py-2">
-                        <Badge className={levelClass(player.level)}>{player.level}</Badge>
+                        <Badge className={levelClass(player.level)}>{levelLabel(player.level)}</Badge>
                       </td>
                       <td className="px-2.5 py-2 text-sm font-semibold text-gray-800">
                         {Number(player.win_rate || 0).toFixed(1)}%
@@ -356,12 +364,21 @@ export default async function ClubPlayersPage({
                       </td>
                       <td className="px-2.5 py-2 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Link
-                            href={`/p/${player.id}`}
-                            className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-bold text-gray-700 hover:border-gray-300"
-                          >
-                            Ver perfil
-                          </Link>
+                          <ClubPlayerProfileModal
+                            playerId={player.id}
+                            displayName={player.display_name}
+                            avatarSrc={player.avatarData?.src || null}
+                            avatarInitials={player.avatarData?.initials || player.display_name?.slice(0, 2)}
+                            locationLabel={locationLabel}
+                            category={player.category}
+                            position={player.position}
+                            pasalaIndex={player.pasala_index}
+                            level={player.level}
+                            winRate={player.win_rate}
+                            played={player.played}
+                            currentStreak={player.current_streak}
+                            activityLevel={player.activity_level}
+                          />
                           {player.user_id === null && (
                             <InviteWhatsAppButton
                               message={player.inviteMessage || ""}

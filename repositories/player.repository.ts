@@ -574,6 +574,53 @@ export class PlayerRepository {
     return data;
   }
 
+  async getPublicHeroStats(playerId: string) {
+    const supabase = await this.getServiceClient();
+
+    const defaultMetrics = {
+      pasala_index: null,
+      win_rate_score: 0,
+      rival_level_score: 50,
+      perf_score: 50,
+      recent_score: 0,
+      volume_score: 0,
+      played: 0,
+      wins: 0,
+      win_rate: 0,
+      current_streak: "-",
+    };
+
+    let metrics: any = defaultMetrics;
+    let globalRank: { rank: number | null; total: number | null } = { rank: null, total: null };
+
+    try {
+      const { data } = await (supabase as any).rpc("player_get_profile_metrics", { p_player_id: playerId });
+      if (data && typeof data === "object") {
+        metrics = {
+          ...defaultMetrics,
+          ...data,
+          current_streak: String((data as any).current_streak || "-"),
+        };
+      }
+    } catch {
+      // Keep safe defaults for public profile if RPC is unavailable
+    }
+
+    try {
+      const { data } = await (supabase as any).rpc("get_player_global_ranking", { p_player_id: playerId });
+      if (data && typeof data === "object") {
+        globalRank = {
+          rank: (data as any).rank ?? null,
+          total: (data as any).total ?? null,
+        };
+      }
+    } catch {
+      // Keep null ranking when RPC is unavailable
+    }
+
+    return { metrics, globalRank };
+  }
+
   async getCompetitiveStats() {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc('player_get_competitive_stats');

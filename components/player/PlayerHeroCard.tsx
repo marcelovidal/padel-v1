@@ -3,13 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import Link from "next/link";
-import { PlusCircle, Star, Trophy, Target, Activity, Zap } from "lucide-react";
+import { PlusCircle, Star, Trophy, Target, Activity, Zap, MapPin } from "lucide-react";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 
 interface PlayerHeroCardProps {
   playerName: string;
   avatarSrc: string | null;
   avatarInitials: string;
+  locationLabel?: string | null;
+  panelLabel?: string;
+  title?: string;
   category?: number | string | null;
   metrics: {
     pasala_index: number | null;
@@ -30,6 +33,7 @@ interface PlayerHeroCardProps {
     whatsappText: string;
     downloadName?: string;
   };
+  actions?: React.ReactNode;
 }
 
 const RADIUS = 54;
@@ -86,10 +90,14 @@ export function PlayerHeroCard({
   playerName,
   avatarSrc,
   avatarInitials,
+  locationLabel,
+  panelLabel = "Tu panel de juego",
+  title,
   category,
   metrics,
   globalRank,
   shareProps,
+  actions,
 }: PlayerHeroCardProps) {
   const animatedIndex = useCountUp(metrics.pasala_index);
   const displayIndex = animatedIndex ?? 0;
@@ -128,11 +136,17 @@ export function PlayerHeroCard({
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-400/80">
-              Tu panel de juego
+              {panelLabel}
             </p>
             <h1 className="text-3xl font-black tracking-tight">
-              Hola, {playerName}
+              {title || `Hola, ${playerName}`}
             </h1>
+            {locationLabel ? (
+              <div className="flex items-center gap-1.5 text-blue-200/80">
+                <MapPin className="h-3.5 w-3.5 text-blue-300/70" />
+                <span className="text-xs font-semibold">{locationLabel}</span>
+              </div>
+            ) : null}
             <div className="flex items-center gap-2">
               <span className={`text-xs font-bold uppercase tracking-widest ${level.color}`}>
                 {level.label}
@@ -232,30 +246,34 @@ export function PlayerHeroCard({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
-            <Link href="/player/matches/new" className="flex-1 min-w-0">
-              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
-                <PlusCircle className="h-3.5 w-3.5 shrink-0" />
-                Cargar partido
-              </button>
-            </Link>
-            <Link href="/player/profile" className="shrink-0">
-              <button className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
-                Perfil
-              </button>
-            </Link>
-            {shareProps && (
-              <ShareCardButton
-                type="player"
-                shareUrl={shareProps.shareUrl}
-                ogImageUrl={shareProps.ogImageUrl}
-                whatsappText={shareProps.whatsappText}
-                downloadName={shareProps.downloadName}
-                label="Compartir"
-                className="shrink-0 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
-              />
-            )}
-          </div>
+          {actions ? (
+            <div className="flex gap-2">{actions}</div>
+          ) : (
+            <div className="flex gap-2">
+              <Link href="/player/matches/new" className="flex-1 min-w-0">
+                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
+                  <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+                  Cargar partido
+                </button>
+              </Link>
+              <Link href="/player/profile" className="shrink-0">
+                <button className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
+                  Perfil
+                </button>
+              </Link>
+              {shareProps && (
+                <ShareCardButton
+                  type="player"
+                  shareUrl={shareProps.shareUrl}
+                  ogImageUrl={shareProps.ogImageUrl}
+                  whatsappText={shareProps.whatsappText}
+                  downloadName={shareProps.downloadName}
+                  label="Compartir"
+                  className="shrink-0 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
