@@ -1,7 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 
-export const runtime = "edge";
 
 const BADGE_CATALOGUE: Record<string, { icon: string; title: string; description: string }> = {
   primer_partido:   { icon: "🎾", title: "Primer Partido",    description: "¡Cargaste tu primer partido en PASALA!" },

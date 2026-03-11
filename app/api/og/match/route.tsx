@@ -2,7 +2,6 @@ import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "edge";
 
 function supabaseAdmin() {
   return createClient(
