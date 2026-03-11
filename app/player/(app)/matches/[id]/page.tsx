@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/Badge";
 import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
-import { ShareButtons } from "@/components/matches/ShareButtons";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
@@ -267,24 +266,17 @@ export default async function MatchDetailPage({
                             <h4 className="text-xs font-black uppercase tracking-widest text-green-600 mb-1">¡Buen partido!</h4>
                             <p className="text-sm text-gray-600 font-medium">Compartí el resultado con el resto del grupo.</p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3">
-                            <ShareButtons
-                                matchId={match.id}
-                                message={shareMessage}
-                                shareUrl={shareUrl || ""}
-                                variant="subtle"
+                        {ogMatchImageUrl && matchCardWhatsAppText && (
+                            <ShareCardButton
+                                type="match"
+                                shareUrl={shareUrl ?? ""}
+                                whatsappText={matchCardWhatsAppText}
+                                ogImageUrl={ogMatchImageUrl}
+                                label="Compartir resultado"
+                                downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
+                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-md shadow-green-100 transition-all active:scale-[0.97]"
                             />
-                            {ogMatchImageUrl && matchCardWhatsAppText && (
-                                <ShareCardButton
-                                    type="match"
-                                    shareUrl={shareUrl ?? ""}
-                                    whatsappText={matchCardWhatsAppText}
-                                    ogImageUrl={ogMatchImageUrl}
-                                    label="Ver card"
-                                    downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
-                                />
-                            )}
-                        </div>
+                        )}
                     </div>
                 )}
             </div>

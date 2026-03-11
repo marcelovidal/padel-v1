@@ -61,7 +61,80 @@ export async function GET(req: NextRequest) {
   const indexA = teamA[0]?.players?.pasala_index ?? null;
   const indexB = teamB[0]?.players?.pasala_index ?? null;
 
-  const setsStr = sets.map((s) => `${s.a}-${s.b}`).join("  ");
+  // Exact color tokens from MatchScore.tsx (Tailwind palette)
+  const BLUE_600 = "#2563eb";
+  const BLUE_700 = "#1d4ed8";
+  const RED_600  = "#dc2626";
+  const GRAY_400 = "#9ca3af";
+  const GRAY_500 = "#6b7280";
+  const GRAY_900 = "#111827";
+  const BLUE_50  = "#eff6ff";
+
+  // Column widths (px) — must match between header and rows
+  const COL_TEAM   = 540;
+  const COL_SET    = 90;
+  const COL_WINNER = 160;
+
+  const TeamRow = ({
+    label, labelColor, names, index, isWinner, teamKey,
+  }: {
+    label: string; labelColor: string; names: string; index: number | null;
+    isWinner: boolean; teamKey: "A" | "B";
+  }) => (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      background: isWinner ? BLUE_50 : "#ffffff",
+      padding: "20px 24px",
+      borderBottom: "1px solid #f3f4f6",
+    }}>
+      <div style={{ display: "flex", flexDirection: "column", width: `${COL_TEAM}px` }}>
+        <span style={{ color: labelColor, fontSize: "10px", fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>
+          {label}
+        </span>
+        <span style={{ color: GRAY_900, fontSize: "24px", fontWeight: 900, lineHeight: 1.1, marginBottom: "3px" }}>{names}</span>
+        {index !== null && (
+          <span style={{ color: GRAY_500, fontSize: "11px" }}>
+            PASALA {Math.round(index)} · {levelLabel(index)}
+          </span>
+        )}
+      </div>
+      {/* Set scores */}
+      {sets.slice(0, 3).map((s, i) => (
+        <span key={i} style={{
+          color: isWinner ? BLUE_700 : GRAY_500,
+          fontSize: "34px",
+          fontWeight: 900,
+          width: `${COL_SET}px`,
+          display: "flex",
+          justifyContent: "center",
+        }}>
+          {teamKey === "A" ? (s.a ?? "-") : (s.b ?? "-")}
+        </span>
+      ))}
+      {sets.length < 3 && Array.from({ length: 3 - sets.length }).map((_, i) => (
+        <span key={`pad-${i}`} style={{ width: `${COL_SET}px`, display: "flex" }} />
+      ))}
+      {/* Winner badge */}
+      <div style={{ width: `${COL_WINNER}px`, display: "flex", justifyContent: "flex-end" }}>
+        {isWinner && (
+          <span style={{
+            background: BLUE_600,
+            color: "white",
+            fontSize: "10px",
+            fontWeight: 900,
+            letterSpacing: "0.12em",
+            padding: "6px 14px",
+            borderRadius: "6px",
+            textTransform: "uppercase",
+            display: "flex",
+          }}>
+            GANADOR
+          </span>
+        )}
+      </div>
+    </div>
+  );
 
   return new ImageResponse(
     (
@@ -73,7 +146,7 @@ export async function GET(req: NextRequest) {
           height: "630px",
           background: "linear-gradient(135deg, #05111f 0%, #07172d 55%, #07162a 100%)",
           fontFamily: "sans-serif",
-          padding: "56px 64px",
+          padding: "52px 64px",
           position: "relative",
         }}
       >
@@ -87,7 +160,7 @@ export async function GET(req: NextRequest) {
         }} />
 
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
               display: "flex",
@@ -96,7 +169,7 @@ export async function GET(req: NextRequest) {
               borderRadius: "12px",
               padding: "6px 14px",
             }}>
-              <span style={{ color: "#60a5fa", fontSize: "22px", fontWeight: 900, letterSpacing: "0.15em" }}>PASALA</span>
+              <span style={{ color: "#60a5fa", fontSize: "20px", fontWeight: 900, letterSpacing: "0.15em" }}>PASALA</span>
             </div>
             <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>
               Resultado de Partido
@@ -107,121 +180,36 @@ export async function GET(req: NextRequest) {
           </span>
         </div>
 
-        {/* Score */}
-        {sets.length > 0 && (
+        {/* White results card */}
+        <div style={{ display: "flex", flexDirection: "column", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 32px rgba(0,0,0,0.35)" }}>
+          {/* Table header */}
           <div style={{
             display: "flex",
-            justifyContent: "center",
-            gap: "16px",
-            marginBottom: "32px",
+            alignItems: "center",
+            background: "#f9fafb",
+            padding: "10px 24px",
+            borderBottom: "1px solid #e5e7eb",
           }}>
-            {sets.map((s, i) => (
-              <div key={i} style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "16px",
-                padding: "12px 20px",
-              }}>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", marginBottom: "8px" }}>
-                  SET {i + 1}
-                </span>
-                <span style={{ color: winner === "A" ? "#60a5fa" : "#ffffff", fontSize: "36px", fontWeight: 900 }}>{s.a}</span>
-                <div style={{ width: "24px", height: "1px", background: "rgba(255,255,255,0.15)", margin: "4px 0", display: "flex" }} />
-                <span style={{ color: winner === "B" ? "#60a5fa" : "#ffffff", fontSize: "36px", fontWeight: 900 }}>{s.b}</span>
-              </div>
+            <span style={{ color: GRAY_400, fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", width: `${COL_TEAM}px`, display: "flex" }}>Equipos</span>
+            {sets.slice(0, 3).map((_, i) => (
+              <span key={i} style={{ color: GRAY_400, fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", width: `${COL_SET}px`, display: "flex", justifyContent: "center" }}>
+                Set {i + 1}
+              </span>
             ))}
-          </div>
-        )}
-
-        {/* Teams */}
-        <div style={{ display: "flex", gap: "16px", flex: 1 }}>
-          {/* Team A */}
-          <div style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            background: winner === "A" ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.04)",
-            border: winner === "A" ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "24px",
-            padding: "24px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <span style={{ color: "#60a5fa", fontSize: "10px", fontWeight: 900, letterSpacing: "0.2em", textTransform: "uppercase" }}>
-                Equipo A
-              </span>
-              {winner === "A" && (
-                <span style={{
-                  background: "#2563eb",
-                  color: "white",
-                  fontSize: "10px",
-                  fontWeight: 900,
-                  letterSpacing: "0.15em",
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                  textTransform: "uppercase",
-                }}>
-                  GANADOR
-                </span>
-              )}
-            </div>
-            <span style={{ color: "#ffffff", fontSize: "22px", fontWeight: 900, lineHeight: 1.2, marginBottom: "8px" }}>{namesA}</span>
-            {indexA !== null && (
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
-                PASALA {Math.round(indexA)} · {levelLabel(indexA)}
-              </span>
-            )}
+            {sets.length < 3 && Array.from({ length: 3 - sets.length }).map((_, i) => (
+              <span key={`ph-${i}`} style={{ width: `${COL_SET}px`, display: "flex" }} />
+            ))}
+            <span style={{ color: GRAY_400, fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", width: `${COL_WINNER}px`, display: "flex", justifyContent: "flex-end" }}>Ganador</span>
           </div>
 
-          {/* vs */}
-          <div style={{ display: "flex", alignItems: "center", padding: "0 8px" }}>
-            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "18px", fontWeight: 900 }}>VS</span>
-          </div>
-
-          {/* Team B */}
-          <div style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            background: winner === "B" ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.04)",
-            border: winner === "B" ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "24px",
-            padding: "24px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <span style={{ color: "#f87171", fontSize: "10px", fontWeight: 900, letterSpacing: "0.2em", textTransform: "uppercase" }}>
-                Equipo B
-              </span>
-              {winner === "B" && (
-                <span style={{
-                  background: "#2563eb",
-                  color: "white",
-                  fontSize: "10px",
-                  fontWeight: 900,
-                  letterSpacing: "0.15em",
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                  textTransform: "uppercase",
-                }}>
-                  GANADOR
-                </span>
-              )}
-            </div>
-            <span style={{ color: "#ffffff", fontSize: "22px", fontWeight: 900, lineHeight: 1.2, marginBottom: "8px" }}>{namesB}</span>
-            {indexB !== null && (
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
-                PASALA {Math.round(indexB)} · {levelLabel(indexB)}
-              </span>
-            )}
-          </div>
+          <TeamRow label="Equipo A" labelColor={BLUE_600} names={namesA} index={indexA} isWinner={winner === "A"} teamKey="A" />
+          <TeamRow label="Equipo B" labelColor={RED_600}  names={namesB} index={indexB} isWinner={winner === "B"} teamKey="B" />
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "auto" }}>
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-            pasla.com.ar
+            pasala.com.ar
           </span>
         </div>
       </div>
