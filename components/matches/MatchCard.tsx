@@ -5,7 +5,9 @@ import Link from "next/link";
 import { MatchCardModel } from "./matchCard.model";
 import PlayerMatchAssessmentPanel from "../player/PlayerMatchAssessmentPanel";
 import { MatchScore } from "./MatchScore";
-import { ShareButtons } from "./ShareButtons";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pasala.com.ar";
 
 
 interface MatchCardProps {
@@ -234,14 +236,18 @@ export default function MatchCard({
           </div>
         </div>
 
-        {/* Subtle Share CTA */}
-        {shareMessage && shareUrl && (
+        {/* Share card CTA — only when match has results */}
+        {shareMessage && shareUrl && isCompleted && model.hasResults && (
           <div className="mt-4 pt-3 border-t border-gray-50 flex justify-end">
-            <ShareButtons
+            <ShareCardButton
+              type="match"
               matchId={model.id}
-              message={shareMessage}
               shareUrl={shareUrl}
-              variant="subtle"
+              whatsappText={shareMessage}
+              ogImageUrl={`${SITE_URL}/api/og/match?id=${encodeURIComponent(model.id)}`}
+              downloadName={`pasala-partido-${model.id.slice(0, 8)}`}
+              label="Compartir card"
+              iconOnly={false}
             />
           </div>
         )}
