@@ -1,6 +1,7 @@
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { ogFontOptions } from "../_font";
 
 
 function supabaseAdmin() {
@@ -219,6 +220,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630, ...ogFontOptions() }
   );
 }

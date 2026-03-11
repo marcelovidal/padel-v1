@@ -1,5 +1,6 @@
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
+import { ogFontOptions } from "../_font";
 
 
 const BADGE_CATALOGUE: Record<string, { icon: string; title: string; description: string }> = {
@@ -125,6 +126,6 @@ export async function GET(req: NextRequest) {
         </span>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630, ...ogFontOptions() }
   );
 }
