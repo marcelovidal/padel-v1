@@ -309,4 +309,16 @@ export class PlayerService {
     if (error) return null;
     return data.signedUrl;
   }
+
+  async getPlayersDirectory(params: {
+    viewerCityId?: string | null;
+    query?: string;
+    category?: number | string | null;
+    activity?: string;
+    orderBy?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    return this.repository.getPlayersDirectory(params);
+  }
 }

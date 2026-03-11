@@ -253,6 +253,33 @@ export class PlayerRepository {
     });
   }
 
+  async getPlayersDirectory(params: {
+    viewerCityId?: string | null;
+    query?: string;
+    category?: number | string | null;
+    activity?: string;
+    orderBy?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ total: number; players: any[] }> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("get_players_directory", {
+      p_viewer_city_id: params.viewerCityId ?? null,
+      p_query:          params.query          ?? null,
+      p_category:       params.category != null ? String(params.category) : null,
+      p_activity:       params.activity        || null,
+      p_order_by:       params.orderBy         ?? "relevance",
+      p_limit:          params.limit           ?? 24,
+      p_offset:         params.offset          ?? 0,
+    });
+
+    if (error) throw error;
+    return {
+      total:   data?.total   ?? 0,
+      players: data?.players ?? [],
+    };
+  }
+
   async getPublicPlayerData(playerId: string): Promise<any | null> {
     const supabase = await this.getServiceClient();
     const { data, error } = await supabase
