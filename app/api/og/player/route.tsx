@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   const sb = supabaseAdmin();
   const { data: player } = await sb
     .from("players")
-    .select("id, display_name, first_name, last_name, category, pasala_index, city, region_code")
+    .select("id, display_name, first_name, last_name, category, pasala_index, city, region_code, region_name")
     .eq("id", playerId)
     .maybeSingle();
 
@@ -149,9 +149,9 @@ export async function GET(req: NextRequest) {
             <span style={{ color: "#ffffff", fontSize: "52px", fontWeight: 900, lineHeight: 1, letterSpacing: "-0.02em" }}>
               {player.display_name || `${player.first_name} ${player.last_name}`}
             </span>
-            {(player.city || player.region_code) && (
+            {(player.city || player.region_name || player.region_code) && (
               <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "16px", marginTop: "8px" }}>
-                {[player.city, player.region_code].filter(Boolean).join(", ")}
+                {[player.city, player.region_name || player.region_code].filter(Boolean).join(", ")}
               </span>
             )}
           </div>
@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
           {/* Footer */}
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "auto", paddingTop: "24px" }}>
             <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-              pasla.com.ar
+              pasala.com.ar
             </span>
           </div>
         </div>

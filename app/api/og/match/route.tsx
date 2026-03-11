@@ -49,11 +49,14 @@ export async function GET(req: NextRequest) {
   // normalizeSets handles both {a,b} and {team_a_games,team_b_games} formats
   const sets = normalizeSets((result as any)?.sets);
   const winner = (result as any)?.winner_team as "A" | "B" | null ?? null;
-  const matchDate = new Date(match.match_at as string).toLocaleDateString("es-AR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const matchDateRaw = match.match_at || (match as any).created_at;
+  const matchDate = matchDateRaw
+    ? new Date(matchDateRaw as string).toLocaleDateString("es-AR", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
 
   const name = (p: any) => `${p?.players?.first_name ?? ""} ${(p?.players?.last_name ?? "").charAt(0)}.`.trim();
   const namesA = teamA.map(name).join(" / ") || "—";
