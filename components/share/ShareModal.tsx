@@ -37,6 +37,18 @@ export function ShareModal({
 
   if (!open) return null;
 
+  // Use a relative path for the img preview and download fetch so it always
+  // hits the current server (avoids cross-origin issues when NEXT_PUBLIC_SITE_URL
+  // points to production while running locally).
+  const ogImageRelative = (() => {
+    try {
+      const u = new URL(ogImageUrl);
+      return u.pathname + u.search;
+    } catch {
+      return ogImageUrl; // already relative
+    }
+  })();
+
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
 
   function trackShare(channel: "whatsapp" | "copylink" | "webshare") {
@@ -58,7 +70,7 @@ export function ShareModal({
   async function handleDownload() {
     setDownloading(true);
     try {
-      const res = await fetch(ogImageUrl);
+      const res = await fetch(ogImageRelative);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -113,7 +125,7 @@ export function ShareModal({
         <div className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-900">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={ogImageUrl}
+            src={ogImageRelative}
             alt="Card preview"
             className="w-full object-cover"
             style={{ aspectRatio: "1200/630" }}
