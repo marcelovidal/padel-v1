@@ -253,31 +253,259 @@ export class PlayerRepository {
     });
   }
 
-  async getPlayersDirectory(params: {
-    viewerCityId?: string | null;
-    query?: string;
-    category?: number | string | null;
-    activity?: string;
-    orderBy?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<{ total: number; players: any[] }> {
+  async getPlayersActivitySnapshot(playerIds: string[]) {
+    if (playerIds.length === 0) return {} as Record<string, {
+      played: number;
+      matches_last_30d: number;
+      last_match_at: string | null;
+      avg_matches_per_week_30d: number;
+    }>;
+
     const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc("get_players_directory", {
-      p_viewer_city_id: params.viewerCityId ?? null,
-      p_query:          params.query          ?? null,
-      p_category:       params.category != null ? String(params.category) : null,
-      p_activity:       params.activity        || null,
-      p_order_by:       params.orderBy         ?? "relevance",
-      p_limit:          params.limit           ?? 24,
-      p_offset:         params.offset          ?? 0,
-    });
+    const { data, error } = await (supabase as any)
+      .from("matches")
+      .select("id, match_at, status, match_results(match_id), match_players!inner(player_id)")
+      .in("match_players.player_id", playerIds)
+      .eq("status", "completed")
+      .order("match_at", { ascending: false });
 
     if (error) throw error;
-    return {
-      total:   data?.total   ?? 0,
-      players: data?.players ?? [],
-    };
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+
+    const byPlayer = new Map<string, {
+      played: number;
+      matches_last_30d: number;
+      last_match_at: string | null;
+      avg_matches_per_week_30d: number;
+    }>();
+
+    for (const pid of playerIds) {
+      byPlayer.set(pid, {
+        played: 0,
+        matches_last_30d: 0,
+        last_match_at: null,
+        avg_matches_per_week_30d: 0,
+      });
+    }
+
+    for (const row of (data || []) as any[]) {
+      const hasResult = Array.isArray(row.match_results)
+        ? row.match_results.length > 0
+        : !!row.match_results;
+
+      if (!hasResult) continue;
+
+      const matchAt = row.match_at ? new Date(row.match_at) : null;
+      const playersInMatch = Array.isArray(row.match_players) ? row.match_players : [];
+
+      for (const mp of playersInMatch) {
+        const pid = mp?.player_id as string | undefined;
+        if (!pid || !byPlayer.has(pid)) continue;
+
+        const current = byPlayer.get(pid)!;
+        current.played += 1;
+
+        if (matchAt && (current.last_match_at === null || new Date(current.last_match_at) < matchAt)) {
+          current.last_match_at = row.match_at;
+        }
+
+        if (matchAt && matchAt >= cutoff) {
+          current.matches_last_30d += 1;
+        }
+      }
+    }
+
+    for (const entry of byPlayer.values()) {
+      entry.avg_matches_per_week_30d = Number((entry.matches_last_30d / 4).toFixed(2));
+    }
+
+    return Object.fromEntries(byPlayer.entries());
+  }
+
+  async getClubPlayerSignals(clubId: string, playerIds: string[]) {
+    const empty: Record<
+      string,
+      {
+        club_matches_played: number;
+        club_matches_last_30d: number;
+        last_club_match_at: string | null;
+        club_avg_matches_per_week_30d: number;
+        club_bookings_count: number;
+        has_active_club_registration: boolean;
+        is_club_player: boolean;
+      }
+    > = {};
+
+    if (!clubId || playerIds.length === 0) return empty;
+
+    const supabase = await this.getClient();
+    const byPlayer = new Map<
+      string,
+      {
+        club_matches_played: number;
+        club_matches_last_30d: number;
+        last_club_match_at: string | null;
+        club_avg_matches_per_week_30d: number;
+        club_bookings_count: number;
+        has_active_club_registration: boolean;
+        is_club_player: boolean;
+      }
+    >();
+
+    for (const playerId of playerIds) {
+      byPlayer.set(playerId, {
+        club_matches_played: 0,
+        club_matches_last_30d: 0,
+        last_club_match_at: null,
+        club_avg_matches_per_week_30d: 0,
+        club_bookings_count: 0,
+        has_active_club_registration: false,
+        is_club_player: false,
+      });
+    }
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+
+    const { data: clubMatchRows, error: clubMatchError } = await (supabase as any)
+      .from("matches")
+      .select("id,match_at,status,match_results(match_id),match_players!inner(player_id)")
+      .eq("club_id", clubId)
+      .eq("status", "completed")
+      .in("match_players.player_id", playerIds)
+      .order("match_at", { ascending: false });
+
+    if (clubMatchError) throw clubMatchError;
+
+    for (const row of (clubMatchRows || []) as any[]) {
+      const hasResult = Array.isArray(row.match_results)
+        ? row.match_results.length > 0
+        : !!row.match_results;
+      if (!hasResult) continue;
+
+      const matchAt = row.match_at ? new Date(row.match_at) : null;
+      const playersInMatch = Array.isArray(row.match_players) ? row.match_players : [];
+
+      for (const mp of playersInMatch) {
+        const playerId = mp?.player_id as string | undefined;
+        if (!playerId) continue;
+        const current = byPlayer.get(playerId);
+        if (!current) continue;
+
+        current.club_matches_played += 1;
+        if (matchAt && (current.last_club_match_at === null || new Date(current.last_club_match_at) < matchAt)) {
+          current.last_club_match_at = row.match_at;
+        }
+        if (matchAt && matchAt >= cutoff) {
+          current.club_matches_last_30d += 1;
+        }
+      }
+    }
+
+    const { data: clubBookingRows, error: clubBookingError } = await (supabase as any)
+      .from("court_bookings")
+      .select("requested_by_player_id,status")
+      .eq("club_id", clubId)
+      .in("requested_by_player_id", playerIds);
+
+    if (clubBookingError) throw clubBookingError;
+
+    for (const row of (clubBookingRows || []) as any[]) {
+      const playerId = row?.requested_by_player_id as string | null;
+      if (!playerId) continue;
+      if (row?.status === "rejected") continue;
+
+      const current = byPlayer.get(playerId);
+      if (!current) continue;
+      current.club_bookings_count += 1;
+    }
+
+    const registeredPlayers = new Set<string>();
+
+    const { data: activeTournamentRows, error: activeTournamentError } = await (supabase as any)
+      .from("club_tournaments")
+      .select("id")
+      .eq("club_id", clubId)
+      .eq("status", "active");
+
+    if (activeTournamentError) throw activeTournamentError;
+
+    const activeTournamentIds = (activeTournamentRows || []).map((r: any) => r.id);
+    if (activeTournamentIds.length > 0) {
+      let tournamentRegs: any[] = [];
+
+      const { data: tournamentRegsWithTeammate, error: tournamentRegsWithTeammateError } = await (supabase as any)
+        .from("tournament_registrations")
+        .select("player_id,teammate_player_id,status")
+        .in("tournament_id", activeTournamentIds)
+        .in("status", ["pending", "confirmed"]);
+
+      if (tournamentRegsWithTeammateError) {
+        const { data: tournamentRegsFallback, error: tournamentRegsFallbackError } = await (supabase as any)
+          .from("tournament_registrations")
+          .select("player_id,status")
+          .in("tournament_id", activeTournamentIds)
+          .in("status", ["pending", "confirmed"]);
+        if (tournamentRegsFallbackError) throw tournamentRegsFallbackError;
+        tournamentRegs = tournamentRegsFallback || [];
+      } else {
+        tournamentRegs = tournamentRegsWithTeammate || [];
+      }
+
+      for (const row of tournamentRegs) {
+        if (row?.player_id) registeredPlayers.add(row.player_id);
+        if (row?.teammate_player_id) registeredPlayers.add(row.teammate_player_id);
+      }
+    }
+
+    const { data: activeLeagueRows, error: activeLeagueError } = await (supabase as any)
+      .from("club_leagues")
+      .select("id")
+      .eq("club_id", clubId)
+      .eq("status", "active");
+
+    if (activeLeagueError) throw activeLeagueError;
+
+    const activeLeagueIds = (activeLeagueRows || []).map((r: any) => r.id);
+    if (activeLeagueIds.length > 0) {
+      let leagueRegs: any[] = [];
+
+      const { data: leagueRegsWithTeammate, error: leagueRegsWithTeammateError } = await (supabase as any)
+        .from("league_registrations")
+        .select("player_id,teammate_player_id,status")
+        .in("league_id", activeLeagueIds)
+        .in("status", ["pending", "confirmed"]);
+
+      if (leagueRegsWithTeammateError) {
+        const { data: leagueRegsFallback, error: leagueRegsFallbackError } = await (supabase as any)
+          .from("league_registrations")
+          .select("player_id,status")
+          .in("league_id", activeLeagueIds)
+          .in("status", ["pending", "confirmed"]);
+        if (leagueRegsFallbackError) throw leagueRegsFallbackError;
+        leagueRegs = leagueRegsFallback || [];
+      } else {
+        leagueRegs = leagueRegsWithTeammate || [];
+      }
+
+      for (const row of leagueRegs) {
+        if (row?.player_id) registeredPlayers.add(row.player_id);
+        if (row?.teammate_player_id) registeredPlayers.add(row.teammate_player_id);
+      }
+    }
+
+    for (const [playerId, current] of byPlayer.entries()) {
+      current.club_avg_matches_per_week_30d = Number((current.club_matches_last_30d / 4).toFixed(2));
+      current.has_active_club_registration = registeredPlayers.has(playerId);
+      current.is_club_player =
+        current.club_matches_played > 0 ||
+        current.club_bookings_count > 0 ||
+        current.has_active_club_registration;
+    }
+
+    return Object.fromEntries(byPlayer.entries());
   }
 
   async getPublicPlayerData(playerId: string): Promise<any | null> {
@@ -321,26 +549,18 @@ export class PlayerRepository {
     region_name?: string;
     country_code?: string;
     avatar_url?: string;
-    phone?: string;
-    email?: string;
-    category?: number;
-    birth_year?: number;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_update_profile", {
       p_player_id: input.player_id,
       p_display_name: input.display_name,
       p_position: input.position,
-      p_city: input.city ?? null,
-      p_city_id: input.city_id ?? null,
-      p_region_code: input.region_code ?? null,
-      p_region_name: input.region_name ?? null,
+      p_city: input.city,
+      p_city_id: input.city_id,
+      p_region_code: input.region_code,
+      p_region_name: input.region_name,
       p_country_code: input.country_code || 'AR',
-      p_avatar_url: input.avatar_url ?? null,
-      p_phone: input.phone ?? null,
-      p_email: input.email ?? null,
-      p_category: input.category ?? null,
-      p_birth_year: input.birth_year ?? null,
+      p_avatar_url: input.avatar_url
     });
 
     if (error) throw error;
@@ -375,7 +595,6 @@ export class PlayerRepository {
     city_id?: string;
     birth_year?: number;
     avatar_url?: string;
-    email?: string;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_complete_onboarding", {
@@ -391,8 +610,7 @@ export class PlayerRepository {
       p_city: input.city,
       p_city_id: input.city_id,
       p_birth_year: input.birth_year,
-      p_avatar_url: input.avatar_url,
-      p_email: input.email ?? null,
+      p_avatar_url: input.avatar_url
     });
 
     if (error) throw error;
@@ -429,47 +647,5 @@ export class PlayerRepository {
       region_name: string | null;
       city_match: boolean;
     }>;
-  }
-
-  async getGlobalRanking(playerId: string): Promise<{ rank: number | null; total: number | null }> {
-    const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc('get_player_global_ranking', { p_player_id: playerId });
-    if (error) throw error;
-    return data ?? { rank: null, total: null };
-  }
-
-  async getTopRivals(playerId: string, limit = 5) {
-    const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc('get_player_top_rivals', {
-      p_player_id: playerId,
-      p_limit: limit,
-    });
-    if (error) throw error;
-    return (data ?? []) as Array<{
-      rival_id: string;
-      display_name: string;
-      avatar_url: string | null;
-      matches_played: number;
-      player_wins: number;
-      rival_wins: number;
-      player_winrate: number;
-    }>;
-  }
-
-  async getIndexHistory(playerId: string, limit = 30) {
-    const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc('get_player_index_history', {
-      p_player_id: playerId,
-      p_limit: limit,
-    });
-    if (error) throw error;
-    return (data ?? []) as Array<{ date: string; value: number }>;
-  }
-
-  async getPlayerBadges(playerId: string) {
-    const supabase = await this.getClient();
-    const { data, error } = await (supabase as any).rpc('get_player_badges', { p_player_id: playerId });
-    if (error) throw error;
-    return (data ?? []) as Array<{ badge_key: string; unlocked_at: string }>;
   }
 }

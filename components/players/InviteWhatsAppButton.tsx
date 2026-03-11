@@ -9,12 +9,14 @@ interface InviteWhatsAppButtonProps {
     message: string;
     context: "directory" | "profile";
     className?: string;
+    iconOnly?: boolean;
 }
 
 export function InviteWhatsAppButton({
     message,
     context,
     className,
+    iconOnly = false,
 }: InviteWhatsAppButtonProps) {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
@@ -49,9 +51,11 @@ export function InviteWhatsAppButton({
             onClick={handleClick}
             disabled={loading}
             className={className || "inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#128C7E] disabled:opacity-60 text-white text-xs font-bold"}
+            aria-label="Invitar por WhatsApp"
+            title="Invitar por WhatsApp"
         >
             <MessageCircle className="w-4 h-4 fill-current" />
-            {loading ? "Abriendo..." : "Invitar por WhatsApp"}
+            {!iconOnly && (loading ? "Abriendo..." : "Invitar por WhatsApp")}
         </button>
     );
 }
