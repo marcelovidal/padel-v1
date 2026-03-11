@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import Link from "next/link";
 import { PlusCircle, Star, Trophy, Target, Activity, Zap } from "lucide-react";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
 
 interface PlayerHeroCardProps {
   playerName: string;
@@ -23,6 +24,12 @@ interface PlayerHeroCardProps {
     current_streak: string;
   };
   globalRank: { rank: number | null; total: number | null };
+  shareProps?: {
+    shareUrl: string;
+    ogImageUrl: string;
+    whatsappText: string;
+    downloadName?: string;
+  };
 }
 
 const RADIUS = 54;
@@ -82,6 +89,7 @@ export function PlayerHeroCard({
   category,
   metrics,
   globalRank,
+  shareProps,
 }: PlayerHeroCardProps) {
   const animatedIndex = useCountUp(metrics.pasala_index);
   const displayIndex = animatedIndex ?? 0;
@@ -236,6 +244,17 @@ export function PlayerHeroCard({
                 Perfil
               </button>
             </Link>
+            {shareProps && (
+              <ShareCardButton
+                type="player"
+                shareUrl={shareProps.shareUrl}
+                ogImageUrl={shareProps.ogImageUrl}
+                whatsappText={shareProps.whatsappText}
+                downloadName={shareProps.downloadName}
+                label="Compartir"
+                className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5"
+              />
+            )}
           </div>
         </div>
       </div>

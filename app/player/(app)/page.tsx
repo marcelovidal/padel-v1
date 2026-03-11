@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ArrowRight, Users, Zap, PlusCircle } from "lucide-react";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildPublicMatchUrl, buildShareMessage, buildOgPlayerUrl, buildPublicPlayerUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
-import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
@@ -129,17 +128,6 @@ export default async function PlayerDashboard() {
       )}
 
       {/* Hero gamified card */}
-      <div className="relative">
-        <div className="absolute right-4 top-4 z-10">
-          <ShareCardButton
-            type="player"
-            shareUrl={playerShareUrl}
-            whatsappText={playerCardWhatsAppText}
-            ogImageUrl={ogPlayerImageUrl}
-            label="Compartir mi perfil"
-            downloadName={`pasala-perfil-${player?.display_name?.replace(/\s+/g, "-").toLowerCase() ?? "jugador"}`}
-          />
-        </div>
       <PlayerHeroCard
         playerName={player?.first_name || "Jugador"}
         avatarSrc={avatarData.src ?? null}
@@ -158,8 +146,13 @@ export default async function PlayerDashboard() {
           current_streak: metrics.current_streak,
         }}
         globalRank={globalRank}
+        shareProps={{
+          shareUrl: playerShareUrl,
+          ogImageUrl: ogPlayerImageUrl,
+          whatsappText: playerCardWhatsAppText,
+          downloadName: `pasala-perfil-${player?.display_name?.replace(/\s+/g, "-").toLowerCase() ?? "jugador"}`,
+        }}
       />
-      </div>
 
       {/* Events widget */}
       <PlayerEventsWidget events={openEvents} />
