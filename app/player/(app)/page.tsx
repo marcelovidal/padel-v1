@@ -100,7 +100,7 @@ export default async function PlayerDashboard() {
   const ogPlayerImageUrl = buildOgPlayerUrl(playerId, siteUrl);
   const playerShareUrl = buildPublicPlayerUrl(playerId, siteUrl);
   const playerCardWhatsAppText = buildWhatsAppTextForCard("player", {}, playerShareUrl);
-  const enrichedMatches = recentMatches.map((m) => ({
+  const enrichedMatches = recentMatches.map((m: any) => ({
     ...m,
     shareMessage: m.match_results ? buildShareMessage(m, siteUrl) : undefined,
     shareUrl: m.match_results ? buildPublicMatchUrl(m.id, siteUrl) : undefined,
@@ -288,7 +288,7 @@ export default async function PlayerDashboard() {
             </span>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            {pendingAssessments.map((match) => (
+            {pendingAssessments.map((match: any) => (
               <PendingAssessmentCard key={match.id} match={match} playerId={playerId} />
             ))}
           </div>

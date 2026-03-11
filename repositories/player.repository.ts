@@ -628,6 +628,34 @@ export class PlayerRepository {
     return data?.[0] || null;
   }
 
+  async getGlobalRanking(playerId: string): Promise<{ rank: number | null; total: number | null }> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_global_ranking', { p_player_id: playerId });
+    if (error) throw error;
+    return (data as { rank: number | null; total: number | null }) ?? { rank: null, total: null };
+  }
+
+  async getTopRivals(playerId: string, limit = 5) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_top_rivals', { p_player_id: playerId, p_limit: limit });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+
+  async getIndexHistory(playerId: string, limit = 30) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_index_history', { p_player_id: playerId, p_limit: limit });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+
+  async getPlayerBadges(playerId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc('get_player_badges', { p_player_id: playerId });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+
   async completeOnboarding(input: {
     display_name: string;
     first_name: string;
