@@ -2,6 +2,7 @@ import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { ogFontOptions } from "../_font";
+import { normalizeSets } from "@/lib/match/matchUtils";
 
 
 function supabaseAdmin() {
@@ -41,8 +42,13 @@ export async function GET(req: NextRequest) {
 
   const teamA = (match.match_players as any[]).filter((p) => p.team === "A");
   const teamB = (match.match_players as any[]).filter((p) => p.team === "B");
-  const sets: Array<{ a: number; b: number }> = (match.match_results as any)?.sets ?? [];
-  const winner = (match.match_results as any)?.winner_team as "A" | "B" | null ?? null;
+  // Supabase returns match_results as array (one-to-many FK); normalize to single object
+  const result = Array.isArray(match.match_results)
+    ? (match.match_results[0] ?? null)
+    : (match.match_results ?? null);
+  // normalizeSets handles both {a,b} and {team_a_games,team_b_games} formats
+  const sets = normalizeSets((result as any)?.sets);
+  const winner = (result as any)?.winner_team as "A" | "B" | null ?? null;
   const matchDate = new Date(match.match_at as string).toLocaleDateString("es-AR", {
     day: "numeric",
     month: "short",
