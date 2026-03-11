@@ -1,6 +1,9 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireClub } from "@/lib/auth";
+import { getSiteUrl } from "@/lib/utils/url";
+import { buildOgLeagueUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { LeaguesService } from "@/services/leagues.service";
 import { PlayerService } from "@/services/player.service";
 import { BookingService } from "@/services/booking.service";
@@ -173,6 +176,9 @@ export default async function ClubLeagueDetailPage({
   );
 
   const leagueMatches = await leaguesService.listLeagueMatches(leagueId);
+  const siteUrl = getSiteUrl();
+  const ogLeagueUrl = buildOgLeagueUrl(leagueId, siteUrl);
+  const leagueCardWhatsAppText = buildWhatsAppTextForCard("league", {}, siteUrl);
   const submitAutoGroups = async (formData: FormData) => {
     "use server";
     await autoCreateGroupsAction(formData);
@@ -328,6 +334,16 @@ export default async function ClubLeagueDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {league.status !== "draft" && (
+            <ShareCardButton
+              type="league"
+              shareUrl={siteUrl}
+              whatsappText={leagueCardWhatsAppText}
+              ogImageUrl={ogLeagueUrl}
+              label="Compartir tabla"
+              downloadName={`pasala-liga-${league.name.replace(/\s+/g, "-").toLowerCase()}`}
+            />
+          )}
           {league.status === "draft" ? (
             <form action={submitUpdateLeagueStatus}>
               <input type="hidden" name="league_id" value={league.id} />

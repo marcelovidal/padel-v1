@@ -10,9 +10,10 @@ import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
 import { ShareButtons } from "@/components/matches/ShareButtons";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
+import { buildPublicMatchUrl, buildShareMessage, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
 export default async function MatchDetailPage({
     params,
@@ -74,6 +75,8 @@ export default async function MatchDetailPage({
     const siteUrl = getSiteUrl();
     const shareMessage = calculatedHasResults ? buildShareMessage(match, siteUrl) : undefined;
     const shareUrl = calculatedHasResults ? buildPublicMatchUrl(match.id, siteUrl) : undefined;
+    const ogMatchImageUrl = calculatedHasResults ? buildOgMatchUrl(match.id, siteUrl) : undefined;
+    const matchCardWhatsAppText = calculatedHasResults ? buildWhatsAppTextForCard("match", {}, shareUrl ?? "") : undefined;
 
     // Group players by team for the MatchScore component
     const teamA = match.match_players.filter((p: any) => p.team === "A");
@@ -264,12 +267,24 @@ export default async function MatchDetailPage({
                             <h4 className="text-xs font-black uppercase tracking-widest text-green-600 mb-1">¡Buen partido!</h4>
                             <p className="text-sm text-gray-600 font-medium">Compartí el resultado con el resto del grupo.</p>
                         </div>
-                        <ShareButtons
-                            matchId={match.id}
-                            message={shareMessage}
-                            shareUrl={shareUrl || ""}
-                            variant="subtle"
-                        />
+                        <div className="flex flex-wrap items-center gap-3">
+                            <ShareButtons
+                                matchId={match.id}
+                                message={shareMessage}
+                                shareUrl={shareUrl || ""}
+                                variant="subtle"
+                            />
+                            {ogMatchImageUrl && matchCardWhatsAppText && (
+                                <ShareCardButton
+                                    type="match"
+                                    shareUrl={shareUrl ?? ""}
+                                    whatsappText={matchCardWhatsAppText}
+                                    ogImageUrl={ogMatchImageUrl}
+                                    label="Ver card"
+                                    downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
+                                />
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
