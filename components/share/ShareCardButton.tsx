@@ -22,6 +22,8 @@ interface ShareCardButtonProps {
   downloadName?: string;
   /** Render as icon-only button (no text) */
   iconOnly?: boolean;
+  /** Match ID for share tracking (optional) */
+  matchId?: string;
 }
 
 export function ShareCardButton({
@@ -33,6 +35,7 @@ export function ShareCardButton({
   className,
   downloadName,
   iconOnly = false,
+  matchId,
 }: ShareCardButtonProps) {
   const [open, setOpen] = useState(false);
 
@@ -57,6 +60,7 @@ export function ShareCardButton({
         whatsappText={whatsappText}
         ogImageUrl={ogImageUrl}
         downloadName={downloadName ?? `pasala-${type}-${Date.now()}`}
+        matchId={matchId}
       />
     </>
   );

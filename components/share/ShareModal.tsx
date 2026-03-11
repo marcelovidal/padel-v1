@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Download, MessageCircle, Share2, X, Image as ImageIcon } from "lucide-react";
+import { Check, Copy, Download, MessageCircle, Share2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { recordShareAction } from "@/lib/actions/share.actions";
 
 export type ShareCardType = "match" | "player" | "ranking" | "league" | "badge";
 
@@ -17,6 +18,8 @@ interface ShareModalProps {
   ogImageUrl: string;
   /** Filename for download (without extension) */
   downloadName?: string;
+  /** Match ID for share tracking (optional — only for match shares) */
+  matchId?: string;
 }
 
 export function ShareModal({
@@ -26,6 +29,7 @@ export function ShareModal({
   whatsappText,
   ogImageUrl,
   downloadName = "pasala-card",
+  matchId,
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -35,9 +39,14 @@ export function ShareModal({
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
 
+  function trackShare(channel: "whatsapp" | "copylink" | "webshare") {
+    if (matchId) recordShareAction(matchId, channel).catch(() => {});
+  }
+
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(shareUrl);
+      trackShare("copylink");
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
       toast({ title: "¡Link copiado!", description: "Pegalo donde quieras compartirlo." });
@@ -68,6 +77,7 @@ export function ShareModal({
     if (typeof navigator?.share !== "function") return;
     try {
       await navigator.share({ text: whatsappText, url: shareUrl });
+      trackShare("webshare");
     } catch {
       // user cancelled – no error
     }
@@ -117,6 +127,7 @@ export function ShareModal({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackShare("whatsapp")}
             className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] py-3.5 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-[#128C7E] active:scale-[0.98]"
           >
             <MessageCircle className="h-4 w-4 fill-current" />
