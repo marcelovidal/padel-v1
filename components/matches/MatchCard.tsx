@@ -7,8 +7,6 @@ import PlayerMatchAssessmentPanel from "../player/PlayerMatchAssessmentPanel";
 import { MatchScore } from "./MatchScore";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pasala.com.ar";
-
 
 interface MatchCardProps {
   model: MatchCardModel;
@@ -244,7 +242,7 @@ export default function MatchCard({
               matchId={model.id}
               shareUrl={shareUrl}
               whatsappText={shareMessage}
-              ogImageUrl={`${SITE_URL}/api/og/match?id=${encodeURIComponent(model.id)}`}
+              ogImageUrl={`/api/og/match?id=${encodeURIComponent(model.id)}`}
               downloadName={`pasala-partido-${model.id.slice(0, 8)}`}
               label="Compartir card"
               iconOnly={false}
