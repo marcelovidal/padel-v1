@@ -193,7 +193,7 @@ export function PlayerHeroCard({
         </div>
 
         {/* Right: factors + stats + actions */}
-        <div className="flex flex-1 flex-col gap-6 lg:max-w-xs">
+        <div className="flex flex-1 flex-col gap-6 min-w-0">
           {/* Factor bars */}
           <div className="space-y-2.5">
             {FACTORS.map(({ key, label, pct, color }) => {
@@ -233,14 +233,14 @@ export function PlayerHeroCard({
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Link href="/player/matches/new" className="flex-1">
-              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95">
-                <PlusCircle className="h-3.5 w-3.5" />
+            <Link href="/player/matches/new" className="flex-1 min-w-0">
+              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
+                <PlusCircle className="h-3.5 w-3.5 shrink-0" />
                 Cargar partido
               </button>
             </Link>
-            <Link href="/player/profile">
-              <button className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95">
+            <Link href="/player/profile" className="shrink-0">
+              <button className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
                 Perfil
               </button>
             </Link>
@@ -252,7 +252,7 @@ export function PlayerHeroCard({
                 whatsappText={shareProps.whatsappText}
                 downloadName={shareProps.downloadName}
                 label="Compartir"
-                className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5"
+                className="shrink-0 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
               />
             )}
           </div>
