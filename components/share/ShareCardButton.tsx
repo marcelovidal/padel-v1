@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ImageIcon } from "lucide-react";
+import { Share2 } from "lucide-react";
 import { ShareModal } from "./ShareModal";
 import type { ShareCardType } from "./ShareModal";
 
@@ -46,7 +46,7 @@ export function ShareCardButton({
         className={className ?? defaultClass}
         title={label}
       >
-        <ImageIcon className="h-3.5 w-3.5" />
+        <Share2 className="h-3.5 w-3.5" />
         {!iconOnly && label}
       </button>
 
