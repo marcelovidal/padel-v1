@@ -3,8 +3,8 @@ import { MatchService } from "@/services/match.service";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import { ShareButtons } from "@/components/matches/ShareButtons";
-import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
+import { buildShareMatchUrl, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 import { getSiteUrl } from "@/lib/utils/url";
 import { PlayerService } from "@/services/player.service";
 
@@ -37,10 +37,17 @@ export default async function MatchConfirmedPage({
     const teamBNames = teamB.map((p) => formatPlayerShortName(p.players?.first_name, p.players?.last_name)).join(" / ");
 
     const siteUrl = getSiteUrl();
-    const message = buildShareMessage(match, siteUrl);
-    const shareUrl = buildPublicMatchUrl(match.id, siteUrl);
+    const shareUrl = buildShareMatchUrl(match.id, siteUrl);
+    const ogMatchImageUrl = buildOgMatchUrl(match.id, siteUrl);
+    const matchCardWhatsAppText = buildWhatsAppTextForCard("match", {}, shareUrl);
 
     const sets = (result.sets || []) as any[];
+    const cardData = {
+        type: "match" as const,
+        teamA: teamANames,
+        teamB: teamBNames,
+        sets: sets as Array<{ a: number; b: number }>,
+    };
     const isFme = searchParams?.fme === "1";
     const [metrics, compStats] = isFme
         ? await Promise.all([
@@ -131,11 +138,15 @@ export default async function MatchConfirmedPage({
                             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Compartir con los demás</h2>
                         </div>
 
-                        <ShareButtons
-                            matchId={match.id}
-                            message={message}
+                        <ShareCardButton
+                            type="match"
                             shareUrl={shareUrl}
-                            variant="default"
+                            whatsappText={matchCardWhatsAppText}
+                            ogImageUrl={ogMatchImageUrl}
+                            label="Compartir resultado"
+                            downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
+                            matchId={match.id}
+                            cardData={cardData}
                         />
                     </div>
                 </div>

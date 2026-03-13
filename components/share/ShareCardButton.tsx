@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Share2 } from "lucide-react";
 import { ShareModal } from "./ShareModal";
 import type { ShareCardType } from "./ShareModal";
+import type { PhotoCardData } from "./PhotoCardComposer";
 
 interface ShareCardButtonProps {
   /** Type used for the download filename */
@@ -24,6 +25,8 @@ interface ShareCardButtonProps {
   iconOnly?: boolean;
   /** Match ID for share tracking (optional) */
   matchId?: string;
+  /** Data for PhotoCardComposer (only player/match types) */
+  cardData?: PhotoCardData;
 }
 
 export function ShareCardButton({
@@ -36,6 +39,7 @@ export function ShareCardButton({
   downloadName,
   iconOnly = false,
   matchId,
+  cardData,
 }: ShareCardButtonProps) {
   const [open, setOpen] = useState(false);
 
@@ -61,6 +65,7 @@ export function ShareCardButton({
         ogImageUrl={ogImageUrl}
         downloadName={downloadName ?? `pasala-${type}-${Date.now()}`}
         matchId={matchId}
+        cardData={cardData}
       />
     </>
   );

@@ -12,7 +12,7 @@ import { AssessmentInline } from "@/components/assessments/AssessmentInline";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildPublicMatchUrl, buildShareMessage, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
+import { buildShareMatchUrl, buildShareMessage, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
 export default async function MatchDetailPage({
     params,
@@ -73,7 +73,7 @@ export default async function MatchDetailPage({
     // Generate share message if result exists
     const siteUrl = getSiteUrl();
     const shareMessage = calculatedHasResults ? buildShareMessage(match, siteUrl) : undefined;
-    const shareUrl = calculatedHasResults ? buildPublicMatchUrl(match.id, siteUrl) : undefined;
+    const shareUrl = calculatedHasResults ? buildShareMatchUrl(match.id, siteUrl) : undefined;
     const ogMatchImageUrl = calculatedHasResults ? buildOgMatchUrl(match.id, siteUrl) : undefined;
     const matchCardWhatsAppText = calculatedHasResults ? buildWhatsAppTextForCard("match", {}, shareUrl ?? "") : undefined;
 
@@ -96,6 +96,13 @@ export default async function MatchDetailPage({
     const normalizedSets = match.match_results?.sets
         ? normalizeSets(match.match_results.sets as any)
         : [];
+
+    const matchCardData = calculatedHasResults ? {
+        type: "match" as const,
+        teamA: teamA.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
+        teamB: teamB.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
+        sets: normalizedSets,
+    } : undefined;
 
     return (
         <div className="p-6 max-w-4xl mx-auto space-y-8">
@@ -274,6 +281,8 @@ export default async function MatchDetailPage({
                                 ogImageUrl={ogMatchImageUrl}
                                 label="Compartir resultado"
                                 downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
+                                matchId={match.id}
+                                cardData={matchCardData}
                                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-md shadow-green-100 transition-all active:scale-[0.97]"
                             />
                         )}

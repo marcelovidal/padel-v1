@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import { requireClub } from "@/lib/auth";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildOgLeagueUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
+import { buildOgLeagueUrl, buildShareLeagueUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { LeaguesService } from "@/services/leagues.service";
 import { PlayerService } from "@/services/player.service";
@@ -178,7 +178,8 @@ export default async function ClubLeagueDetailPage({
   const leagueMatches = await leaguesService.listLeagueMatches(leagueId);
   const siteUrl = getSiteUrl();
   const ogLeagueUrl = buildOgLeagueUrl(leagueId, siteUrl);
-  const leagueCardWhatsAppText = buildWhatsAppTextForCard("league", {}, siteUrl);
+  const shareLeagueUrl = buildShareLeagueUrl(leagueId, siteUrl);
+  const leagueCardWhatsAppText = buildWhatsAppTextForCard("league", {}, shareLeagueUrl);
   const submitAutoGroups = async (formData: FormData) => {
     "use server";
     await autoCreateGroupsAction(formData);
@@ -337,7 +338,7 @@ export default async function ClubLeagueDetailPage({
           {league.status !== "draft" && (
             <ShareCardButton
               type="league"
-              shareUrl={siteUrl}
+              shareUrl={shareLeagueUrl}
               whatsappText={leagueCardWhatsAppText}
               ogImageUrl={ogLeagueUrl}
               label="Compartir tabla"

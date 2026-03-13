@@ -77,6 +77,33 @@ export function buildOgLeagueUrl(leagueId: string, siteUrl: string): string {
     return `${base}/api/og/league?leagueId=${encodeURIComponent(leagueId)}`;
 }
 
+// ── /share/* public page URL builders ─────────────────────────
+
+export function buildShareMatchUrl(matchId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/match/${matchId}`;
+}
+
+export function buildSharePlayerUrl(playerId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/player/${playerId}`;
+}
+
+export function buildShareRankingUrl(clubId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/ranking/${clubId}`;
+}
+
+export function buildShareLeagueUrl(leagueId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/league/${leagueId}`;
+}
+
+export function buildShareBadgeUrl(playerName: string, badgeKey: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/badge/${encodeURIComponent(playerName)}/${encodeURIComponent(badgeKey)}`;
+}
+
 export function buildOgBadgeUrl(
     playerId: string,
     badgeKey: string,

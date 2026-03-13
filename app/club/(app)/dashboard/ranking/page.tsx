@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RecalculateRankingButton } from "@/components/club/RecalculateRankingButton";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildOgClubRankingUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
+import { buildOgClubRankingUrl, buildShareRankingUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
 function formatDate(date: string | null) {
   if (!date) return "-";
@@ -21,7 +21,8 @@ export default async function ClubRankingPage() {
 
   const siteUrl = getSiteUrl();
   const ogRankingUrl = buildOgClubRankingUrl(club.id, club.name, siteUrl);
-  const rankingCardWhatsAppText = buildWhatsAppTextForCard("ranking", { clubName: club.name }, siteUrl + `/club/dashboard/ranking`);
+  const shareRankingUrl = buildShareRankingUrl(club.id, siteUrl);
+  const rankingCardWhatsAppText = buildWhatsAppTextForCard("ranking", { clubName: club.name }, shareRankingUrl);
   const rankedPlayers = ranking.length;
   const rankedMatches = ranking.reduce((acc, row) => acc + row.matches_played, 0);
   const lastUpdated = ranking.reduce<string | null>((acc, row) => {
@@ -42,7 +43,7 @@ export default async function ClubRankingPage() {
           <div className="flex items-center gap-2">
             <ShareCardButton
               type="ranking"
-              shareUrl={siteUrl + `/club/dashboard/ranking`}
+              shareUrl={shareRankingUrl}
               whatsappText={rankingCardWhatsAppText}
               ogImageUrl={ogRankingUrl}
               label="Compartir ranking"

@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Download, MessageCircle, Share2, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Camera, Check, Copy, Download, MessageCircle, Share2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDeviceCapabilities } from "@/hooks/useDeviceCapabilities";
 import { recordShareAction } from "@/lib/actions/share.actions";
+import type { PhotoCardData } from "./PhotoCardComposer";
+
+const PhotoCardComposer = dynamic(
+  () => import("./PhotoCardComposer").then((m) => ({ default: m.PhotoCardComposer })),
+  { ssr: false }
+);
 
 export type ShareCardType = "match" | "player" | "ranking" | "league" | "badge";
 
 interface ShareModalProps {
   open: boolean;
   onClose: () => void;
-  /** Public share URL (e.g. /m/{id} or /p/{id}) */
+  /** Public share URL (e.g. /share/match/{id}) */
   shareUrl: string;
   /** Pre-composed WhatsApp text */
   whatsappText: string;
@@ -20,6 +28,8 @@ interface ShareModalProps {
   downloadName?: string;
   /** Match ID for share tracking (optional — only for match shares) */
   matchId?: string;
+  /** Data for PhotoCardComposer (only player/match types supported) */
+  cardData?: PhotoCardData;
 }
 
 export function ShareModal({
@@ -30,12 +40,19 @@ export function ShareModal({
   ogImageUrl,
   downloadName = "pasala-card",
   matchId,
+  cardData,
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [photoComposerOpen, setPhotoComposerOpen] = useState(false);
   const { toast } = useToast();
+  const { showPhotoComposer } = useDeviceCapabilities();
 
   if (!open) return null;
+
+  if (photoComposerOpen && cardData) {
+    return <PhotoCardComposer cardData={cardData} onClose={() => setPhotoComposerOpen(false)} />;
+  }
 
   // Use a relative path for the img preview and download fetch so it always
   // hits the current server (avoids cross-origin issues when NEXT_PUBLIC_SITE_URL
@@ -134,6 +151,17 @@ export function ShareModal({
 
         {/* Actions */}
         <div className="space-y-2">
+          {/* Photo composer — mobile only, if cardData is provided */}
+          {showPhotoComposer && cardData && (
+            <button
+              onClick={() => setPhotoComposerOpen(true)}
+              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/8 py-3.5 text-sm font-black uppercase tracking-widest text-white/90 transition-all hover:bg-white/15 active:scale-[0.98]"
+            >
+              <Camera className="h-4 w-4" />
+              Personalizar con tu foto
+            </button>
+          )}
+
           {/* WhatsApp */}
           <a
             href={whatsappUrl}
