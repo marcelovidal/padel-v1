@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull)",
+      "Bash(git pull --ff-only)",
+      "Bash(git fetch origin)",
+      "Bash(ls c:/xampp/htdocs/padel-v1/app/club/\\\\\\(app\\\\\\)/dashboard/leagues/)",
+      "Bash(ls c:/xampp/htdocs/padel-v1/app/club/\\\\\\(app\\\\\\)/dashboard/tournaments/)",
+      "Bash(ls app/club/\\\\\\(app\\\\\\)/dashboard/leagues/new/)",
+      "Bash(ls app/club/\\\\\\(app\\\\\\)/dashboard/tournaments/new/)",
+      "Bash(git add \"app/club/\\(app\\)/dashboard/leagues/[leagueId]/page.tsx\" \"app/club/\\(app\\)/dashboard/leagues/page.tsx\" \"app/club/\\(app\\)/dashboard/leagues/new/page.tsx\" \"app/club/\\(app\\)/dashboard/page.tsx\" \"app/club/\\(app\\)/dashboard/tournaments/[tournamentId]/page.tsx\" \"app/club/\\(app\\)/dashboard/tournaments/page.tsx\" \"app/club/\\(app\\)/dashboard/tournaments/new/page.tsx\" \"app/club/\\(app\\)/page.tsx\" \"app/player/\\(app\\)/events/page.tsx\" \"app/player/\\(app\\)/page.tsx\" \"components/club/ClubAnalyticsSection.tsx\" \"components/club/ClubAnalyticsTabs.tsx\" \"components/club/ClubEventsSummaryWidget.tsx\" \"components/club/ClubTopNav.tsx\" \"components/club/EventDiffusionSection.tsx\" \"components/club/LeagueRegisterTeamForm.tsx\" \"components/leagues/LeagueCreationWizard.tsx\" \"components/leagues/LeagueRulesGuide.tsx\" \"components/player/PlayerEventsWidget.tsx\" \"components/player/TeammateCombobox.tsx\" \"components/tournaments/TournamentCreationWizard.tsx\" \"lib/actions/leagues.actions.ts\" \"lib/actions/tournaments.actions.ts\" \"repositories/leagues.repository.ts\" \"repositories/tournaments.repository.ts\" \"services/leagues.service.ts\" \"supabase/migrations/20260309_q6_5_auto_team_on_confirmed_registration.sql\" \"supabase/migrations/20260309_q6_6_auto_league_team_on_confirmed_registration.sql\")",
+      "Bash(git commit:*)",
+      "Bash(git checkout main)",
+      "Bash(git merge:*)",
+      "Bash(git checkout --theirs \"app/club/\\(app\\)/page.tsx\" \"app/player/\\(app\\)/page.tsx\" \"app/player/\\(app\\)/profile/page.tsx\" \"components/club/ClubTopNav.tsx\")",
+      "Bash(git add \"app/club/\\(app\\)/page.tsx\" \"app/player/\\(app\\)/page.tsx\" \"app/player/\\(app\\)/profile/page.tsx\" \"components/club/ClubTopNav.tsx\")",
+      "Bash(git push origin main)",
+      "Bash(git push origin feature/stage-q6-leagues)",
+      "Bash(xargs grep -l -i \"pasala\")",
+      "Bash(cat -n \"app/\\(public\\)/page.tsx\")",
+      "Bash(cat -n \"app/\\(public\\)/pricing/page.tsx\")",
+      "Bash(grep -n sets c:/xampp/htdocs/padel-v1/app/admin/matches/*/result/result-form.tsx)",
+      "Bash(grep -n \"sets\\\\|match_results\\\\|ShareCardButton\\\\|og\" c:/xampp/htdocs/padel-v1/app/player/\\\\\\(app\\\\\\)/matches/[id]/page.tsx)",
+      "Bash(npx tsc:*)",
+      "Bash(npx supabase:*)",
+      "Bash(ls \"c:/xampp/htdocs/padel-v1/.env\"*)",
+      "Read(//c/Users/Marce/**)",
+      "Bash(node -e \":*)"
+    ]
+  }
+}

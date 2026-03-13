@@ -48,7 +48,9 @@ export default async function PublicPricingPage() {
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
               <li>• Claim de club + ficha publica</li>
               <li>• Presencia en flujo de partidos</li>
-              <li>• Proximamente: reservas y gestion</li>
+              <li>• Ranking interno del club</li>
+              <li>• Ligas y torneos con fixture y playoffs</li>
+              <li>• Reservas de canchas</li>
             </ul>
             <Link
               href={clubHref}

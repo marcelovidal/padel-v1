@@ -1,3 +1,4 @@
+﻿import type { Metadata } from "next";
 import { MatchService } from "@/services/match.service";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -6,6 +7,32 @@ import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Calendar, MapPin, ArrowRight, UserPlus, Building2 } from "lucide-react";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pasala.com.ar";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const ogImage = `${SITE_URL}/api/og/match?id=${encodeURIComponent(params.id)}`;
+  const pageUrl = `${SITE_URL}/m/${params.id}`;
+  return {
+    title: "Resultado de partido | PASALA",
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: "Resultado de partido | PASALA",
+      description: "Mirá el resultado completo de este partido en PASALA.",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "Resultado de partido PASALA" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Resultado de partido | PASALA",
+      images: [ogImage],
+    },
+  };
+}
 
 function formatShortName(fullName: string) {
   const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
@@ -150,7 +177,9 @@ export default async function PublicMatchPage({
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-400" />
               <p className="text-xs font-medium text-gray-600">
-                {format(new Date(match.match_at), "d 'de' MMMM", { locale: es })}
+                {match.match_at
+                ? format(new Date(match.match_at), "d 'de' MMMM", { locale: es })
+                : "Fecha no disponible"}
               </p>
             </div>
             <div className="flex items-center gap-2 justify-end">
@@ -167,8 +196,8 @@ export default async function PublicMatchPage({
         </div>
 
         <div className="bg-white rounded-[24px] p-6 border border-gray-100 shadow-sm space-y-4">
-          <h4 className="text-sm font-black text-gray-900 text-center">Â¿Sos uno de estos jugadores?</h4>
-          <p className="text-xs text-gray-500 text-center -mt-2">ReclamÃ¡ tu perfil para ver tu historial y estadÃ­sticas.</p>
+          <h4 className="text-sm font-black text-gray-900 text-center">¿Sos uno de estos jugadores?</h4>
+          <p className="text-xs text-gray-500 text-center -mt-2">Reclamá tu perfil para ver tu historial y estadísticas.</p>
           <div className="grid grid-cols-1 gap-2">
             {unclaimedRoster.map((p: any) => (
               <Link
@@ -206,21 +235,21 @@ export default async function PublicMatchPage({
           <div className="space-y-2">
             <h3 className="text-xl font-bold tracking-tight">
               {unclaimedRoster.length > 0
-                ? "Primero reclamÃ¡ tu perfil"
+                ? "Primero reclamá tu perfil"
                 : userState === "anonymous"
-                  ? "Â¿Jugaste este partido?"
+                  ? "¿Jugaste este partido?"
                   : userState === "unonboarded"
-                    ? "Â¡Casi listo!"
-                    : "SeguÃ­ tu evoluciÃ³n"}
+                    ? "¡Casi listo!"
+                    : "Seguí tu evolución"}
             </h3>
             <p className="text-blue-100 text-sm font-medium">
               {unclaimedRoster.length > 0
-                ? "Si aparecÃ©s en esta lista, reclamÃ¡ tu perfil antes de continuar."
+                ? "Si aparecés en esta lista, reclamá tu perfil antes de continuar."
                 : userState === "anonymous"
-                  ? "EntrÃ¡ para ver tu historial completo y estadÃ­sticas avanzadas."
+                  ? "Entrá para ver tu historial completo y estadísticas avanzadas."
                   : userState === "unonboarded"
-                    ? "CompletÃ¡ tu registro para activar tu perfil en PASALA."
-                    : "RevisÃ¡ tus estadÃ­sticas competitivas en tu perfil."}
+                    ? "Completá tu registro para activar tu perfil en PASALA."
+                    : "Revisá tus estadísticas competitivas en tu perfil."}
             </p>
           </div>
 
@@ -254,3 +283,4 @@ export default async function PublicMatchPage({
     </div>
   );
 }
+

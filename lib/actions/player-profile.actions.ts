@@ -15,6 +15,12 @@ export async function updatePlayerProfileAction(formData: FormData) {
     const region_name = formData.get("region_name") as string || undefined;
     const country_code = formData.get("country_code") as string || 'AR';
     const avatar_url = formData.get("avatar_url") as string || undefined;
+    const phone = formData.get("phone") as string || undefined;
+    const email = formData.get("email") as string || undefined;
+    const categoryRaw = formData.get("category") as string;
+    const category = categoryRaw ? parseInt(categoryRaw, 10) : undefined;
+    const birthYearRaw = formData.get("birth_year") as string;
+    const birth_year = birthYearRaw ? parseInt(birthYearRaw, 10) : undefined;
 
     if (!playerId || !displayName) {
         return { error: "ID y Nombre son obligatorios" };
@@ -30,7 +36,11 @@ export async function updatePlayerProfileAction(formData: FormData) {
             region_code,
             region_name,
             country_code,
-            avatar_url
+            avatar_url,
+            phone,
+            email,
+            category,
+            birth_year,
         });
 
         revalidatePath("/player/profile");
@@ -43,6 +53,9 @@ export async function updatePlayerProfileAction(formData: FormData) {
         console.error("Error updating player profile:", error);
         if (error.message === 'NOT_ALLOWED') {
             return { error: "No tienes permiso para editar este perfil" };
+        }
+        if (error.message === 'PHONE_TAKEN') {
+            return { error: "Ese número de celular ya está registrado" };
         }
         return { error: error.message || "Error al actualizar el perfil" };
     }

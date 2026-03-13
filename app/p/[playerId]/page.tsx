@@ -1,14 +1,39 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Button } from "@/components/ui/button";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { PlayerService } from "@/services/player.service";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildPlayerInviteMessage } from "@/lib/share/shareMessage";
+import { buildOgPlayerUrl, buildPlayerInviteMessage, buildPublicPlayerUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
+import { PlayerHeroCard } from "@/components/player/PlayerHeroCard";
+
+export async function generateMetadata({
+    params,
+}: {
+    params: { playerId: string };
+}): Promise<Metadata> {
+    const siteUrl = getSiteUrl();
+    const ogImage = buildOgPlayerUrl(params.playerId, siteUrl);
+    const pageUrl = buildPublicPlayerUrl(params.playerId, siteUrl);
+    return {
+        title: "Perfil de jugador | PASALA",
+        openGraph: {
+            type: "website",
+            url: pageUrl,
+            title: "Perfil de jugador | PASALA",
+            description: "Mirá el perfil, estadísticas e índice PASALA de este jugador.",
+            images: [{ url: ogImage, width: 1200, height: 630, alt: "Perfil de jugador PASALA" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: "Perfil de jugador | PASALA",
+            images: [ogImage],
+        },
+    };
+}
 
 function positionLabel(value?: string | null) {
     if (!value) return "Cualquiera";
@@ -41,6 +66,7 @@ export default async function PublicPlayerProfilePage({
     const avatarData = await resolveAvatarSrc({
         player,
     });
+    const heroStats = await playerService.getPublicHeroStats(player.id);
 
     let mePlayer: any = null;
     if (user) {
@@ -86,60 +112,77 @@ export default async function PublicPlayerProfilePage({
         siteUrl
     );
 
+    const shareUrl = buildPublicPlayerUrl(player.id, siteUrl);
+    const ogImageUrl = buildOgPlayerUrl(player.id, siteUrl);
+    const whatsappShareText = buildWhatsAppTextForCard("player", {}, shareUrl);
+    const locationLabel = [player.city, player.region_name].filter(Boolean).join(", ");
+
+    const heroMetrics = {
+        pasala_index: heroStats?.metrics?.pasala_index ?? null,
+        win_rate_score: Number(heroStats?.metrics?.win_rate_score ?? 0),
+        rival_level_score: Number(heroStats?.metrics?.rival_level_score ?? 50),
+        perf_score: Number(heroStats?.metrics?.perf_score ?? 50),
+        recent_score: Number(heroStats?.metrics?.recent_score ?? 0),
+        volume_score: Number(heroStats?.metrics?.volume_score ?? 0),
+        played: Number(heroStats?.metrics?.played ?? 0),
+        wins: Number(heroStats?.metrics?.wins ?? 0),
+        win_rate: Number(heroStats?.metrics?.win_rate ?? 0),
+        current_streak: String(heroStats?.metrics?.current_streak || "-"),
+    };
+
+    const globalRank = heroStats?.globalRank || { rank: null, total: null };
+
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-6">
-            <div className="max-w-2xl mx-auto space-y-6">
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-6">
-                    <div className="flex items-center gap-5">
-                        <UserAvatar
-                            src={avatarData.src || null}
-                            initials={avatarData.initials || "PL"}
-                            size="lg"
-                        />
-                        <div className="space-y-1 min-w-0">
-                            <h1 className="text-3xl font-black text-gray-900 truncate">{player.display_name}</h1>
-                            <p className="text-sm text-gray-500 font-medium">
-                                {player.city || "Sin ciudad"}
-                                {player.region_name ? `, ${player.region_name}` : ""}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                            <p className="text-[10px] uppercase tracking-widest font-black text-gray-400">Posicion</p>
-                            <p className="text-lg font-bold text-gray-900">{positionLabel(player.position)}</p>
-                        </div>
-                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                            <p className="text-[10px] uppercase tracking-widest font-black text-gray-400">Categoria</p>
-                            <p className="text-lg font-bold text-gray-900">{categoryLabel(player.category)}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                        <Link href={primaryHref}>
-                            <Button className="rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold">
-                                {primaryLabel}
-                            </Button>
-                        </Link>
-
-                        {player.is_claimable && (
-                            <Link href={`/welcome/claim?${claimParams.toString()}`}>
-                                <Button variant="outline" className="rounded-2xl font-bold">
-                                    Reclamar perfil
-                                </Button>
+        <div className="min-h-screen bg-gray-50 py-8 px-4">
+            <div className="mx-auto max-w-5xl space-y-6">
+                <PlayerHeroCard
+                    playerName={player.display_name}
+                    title={player.display_name}
+                    panelLabel="Perfil publico"
+                    avatarSrc={avatarData.src || null}
+                    avatarInitials={avatarData.initials || "PL"}
+                    locationLabel={locationLabel || "Sin ubicacion"}
+                    category={player.category ? Number(player.category) : null}
+                    metrics={heroMetrics}
+                    globalRank={globalRank}
+                    shareProps={{
+                        shareUrl,
+                        ogImageUrl,
+                        whatsappText: whatsappShareText,
+                        downloadName: `pasala-perfil-${player.display_name?.replace(/\s+/g, "-").toLowerCase() || "jugador"}`,
+                    }}
+                    actions={
+                        <>
+                            <Link href={primaryHref} className="flex-1 min-w-0">
+                                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
+                                    {primaryLabel}
+                                </button>
                             </Link>
-                        )}
 
-                        {player.is_claimable && (
-                            <InviteWhatsAppButton
-                                message={inviteMessage}
-                                context="profile"
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl bg-[#25D366] hover:bg-[#128C7E] disabled:opacity-60 text-white text-xs font-bold"
-                            />
-                        )}
-                    </div>
-                </div>
+                            <div className="shrink-0 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200">
+                                {positionLabel(player.position)} · {categoryLabel(player.category)}
+                            </div>
+
+                            {player.is_claimable && (
+                                <Link
+                                    href={`/welcome/claim?${claimParams.toString()}`}
+                                    className="shrink-0 inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap"
+                                >
+                                    Reclamar perfil
+                                </Link>
+                            )}
+
+                            {player.is_claimable && (
+                                <InviteWhatsAppButton
+                                    message={inviteMessage}
+                                    context="profile"
+                                    iconOnly
+                                    className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#25D366] hover:bg-[#128C7E] disabled:opacity-60 text-white"
+                                />
+                            )}
+                        </>
+                    }
+                />
 
                 {user && (
                     <ProfileIssueTooltip

@@ -21,11 +21,13 @@ import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { getPrimaryCtaHref } from "@/lib/auth/public-cta";
 import { getRegisterClubHref } from "@/lib/auth/public-cta.shared";
 import { publicFaqItems, shareDemoMessage } from "@/lib/public/content";
+import { ClubDemoPanel } from "@/components/public/ClubDemoPanel";
+import { PlayerEventsDemoPanel } from "@/components/public/PlayerEventsDemoPanel";
 
 export const metadata: Metadata = {
-  title: "PASALA | Padel amateur con historial y progreso",
+  title: "PASALA | Padel amateur con historial, ligas y torneos",
   description:
-    "Registra tu juego de padel, comparte por WhatsApp, mide rendimiento y construye historial deportivo.",
+    "Registra tus partidos de padel, participá en ligas y torneos, reservá canchas y construí tu historial deportivo.",
 };
 
 const samplePlayersByTeam = {
@@ -115,7 +117,7 @@ export default async function PublicHomePage() {
               </h1>
 
               <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Registra tus partidos de padel. Medi tu progreso. Construi tu historia deportiva.
+                Registrá tus partidos de padel. Medí tu progreso. Construí tu historia deportiva.
                 Pensado para dobles, grupos de WhatsApp y clubes reales.
               </p>
 
@@ -124,16 +126,16 @@ export default async function PublicHomePage() {
                   Crear mi perfil
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="#demo-share" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
-                  Ver cómo funciona
+                <Link href={clubHref} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
+                  Registrar mi club
                 </Link>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["Historial", "Registra todos tus partidos y analiza tus resultados"],
-                  ["Progreso", "Evaluacion de tu juego y tus golpes"],
-                  ["WhatsApp", "Comparti el resultado e invita a tus compañeros GRATIS"],
+                  ["Historial", "Registrá todos tus partidos y analizá tus resultados"],
+                  ["Eventos", "Inscribite a ligas y torneos del club desde tu perfil"],
+                  ["WhatsApp", "Compartí el resultado e invitá a tus compañeros gratis"],
                 ].map(([k, v]) => (
                   <div key={k} className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-[0_8px_24px_rgba(2,6,23,0.05)]">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{k}</p>
@@ -149,16 +151,17 @@ export default async function PublicHomePage() {
       </section>
 
       <PublicSection className="pt-10 sm:pt-14">
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <FeatureCard title="Historial automático" description="Cada partido queda registrado con contexto de club y equipos." icon={<BarChart3 className="h-5 w-5" />} />
           <FeatureCard title="Índice PASALA" description="Seguimiento de rendimiento y evolución con lectura clara." icon={<Zap className="h-5 w-5" />} />
           <FeatureCard title="Reclamo de perfil" description="Te cargan como invitado y reclamás después desde el link." icon={<ShieldCheck className="h-5 w-5" />} />
-          <FeatureCard title="Comunidad real" description="Flujo pensado para grupos recurrentes y competencia amateur." icon={<Users className="h-5 w-5" />} />
+          <FeatureCard title="Ligas y torneos" description="Inscribite como dupla, seguí el fixture y los playoffs desde la app." icon={<Trophy className="h-5 w-5" />} />
+          <FeatureCard title="Reservas de canchas" description="Reservá turnos directamente desde el flujo del partido." icon={<Users className="h-5 w-5" />} />
         </div>
       </PublicSection>
 
       <PublicSection eyebrow="Cómo funciona" title="Se adapta al flujo real del grupo" description="PASALA ordena el juego sin romper el hábito de organizar por WhatsApp." className="bg-slate-50/70">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 1</p>
             <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Cargás tu juego</h3>
@@ -171,6 +174,11 @@ export default async function PublicHomePage() {
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 3</p>
+            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Te inscribís a eventos</h3>
+            <p className="mt-2 text-sm text-slate-600">Buscás liga o torneo abierto, elegís companero y mandás la solicitud.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 4</p>
             <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Compartís por WhatsApp</h3>
             <p className="mt-2 text-sm text-slate-600">El grupo entra por link y reclama perfil cuando quiere.</p>
           </div>
@@ -220,7 +228,20 @@ export default async function PublicHomePage() {
         </div>
       </PublicSection>
 
-      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking interno, torneos, grupos de sabado y actividad local." className="bg-slate-50/70">
+      <PublicSection eyebrow="Inscripción a eventos" title="Así se inscribe un jugador a una liga o torneo" description="Buscá tu companero, mandá la solicitud y seguí el estado desde tu perfil. Todo en un solo lugar." className="bg-slate-50/70">
+        <PlayerEventsDemoPanel />
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <Link href={primaryHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
+            Crear mi perfil
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/players" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
+            Ver jugadores
+          </Link>
+        </div>
+      </PublicSection>
+
+      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking, ligas, torneos, reservas y actividad real desde un solo lugar." className="bg-slate-50/70">
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
             <div className="mb-4 flex items-center gap-2">
@@ -228,10 +249,10 @@ export default async function PublicHomePage() {
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Club / comunidad</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <FeatureCard title="Ranking interno" description="Base para comunidad y seguimiento competitivo." className="p-4" />
-              <FeatureCard title="Torneos y grupos" description="Desde el grupo del sábado a eventos recurrentes." className="p-4" />
-              <FeatureCard title="Ficha pública" description="Presencia digital de tu club y sus canchas." className="p-4" />
-              <FeatureCard title="Próximamente reservas" description="Gestión sobre la misma base de comunidad." className="p-4" />
+              <FeatureCard title="Ranking interno" description="Posiciones reales basadas en partidos registrados en el club." className="p-4" />
+              <FeatureCard title="Ligas y torneos" description="Crea ligas con fixture, grupos y playoffs. Gestión completa." className="p-4" />
+              <FeatureCard title="Reservas de canchas" description="Turnos de cancha integrados al flujo de partidos y grupos." className="p-4" />
+              <FeatureCard title="Ficha pública" description="Presencia digital de tu club, canchas y eventos activos." className="p-4" />
             </div>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_16px_48px_rgba(2,6,23,0.24)]">
@@ -240,9 +261,10 @@ export default async function PublicHomePage() {
             <p className="mt-3 text-sm leading-relaxed text-white/75">PASALA no reemplaza el vínculo social. Lo ordena, lo registra y lo vuelve medible.</p>
             <div className="mt-5 space-y-3">
               {[
-                "Partidos asociados a clubes de padel",
-                "Flujo real de grupos y dobles",
-                "Base para ranking y torneos",
+                "Ranking interno basado en partidos reales",
+                "Ligas con fixture, grupos y playoffs",
+                "Torneos con inscripción en duo y bracket",
+                "Reservas de canchas integradas al flujo",
               ].map((line) => (
                 <div key={line} className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
@@ -258,7 +280,20 @@ export default async function PublicHomePage() {
         </div>
       </PublicSection>
 
-      <PublicSection id="demo-share" eyebrow="Loop viral" title="WhatsApp sigue siendo el centro. PASALA ordena el juego." description="No vende, informa. Por eso se adapta al uso real.">
+      <PublicSection eyebrow="Panel de administración" title="Así se ve el panel de tu club" description="Navegá entre las secciones para explorar ranking, ligas, torneos y reservas con datos de ejemplo.">
+        <ClubDemoPanel />
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <Link href={clubHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
+            Registrar mi club
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/clubs" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
+            Ver clubes activos
+          </Link>
+        </div>
+      </PublicSection>
+
+      <PublicSection id="demo-share" eyebrow="Compartí el resultado" title="WhatsApp sigue siendo el centro. PASALA ordena el juego." description="No vende, informa. Por eso se adapta al uso real.">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
           <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_18px_50px_rgba(2,6,23,0.24)]">
             <div className="mb-3 flex items-center gap-2">
@@ -286,7 +321,7 @@ export default async function PublicHomePage() {
           <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-[0_10px_30px_rgba(59,130,246,0.08)]">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">Clubes</p>
             <p className="mt-2 text-3xl font-black text-slate-900">Gratis por lanzamiento</p>
-            <p className="mt-2 text-sm text-slate-600">Ranking interno + ficha publica + actividad de comunidad.</p>
+            <p className="mt-2 text-sm text-slate-600">Ranking + ligas + torneos + reservas + ficha pública.</p>
             <div className="mt-5"><Link href={clubHref} className="inline-flex rounded-xl bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-slate-800">Registrar club</Link></div>
           </div>
         </div>

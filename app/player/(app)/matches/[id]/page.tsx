@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/Badge";
 import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
-import { ShareButtons } from "@/components/matches/ShareButtons";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
 import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
-import { buildPublicMatchUrl, buildShareMessage } from "@/lib/share/shareMessage";
+import { buildShareMatchUrl, buildShareMessage, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
 export default async function MatchDetailPage({
     params,
@@ -37,6 +37,33 @@ export default async function MatchDetailPage({
 
     const effectiveStatus = getEffectiveStatus(match);
     const isCreator = match.created_by === user.id;
+
+    // Extract league/tournament context for badge display
+    const matchAny = match as any;
+    const leagueBadge = (() => {
+      const lm = Array.isArray(matchAny.league_matches) ? matchAny.league_matches[0] : matchAny.league_matches;
+      const lg = Array.isArray(lm?.league_groups) ? lm.league_groups[0] : lm?.league_groups;
+      const ld = Array.isArray(lg?.league_divisions) ? lg.league_divisions[0] : lg?.league_divisions;
+      const cl = Array.isArray(ld?.club_leagues) ? ld.club_leagues[0] : ld?.club_leagues;
+      if (!cl?.id) return null;
+      return { name: cl.name, seasonLabel: cl.season_label ?? null, groupName: lg?.name ?? null };
+    })();
+    const tournamentBadge = (() => {
+      const tm = Array.isArray(matchAny.tournament_matches) ? matchAny.tournament_matches[0] : matchAny.tournament_matches;
+      if (tm?.id) {
+        const tg = Array.isArray(tm.tournament_groups) ? tm.tournament_groups[0] : tm.tournament_groups;
+        const ct = Array.isArray(tg?.club_tournaments) ? tg.club_tournaments[0] : tg?.club_tournaments;
+        if (!ct?.id) return null;
+        return { name: ct.name, seasonLabel: ct.season_label ?? null, groupName: tg?.name ?? null, isPlayoff: false, stage: null as string | null, matchOrder: null as number | null };
+      }
+      const tp = Array.isArray(matchAny.tournament_playoff_matches) ? matchAny.tournament_playoff_matches[0] : matchAny.tournament_playoff_matches;
+      if (tp?.id) {
+        const ct = Array.isArray(tp.club_tournaments) ? tp.club_tournaments[0] : tp.club_tournaments;
+        if (!ct?.id) return null;
+        return { name: ct.name, seasonLabel: ct.season_label ?? null, groupName: null, isPlayoff: true, stage: tp.stage ?? null, matchOrder: tp.match_order ?? null };
+      }
+      return null;
+    })();
     const isScheduled = effectiveStatus === "scheduled";
     const calculatedHasResults = hasMatchResult(match);
     const isCompleted = effectiveStatus === "completed" || calculatedHasResults;
@@ -46,7 +73,9 @@ export default async function MatchDetailPage({
     // Generate share message if result exists
     const siteUrl = getSiteUrl();
     const shareMessage = calculatedHasResults ? buildShareMessage(match, siteUrl) : undefined;
-    const shareUrl = calculatedHasResults ? buildPublicMatchUrl(match.id, siteUrl) : undefined;
+    const shareUrl = calculatedHasResults ? buildShareMatchUrl(match.id, siteUrl) : undefined;
+    const ogMatchImageUrl = calculatedHasResults ? buildOgMatchUrl(match.id, siteUrl) : undefined;
+    const matchCardWhatsAppText = calculatedHasResults ? buildWhatsAppTextForCard("match", {}, shareUrl ?? "") : undefined;
 
     // Group players by team for the MatchScore component
     const teamA = match.match_players.filter((p: any) => p.team === "A");
@@ -67,6 +96,13 @@ export default async function MatchDetailPage({
     const normalizedSets = match.match_results?.sets
         ? normalizeSets(match.match_results.sets as any)
         : [];
+
+    const matchCardData = calculatedHasResults ? {
+        type: "match" as const,
+        teamA: teamA.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
+        teamB: teamB.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
+        sets: normalizedSets,
+    } : undefined;
 
     return (
         <div className="p-6 max-w-4xl mx-auto space-y-8">
@@ -104,13 +140,47 @@ export default async function MatchDetailPage({
                             {format(new Date(match.match_at), "EEEE d 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })}
                         </p>
                     </div>
-                    <Badge
-                        className={`${statusColors[effectiveStatus]} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
-                    >
-                        {effectiveStatus === "scheduled" && "Programado"}
-                        {effectiveStatus === "completed" && "Finalizado"}
-                        {effectiveStatus === "cancelled" && "Cancelado"}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2">
+                        <Badge
+                            className={`${statusColors[effectiveStatus]} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
+                        >
+                            {effectiveStatus === "scheduled" && "Programado"}
+                            {effectiveStatus === "completed" && "Finalizado"}
+                            {effectiveStatus === "cancelled" && "Cancelado"}
+                        </Badge>
+                        {leagueBadge ? (
+                            <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700">
+                                <svg className="w-3 h-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span>
+                                    {leagueBadge.name}
+                                    {leagueBadge.seasonLabel ? ` ${leagueBadge.seasonLabel}` : ""}
+                                    {leagueBadge.groupName ? ` · Grupo ${leagueBadge.groupName}` : ""}
+                                </span>
+                            </div>
+                        ) : null}
+                        {tournamentBadge ? (
+                            <div className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                                tournamentBadge.isPlayoff
+                                    ? "border-amber-300 bg-amber-50 text-amber-800"
+                                    : "border-orange-200 bg-orange-50 text-orange-700"
+                            }`}>
+                                <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M11 2a1 1 0 011 1v1h5a1 1 0 01.98 1.199l-1 5A1 1 0 0116 11h-2.382l-1.723 3.447A1 1 0 0111 15H9v3h2a1 1 0 010 2H7a1 1 0 010-2h0V15H6a1 1 0 01-.894-1.447L6.618 11H4a1 1 0 01-.98-.801l-1-5A1 1 0 013 4h5V3a1 1 0 011-1h2zm1 4H8.28l.6 3H11V6zm2 3h2.12l.6-3H13v3z" />
+                                </svg>
+                                <span>
+                                    {tournamentBadge.name}
+                                    {tournamentBadge.seasonLabel ? ` ${tournamentBadge.seasonLabel}` : ""}
+                                    {tournamentBadge.isPlayoff && tournamentBadge.stage
+                                        ? ` · ${tournamentBadge.stage === "quarterfinal" ? `Cuartos de Final${tournamentBadge.matchOrder ? ` · CF${tournamentBadge.matchOrder}` : ""}` : tournamentBadge.stage === "semifinal" ? `Semifinal${tournamentBadge.matchOrder ? ` · SF${tournamentBadge.matchOrder}` : ""}` : "Final"}`
+                                        : tournamentBadge.groupName
+                                        ? ` · Grupo ${tournamentBadge.groupName}`
+                                        : ""}
+                                </span>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
 
                 {isScheduled && !isCreator && (
@@ -203,12 +273,19 @@ export default async function MatchDetailPage({
                             <h4 className="text-xs font-black uppercase tracking-widest text-green-600 mb-1">¡Buen partido!</h4>
                             <p className="text-sm text-gray-600 font-medium">Compartí el resultado con el resto del grupo.</p>
                         </div>
-                        <ShareButtons
-                            matchId={match.id}
-                            message={shareMessage}
-                            shareUrl={shareUrl || ""}
-                            variant="subtle"
-                        />
+                        {ogMatchImageUrl && matchCardWhatsAppText && (
+                            <ShareCardButton
+                                type="match"
+                                shareUrl={shareUrl ?? ""}
+                                whatsappText={matchCardWhatsAppText}
+                                ogImageUrl={ogMatchImageUrl}
+                                label="Compartir resultado"
+                                downloadName={`pasala-partido-${match.id.slice(0, 8)}`}
+                                matchId={match.id}
+                                cardData={matchCardData}
+                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-md shadow-green-100 transition-all active:scale-[0.97]"
+                            />
+                        )}
                     </div>
                 )}
             </div>

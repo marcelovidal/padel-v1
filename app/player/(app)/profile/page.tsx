@@ -1,13 +1,13 @@
 import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
 import { AssessmentService } from "@/services/assessment.service";
+import { LeaguesService } from "@/services/leagues.service";
 import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import { MapPin, Trophy, Target, Activity, Users, Zap } from "lucide-react";
-import { RankingService } from "@/services/ranking.service";
 
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -19,13 +19,13 @@ export default async function PlayerProfilePage() {
 
     const playerService = new PlayerService();
     const assessmentService = new AssessmentService();
-    const rankingService = new RankingService();
+    const leaguesService = new LeaguesService();
 
-    const [metrics, pendingAssessments, compStats, myClubRankings] = await Promise.all([
+    const [metrics, pendingAssessments, compStats, clubRankings] = await Promise.all([
         playerService.getProfileMetrics(playerId),
         assessmentService.getPendingAssessments(playerId),
         playerService.getCompetitiveStats(),
-        rankingService.getMyClubRankings(5),
+        leaguesService.getMyClubRankings(5).catch(() => [])
     ]);
 
     const hasMatches = metrics.played > 0;
@@ -62,8 +62,11 @@ export default async function PlayerProfilePage() {
             <div className="mb-8">
                 <PasalaIndex
                     value={metrics.pasala_index}
-                    winScore={metrics.win_rate}
+                    winRateScore={metrics.win_rate_score}
+                    rivalLevelScore={metrics.rival_level_score}
                     perfScore={metrics.perf_score}
+                    recentScore={metrics.recent_score}
+                    volumeScore={metrics.volume_score}
                 />
             </div>
 
@@ -156,6 +159,38 @@ export default async function PlayerProfilePage() {
                 </div>
             </div>
 
+            <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm mb-8 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Ranking por Clubes</h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Q5</span>
+                </div>
+                {clubRankings.length === 0 ? (
+                    <p className="text-xs text-gray-500">
+                        Aun no hay posicion de ranking disponible para tus clubes.
+                    </p>
+                ) : (
+                    <div className="space-y-2">
+                        {clubRankings.map((item: any) => (
+                            <div
+                                key={item.club_id}
+                                className="rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between gap-3"
+                            >
+                                <div className="min-w-0">
+                                    <p className="text-sm font-bold text-gray-900 truncate">{item.club_name}</p>
+                                    <p className="text-[11px] text-gray-500">
+                                        {item.matches_played} PJ · {item.wins} G · {item.losses} P
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs font-black text-blue-700">#{item.rank}</p>
+                                    <p className="text-sm font-black text-gray-900">{item.points} pts</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* LAST 10 & RADAR CHART */}
             <div className="space-y-8">
                 <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
@@ -178,41 +213,6 @@ export default async function PlayerProfilePage() {
                 </div>
 
                 <PlayerRadarChart data={metrics.avg_by_skill} />
-
-                <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Ranking por clubes</h3>
-                        <span className="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full">
-                            {myClubRankings.length}
-                        </span>
-                    </div>
-
-                    {myClubRankings.length === 0 ? (
-                        <p className="text-sm text-gray-500">
-                            Aun no tenes ranking en clubes. Se habilita cuando hay partidos completed con resultado.
-                        </p>
-                    ) : (
-                        <div className="space-y-2">
-                            {myClubRankings.map((row) => (
-                                <div
-                                    key={row.club_id}
-                                    className="rounded-2xl border border-gray-100 bg-white px-4 py-3 flex items-center justify-between gap-4"
-                                >
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-black text-gray-900">{row.club_name}</p>
-                                        <p className="text-xs text-gray-500">
-                                            Rank #{row.rank} - {row.matches_played} partidos - W/L {row.wins}/{row.losses}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-lg font-black text-blue-700">{row.points}</p>
-                                        <p className="text-[10px] uppercase font-bold tracking-wide text-gray-500">puntos</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
 
                 {/* PENDING ASSESSMENTS */}
                 <div className="space-y-4">

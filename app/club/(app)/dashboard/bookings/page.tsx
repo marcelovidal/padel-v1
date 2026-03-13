@@ -7,10 +7,15 @@ import {
   confirmBookingAction,
   createMatchFromBookingAction,
   rejectBookingAction,
+  clubCancelBookingAction,
+  clubCreateBookingAndMatchAction,
 } from "@/lib/actions/booking.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
+import { AgendaGrid } from "@/components/club/agenda/AgendaGrid";
+import { BookingsViewToggle } from "@/components/bookings/BookingsViewToggle";
 
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 type WeekDayBucket = {
   date: string;
   weekdayLabel: string;
@@ -21,6 +26,9 @@ type WeekDayBucket = {
   history: number;
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const TZ_OFFSET = "-03:00"; // Argentina, sin DST
+
 function asDateKey(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -28,11 +36,16 @@ function asDateKey(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
-function parseDate(raw?: string) {
+function parseDate(raw?: string): Date {
   if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return new Date();
   const d = new Date(`${raw}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return new Date();
-  return d;
+  return isNaN(d.getTime()) ? new Date() : d;
+}
+
+function parseDateTZ(raw?: string): Date {
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return new Date();
+  const d = new Date(`${raw}T00:00:00${TZ_OFFSET}`);
+  return isNaN(d.getTime()) ? new Date() : d;
 }
 
 function toDateInput(d: Date) {
@@ -44,8 +57,8 @@ function toDateInput(d: Date) {
 
 function startOfWeekMonday(d: Date) {
   const copy = new Date(d);
-  const day = (copy.getDay() + 6) % 7;
-  copy.setDate(copy.getDate() - day);
+  const dow = (copy.getDay() + 6) % 7;
+  copy.setDate(copy.getDate() - dow);
   copy.setHours(0, 0, 0, 0);
   return copy;
 }
@@ -57,12 +70,84 @@ function matchStatusLabel(status: string) {
   return status;
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function ClubBookingsPage({
   searchParams,
 }: {
-  searchParams?: { cursor?: string };
+  searchParams?: {
+    view_mode?: string;
+    // agenda params
+    date?: string;
+    view?: string;
+    // lista params
+    cursor?: string;
+  };
 }) {
   const params = searchParams || {};
+  const viewMode = params.view_mode === "lista" ? "lista" : "agenda";
+  const { club } = await requireClub();
+  const bookingService = new BookingService();
+
+  // ── Vista Agenda ──────────────────────────────────────────────────────────
+  if (viewMode === "agenda") {
+    const agendaView = params.view === "week" ? "week" : "day";
+    const selectedDate = parseDateTZ(params.date);
+    const selectedDateStr = toDateInput(selectedDate);
+
+    let from: Date;
+    let to: Date;
+    if (agendaView === "week") {
+      from = startOfWeekMonday(selectedDate);
+      to = new Date(from);
+      to.setDate(to.getDate() + 7);
+    } else {
+      from = new Date(`${selectedDateStr}T00:00:00${TZ_OFFSET}`);
+      to = new Date(`${selectedDateStr}T00:00:00${TZ_OFFSET}`);
+      to.setDate(to.getDate() + 1);
+    }
+
+    const playerService = new PlayerService();
+    const [courts, slots, allPlayers] = await Promise.all([
+      bookingService.listActiveClubCourts(club.id),
+      bookingService.getAgendaSlots(club.id, from.toISOString(), to.toISOString()),
+      playerService.searchPlayersWeighted("", 200),
+    ]);
+
+    const playerOptions = (allPlayers || []).map((p: any) => ({
+      id: p.id,
+      label: `${p.first_name || ""} ${p.last_name || ""}`.trim() || p.display_name || "Jugador",
+    }));
+
+    return (
+      <div className="container mx-auto max-w-7xl space-y-4 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Vista unificada de reservas, ligas y torneos por cancha.
+            </p>
+          </div>
+          <BookingsViewToggle current="agenda" />
+        </div>
+
+        <AgendaGrid
+          courts={courts}
+          slots={slots}
+          initialDate={selectedDateStr}
+          initialView={agendaView}
+          confirmAction={confirmBookingAction}
+          rejectAction={rejectBookingAction}
+          cancelAction={clubCancelBookingAction}
+          createAction={clubCreateBookingAndMatchAction}
+          clubId={club.id}
+          players={playerOptions}
+          baseHref="/club/dashboard/bookings"
+        />
+      </div>
+    );
+  }
+
+  // ── Vista Lista ───────────────────────────────────────────────────────────
   const cursorDate = parseDate(params.cursor);
   const weekStart = startOfWeekMonday(cursorDate);
   const weekEnd = new Date(weekStart);
@@ -70,14 +155,16 @@ export default async function ClubBookingsPage({
   const weekLabel = `${weekStart.toLocaleDateString("es-AR", {
     day: "2-digit",
     month: "short",
-  })} - ${weekEnd.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}`;
+  })} - ${weekEnd.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })}`;
   const prevWeek = new Date(weekStart);
   prevWeek.setDate(prevWeek.getDate() - 7);
   const nextWeek = new Date(weekStart);
   nextWeek.setDate(nextWeek.getDate() + 7);
 
-  const { club } = await requireClub();
-  const bookingService = new BookingService();
   const playerService = new PlayerService();
   const clubService = new ClubService();
   const [bookings, settings, courts, allPlayers, clubMatches] = await Promise.all([
@@ -96,36 +183,28 @@ export default async function ClubBookingsPage({
       return asDateKey(d);
     })
   );
+  const weekBookings = bookings.filter((booking) =>
+    weekDateSet.has(asDateKey(new Date(booking.start_at)))
+  );
 
-  const weekBookings = bookings.filter((booking) => {
-    const d = new Date(booking.start_at);
-    return weekDateSet.has(asDateKey(d));
-  });
   const requestedPlayerIds = Array.from(
     new Set(
       weekBookings
-        .map((booking) => booking.requested_by_player_id as string | null)
+        .map((b) => b.requested_by_player_id as string | null)
         .filter((id): id is string => !!id)
     )
   );
-  const weightedPlayerIds = new Set((allPlayers || []).map((player: any) => player.id as string));
-  const missingRequestedPlayerIds = requestedPlayerIds.filter((id) => !weightedPlayerIds.has(id));
-  const missingRequestedPlayers = await Promise.all(
-    missingRequestedPlayerIds.map(async (playerId) => {
-      try {
-        return await playerService.getPlayerById(playerId);
-      } catch {
-        return null;
-      }
-    })
+  const weightedPlayerIds = new Set((allPlayers || []).map((p: any) => p.id as string));
+  const missingPlayers = await Promise.all(
+    requestedPlayerIds
+      .filter((id) => !weightedPlayerIds.has(id))
+      .map(async (id) => {
+        try { return await playerService.getPlayerById(id); } catch { return null; }
+      })
   );
   const mergedPlayersMap = new Map<string, any>();
-  for (const player of allPlayers || []) {
-    if (player?.id) mergedPlayersMap.set(player.id, player);
-  }
-  for (const player of missingRequestedPlayers) {
-    if (player?.id) mergedPlayersMap.set(player.id, player);
-  }
+  for (const p of allPlayers || []) { if (p?.id) mergedPlayersMap.set(p.id, p); }
+  for (const p of missingPlayers) { if (p?.id) mergedPlayersMap.set(p.id, p); }
   const mergedPlayers = Array.from(mergedPlayersMap.values());
 
   const byDay = new Map<string, WeekDayBucket>();
@@ -143,10 +222,8 @@ export default async function ClubBookingsPage({
       history: 0,
     });
   }
-
   for (const booking of weekBookings) {
-    const start = new Date(booking.start_at);
-    const key = asDateKey(start);
+    const key = asDateKey(new Date(booking.start_at));
     const bucket = byDay.get(key);
     if (!bucket) continue;
     bucket.bookings.push(booking);
@@ -174,6 +251,7 @@ export default async function ClubBookingsPage({
       player.display_name ||
       "Jugador",
   }));
+
   const submitConfirm = async (formData: FormData) => {
     "use server";
     await confirmBookingAction(formData);
@@ -189,15 +267,20 @@ export default async function ClubBookingsPage({
 
   return (
     <div className="container mx-auto px-4 max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Reservas</h1>
-        <p className="text-sm text-gray-500">Calendario unificado con solicitudes, confirmaciones e historial.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Reservas</h1>
+          <p className="text-sm text-gray-500">
+            Calendario unificado con solicitudes, confirmaciones e historial.
+          </p>
+        </div>
+        <BookingsViewToggle current="lista" />
       </div>
 
       <ClubBookingsCalendarPanel
         weekLabel={weekLabel}
-        prevWeekHref={`/club/dashboard/bookings?cursor=${toDateInput(prevWeek)}`}
-        nextWeekHref={`/club/dashboard/bookings?cursor=${toDateInput(nextWeek)}`}
+        prevWeekHref={`/club/dashboard/bookings?view_mode=lista&cursor=${toDateInput(prevWeek)}`}
+        nextWeekHref={`/club/dashboard/bookings?view_mode=lista&cursor=${toDateInput(nextWeek)}`}
         buckets={buckets}
         totalRequested={totalRequested}
         totalConfirmed={totalConfirmed}
@@ -209,7 +292,9 @@ export default async function ClubBookingsPage({
       />
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
-        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">Detalle de la semana</h2>
+        <h2 className="text-sm font-black uppercase tracking-wider text-gray-500">
+          Detalle de la semana
+        </h2>
         {sortedBookings.length === 0 ? (
           <p className="text-sm text-gray-500">No hay reservas en la semana seleccionada.</p>
         ) : (
@@ -217,18 +302,27 @@ export default async function ClubBookingsPage({
             <div key={booking.id} className="rounded-xl border border-gray-100 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-gray-900">{booking.club_courts?.name || "Cancha"}</p>
+                  <p className="font-semibold text-gray-900">
+                    {booking.club_courts?.name || "Cancha"}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {new Date(booking.start_at).toLocaleString("es-AR")} -{" "}
-                    {new Date(booking.end_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(booking.end_at).toLocaleTimeString("es-AR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </div>
                 <BookingStatusBadge status={booking.status} />
               </div>
 
-              {booking.note ? <p className="mt-2 text-sm text-gray-700">Nota: {booking.note}</p> : null}
+              {booking.note ? (
+                <p className="mt-2 text-sm text-gray-700">Nota: {booking.note}</p>
+              ) : null}
               {booking.rejection_reason ? (
-                <p className="mt-2 text-sm text-red-700">Motivo rechazo: {booking.rejection_reason}</p>
+                <p className="mt-2 text-sm text-red-700">
+                  Motivo rechazo: {booking.rejection_reason}
+                </p>
               ) : null}
 
               <div className="mt-3 flex flex-wrap gap-2">
@@ -274,14 +368,17 @@ export default async function ClubBookingsPage({
                         if (!match) {
                           return (
                             <p className="text-gray-500">
-                              No pudimos cargar el detalle del partido. Puedes verlo desde Partidos.
+                              No pudimos cargar el detalle del partido. Podés verlo desde Partidos.
                             </p>
                           );
                         }
                         return (
                           <>
                             <p className="text-gray-700">
-                              Estado: <span className="font-semibold text-gray-900">{matchStatusLabel(match.status)}</span>
+                              Estado:{" "}
+                              <span className="font-semibold text-gray-900">
+                                {matchStatusLabel(match.status)}
+                              </span>
                             </p>
                             <p className="text-gray-700">
                               Fecha/Hora:{" "}
@@ -297,32 +394,43 @@ export default async function ClubBookingsPage({
                             </p>
                             <div className="grid gap-2 md:grid-cols-2">
                               <div>
-                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">Equipo A</p>
+                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">
+                                  Equipo A
+                                </p>
                                 {(match.playersByTeam.A || []).length === 0 ? (
                                   <p className="text-gray-500">Sin jugadores</p>
                                 ) : (
                                   <ul className="space-y-1 text-gray-900">
-                                    {(match.playersByTeam.A || []).map((player) => (
-                                      <li key={player.id}>{`${player.first_name || ""} ${player.last_name || ""}`.trim()}</li>
+                                    {(match.playersByTeam.A || []).map((player: any) => (
+                                      <li key={player.id}>
+                                        {`${player.first_name || ""} ${player.last_name || ""}`.trim()}
+                                      </li>
                                     ))}
                                   </ul>
                                 )}
                               </div>
                               <div>
-                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">Equipo B</p>
+                                <p className="text-xs font-black uppercase tracking-wider text-gray-500">
+                                  Equipo B
+                                </p>
                                 {(match.playersByTeam.B || []).length === 0 ? (
                                   <p className="text-gray-500">Sin jugadores</p>
                                 ) : (
                                   <ul className="space-y-1 text-gray-900">
-                                    {(match.playersByTeam.B || []).map((player) => (
-                                      <li key={player.id}>{`${player.first_name || ""} ${player.last_name || ""}`.trim()}</li>
+                                    {(match.playersByTeam.B || []).map((player: any) => (
+                                      <li key={player.id}>
+                                        {`${player.first_name || ""} ${player.last_name || ""}`.trim()}
+                                      </li>
                                     ))}
                                   </ul>
                                 )}
                               </div>
                             </div>
                             <div>
-                              <Link href="/club/matches" className="text-sm font-semibold text-blue-700 hover:underline">
+                              <Link
+                                href="/club/matches"
+                                className="text-sm font-semibold text-blue-700 hover:underline"
+                              >
                                 Ir a Partidos
                               </Link>
                             </div>

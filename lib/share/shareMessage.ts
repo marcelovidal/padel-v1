@@ -55,6 +55,80 @@ export function buildShareMessage(match: any, siteUrl: string): string {
     ].join("\n");
 }
 
+// ── OG image URL builders ────────────────────────────────────
+
+export function buildOgMatchUrl(matchId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/api/og/match?id=${encodeURIComponent(matchId)}`;
+}
+
+export function buildOgPlayerUrl(playerId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/api/og/player?id=${encodeURIComponent(playerId)}`;
+}
+
+export function buildOgClubRankingUrl(clubId: string, clubName: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/api/og/club-ranking?clubId=${encodeURIComponent(clubId)}&name=${encodeURIComponent(clubName)}`;
+}
+
+export function buildOgLeagueUrl(leagueId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/api/og/league?leagueId=${encodeURIComponent(leagueId)}`;
+}
+
+// ── /share/* public page URL builders ─────────────────────────
+
+export function buildShareMatchUrl(matchId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/match/${matchId}`;
+}
+
+export function buildSharePlayerUrl(playerId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/player/${playerId}`;
+}
+
+export function buildShareRankingUrl(clubId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/ranking/${clubId}`;
+}
+
+export function buildShareLeagueUrl(leagueId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/league/${leagueId}`;
+}
+
+export function buildShareBadgeUrl(playerName: string, badgeKey: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/share/badge/${encodeURIComponent(playerName)}/${encodeURIComponent(badgeKey)}`;
+}
+
+export function buildOgBadgeUrl(
+    playerId: string,
+    badgeKey: string,
+    playerName: string,
+    unlockedAt: string,
+    siteUrl: string
+): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    const params = new URLSearchParams({ playerId, badgeKey, playerName, unlockedAt });
+    return `${base}/api/og/badge?${params.toString()}`;
+}
+
+// ── WhatsApp text builders by card type ──────────────────────
+
+export function buildWhatsAppTextForCard(type: "match" | "player" | "ranking" | "league" | "badge", context: { clubName?: string; playerName?: string; badgeTitle?: string }, shareUrl: string): string {
+    const texts: Record<string, string> = {
+        match:   `¡Jugué en PASALA! Mirá el resultado 👊\n${shareUrl}`,
+        player:  `Mi perfil de jugador en PASALA 🎾\n${shareUrl}`,
+        ranking: `Así está el ranking en ${context.clubName ?? "el club"} 🏆\n${shareUrl}`,
+        league:  `Tabla de posiciones actualizada 📊\n${shareUrl}`,
+        badge:   `¡Desbloqueé "${context.badgeTitle ?? "un logro"}" en PASALA! ⭐\n${shareUrl}`,
+    };
+    return texts[type] ?? shareUrl;
+}
+
 export function buildPlayerInviteMessage(
     player: { id: string; display_name?: string | null; city?: string | null; region_code?: string | null },
     siteUrl: string

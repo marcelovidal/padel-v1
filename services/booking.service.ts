@@ -3,6 +3,7 @@ import {
   BookingStatus,
   CourtSurfaceType,
 } from "@/repositories/booking.repository";
+export type { AgendaSlot, AgendaSlotType } from "@/repositories/booking.repository";
 
 export class BookingService {
   private repository: BookingRepository;
@@ -99,8 +100,16 @@ export class BookingService {
     return this.repository.cancelBooking(bookingId);
   }
 
+  async clubCancelBooking(bookingId: string) {
+    return this.repository.clubCancelBooking(bookingId);
+  }
+
   async createMatchFromBooking(bookingId: string) {
     return this.repository.createMatchFromBooking(bookingId);
+  }
+
+  async getAgendaSlots(clubId: string, from: string, to: string) {
+    return this.repository.getAgendaSlots(clubId, from, to);
   }
 
   async createClubConfirmedBookingMatch(input: {

@@ -35,6 +35,18 @@ function fallbackTitleByType(type: NotificationItem["type"]) {
       return "Nuevo reclamo de club";
     case "club_match_created":
       return "Nuevo partido en tu club";
+    case "tournament_open_for_registration":
+      return "Torneo abierto para inscripcion";
+    case "league_open_for_registration":
+      return "Liga abierta para inscripcion";
+    case "tournament_registration_requested":
+      return "Nueva solicitud de torneo";
+    case "league_registration_requested":
+      return "Nueva solicitud de liga";
+    case "tournament_registration_confirmed":
+      return "Inscripcion a torneo confirmada";
+    case "league_registration_confirmed":
+      return "Inscripcion a liga confirmada";
     default:
       return "Nueva notificacion";
   }
@@ -111,8 +123,24 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
     });
 
     if (item.payload?.link && typeof item.payload.link === "string") {
+      const shouldGoToRegistrations =
+        item.type === "tournament_registration_requested" ||
+        item.type === "league_registration_requested";
+      let link = item.payload.link;
+      if (shouldGoToRegistrations && !link.includes("#")) {
+        link = `${link}#registrations`;
+      }
+
       setOpen(false);
-      router.push(item.payload.link);
+      const [pathname, hash] = link.split("#");
+      if (typeof window !== "undefined" && pathname === window.location.pathname && hash) {
+        const targetEl = document.getElementById(hash);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+      }
+      router.push(link);
     }
   }
 
@@ -230,3 +258,4 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
     </div>
   );
 }
+

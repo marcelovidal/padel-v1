@@ -2,6 +2,9 @@ import { requireClub } from "@/lib/auth";
 import { RankingService } from "@/services/ranking.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RecalculateRankingButton } from "@/components/club/RecalculateRankingButton";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
+import { getSiteUrl } from "@/lib/utils/url";
+import { buildOgClubRankingUrl, buildShareRankingUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
 function formatDate(date: string | null) {
   if (!date) return "-";
@@ -16,6 +19,10 @@ export default async function ClubRankingPage() {
   const rankingService = new RankingService();
   const ranking = await rankingService.getClubRanking(club.id, 20, 0);
 
+  const siteUrl = getSiteUrl();
+  const ogRankingUrl = buildOgClubRankingUrl(club.id, club.name, siteUrl);
+  const shareRankingUrl = buildShareRankingUrl(club.id, siteUrl);
+  const rankingCardWhatsAppText = buildWhatsAppTextForCard("ranking", { clubName: club.name }, shareRankingUrl);
   const rankedPlayers = ranking.length;
   const rankedMatches = ranking.reduce((acc, row) => acc + row.matches_played, 0);
   const lastUpdated = ranking.reduce<string | null>((acc, row) => {
@@ -33,7 +40,17 @@ export default async function ClubRankingPage() {
             <h1 className="mt-1 text-3xl font-black tracking-tight text-gray-900">Ranking del club</h1>
             <p className="mt-1 text-gray-600">{club.name}</p>
           </div>
-          <RecalculateRankingButton clubId={club.id} />
+          <div className="flex items-center gap-2">
+            <ShareCardButton
+              type="ranking"
+              shareUrl={shareRankingUrl}
+              whatsappText={rankingCardWhatsAppText}
+              ogImageUrl={ogRankingUrl}
+              label="Compartir ranking"
+              downloadName={`pasala-ranking-${club.name.replace(/\s+/g, "-").toLowerCase()}`}
+            />
+            <RecalculateRankingButton clubId={club.id} />
+          </div>
         </div>
       </div>
 

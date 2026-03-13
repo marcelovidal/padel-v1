@@ -21,6 +21,26 @@ export const publicFaqItems: FaqItem[] = [
     answer:
       "El club se reclama mediante solicitud y pasa por una revision administrativa antes de quedar confirmado.",
   },
+  {
+    question: "Como funciona la inscripcion a ligas y torneos?",
+    answer:
+      "El club publica la liga o torneo y los jugadores se inscriben como duo directamente desde la app. Con ambos confirmados, el equipo queda armado automaticamente.",
+  },
+  {
+    question: "Puedo reservar una cancha desde la app?",
+    answer:
+      "Si. Los clubes habilitan turnos disponibles y los jugadores pueden reservar cancha al momento de crear un partido o de forma independiente.",
+  },
+  {
+    question: "El ranking del club como se calcula?",
+    answer:
+      "Se basa en los partidos registrados en el club. El club puede recalcularlo en cualquier momento desde el panel de administracion.",
+  },
+  {
+    question: "Donde veo mis ligas y torneos activos?",
+    answer:
+      "En la seccion Eventos de tu perfil de jugador. Ahi aparecen los eventos con inscripcion abierta y los que ya estas participando.",
+  },
 ];
 
 export const shareDemoMessage = `Partido cargado en PASALA
