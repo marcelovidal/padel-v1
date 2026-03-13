@@ -101,7 +101,7 @@ export default async function MatchDetailPage({
         type: "match" as const,
         teamA: teamA.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
         teamB: teamB.map((p: any) => `${p.players?.first_name ?? ""} ${(p.players?.last_name ?? "").charAt(0)}.`.trim()).join(" / "),
-        sets: normalizedSets,
+        sets: normalizedSets.map(s => ({ a: s.a ?? 0, b: s.b ?? 0 })),
     } : undefined;
 
     return (
