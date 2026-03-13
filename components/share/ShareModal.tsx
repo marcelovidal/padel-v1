@@ -54,6 +54,7 @@ export function ShareModal({
     return <PhotoCardComposer cardData={cardData} onClose={() => setPhotoComposerOpen(false)} />;
   }
 
+
   // Use a relative path for the img preview and download fetch so it always
   // hits the current server (avoids cross-origin issues when NEXT_PUBLIC_SITE_URL
   // points to production while running locally).
