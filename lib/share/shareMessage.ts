@@ -62,6 +62,11 @@ export function buildOgMatchUrl(matchId: string, siteUrl: string): string {
     return `${base}/api/og/match?id=${encodeURIComponent(matchId)}`;
 }
 
+export function buildOgMatchStoryUrl(matchId: string, siteUrl: string): string {
+    const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+    return `${base}/api/og/match-story?id=${encodeURIComponent(matchId)}`;
+}
+
 export function buildOgPlayerUrl(playerId: string, siteUrl: string): string {
     const base = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
     return `${base}/api/og/player?id=${encodeURIComponent(playerId)}`;
