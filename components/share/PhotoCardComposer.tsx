@@ -34,9 +34,15 @@ export function PhotoCardComposer({ cardData, onClose }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Draw user photo as background
+    // Draw user photo as background — object-fit: cover equivalent
+    // Scale to fill the canvas keeping aspect ratio, center and crop edges
     const img = await loadImage(file);
-    ctx.drawImage(img, 0, 0, 1080, 1080);
+    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+    const drawW = img.width * scale;
+    const drawH = img.height * scale;
+    const drawX = (canvas.width - drawW) / 2;
+    const drawY = (canvas.height - drawH) / 2;
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
     // Bottom band
     const bandaY = 720;
