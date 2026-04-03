@@ -135,13 +135,16 @@ export default function PlayerSignupWizard({
     return Array.from({ length: 80 }, (_, i) => current - i - 10);
   }, []);
 
+  // Geo is valid if either: dropdown resolved (regionCode + cityId)
+  // OR fallback text mode (regionName + city both filled manually)
+  const geoValid = (!!regionCode && !!cityId) || (regionName.trim().length >= 2 && city.trim().length >= 2);
+
   const canStep1 =
     firstName.trim().length >= 2 &&
     lastName.trim().length >= 2 &&
     nick.trim().length >= 2 &&
     phone.trim().length >= 8 &&
-    !!regionCode &&
-    !!cityId;
+    geoValid;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -258,33 +261,81 @@ export default function PlayerSignupWizard({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GeoSelect
-              label="Provincia*"
-              placeholder="Elegi provincia"
-              options={provincias}
-              value={regionCode}
-              loadError={provinciasError}
-              onRetry={loadProvincias}
-              onChange={(opt) => {
-                setRegionCode(opt?.id || "");
-                setRegionName(opt?.nombre || "");
-                setCityId("");
-                setCity("");
-              }}
-            />
-            <GeoSelect
-              label="Ciudad*"
-              placeholder="Busca ciudad"
-              options={localidades}
-              value={cityId}
-              isLoading={loadingGeo}
-              disabled={!regionCode}
-              onChange={(opt) => {
-                setCityId(opt?.id || "");
-                setCity(opt?.nombre || "");
-              }}
-            />
+            {provinciasError ? (
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Provincia* <span className="text-xs text-amber-600 font-normal">(ingresá manualmente)</span>
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    className="flex-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Ej: Río Negro"
+                    value={regionName}
+                    onChange={(e) => {
+                      setRegionName(e.target.value);
+                      setRegionCode("");
+                      setCityId("");
+                      setCity("");
+                    }}
+                  />
+                  <button type="button" onClick={loadProvincias} className="rounded-xl border border-gray-300 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50">
+                    ↺
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <GeoSelect
+                label="Provincia*"
+                placeholder="Elegi provincia"
+                options={provincias}
+                value={regionCode}
+                onChange={(opt) => {
+                  setRegionCode(opt?.id || "");
+                  setRegionName(opt?.nombre || "");
+                  setCityId("");
+                  setCity("");
+                }}
+              />
+            )}
+
+            {/* City: dropdown if province resolved via API, text input otherwise */}
+            {!provinciasError && regionCode ? (
+              <GeoSelect
+                label="Ciudad*"
+                placeholder="Busca ciudad"
+                options={localidades}
+                value={cityId}
+                isLoading={loadingGeo}
+                disabled={!regionCode}
+                onChange={(opt) => {
+                  setCityId(opt?.id || "");
+                  setCity(opt?.nombre || "");
+                }}
+              />
+            ) : (
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Ciudad* {provinciasError && <span className="text-xs text-amber-600 font-normal">(ingresá manualmente)</span>}
+                </label>
+                <input
+                  className="w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Ej: General Roca"
+                  value={city}
+                  disabled={!provinciasError && !regionCode && !regionName}
+                  onChange={(e) => {
+                    setCity(e.target.value);
+                    setCityId("");
+                  }}
+                />
+              </div>
+            )}
           </div>
+
+          {provinciasError && (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              El servicio de ubicaciones no esta disponible ahora. Escribi tu provincia y ciudad — el sistema las verificara automaticamente cuando te logues.
+            </p>
+          )}
           <select className="w-full rounded-xl border border-gray-300 px-4 py-3" value={birthYear} onChange={(e) => setBirthYear(e.target.value)}>
             <option value="">Ano de nacimiento (opcional)</option>
             {years.map((year) => (
