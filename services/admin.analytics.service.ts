@@ -14,4 +14,5 @@ export class AdminAnalyticsService {
   getRetention()                  { return this.repo.getRetention(); }
   getFeatureAdoption()            { return this.repo.getFeatureAdoption(); }
   getClubMetrics()                { return this.repo.getClubMetrics(); }
+  getGeoHealth()                  { return this.repo.getGeoHealth(); }
 }

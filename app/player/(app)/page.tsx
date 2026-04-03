@@ -20,7 +20,7 @@ import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { RegistrationsService } from "@/services/registrations.service";
 import { PlayerEventsWidget } from "@/components/player/PlayerEventsWidget";
 import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
-import { CityResolutionBanner } from "@/components/player/CityResolutionBanner";
+import { resolvePlayerCityAction } from "@/lib/actions/geo-resolve.actions";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +71,11 @@ export default async function PlayerDashboard() {
     );
   }
 
+  // Silently try to resolve city_id if missing — no UI shown, tracked in admin analytics
+  if (!player.city_id && player.city) {
+    resolvePlayerCityAction().catch(() => {});
+  }
+
   const registrationsService = new RegistrationsService();
 
   const [
@@ -111,9 +116,6 @@ export default async function PlayerDashboard() {
 
   return (
     <div className="container mx-auto max-w-5xl space-y-6 p-4 pb-20">
-      {!player.city_id && player.city && (
-        <CityResolutionBanner cityText={player.city} />
-      )}
       {recentMatches.length === 1 && (
         <div className="rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

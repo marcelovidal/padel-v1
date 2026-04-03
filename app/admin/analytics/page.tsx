@@ -165,7 +165,10 @@ function PeriodSelector({ current, tab }: { current: number; tab: TabId }) {
 
 async function GrowthSection() {
   const service = new AdminAnalyticsService();
-  const data = await service.getGrowthStats().catch(() => null);
+  const [data, geo] = await Promise.all([
+    service.getGrowthStats().catch(() => null),
+    service.getGeoHealth().catch(() => null),
+  ]);
   if (!data) return <SectionError />;
 
   const convPct = data.total_guests > 0
@@ -207,6 +210,52 @@ async function GrowthSection() {
           )}
         </CardContent>
       </Card>
+
+      {geo && (
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              Salud de datos geográficos
+              <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${geo.resolution_pct >= 90 ? "bg-green-50 text-green-700" : geo.resolution_pct >= 70 ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"}`}>
+                {geo.resolution_pct.toFixed(1)}% resueltos
+              </span>
+            </CardTitle>
+            <p className="text-xs text-gray-500">Jugadores con onboarding completo — resolución automática de ciudad al login</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-green-100 bg-green-50 p-3 text-center">
+                <p className="text-2xl font-black text-green-700">{fmt(geo.with_city_id)}</p>
+                <p className="text-xs font-semibold text-green-600 mt-0.5">Ciudad verificada</p>
+              </div>
+              <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-center">
+                <p className="text-2xl font-black text-amber-700">{fmt(geo.pending_resolution)}</p>
+                <p className="text-xs font-semibold text-amber-600 mt-0.5">Pendiente resolución</p>
+                <p className="text-[10px] text-amber-500">tienen texto de ciudad</p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center">
+                <p className="text-2xl font-black text-gray-500">{fmt(geo.no_geo_data)}</p>
+                <p className="text-xs font-semibold text-gray-500 mt-0.5">Sin datos geo</p>
+              </div>
+            </div>
+
+            {geo.unresolved_sample.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Últimos registros sin city_id</p>
+                <div className="space-y-1">
+                  {geo.unresolved_sample.map((p, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-1.5 text-xs">
+                      <span className="font-semibold text-gray-700 w-28 truncate">{p.display_name}</span>
+                      <span className="text-gray-500 flex-1">{p.city}{p.region_name ? `, ${p.region_name}` : ""}</span>
+                      <span className="text-gray-400 shrink-0">{new Date(p.registered_at).toLocaleDateString("es-AR")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

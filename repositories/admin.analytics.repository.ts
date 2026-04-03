@@ -214,6 +214,50 @@ export class AdminAnalyticsRepository {
     };
   }
 
+  async getGeoHealth(): Promise<{
+    total_onboarded: number;
+    with_city_id: number;
+    pending_resolution: number; // city text saved but city_id null
+    no_geo_data: number;        // neither city nor city_id
+    resolution_pct: number;
+    unresolved_sample: Array<{ display_name: string; city: string; region_name: string; registered_at: string }>;
+  }> {
+    const supabase = await this.getClient();
+
+    const { data: rows, error } = await (supabase as any)
+      .from("players")
+      .select("id, display_name, city, city_id, region_name, created_at, onboarding_completed")
+      .eq("onboarding_completed", true);
+
+    if (error) throw error;
+    const players: any[] = rows ?? [];
+
+    const total = players.length;
+    const withId = players.filter((p) => !!p.city_id).length;
+    const pending = players.filter((p) => !p.city_id && !!p.city).length;
+    const noGeo = players.filter((p) => !p.city_id && !p.city).length;
+
+    const sample = players
+      .filter((p) => !p.city_id && !!p.city)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 10)
+      .map((p) => ({
+        display_name: p.display_name ?? "",
+        city: p.city ?? "",
+        region_name: p.region_name ?? "",
+        registered_at: p.created_at ?? "",
+      }));
+
+    return {
+      total_onboarded: total,
+      with_city_id: withId,
+      pending_resolution: pending,
+      no_geo_data: noGeo,
+      resolution_pct: total > 0 ? (withId / total) * 100 : 100,
+      unresolved_sample: sample,
+    };
+  }
+
   async getClubMetrics(): Promise<ClubMetricsRow[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("admin_analytics_club_metrics");
