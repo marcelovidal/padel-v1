@@ -1,0 +1,574 @@
+[
+  {
+    "id": "62084010",
+    "nombre": "Aguada Cecilio"
+  },
+  {
+    "id": "62091010",
+    "nombre": "Aguada de Guerra"
+  },
+  {
+    "id": "62035010",
+    "nombre": "Aguada Guzmán"
+  },
+  {
+    "id": "62042010",
+    "nombre": "Allen"
+  },
+  {
+    "id": "62084020",
+    "nombre": "Arroyo Los Berros"
+  },
+  {
+    "id": "62084030",
+    "nombre": "Arroyo Ventana"
+  },
+  {
+    "id": "62007010",
+    "nombre": "Bahía Creek"
+  },
+  {
+    "id": "62042030",
+    "nombre": "Barda del Medio"
+  },
+  {
+    "id": "62042040",
+    "nombre": "Barrio Blanco"
+  },
+  {
+    "id": "62042050",
+    "nombre": "Barrio Calle Ciega Nº 10"
+  },
+  {
+    "id": "62042060",
+    "nombre": "Barrio Calle Ciega Nº 6"
+  },
+  {
+    "id": "62042070",
+    "nombre": "Barrio Canale"
+  },
+  {
+    "id": "62042080",
+    "nombre": "Barrio Chacra Monte"
+  },
+  {
+    "id": "62028010",
+    "nombre": "Barrio Colonia Conesa"
+  },
+  {
+    "id": "62042090",
+    "nombre": "Barrio Costa Este"
+  },
+  {
+    "id": "62042110",
+    "nombre": "Barrio Costa Oeste"
+  },
+  {
+    "id": "62042115",
+    "nombre": "Barrio Destacamento"
+  },
+  {
+    "id": "62042120",
+    "nombre": "Barrio El Labrador"
+  },
+  {
+    "id": "62042130",
+    "nombre": "Barrio El Maruchito"
+  },
+  {
+    "id": "62042140",
+    "nombre": "Barrio El Petróleo"
+  },
+  {
+    "id": "62042143",
+    "nombre": "Barrio Emergente"
+  },
+  {
+    "id": "62063005",
+    "nombre": "Barrio Esperanza"
+  },
+  {
+    "id": "62042147",
+    "nombre": "Barrio Fátima"
+  },
+  {
+    "id": "62042150",
+    "nombre": "Barrio Frontera"
+  },
+  {
+    "id": "62042160",
+    "nombre": "Barrio Guerrico"
+  },
+  {
+    "id": "62042170",
+    "nombre": "Barrio Isla 10"
+  },
+  {
+    "id": "62042180",
+    "nombre": "Barrio La Barda"
+  },
+  {
+    "id": "62042200",
+    "nombre": "Barrio La Costa"
+  },
+  {
+    "id": "62042210",
+    "nombre": "Barrio La Defensa"
+  },
+  {
+    "id": "62042215",
+    "nombre": "Barrio La Herradura"
+  },
+  {
+    "id": "6204240001",
+    "nombre": "Barrio La Lor"
+  },
+  {
+    "id": "62042245",
+    "nombre": "Barrio Luisillo"
+  },
+  {
+    "id": "62042250",
+    "nombre": "Barrio Mar del Plata"
+  },
+  {
+    "id": "62042260",
+    "nombre": "Barrio María Elvira"
+  },
+  {
+    "id": "62042265",
+    "nombre": "Barrio Moño Azul"
+  },
+  {
+    "id": "62042280",
+    "nombre": "Barrio Norte"
+  },
+  {
+    "id": "62042297",
+    "nombre": "Barrio Pinar"
+  },
+  {
+    "id": "6204245001",
+    "nombre": "Barrio Pino Azul"
+  },
+  {
+    "id": "62028030",
+    "nombre": "Barrio Planta Compresora de Gas"
+  },
+  {
+    "id": "62042310",
+    "nombre": "Barrio Porvenir"
+  },
+  {
+    "id": "6204239001",
+    "nombre": "Barrio Presidente Perón"
+  },
+  {
+    "id": "62042335",
+    "nombre": "Barrio Santa Lucia"
+  },
+  {
+    "id": "62042340",
+    "nombre": "Barrio Santa Rita"
+  },
+  {
+    "id": "62042350",
+    "nombre": "Barrio Unión"
+  },
+  {
+    "id": "62070005",
+    "nombre": "Cañadón Chileno"
+  },
+  {
+    "id": "62042360",
+    "nombre": "Catriel"
+  },
+  {
+    "id": "62035020",
+    "nombre": "Cerro Policía"
+  },
+  {
+    "id": "62042370",
+    "nombre": "Cervantes"
+  },
+  {
+    "id": "62014020",
+    "nombre": "Chelforó"
+  },
+  {
+    "id": "62042380",
+    "nombre": "Chichinales"
+  },
+  {
+    "id": "62014030",
+    "nombre": "Chimpay"
+  },
+  {
+    "id": "62014040",
+    "nombre": "Choele Choel"
+  },
+  {
+    "id": "62042390",
+    "nombre": "Cinco Saltos"
+  },
+  {
+    "id": "6204240002",
+    "nombre": "Cipolletti"
+  },
+  {
+    "id": "62091020",
+    "nombre": "Clemente Onelli"
+  },
+  {
+    "id": "62091030",
+    "nombre": "Colan Conhue"
+  },
+  {
+    "id": "62063010",
+    "nombre": "Colonia Juliá y Echarren"
+  },
+  {
+    "id": "62021020",
+    "nombre": "Colonia Suiza"
+  },
+  {
+    "id": "62070010",
+    "nombre": "Comallo"
+  },
+  {
+    "id": "62049010",
+    "nombre": "Comicó"
+  },
+  {
+    "id": "62049020",
+    "nombre": "Cona Niyeu"
+  },
+  {
+    "id": "62042410",
+    "nombre": "Contralmirante Cordero"
+  },
+  {
+    "id": "62014050",
+    "nombre": "Coronel Belisle"
+  },
+  {
+    "id": "62014060",
+    "nombre": "Darwin"
+  },
+  {
+    "id": "62070020",
+    "nombre": "Dina Huapi"
+  },
+  {
+    "id": "62021030",
+    "nombre": "El Bolsón"
+  },
+  {
+    "id": "62091040",
+    "nombre": "El Caín"
+  },
+  {
+    "id": "62007020",
+    "nombre": "El Cóndor"
+  },
+  {
+    "id": "62035030",
+    "nombre": "El Cuy"
+  },
+  {
+    "id": "62077005",
+    "nombre": "El Empalme"
+  },
+  {
+    "id": "62021040",
+    "nombre": "El Foyel"
+  },
+  {
+    "id": "62007030",
+    "nombre": "El Juncal"
+  },
+  {
+    "id": "62042420",
+    "nombre": "Ferri"
+  },
+  {
+    "id": "62028020",
+    "nombre": "General Conesa"
+  },
+  {
+    "id": "62042430",
+    "nombre": "General Enrique Godoy"
+  },
+  {
+    "id": "62042440",
+    "nombre": "General Fernández Oro"
+  },
+  {
+    "id": "62042450",
+    "nombre": "General Roca"
+  },
+  {
+    "id": "62007040",
+    "nombre": "Guardia Mitre"
+  },
+  {
+    "id": "62091050",
+    "nombre": "Ingeniero Jacobacci"
+  },
+  {
+    "id": "62042460",
+    "nombre": "Ingeniero Luis A. Huergo"
+  },
+  {
+    "id": "62042470",
+    "nombre": "Ingeniero Otto Krause"
+  },
+  {
+    "id": "62063013",
+    "nombre": "Juventud Unida"
+  },
+  {
+    "id": "62007050",
+    "nombre": "La Lobería"
+  },
+  {
+    "id": "62070030",
+    "nombre": "Laguna Blanca"
+  },
+  {
+    "id": "62014070",
+    "nombre": "Lamarque"
+  },
+  {
+    "id": "62056010",
+    "nombre": "Las Bayas"
+  },
+  {
+    "id": "62077010",
+    "nombre": "Las Grutas"
+  },
+  {
+    "id": "62035040",
+    "nombre": "Las Perlas"
+  },
+  {
+    "id": "62091060",
+    "nombre": "Los Menucos"
+  },
+  {
+    "id": "62007060",
+    "nombre": "Loteo Costa de Río"
+  },
+  {
+    "id": "62014080",
+    "nombre": "Luis Beltrán"
+  },
+  {
+    "id": "62042480",
+    "nombre": "Mainqué"
+  },
+  {
+    "id": "62021047",
+    "nombre": "Mallín Ahogado"
+  },
+  {
+    "id": "62056020",
+    "nombre": "Mamuel Choique"
+  },
+  {
+    "id": "62091070",
+    "nombre": "Maquinchao"
+  },
+  {
+    "id": "62035050",
+    "nombre": "Mencué"
+  },
+  {
+    "id": "62049030",
+    "nombre": "Ministro Ramos Mexía"
+  },
+  {
+    "id": "62084040",
+    "nombre": "Nahuel Niyeu"
+  },
+  {
+    "id": "62035060",
+    "nombre": "Naupa Huen"
+  },
+  {
+    "id": "62070040",
+    "nombre": "Ñirihuau"
+  },
+  {
+    "id": "62056030",
+    "nombre": "Ñorquincó"
+  },
+  {
+    "id": "62056040",
+    "nombre": "Ojos de Agua"
+  },
+  {
+    "id": "62042020",
+    "nombre": "Paraje Arroyón (Bajo San Cayetano)"
+  },
+  {
+    "id": "62035070",
+    "nombre": "Paso Córdova"
+  },
+  {
+    "id": "62042500",
+    "nombre": "Península Ruca Co"
+  },
+  {
+    "id": "62063017",
+    "nombre": "Pichi Mahuida"
+  },
+  {
+    "id": "62070060",
+    "nombre": "Pilcaniyeu"
+  },
+  {
+    "id": "62091090",
+    "nombre": "Pilquiniyeu"
+  },
+  {
+    "id": "62070070",
+    "nombre": "Pilquiniyeu del Limay"
+  },
+  {
+    "id": "62077020",
+    "nombre": "Playas Doradas"
+  },
+  {
+    "id": "62014090",
+    "nombre": "Pomona"
+  },
+  {
+    "id": "62007070",
+    "nombre": "Pozo Salado"
+  },
+  {
+    "id": "62049040",
+    "nombre": "Prahuaniyeu"
+  },
+  {
+    "id": "62042240",
+    "nombre": "Puente Cero"
+  },
+  {
+    "id": "62077030",
+    "nombre": "Puerto San Antonio Este"
+  },
+  {
+    "id": "62077040",
+    "nombre": "Punta Colorada"
+  },
+  {
+    "id": "62056050",
+    "nombre": "Río Chico"
+  },
+  {
+    "id": "62063020",
+    "nombre": "Río Colorado"
+  },
+  {
+    "id": "62021050",
+    "nombre": "Río Villegas"
+  },
+  {
+    "id": "62077045",
+    "nombre": "Saco Viejo"
+  },
+  {
+    "id": "62063060",
+    "nombre": "Salto Andersen"
+  },
+  {
+    "id": "62077050",
+    "nombre": "San Antonio Oeste"
+  },
+  {
+    "id": "62021060",
+    "nombre": "San Carlos de Bariloche"
+  },
+  {
+    "id": "62007080",
+    "nombre": "San Javier"
+  },
+  {
+    "id": "62042520",
+    "nombre": "Sargento Vidal"
+  },
+  {
+    "id": "62049050",
+    "nombre": "Sierra Colorada"
+  },
+  {
+    "id": "62077060",
+    "nombre": "Sierra Grande"
+  },
+  {
+    "id": "62084050",
+    "nombre": "Sierra Pailemán"
+  },
+  {
+    "id": "62049060",
+    "nombre": "Treneta"
+  },
+  {
+    "id": "62084060",
+    "nombre": "Valcheta"
+  },
+  {
+    "id": "62035080",
+    "nombre": "Valle Azul"
+  },
+  {
+    "id": "62007090",
+    "nombre": "Viedma"
+  },
+  {
+    "id": "62042530",
+    "nombre": "Villa Alberdi"
+  },
+  {
+    "id": "6202106002",
+    "nombre": "Villa Campanario"
+  },
+  {
+    "id": "62021080",
+    "nombre": "Villa Catedral"
+  },
+  {
+    "id": "62042540",
+    "nombre": "Villa del Parque"
+  },
+  {
+    "id": "62070080",
+    "nombre": "Villa Llanquín"
+  },
+  {
+    "id": "6202106003",
+    "nombre": "Villa Llao Llao"
+  },
+  {
+    "id": "62042550",
+    "nombre": "Villa Manzano"
+  },
+  {
+    "id": "62021110",
+    "nombre": "Villa Mascardi"
+  },
+  {
+    "id": "62042560",
+    "nombre": "Villa Regina"
+  },
+  {
+    "id": "62042570",
+    "nombre": "Villa San Isidro"
+  },
+  {
+    "id": "62049070",
+    "nombre": "Yaminué"
+  }
+]

@@ -1,0 +1,306 @@
+[
+  {
+    "id": "18161030",
+    "nombre": "9 de Julio"
+  },
+  {
+    "id": "18056010",
+    "nombre": "Alvear"
+  },
+  {
+    "id": "18007010",
+    "nombre": "Bella Vista"
+  },
+  {
+    "id": "18014010",
+    "nombre": "Berón de Astrada"
+  },
+  {
+    "id": "18119010",
+    "nombre": "Bonpland"
+  },
+  {
+    "id": "18070010",
+    "nombre": "Carolina"
+  },
+  {
+    "id": "18035010",
+    "nombre": "Cazadores Correntinos"
+  },
+  {
+    "id": "18161010",
+    "nombre": "Chavarría"
+  },
+  {
+    "id": "18147010",
+    "nombre": "Colonia Carlos Pellegrini"
+  },
+  {
+    "id": "18112010",
+    "nombre": "Colonia Libertad"
+  },
+  {
+    "id": "18084010",
+    "nombre": "Colonia Liebig's"
+  },
+  {
+    "id": "18161020",
+    "nombre": "Colonia Pando"
+  },
+  {
+    "id": "18028010",
+    "nombre": "Concepción"
+  },
+  {
+    "id": "18021020",
+    "nombre": "Corrientes"
+  },
+  {
+    "id": "18091010",
+    "nombre": "Cruz de los Milagros"
+  },
+  {
+    "id": "18035020",
+    "nombre": "Curuzú Cuatiá"
+  },
+  {
+    "id": "18042010",
+    "nombre": "El Sombrero"
+  },
+  {
+    "id": "18042020",
+    "nombre": "Empedrado"
+  },
+  {
+    "id": "18049010",
+    "nombre": "Esquina"
+  },
+  {
+    "id": "18112020",
+    "nombre": "Estación Libertad"
+  },
+  {
+    "id": "18056020",
+    "nombre": "Estación Torrent"
+  },
+  {
+    "id": "18105010",
+    "nombre": "Felipe Yofré"
+  },
+  {
+    "id": "18168020",
+    "nombre": "Garruchos"
+  },
+  {
+    "id": "18168030",
+    "nombre": "Gobernador Igr. Valentín Virasoro"
+  },
+  {
+    "id": "18091020",
+    "nombre": "Gobernador Juan E. Martínez"
+  },
+  {
+    "id": "18070020",
+    "nombre": "Goya"
+  },
+  {
+    "id": "18147020",
+    "nombre": "Guaviraví"
+  },
+  {
+    "id": "18133010",
+    "nombre": "Ingenio Primer Correntino"
+  },
+  {
+    "id": "18063010",
+    "nombre": "Itá Ibaté"
+  },
+  {
+    "id": "18077010",
+    "nombre": "Itatí"
+  },
+  {
+    "id": "18084020",
+    "nombre": "Ituzaingó"
+  },
+  {
+    "id": "18168010",
+    "nombre": "José Rafael Gómez"
+  },
+  {
+    "id": "18112030",
+    "nombre": "Juan Pujol"
+  },
+  {
+    "id": "18147030",
+    "nombre": "La Cruz"
+  },
+  {
+    "id": "18091030",
+    "nombre": "Lavalle"
+  },
+  {
+    "id": "18063020",
+    "nombre": "Lomas de Vallejos"
+  },
+  {
+    "id": "18154010",
+    "nombre": "Loreto"
+  },
+  {
+    "id": "18105020",
+    "nombre": "Mariano I. Loza"
+  },
+  {
+    "id": "18098010",
+    "nombre": "Mburucuyá"
+  },
+  {
+    "id": "18105030",
+    "nombre": "Mercedes"
+  },
+  {
+    "id": "18112040",
+    "nombre": "Mocoretá"
+  },
+  {
+    "id": "18112050",
+    "nombre": "Monte Caseros"
+  },
+  {
+    "id": "18063030",
+    "nombre": "Nuestra Señora del Rosario de Caá Catí"
+  },
+  {
+    "id": "18063040",
+    "nombre": "Palmar Grande"
+  },
+  {
+    "id": "18112060",
+    "nombre": "Parada Acuña"
+  },
+  {
+    "id": "18112070",
+    "nombre": "Parada Labougle"
+  },
+  {
+    "id": "18119020",
+    "nombre": "Parada Pucheta"
+  },
+  {
+    "id": "18133020",
+    "nombre": "Paso de la Patria"
+  },
+  {
+    "id": "18119030",
+    "nombre": "Paso de los Libres"
+  },
+  {
+    "id": "18161040",
+    "nombre": "Pedro R. Fernández"
+  },
+  {
+    "id": "18035030",
+    "nombre": "Perugorría"
+  },
+  {
+    "id": "18049020",
+    "nombre": "Pueblo Libertador"
+  },
+  {
+    "id": "18077020",
+    "nombre": "Ramada Paso"
+  },
+  {
+    "id": "18021040",
+    "nombre": "Riachuelo"
+  },
+  {
+    "id": "18126010",
+    "nombre": "Saladas"
+  },
+  {
+    "id": "18084030",
+    "nombre": "San Antonio"
+  },
+  {
+    "id": "18084040",
+    "nombre": "San Carlos"
+  },
+  {
+    "id": "18021050",
+    "nombre": "San Cayetano"
+  },
+  {
+    "id": "18133030",
+    "nombre": "San Cosme"
+  },
+  {
+    "id": "18126020",
+    "nombre": "San Lorenzo"
+  },
+  {
+    "id": "18140010",
+    "nombre": "San Luis del Palmar"
+  },
+  {
+    "id": "18154020",
+    "nombre": "San Miguel"
+  },
+  {
+    "id": "18161050",
+    "nombre": "San Roque"
+  },
+  {
+    "id": "18133040",
+    "nombre": "Santa Ana"
+  },
+  {
+    "id": "18091040",
+    "nombre": "Santa Lucía"
+  },
+  {
+    "id": "18028020",
+    "nombre": "Santa Rosa"
+  },
+  {
+    "id": "18168040",
+    "nombre": "Santo Tomé"
+  },
+  {
+    "id": "18175010",
+    "nombre": "Sauce"
+  },
+  {
+    "id": "18028030",
+    "nombre": "Tabay"
+  },
+  {
+    "id": "18119040",
+    "nombre": "Tapebicuá"
+  },
+  {
+    "id": "18028040",
+    "nombre": "Tatacua"
+  },
+  {
+    "id": "18091050",
+    "nombre": "Villa Córdoba"
+  },
+  {
+    "id": "18084050",
+    "nombre": "Villa Olivari"
+  },
+  {
+    "id": "18014020",
+    "nombre": "Yahapé"
+  },
+  {
+    "id": "18147040",
+    "nombre": "Yapeyú"
+  },
+  {
+    "id": "18091060",
+    "nombre": "Yatayti Calle"
+  }
+]

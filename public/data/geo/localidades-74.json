@@ -1,0 +1,358 @@
+[
+  {
+    "id": "7403508002",
+    "nombre": "5ta Brigada"
+  },
+  {
+    "id": "74056010",
+    "nombre": "Alto Pelado"
+  },
+  {
+    "id": "74056020",
+    "nombre": "Alto Pencoso"
+  },
+  {
+    "id": "74042010",
+    "nombre": "Anchorena"
+  },
+  {
+    "id": "74042020",
+    "nombre": "Arizona"
+  },
+  {
+    "id": "74042030",
+    "nombre": "Bagual"
+  },
+  {
+    "id": "74056030",
+    "nombre": "Balde"
+  },
+  {
+    "id": "74042040",
+    "nombre": "Batavia"
+  },
+  {
+    "id": "74056040",
+    "nombre": "Beazley"
+  },
+  {
+    "id": "74042050",
+    "nombre": "Buena Esperanza"
+  },
+  {
+    "id": "74007010",
+    "nombre": "Candelaria"
+  },
+  {
+    "id": "74021010",
+    "nombre": "Carolina"
+  },
+  {
+    "id": "74049010",
+    "nombre": "Carpintería"
+  },
+  {
+    "id": "74056050",
+    "nombre": "Cazador"
+  },
+  {
+    "id": "7405610001",
+    "nombre": "Cerro Colorado"
+  },
+  {
+    "id": "74056060",
+    "nombre": "Chosmes"
+  },
+  {
+    "id": "74028010",
+    "nombre": "Concarán"
+  },
+  {
+    "id": "74028020",
+    "nombre": "Cortaderas"
+  },
+  {
+    "id": "7403508001",
+    "nombre": "Country Club Los Caldenes"
+  },
+  {
+    "id": "7405610002",
+    "nombre": "Cruz de Piedra"
+  },
+  {
+    "id": "74056070",
+    "nombre": "Desaguadero"
+  },
+  {
+    "id": "7405610003",
+    "nombre": "El Chorrillo"
+  },
+  {
+    "id": "74021020",
+    "nombre": "El Trapiche"
+  },
+  {
+    "id": "74056080",
+    "nombre": "El Volcán"
+  },
+  {
+    "id": "74021025",
+    "nombre": "Estancia Grande"
+  },
+  {
+    "id": "74042060",
+    "nombre": "Fortín El Patria"
+  },
+  {
+    "id": "74042070",
+    "nombre": "Fortuna"
+  },
+  {
+    "id": "74021030",
+    "nombre": "Fraga"
+  },
+  {
+    "id": "74056090",
+    "nombre": "Jarilla"
+  },
+  {
+    "id": "74035010",
+    "nombre": "Juan Jorba"
+  },
+  {
+    "id": "74035020",
+    "nombre": "Juan Llerena"
+  },
+  {
+    "id": "74056100",
+    "nombre": "Juana Koslay"
+  },
+  {
+    "id": "74035030",
+    "nombre": "Justo Daract"
+  },
+  {
+    "id": "74014010",
+    "nombre": "La Calera"
+  },
+  {
+    "id": "74021050",
+    "nombre": "La Florida"
+  },
+  {
+    "id": "74042080",
+    "nombre": "La Maroma"
+  },
+  {
+    "id": "74035040",
+    "nombre": "La Punilla"
+  },
+  {
+    "id": "74056105",
+    "nombre": "La Punta"
+  },
+  {
+    "id": "7403507001",
+    "nombre": "La Ribera"
+  },
+  {
+    "id": "74021060",
+    "nombre": "La Toma"
+  },
+  {
+    "id": "74063010",
+    "nombre": "La Vertiente"
+  },
+  {
+    "id": "74049030",
+    "nombre": "Lafinur"
+  },
+  {
+    "id": "74063020",
+    "nombre": "Las Aguadas"
+  },
+  {
+    "id": "74063030",
+    "nombre": "Las Chacras"
+  },
+  {
+    "id": "74063040",
+    "nombre": "Las Lagunas"
+  },
+  {
+    "id": "74035050",
+    "nombre": "Lavaisse"
+  },
+  {
+    "id": "74007030",
+    "nombre": "Leandro N. Alem"
+  },
+  {
+    "id": "74049040",
+    "nombre": "Los Cajones"
+  },
+  {
+    "id": "74049050",
+    "nombre": "Los Molles"
+  },
+  {
+    "id": "74042090",
+    "nombre": "Los Overos"
+  },
+  {
+    "id": "74007040",
+    "nombre": "Luján"
+  },
+  {
+    "id": "74042100",
+    "nombre": "Martín de Loyola"
+  },
+  {
+    "id": "74049060",
+    "nombre": "Merlo"
+  },
+  {
+    "id": "74056110",
+    "nombre": "Mosmota"
+  },
+  {
+    "id": "74035055",
+    "nombre": "Nación Ranquel"
+  },
+  {
+    "id": "74042110",
+    "nombre": "Nahuel Mapá"
+  },
+  {
+    "id": "74028030",
+    "nombre": "Naschel"
+  },
+  {
+    "id": "74042120",
+    "nombre": "Navia"
+  },
+  {
+    "id": "74014020",
+    "nombre": "Nogolí"
+  },
+  {
+    "id": "74042130",
+    "nombre": "Nueva Galia"
+  },
+  {
+    "id": "74028040",
+    "nombre": "Papagayos"
+  },
+  {
+    "id": "74063050",
+    "nombre": "Paso Grande"
+  },
+  {
+    "id": "74063060",
+    "nombre": "Potrerillo"
+  },
+  {
+    "id": "74056120",
+    "nombre": "Potrero de los Funes"
+  },
+  {
+    "id": "74007050",
+    "nombre": "Quines"
+  },
+  {
+    "id": "74028050",
+    "nombre": "Renca"
+  },
+  {
+    "id": "74021070",
+    "nombre": "Riocito"
+  },
+  {
+    "id": "74021090",
+    "nombre": "Saladillo"
+  },
+  {
+    "id": "74056130",
+    "nombre": "Salinas del Bebedero"
+  },
+  {
+    "id": "74007070",
+    "nombre": "San Francisco del Monte de Oro"
+  },
+  {
+    "id": "74056140",
+    "nombre": "San Jerónimo"
+  },
+  {
+    "id": "74035060",
+    "nombre": "San José del Morro"
+  },
+  {
+    "id": "74056150",
+    "nombre": "San Luis"
+  },
+  {
+    "id": "74063070",
+    "nombre": "San Martín"
+  },
+  {
+    "id": "74028060",
+    "nombre": "San Pablo"
+  },
+  {
+    "id": "7405610005",
+    "nombre": "San Roque"
+  },
+  {
+    "id": "74049070",
+    "nombre": "Santa Rosa del Conlara"
+  },
+  {
+    "id": "74049080",
+    "nombre": "Talita"
+  },
+  {
+    "id": "74028070",
+    "nombre": "Tilisarao"
+  },
+  {
+    "id": "74042140",
+    "nombre": "Unión"
+  },
+  {
+    "id": "74014030",
+    "nombre": "Villa de la Quebrada"
+  },
+  {
+    "id": "74063080",
+    "nombre": "Villa de Praga"
+  },
+  {
+    "id": "74028080",
+    "nombre": "Villa del Carmen"
+  },
+  {
+    "id": "74014040",
+    "nombre": "Villa General Roca"
+  },
+  {
+    "id": "74028090",
+    "nombre": "Villa Larca"
+  },
+  {
+    "id": "74035070",
+    "nombre": "Villa Mercedes"
+  },
+  {
+    "id": "74035080",
+    "nombre": "Villa Reynolds"
+  },
+  {
+    "id": "74035090",
+    "nombre": "Villa Salles"
+  },
+  {
+    "id": "74056160",
+    "nombre": "Zanjitas"
+  }
+]

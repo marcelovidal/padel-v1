@@ -1,0 +1,562 @@
+[
+  {
+    "id": "54014060",
+    "nombre": "1º de Mayo"
+  },
+  {
+    "id": "54119060",
+    "nombre": "25 de Mayo"
+  },
+  {
+    "id": "54042050",
+    "nombre": "9 de Julio Kilómetro 20"
+  },
+  {
+    "id": "54042040",
+    "nombre": "9 de Julio Kilómetro 28"
+  },
+  {
+    "id": "54119010",
+    "nombre": "Alba Posse"
+  },
+  {
+    "id": "54119020",
+    "nombre": "Alicia Alta"
+  },
+  {
+    "id": "54119025",
+    "nombre": "Alicia Baja"
+  },
+  {
+    "id": "54070010",
+    "nombre": "Almafuerte"
+  },
+  {
+    "id": "54007010",
+    "nombre": "Apóstoles"
+  },
+  {
+    "id": "54014010",
+    "nombre": "Aristóbulo del Valle"
+  },
+  {
+    "id": "54070020",
+    "nombre": "Arroyo del Medio"
+  },
+  {
+    "id": "54007020",
+    "nombre": "Azara"
+  },
+  {
+    "id": "54084007",
+    "nombre": "Bario Ita"
+  },
+  {
+    "id": "54035010",
+    "nombre": "Barra Concepción"
+  },
+  {
+    "id": "54084003",
+    "nombre": "Barrio Cuatro Bocas"
+  },
+  {
+    "id": "54021005",
+    "nombre": "Barrio del Lago"
+  },
+  {
+    "id": "54091013",
+    "nombre": "Barrio Escuela 461"
+  },
+  {
+    "id": "54091017",
+    "nombre": "Barrio Escuela 633"
+  },
+  {
+    "id": "54084005",
+    "nombre": "Barrio Guatambu"
+  },
+  {
+    "id": "54007025",
+    "nombre": "Barrio Rural"
+  },
+  {
+    "id": "54098005",
+    "nombre": "Barrio Tungoil"
+  },
+  {
+    "id": "54049020",
+    "nombre": "Bernardo de Irigoyen"
+  },
+  {
+    "id": "54021010",
+    "nombre": "Bonpland"
+  },
+  {
+    "id": "54070030",
+    "nombre": "Caá - Yarí"
+  },
+  {
+    "id": "54049025",
+    "nombre": "Caburei"
+  },
+  {
+    "id": "54014020",
+    "nombre": "Campo Grande"
+  },
+  {
+    "id": "54091020",
+    "nombre": "Campo Ramón"
+  },
+  {
+    "id": "54091030",
+    "nombre": "Campo Viera"
+  },
+  {
+    "id": "54021020",
+    "nombre": "Candelaria"
+  },
+  {
+    "id": "54077010",
+    "nombre": "Capioví"
+  },
+  {
+    "id": "54077015",
+    "nombre": "Capioviciño"
+  },
+  {
+    "id": "54084010",
+    "nombre": "Caraguatay"
+  },
+  {
+    "id": "54070040",
+    "nombre": "Cerro Azul"
+  },
+  {
+    "id": "54021030",
+    "nombre": "Cerro Corá"
+  },
+  {
+    "id": "54091010",
+    "nombre": "Colonia Alberdi"
+  },
+  {
+    "id": "54119030",
+    "nombre": "Colonia Aurora"
+  },
+  {
+    "id": "54098010",
+    "nombre": "Colonia Polana"
+  },
+  {
+    "id": "54042010",
+    "nombre": "Colonia Victoria"
+  },
+  {
+    "id": "54063040",
+    "nombre": "Colonia Wanda"
+  },
+  {
+    "id": "54049010",
+    "nombre": "Comandante Andresito"
+  },
+  {
+    "id": "54035020",
+    "nombre": "Concepción de la Sierra"
+  },
+  {
+    "id": "54098020",
+    "nombre": "Corpus"
+  },
+  {
+    "id": "54112010",
+    "nombre": "Cruce Caballero"
+  },
+  {
+    "id": "54098030",
+    "nombre": "Domingo Savio"
+  },
+  {
+    "id": "54070050",
+    "nombre": "Dos Arroyos"
+  },
+  {
+    "id": "54014030",
+    "nombre": "Dos de Mayo"
+  },
+  {
+    "id": "5401403001",
+    "nombre": "Dos de Mayo Núcleo I"
+  },
+  {
+    "id": "5401403002",
+    "nombre": "Dos de Mayo Núcleo II"
+  },
+  {
+    "id": "54014050",
+    "nombre": "Dos de Mayo Nucleo III (Bº Bernardino Rivadavia)"
+  },
+  {
+    "id": "54049030",
+    "nombre": "Dos Hermanas"
+  },
+  {
+    "id": "54077020",
+    "nombre": "El Alcázar"
+  },
+  {
+    "id": "54091040",
+    "nombre": "El Salto"
+  },
+  {
+    "id": "54056010",
+    "nombre": "El Soberbio"
+  },
+  {
+    "id": "54042020",
+    "nombre": "Eldorado"
+  },
+  {
+    "id": "54007030",
+    "nombre": "Estación Apóstoles"
+  },
+  {
+    "id": "54105010",
+    "nombre": "Florentino Ameghino"
+  },
+  {
+    "id": "54056020",
+    "nombre": "Fracrán"
+  },
+  {
+    "id": "54077030",
+    "nombre": "Garuhapé"
+  },
+  {
+    "id": "54028010",
+    "nombre": "Garupá"
+  },
+  {
+    "id": "54091050",
+    "nombre": "General Alvear"
+  },
+  {
+    "id": "54098040",
+    "nombre": "General Urquiza"
+  },
+  {
+    "id": "54070060",
+    "nombre": "Gobernador López"
+  },
+  {
+    "id": "54098050",
+    "nombre": "Gobernador Roca"
+  },
+  {
+    "id": "54091060",
+    "nombre": "Guaraní"
+  },
+  {
+    "id": "54098060",
+    "nombre": "Helvecia"
+  },
+  {
+    "id": "54098070",
+    "nombre": "Hipólito Yrigoyen"
+  },
+  {
+    "id": "54049040",
+    "nombre": "Integración"
+  },
+  {
+    "id": "54105020",
+    "nombre": "Itacaruaré"
+  },
+  {
+    "id": "54098080",
+    "nombre": "Jardín América"
+  },
+  {
+    "id": "54014055",
+    "nombre": "Kilómetro 17"
+  },
+  {
+    "id": "54035030",
+    "nombre": "La Corita"
+  },
+  {
+    "id": "54084020",
+    "nombre": "Laharrague"
+  },
+  {
+    "id": "54070070",
+    "nombre": "Leandro N. Alem"
+  },
+  {
+    "id": "54021040",
+    "nombre": "Loreto"
+  },
+  {
+    "id": "54091070",
+    "nombre": "Los Helechos"
+  },
+  {
+    "id": "54042030",
+    "nombre": "María Magdalena"
+  },
+  {
+    "id": "54021050",
+    "nombre": "Mártires"
+  },
+  {
+    "id": "54077040",
+    "nombre": "Mbopicuá"
+  },
+  {
+    "id": "54105030",
+    "nombre": "Mojón Grande"
+  },
+  {
+    "id": "54084030",
+    "nombre": "Montecarlo"
+  },
+  {
+    "id": "54028020",
+    "nombre": "Nemesio Parma"
+  },
+  {
+    "id": "54042035",
+    "nombre": "Nueva Delicia"
+  },
+  {
+    "id": "54098090",
+    "nombre": "Oasis"
+  },
+  {
+    "id": "54091080",
+    "nombre": "Oberá"
+  },
+  {
+    "id": "54070080",
+    "nombre": "Olegario V. Andrade"
+  },
+  {
+    "id": "54091090",
+    "nombre": "Panambí"
+  },
+  {
+    "id": "54091105",
+    "nombre": "Panambi Kilómetro 15"
+  },
+  {
+    "id": "54091100",
+    "nombre": "Panambí Kilómetro 8"
+  },
+  {
+    "id": "54112020",
+    "nombre": "Paraíso"
+  },
+  {
+    "id": "54007040",
+    "nombre": "Pindapoy"
+  },
+  {
+    "id": "54049043",
+    "nombre": "Piñalito Norte"
+  },
+  {
+    "id": "54112030",
+    "nombre": "Piñalito Sur"
+  },
+  {
+    "id": "54084040",
+    "nombre": "Piray Kilómetro 18"
+  },
+  {
+    "id": "54028030",
+    "nombre": "Posadas"
+  },
+  {
+    "id": "54028040",
+    "nombre": "Posadas (Extensión)"
+  },
+  {
+    "id": "54021060",
+    "nombre": "Profundidad"
+  },
+  {
+    "id": "54014070",
+    "nombre": "Pueblo Illia"
+  },
+  {
+    "id": "54042055",
+    "nombre": "Pueblo Nuevo"
+  },
+  {
+    "id": "54049045",
+    "nombre": "Puerto Andresito"
+  },
+  {
+    "id": "54049047",
+    "nombre": "Puerto Deseado"
+  },
+  {
+    "id": "54063010",
+    "nombre": "Puerto Esperanza"
+  },
+  {
+    "id": "54063030",
+    "nombre": "Puerto Iguazú"
+  },
+  {
+    "id": "54077050",
+    "nombre": "Puerto Leoni"
+  },
+  {
+    "id": "54063020",
+    "nombre": "Puerto Libertad"
+  },
+  {
+    "id": "54042060",
+    "nombre": "Puerto Mado"
+  },
+  {
+    "id": "54042070",
+    "nombre": "Puerto Pinares"
+  },
+  {
+    "id": "54084050",
+    "nombre": "Puerto Piray"
+  },
+  {
+    "id": "54077060",
+    "nombre": "Puerto Rico"
+  },
+  {
+    "id": "54021070",
+    "nombre": "Puerto Santa Ana"
+  },
+  {
+    "id": "54007050",
+    "nombre": "Rincón de Azara"
+  },
+  {
+    "id": "54098100",
+    "nombre": "Roca Chica"
+  },
+  {
+    "id": "54077070",
+    "nombre": "Ruiz de Montoya"
+  },
+  {
+    "id": "54014080",
+    "nombre": "Salto Encantado"
+  },
+  {
+    "id": "54077080",
+    "nombre": "San Alberto"
+  },
+  {
+    "id": "54049050",
+    "nombre": "San Antonio"
+  },
+  {
+    "id": "54119040",
+    "nombre": "San Francisco de Asís"
+  },
+  {
+    "id": "54077090",
+    "nombre": "San Gotardo"
+  },
+  {
+    "id": "54098110",
+    "nombre": "San Ignacio"
+  },
+  {
+    "id": "54105040",
+    "nombre": "San Javier"
+  },
+  {
+    "id": "54007060",
+    "nombre": "San José"
+  },
+  {
+    "id": "54091110",
+    "nombre": "San Martín"
+  },
+  {
+    "id": "54077100",
+    "nombre": "San Miguel"
+  },
+  {
+    "id": "54112040",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "54056030",
+    "nombre": "San Vicente"
+  },
+  {
+    "id": "54021080",
+    "nombre": "Santa Ana"
+  },
+  {
+    "id": "54035040",
+    "nombre": "Santa María"
+  },
+  {
+    "id": "54119050",
+    "nombre": "Santa Rita"
+  },
+  {
+    "id": "54042080",
+    "nombre": "Santiago de Liniers"
+  },
+  {
+    "id": "54098120",
+    "nombre": "Santo Pipó"
+  },
+  {
+    "id": "54084060",
+    "nombre": "Tarumá"
+  },
+  {
+    "id": "54112050",
+    "nombre": "Tobuna"
+  },
+  {
+    "id": "54007070",
+    "nombre": "Tres Capones"
+  },
+  {
+    "id": "54042090",
+    "nombre": "Valle Hermoso"
+  },
+  {
+    "id": "54077110",
+    "nombre": "Villa Akerman"
+  },
+  {
+    "id": "54091120",
+    "nombre": "Villa Bonita"
+  },
+  {
+    "id": "54063035",
+    "nombre": "Villa Cooperativa"
+  },
+  {
+    "id": "54070090",
+    "nombre": "Villa Libertad"
+  },
+  {
+    "id": "54084070",
+    "nombre": "Villa Parodi"
+  },
+  {
+    "id": "54042100",
+    "nombre": "Villa Roulet"
+  },
+  {
+    "id": "54077120",
+    "nombre": "Villa Urrutia"
+  }
+]

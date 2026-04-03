@@ -1,0 +1,362 @@
+[
+  {
+    "id": "46028010",
+    "nombre": "Aicuñá"
+  },
+  {
+    "id": "46007010",
+    "nombre": "Aimogasta"
+  },
+  {
+    "id": "4611901001",
+    "nombre": "Alpasinche"
+  },
+  {
+    "id": "46049010",
+    "nombre": "Alto Carrizal"
+  },
+  {
+    "id": "46105010",
+    "nombre": "Amaná"
+  },
+  {
+    "id": "46084010",
+    "nombre": "Ambil"
+  },
+  {
+    "id": "46021010",
+    "nombre": "Aminga"
+  },
+  {
+    "id": "4611901002",
+    "nombre": "Amuschina"
+  },
+  {
+    "id": "4611901003",
+    "nombre": "Andolucas"
+  },
+  {
+    "id": "4604201001",
+    "nombre": "Anguinán"
+  },
+  {
+    "id": "46049020",
+    "nombre": "Angulos"
+  },
+  {
+    "id": "46021020",
+    "nombre": "Anillaco"
+  },
+  {
+    "id": "46021030",
+    "nombre": "Anjullón"
+  },
+  {
+    "id": "46049030",
+    "nombre": "Antinaco"
+  },
+  {
+    "id": "46049040",
+    "nombre": "Bajo Carrizal"
+  },
+  {
+    "id": "4602805001",
+    "nombre": "Banda Florida"
+  },
+  {
+    "id": "46007030",
+    "nombre": "Bañado de los Pantanos"
+  },
+  {
+    "id": "46049050",
+    "nombre": "Campanas"
+  },
+  {
+    "id": "46063010",
+    "nombre": "Castro Barros"
+  },
+  {
+    "id": "46035010",
+    "nombre": "Chamical"
+  },
+  {
+    "id": "46063020",
+    "nombre": "Chañar"
+  },
+  {
+    "id": "46049060",
+    "nombre": "Chañarmuyo"
+  },
+  {
+    "id": "4611901004",
+    "nombre": "Chaupihuasi"
+  },
+  {
+    "id": "46112010",
+    "nombre": "Chepes"
+  },
+  {
+    "id": "46042010",
+    "nombre": "Chilecito"
+  },
+  {
+    "id": "46021040",
+    "nombre": "Chuquis"
+  },
+  {
+    "id": "46042020",
+    "nombre": "Colonia Anguinán"
+  },
+  {
+    "id": "46042040",
+    "nombre": "Colonia Malligasta"
+  },
+  {
+    "id": "46084020",
+    "nombre": "Colonia Ortiz de Ocampo"
+  },
+  {
+    "id": "46042050",
+    "nombre": "Colonia Vichigasta"
+  },
+  {
+    "id": "4611901005",
+    "nombre": "Cuipán"
+  },
+  {
+    "id": "46112020",
+    "nombre": "Desiderio Tello"
+  },
+  {
+    "id": "46007040",
+    "nombre": "Estación Mazán"
+  },
+  {
+    "id": "46049070",
+    "nombre": "Famatina"
+  },
+  {
+    "id": "46042060",
+    "nombre": "Guanchín"
+  },
+  {
+    "id": "46028020",
+    "nombre": "Guandacol"
+  },
+  {
+    "id": "46098010",
+    "nombre": "Jagüé"
+  },
+  {
+    "id": "46049080",
+    "nombre": "La Cuadra"
+  },
+  {
+    "id": "4604201003",
+    "nombre": "La Puntilla"
+  },
+  {
+    "id": "46014010",
+    "nombre": "La Rioja"
+  },
+  {
+    "id": "4611901006",
+    "nombre": "Las Talas"
+  },
+  {
+    "id": "46063030",
+    "nombre": "Loma Blanca"
+  },
+  {
+    "id": "46021050",
+    "nombre": "Los Molinos"
+  },
+  {
+    "id": "46028030",
+    "nombre": "Los Palacios"
+  },
+  {
+    "id": "4611901007",
+    "nombre": "Los Robles"
+  },
+  {
+    "id": "4604201004",
+    "nombre": "Los Sarmientos"
+  },
+  {
+    "id": "4600701002",
+    "nombre": "Machigasta"
+  },
+  {
+    "id": "46070010",
+    "nombre": "Malanzán"
+  },
+  {
+    "id": "46042070",
+    "nombre": "Malligasta"
+  },
+  {
+    "id": "46084030",
+    "nombre": "Milagro"
+  },
+  {
+    "id": "46042080",
+    "nombre": "Miranda"
+  },
+  {
+    "id": "46070020",
+    "nombre": "Nácate"
+  },
+  {
+    "id": "46042090",
+    "nombre": "Nonogasta"
+  },
+  {
+    "id": "46084040",
+    "nombre": "Olpas"
+  },
+  {
+    "id": "46063040",
+    "nombre": "Olta"
+  },
+  {
+    "id": "46028040",
+    "nombre": "Pagancillo"
+  },
+  {
+    "id": "46105020",
+    "nombre": "Patquía"
+  },
+  {
+    "id": "46021060",
+    "nombre": "Pinchas"
+  },
+  {
+    "id": "46049090",
+    "nombre": "Pituil"
+  },
+  {
+    "id": "46049100",
+    "nombre": "Plaza Vieja"
+  },
+  {
+    "id": "46035020",
+    "nombre": "Polco"
+  },
+  {
+    "id": "46070030",
+    "nombre": "Portezuelo"
+  },
+  {
+    "id": "46056010",
+    "nombre": "Punta de los Llanos"
+  },
+  {
+    "id": "4611901008",
+    "nombre": "Salicas"
+  },
+  {
+    "id": "46119010",
+    "nombre": "Salicas - San Blas"
+  },
+  {
+    "id": "46070040",
+    "nombre": "San Antonio"
+  },
+  {
+    "id": "4611901009",
+    "nombre": "San Blas"
+  },
+  {
+    "id": "4604201005",
+    "nombre": "San Miguel"
+  },
+  {
+    "id": "46042100",
+    "nombre": "San Nicolás"
+  },
+  {
+    "id": "46021070",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "4602802002",
+    "nombre": "Santa Clara"
+  },
+  {
+    "id": "46049110",
+    "nombre": "Santa Cruz"
+  },
+  {
+    "id": "46042110",
+    "nombre": "Santa Florentina"
+  },
+  {
+    "id": "46084050",
+    "nombre": "Santa Rita de Catuna"
+  },
+  {
+    "id": "46021080",
+    "nombre": "Santa Vera Cruz"
+  },
+  {
+    "id": "46049120",
+    "nombre": "Santo Domingo"
+  },
+  {
+    "id": "46042120",
+    "nombre": "Sañogasta"
+  },
+  {
+    "id": "4611901010",
+    "nombre": "Shaqui"
+  },
+  {
+    "id": "4611901011",
+    "nombre": "Suriyaco"
+  },
+  {
+    "id": "46056020",
+    "nombre": "Tama"
+  },
+  {
+    "id": "46007045",
+    "nombre": "Termas de Santa Teresita"
+  },
+  {
+    "id": "46042130",
+    "nombre": "Tilimuqui"
+  },
+  {
+    "id": "4611901012",
+    "nombre": "Tuyubil"
+  },
+  {
+    "id": "46091010",
+    "nombre": "Ulapes"
+  },
+  {
+    "id": "46042140",
+    "nombre": "Vichigasta"
+  },
+  {
+    "id": "46077010",
+    "nombre": "Villa Castelli"
+  },
+  {
+    "id": "46007050",
+    "nombre": "Villa Mazán"
+  },
+  {
+    "id": "46098020",
+    "nombre": "Villa San José de Vinchina"
+  },
+  {
+    "id": "46126010",
+    "nombre": "Villa Sanagasta"
+  },
+  {
+    "id": "46028050",
+    "nombre": "Villa Unión"
+  }
+]

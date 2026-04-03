@@ -1,0 +1,358 @@
+[
+  {
+    "id": "42112020",
+    "nombre": "25 de Mayo"
+  },
+  {
+    "id": "42077010",
+    "nombre": "Abramo"
+  },
+  {
+    "id": "42133010",
+    "nombre": "Adolfo Van Praet"
+  },
+  {
+    "id": "42105010",
+    "nombre": "Agustoni"
+  },
+  {
+    "id": "42063010",
+    "nombre": "Algarrobo del Águila"
+  },
+  {
+    "id": "42070010",
+    "nombre": "Alpachiri"
+  },
+  {
+    "id": "42133020",
+    "nombre": "Alta Italia"
+  },
+  {
+    "id": "42021010",
+    "nombre": "Anguil"
+  },
+  {
+    "id": "42014010",
+    "nombre": "Anzoátegui"
+  },
+  {
+    "id": "42147010",
+    "nombre": "Arata"
+  },
+  {
+    "id": "42154010",
+    "nombre": "Ataliva Roca"
+  },
+  {
+    "id": "42056010",
+    "nombre": "Bernardo Larroude"
+  },
+  {
+    "id": "42077020",
+    "nombre": "Bernasconi"
+  },
+  {
+    "id": "42140005",
+    "nombre": "Cachirulo"
+  },
+  {
+    "id": "42126010",
+    "nombre": "Caleufú"
+  },
+  {
+    "id": "42098010",
+    "nombre": "Carro Quemado"
+  },
+  {
+    "id": "42112005",
+    "nombre": "Casa de Piedra"
+  },
+  {
+    "id": "42028010",
+    "nombre": "Catriló"
+  },
+  {
+    "id": "42056020",
+    "nombre": "Ceballos"
+  },
+  {
+    "id": "42154020",
+    "nombre": "Chacharramendi"
+  },
+  {
+    "id": "42119010",
+    "nombre": "Colonia Barón"
+  },
+  {
+    "id": "42119020",
+    "nombre": "Colonia San José"
+  },
+  {
+    "id": "42154030",
+    "nombre": "Colonia Santa María"
+  },
+  {
+    "id": "42035010",
+    "nombre": "Conhelo"
+  },
+  {
+    "id": "42056030",
+    "nombre": "Coronel Hilario Lagos"
+  },
+  {
+    "id": "42084010",
+    "nombre": "Cuchillo Co"
+  },
+  {
+    "id": "42133030",
+    "nombre": "Damián Maisonave"
+  },
+  {
+    "id": "42007010",
+    "nombre": "Doblas"
+  },
+  {
+    "id": "42105020",
+    "nombre": "Dorila"
+  },
+  {
+    "id": "42035020",
+    "nombre": "Eduardo Castex"
+  },
+  {
+    "id": "42133040",
+    "nombre": "Embajador Martini"
+  },
+  {
+    "id": "42133050",
+    "nombre": "Falucho"
+  },
+  {
+    "id": "42154040",
+    "nombre": "General Acha"
+  },
+  {
+    "id": "42070020",
+    "nombre": "General Manuel J. Campos"
+  },
+  {
+    "id": "42105030",
+    "nombre": "General Pico"
+  },
+  {
+    "id": "42077030",
+    "nombre": "General San Martín"
+  },
+  {
+    "id": "42042010",
+    "nombre": "Gobernador Duval"
+  },
+  {
+    "id": "42070030",
+    "nombre": "Guatraché"
+  },
+  {
+    "id": "42077040",
+    "nombre": "Hucal"
+  },
+  {
+    "id": "42126020",
+    "nombre": "Ingeniero Foster"
+  },
+  {
+    "id": "42133060",
+    "nombre": "Ingeniero Luiggi"
+  },
+  {
+    "id": "42056040",
+    "nombre": "Intendente Alvear"
+  },
+  {
+    "id": "42077050",
+    "nombre": "Jacinto Aráuz"
+  },
+  {
+    "id": "42014020",
+    "nombre": "La Adela"
+  },
+  {
+    "id": "42028020",
+    "nombre": "La Gloria"
+  },
+  {
+    "id": "42063020",
+    "nombre": "La Humada"
+  },
+  {
+    "id": "42126030",
+    "nombre": "La Maruja"
+  },
+  {
+    "id": "42091010",
+    "nombre": "La Reforma"
+  },
+  {
+    "id": "42091020",
+    "nombre": "Limay Mahuida"
+  },
+  {
+    "id": "42028030",
+    "nombre": "Lonquimay"
+  },
+  {
+    "id": "42098020",
+    "nombre": "Loventué"
+  },
+  {
+    "id": "42098030",
+    "nombre": "Luan Toro"
+  },
+  {
+    "id": "42007020",
+    "nombre": "Macachín"
+  },
+  {
+    "id": "42035030",
+    "nombre": "Mauricio Mayer"
+  },
+  {
+    "id": "42147020",
+    "nombre": "Metileo"
+  },
+  {
+    "id": "42119030",
+    "nombre": "Miguel Cané"
+  },
+  {
+    "id": "42007030",
+    "nombre": "Miguel Riglos"
+  },
+  {
+    "id": "42035040",
+    "nombre": "Monte Nievas"
+  },
+  {
+    "id": "42140010",
+    "nombre": "Naicó"
+  },
+  {
+    "id": "42133070",
+    "nombre": "Ojeda"
+  },
+  {
+    "id": "42126040",
+    "nombre": "Parera"
+  },
+  {
+    "id": "42070040",
+    "nombre": "Perú"
+  },
+  {
+    "id": "42126050",
+    "nombre": "Pichi Huinca"
+  },
+  {
+    "id": "42042020",
+    "nombre": "Puelches"
+  },
+  {
+    "id": "42112010",
+    "nombre": "Puelén"
+  },
+  {
+    "id": "42154050",
+    "nombre": "Quehué"
+  },
+  {
+    "id": "42119040",
+    "nombre": "Quemú Quemú"
+  },
+  {
+    "id": "42126060",
+    "nombre": "Quetrequén"
+  },
+  {
+    "id": "42126070",
+    "nombre": "Rancul"
+  },
+  {
+    "id": "42133080",
+    "nombre": "Realicó"
+  },
+  {
+    "id": "42119050",
+    "nombre": "Relmo"
+  },
+  {
+    "id": "42007040",
+    "nombre": "Rolón"
+  },
+  {
+    "id": "42035050",
+    "nombre": "Rucanelo"
+  },
+  {
+    "id": "42049010",
+    "nombre": "Santa Isabel"
+  },
+  {
+    "id": "42021020",
+    "nombre": "Santa Rosa"
+  },
+  {
+    "id": "42070050",
+    "nombre": "Santa Teresa"
+  },
+  {
+    "id": "42056050",
+    "nombre": "Sarah"
+  },
+  {
+    "id": "42105040",
+    "nombre": "Speluzzi"
+  },
+  {
+    "id": "42098040",
+    "nombre": "Telén"
+  },
+  {
+    "id": "42140020",
+    "nombre": "Toay"
+  },
+  {
+    "id": "42007050",
+    "nombre": "Tomás M. Anchorena"
+  },
+  {
+    "id": "42105050",
+    "nombre": "Trebolares"
+  },
+  {
+    "id": "42147030",
+    "nombre": "Trenel"
+  },
+  {
+    "id": "42154060",
+    "nombre": "Unanué"
+  },
+  {
+    "id": "42028040",
+    "nombre": "Uriburu"
+  },
+  {
+    "id": "42056060",
+    "nombre": "Vértiz"
+  },
+  {
+    "id": "42098050",
+    "nombre": "Victorica"
+  },
+  {
+    "id": "42119060",
+    "nombre": "Villa Mirasol"
+  },
+  {
+    "id": "42035060",
+    "nombre": "Winifreda"
+  }
+]

@@ -1,0 +1,706 @@
+[
+  {
+    "id": "30098090",
+    "nombre": "1º de Mayo"
+  },
+  {
+    "id": "30070005",
+    "nombre": "Alcaraz"
+  },
+  {
+    "id": "30049010",
+    "nombre": "Aldea Asunción"
+  },
+  {
+    "id": "30021010",
+    "nombre": "Aldea Brasilera"
+  },
+  {
+    "id": "30021015",
+    "nombre": "Aldea Grapschental"
+  },
+  {
+    "id": "30084010",
+    "nombre": "Aldea María Luisa"
+  },
+  {
+    "id": "30021020",
+    "nombre": "Aldea Protestante"
+  },
+  {
+    "id": "30021030",
+    "nombre": "Aldea Salto"
+  },
+  {
+    "id": "30056010",
+    "nombre": "Aldea San Antonio"
+  },
+  {
+    "id": "30021040",
+    "nombre": "Aldea San Francisco"
+  },
+  {
+    "id": "30035020",
+    "nombre": "Aldea San Isidro (El Cimarrón)"
+  },
+  {
+    "id": "30084015",
+    "nombre": "Aldea San Juan"
+  },
+  {
+    "id": "30084020",
+    "nombre": "Aldea San Rafael"
+  },
+  {
+    "id": "30084030",
+    "nombre": "Aldea Santa María"
+  },
+  {
+    "id": "30084040",
+    "nombre": "Aldea Santa Rosa"
+  },
+  {
+    "id": "30021050",
+    "nombre": "Aldea Spatzenkutter"
+  },
+  {
+    "id": "30021060",
+    "nombre": "Aldea Valle María"
+  },
+  {
+    "id": "30091010",
+    "nombre": "Altamirano Sur"
+  },
+  {
+    "id": "30105010",
+    "nombre": "Antelo"
+  },
+  {
+    "id": "30077010",
+    "nombre": "Aranguren"
+  },
+  {
+    "id": "30008010",
+    "nombre": "Arroyo Barú"
+  },
+  {
+    "id": "30098010",
+    "nombre": "Basavilbaso"
+  },
+  {
+    "id": "3001506001",
+    "nombre": "Benito Legerén"
+  },
+  {
+    "id": "30077020",
+    "nombre": "Betbeder"
+  },
+  {
+    "id": "30070010",
+    "nombre": "Bovril"
+  },
+  {
+    "id": "30015010",
+    "nombre": "Calabacilla"
+  },
+  {
+    "id": "30098020",
+    "nombre": "Caseros"
+  },
+  {
+    "id": "30063020",
+    "nombre": "Ceibas"
+  },
+  {
+    "id": "30084050",
+    "nombre": "Cerrito"
+  },
+  {
+    "id": "30028010",
+    "nombre": "Chajarí"
+  },
+  {
+    "id": "30015020",
+    "nombre": "Clodomiro Ledesma"
+  },
+  {
+    "id": "30008020",
+    "nombre": "Colón"
+  },
+  {
+    "id": "30028020",
+    "nombre": "Colonia Alemana"
+  },
+  {
+    "id": "30084060",
+    "nombre": "Colonia Avellaneda"
+  },
+  {
+    "id": "30070020",
+    "nombre": "Colonia Avigdor"
+  },
+  {
+    "id": "30015030",
+    "nombre": "Colonia Ayuí"
+  },
+  {
+    "id": "30084065",
+    "nombre": "Colonia Crespo"
+  },
+  {
+    "id": "30098030",
+    "nombre": "Colonia Elía"
+  },
+  {
+    "id": "30021070",
+    "nombre": "Colonia Ensayo"
+  },
+  {
+    "id": "30015040",
+    "nombre": "Colonia General Roca"
+  },
+  {
+    "id": "30008030",
+    "nombre": "Colonia Hugues"
+  },
+  {
+    "id": "30028040",
+    "nombre": "Colonia La Argentina"
+  },
+  {
+    "id": "30098040",
+    "nombre": "Concepción del Uruguay"
+  },
+  {
+    "id": "30015060",
+    "nombre": "Concordia"
+  },
+  {
+    "id": "30035010",
+    "nombre": "Conscripto Bernardi"
+  },
+  {
+    "id": "30084070",
+    "nombre": "Crespo"
+  },
+  {
+    "id": "30021080",
+    "nombre": "Diamante"
+  },
+  {
+    "id": "30077030",
+    "nombre": "Don Cristóbal"
+  },
+  {
+    "id": "30091020",
+    "nombre": "Durazno"
+  },
+  {
+    "id": "3000809001",
+    "nombre": "El Brillante"
+  },
+  {
+    "id": "3000809002",
+    "nombre": "El Colorado"
+  },
+  {
+    "id": "30084080",
+    "nombre": "El Palenque"
+  },
+  {
+    "id": "30084090",
+    "nombre": "El Pingo"
+  },
+  {
+    "id": "30084095",
+    "nombre": "El Ramblón"
+  },
+  {
+    "id": "30070030",
+    "nombre": "El Solar"
+  },
+  {
+    "id": "30056030",
+    "nombre": "Enrique Carbó"
+  },
+  {
+    "id": "30091030",
+    "nombre": "Estación Arroyo Clé"
+  },
+  {
+    "id": "30021090",
+    "nombre": "Estación Camps"
+  },
+  {
+    "id": "30056035",
+    "nombre": "Estación Escriña"
+  },
+  {
+    "id": "30049020",
+    "nombre": "Estación Lazo"
+  },
+  {
+    "id": "3002115001",
+    "nombre": "Estación Puiggari"
+  },
+  {
+    "id": "30113010",
+    "nombre": "Estación Raíces"
+  },
+  {
+    "id": "30015080",
+    "nombre": "Estación Yeruá"
+  },
+  {
+    "id": "30015083",
+    "nombre": "Estación Yuquerí"
+  },
+  {
+    "id": "30015087",
+    "nombre": "Estancia Grande"
+  },
+  {
+    "id": "30056040",
+    "nombre": "Faustino M. Parera"
+  },
+  {
+    "id": "30077040",
+    "nombre": "Febré"
+  },
+  {
+    "id": "30028070",
+    "nombre": "Federación"
+  },
+  {
+    "id": "30035030",
+    "nombre": "Federal"
+  },
+  {
+    "id": "30056050",
+    "nombre": "General Almada"
+  },
+  {
+    "id": "30021100",
+    "nombre": "General Alvear"
+  },
+  {
+    "id": "30088010",
+    "nombre": "General Campos"
+  },
+  {
+    "id": "30049030",
+    "nombre": "General Galarza"
+  },
+  {
+    "id": "30021110",
+    "nombre": "General Racedo (El Carmen)"
+  },
+  {
+    "id": "30021120",
+    "nombre": "General Ramírez"
+  },
+  {
+    "id": "30056060",
+    "nombre": "Gilbert"
+  },
+  {
+    "id": "30091040",
+    "nombre": "Gobernador Echagüe"
+  },
+  {
+    "id": "30091050",
+    "nombre": "Gobernador Mansilla"
+  },
+  {
+    "id": "30091060",
+    "nombre": "Gobernador Solá"
+  },
+  {
+    "id": "30049040",
+    "nombre": "Gualeguay"
+  },
+  {
+    "id": "30056070",
+    "nombre": "Gualeguaychú"
+  },
+  {
+    "id": "30091070",
+    "nombre": "Guardamonte"
+  },
+  {
+    "id": "30008040",
+    "nombre": "Hambis"
+  },
+  {
+    "id": "30084100",
+    "nombre": "Hasenkamp"
+  },
+  {
+    "id": "30084110",
+    "nombre": "Hernandarias"
+  },
+  {
+    "id": "30077050",
+    "nombre": "Hernández"
+  },
+  {
+    "id": "30098060",
+    "nombre": "Herrera"
+  },
+  {
+    "id": "30008050",
+    "nombre": "Hocker"
+  },
+  {
+    "id": "30063030",
+    "nombre": "Ibicuy"
+  },
+  {
+    "id": "30113020",
+    "nombre": "Ingeniero Miguel Sajaroff"
+  },
+  {
+    "id": "30056080",
+    "nombre": "Irazusta"
+  },
+  {
+    "id": "30113030",
+    "nombre": "Jubileo"
+  },
+  {
+    "id": "30008060",
+    "nombre": "La Clarita"
+  },
+  {
+    "id": "30015090",
+    "nombre": "La Criolla"
+  },
+  {
+    "id": "30021123",
+    "nombre": "La Juanita"
+  },
+  {
+    "id": "30070040",
+    "nombre": "La Paz"
+  },
+  {
+    "id": "30084120",
+    "nombre": "La Picada"
+  },
+  {
+    "id": "30056090",
+    "nombre": "Larroque"
+  },
+  {
+    "id": "30091080",
+    "nombre": "Las Guachas"
+  },
+  {
+    "id": "30021127",
+    "nombre": "Las Jaulas"
+  },
+  {
+    "id": "30098070",
+    "nombre": "Las Moscas"
+  },
+  {
+    "id": "3001506003",
+    "nombre": "Las Tejas"
+  },
+  {
+    "id": "30084130",
+    "nombre": "Las Tunas"
+  },
+  {
+    "id": "30098080",
+    "nombre": "Líbaros"
+  },
+  {
+    "id": "30015100",
+    "nombre": "Los Charrúas"
+  },
+  {
+    "id": "30028080",
+    "nombre": "Los Conquistadores"
+  },
+  {
+    "id": "30077060",
+    "nombre": "Lucas González"
+  },
+  {
+    "id": "30091090",
+    "nombre": "Maciá"
+  },
+  {
+    "id": "30084140",
+    "nombre": "María Grande"
+  },
+  {
+    "id": "30063040",
+    "nombre": "Médanos"
+  },
+  {
+    "id": "30105040",
+    "nombre": "Molino Doll"
+  },
+  {
+    "id": "30077070",
+    "nombre": "Nogoyá"
+  },
+  {
+    "id": "30015110",
+    "nombre": "Nueva Escocia"
+  },
+  {
+    "id": "30035040",
+    "nombre": "Nueva Vizcaya"
+  },
+  {
+    "id": "30084150",
+    "nombre": "Oro Verde"
+  },
+  {
+    "id": "30015120",
+    "nombre": "Osvaldo Magnasco"
+  },
+  {
+    "id": "30021130",
+    "nombre": "Paraje La Virgen"
+  },
+  {
+    "id": "30084160",
+    "nombre": "Paraná"
+  },
+  {
+    "id": "30113050",
+    "nombre": "Paso de la Laguna"
+  },
+  {
+    "id": "30056095",
+    "nombre": "Pastor Britos"
+  },
+  {
+    "id": "30015130",
+    "nombre": "Pedernal"
+  },
+  {
+    "id": "30070050",
+    "nombre": "Piedras Blancas"
+  },
+  {
+    "id": "30098100",
+    "nombre": "Pronunciamiento"
+  },
+  {
+    "id": "30084170",
+    "nombre": "Pueblo Bellocq (Las Garzas)"
+  },
+  {
+    "id": "30084180",
+    "nombre": "Pueblo Brugo"
+  },
+  {
+    "id": "30008070",
+    "nombre": "Pueblo Cazes"
+  },
+  {
+    "id": "30056100",
+    "nombre": "Pueblo General Belgrano"
+  },
+  {
+    "id": "30084190",
+    "nombre": "Pueblo General San Martín"
+  },
+  {
+    "id": "30008080",
+    "nombre": "Pueblo Liebig's"
+  },
+  {
+    "id": "3008405002",
+    "nombre": "Pueblo Moreno"
+  },
+  {
+    "id": "30021140",
+    "nombre": "Puerto Las Cuevas"
+  },
+  {
+    "id": "30049050",
+    "nombre": "Puerto Ruiz"
+  },
+  {
+    "id": "30015140",
+    "nombre": "Puerto Yeruá"
+  },
+  {
+    "id": "30098110",
+    "nombre": "Rocamora"
+  },
+  {
+    "id": "30091100",
+    "nombre": "Rosario del Tala"
+  },
+  {
+    "id": "30084200",
+    "nombre": "San Benito"
+  },
+  {
+    "id": "30070070",
+    "nombre": "San Gustavo"
+  },
+  {
+    "id": "30028090",
+    "nombre": "San Jaime de la Frontera"
+  },
+  {
+    "id": "30008090",
+    "nombre": "San José"
+  },
+  {
+    "id": "30042010",
+    "nombre": "San José de Feliciano"
+  },
+  {
+    "id": "30028100",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "30028105",
+    "nombre": "San Ramón"
+  },
+  {
+    "id": "30088020",
+    "nombre": "San Salvador"
+  },
+  {
+    "id": "30042020",
+    "nombre": "San Víctor"
+  },
+  {
+    "id": "30028110",
+    "nombre": "Santa Ana"
+  },
+  {
+    "id": "30098120",
+    "nombre": "Santa Anita"
+  },
+  {
+    "id": "30070080",
+    "nombre": "Santa Elena"
+  },
+  {
+    "id": "30035050",
+    "nombre": "Sauce de Luna"
+  },
+  {
+    "id": "30084210",
+    "nombre": "Sauce Montrull"
+  },
+  {
+    "id": "30084220",
+    "nombre": "Sauce Pinto"
+  },
+  {
+    "id": "30084230",
+    "nombre": "Seguí"
+  },
+  {
+    "id": "30070090",
+    "nombre": "Sir Leonard"
+  },
+  {
+    "id": "30084240",
+    "nombre": "Sosa"
+  },
+  {
+    "id": "3002108002",
+    "nombre": "Strobel"
+  },
+  {
+    "id": "30084250",
+    "nombre": "Tabossi"
+  },
+  {
+    "id": "30084260",
+    "nombre": "Tezanos Pinto"
+  },
+  {
+    "id": "30008100",
+    "nombre": "Ubajay"
+  },
+  {
+    "id": "30056110",
+    "nombre": "Urdinarrain"
+  },
+  {
+    "id": "30084270",
+    "nombre": "Viale"
+  },
+  {
+    "id": "30105060",
+    "nombre": "Victoria"
+  },
+  {
+    "id": "3001506002",
+    "nombre": "Villa Adela"
+  },
+  {
+    "id": "30113060",
+    "nombre": "Villa Clara"
+  },
+  {
+    "id": "30028120",
+    "nombre": "Villa del Rosario"
+  },
+  {
+    "id": "30113070",
+    "nombre": "Villa Domínguez"
+  },
+  {
+    "id": "30008110",
+    "nombre": "Villa Elisa"
+  },
+  {
+    "id": "30084280",
+    "nombre": "Villa Fontana"
+  },
+  {
+    "id": "30084290",
+    "nombre": "Villa Gdor. Luis F. Etchevehere"
+  },
+  {
+    "id": "30021150",
+    "nombre": "Villa Libertador San Martín"
+  },
+  {
+    "id": "30098130",
+    "nombre": "Villa Mantero"
+  },
+  {
+    "id": "30063060",
+    "nombre": "Villa Paranacito"
+  },
+  {
+    "id": "30098140",
+    "nombre": "Villa San Justo"
+  },
+  {
+    "id": "30098150",
+    "nombre": "Villa San Marcial (Est. Gobernador Urquiza)"
+  },
+  {
+    "id": "30084300",
+    "nombre": "Villa Urquiza"
+  },
+  {
+    "id": "3001506007",
+    "nombre": "Villa Zorraquín"
+  },
+  {
+    "id": "30113080",
+    "nombre": "Villaguay"
+  },
+  {
+    "id": "30077080",
+    "nombre": "XX de Setiembre"
+  }
+]

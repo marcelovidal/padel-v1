@@ -1,0 +1,510 @@
+[
+  {
+    "id": "66161010",
+    "nombre": "Acoyte"
+  },
+  {
+    "id": "66056010",
+    "nombre": "Aguaray"
+  },
+  {
+    "id": "66126010",
+    "nombre": "Aguas Blancas"
+  },
+  {
+    "id": "66133010",
+    "nombre": "Alto de la Sierra"
+  },
+  {
+    "id": "66098010",
+    "nombre": "Ampascachi"
+  },
+  {
+    "id": "66154010",
+    "nombre": "Angastaco"
+  },
+  {
+    "id": "66154020",
+    "nombre": "Animaná"
+  },
+  {
+    "id": "66140010",
+    "nombre": "Antillá"
+  },
+  {
+    "id": "66007010",
+    "nombre": "Apolinario Saravia"
+  },
+  {
+    "id": "66042003",
+    "nombre": "Barrio Finca La Maroma"
+  },
+  {
+    "id": "66042005",
+    "nombre": "Barrio La Rotonda"
+  },
+  {
+    "id": "66042007",
+    "nombre": "Barrio Santa Teresita"
+  },
+  {
+    "id": "66098020",
+    "nombre": "Cabra Corral"
+  },
+  {
+    "id": "66014010",
+    "nombre": "Cachi"
+  },
+  {
+    "id": "66021010",
+    "nombre": "Cafayate"
+  },
+  {
+    "id": "66056030",
+    "nombre": "Campichuelo"
+  },
+  {
+    "id": "66056040",
+    "nombre": "Campo Durán"
+  },
+  {
+    "id": "66161020",
+    "nombre": "Campo La Cruz"
+  },
+  {
+    "id": "66147010",
+    "nombre": "Campo Quijano"
+  },
+  {
+    "id": "66049010",
+    "nombre": "Campo Santo"
+  },
+  {
+    "id": "66056050",
+    "nombre": "Capiazuti"
+  },
+  {
+    "id": "66133020",
+    "nombre": "Capitán Juan Pagé"
+  },
+  {
+    "id": "66056060",
+    "nombre": "Carboncito"
+  },
+  {
+    "id": "66007020",
+    "nombre": "Ceibalito"
+  },
+  {
+    "id": "66007030",
+    "nombre": "Centro 25 de Junio"
+  },
+  {
+    "id": "66035010",
+    "nombre": "Cerrillos"
+  },
+  {
+    "id": "66042010",
+    "nombre": "Chicoana"
+  },
+  {
+    "id": "66049020",
+    "nombre": "Cobos"
+  },
+  {
+    "id": "66091010",
+    "nombre": "Cobres"
+  },
+  {
+    "id": "66126020",
+    "nombre": "Colonia Santa Rosa"
+  },
+  {
+    "id": "66140020",
+    "nombre": "Copo Quile"
+  },
+  {
+    "id": "66056070",
+    "nombre": "Coronel Cornejo"
+  },
+  {
+    "id": "66133030",
+    "nombre": "Coronel Juan Solá"
+  },
+  {
+    "id": "66098030",
+    "nombre": "Coronel Moldes"
+  },
+  {
+    "id": "66007040",
+    "nombre": "Coronel Mollinedo"
+  },
+  {
+    "id": "66007050",
+    "nombre": "Coronel Olleros"
+  },
+  {
+    "id": "6602805001",
+    "nombre": "Country Club El Tipal"
+  },
+  {
+    "id": "6602805002",
+    "nombre": "Country Club La Almudena"
+  },
+  {
+    "id": "66056080",
+    "nombre": "Dragones"
+  },
+  {
+    "id": "66049030",
+    "nombre": "El Bordo"
+  },
+  {
+    "id": "66042020",
+    "nombre": "El Carril"
+  },
+  {
+    "id": "66112010",
+    "nombre": "El Galpón"
+  },
+  {
+    "id": "66084010",
+    "nombre": "El Jardín"
+  },
+  {
+    "id": "66140030",
+    "nombre": "El Naranjo"
+  },
+  {
+    "id": "66140040",
+    "nombre": "El Potrero"
+  },
+  {
+    "id": "66007060",
+    "nombre": "El Quebrachal"
+  },
+  {
+    "id": "66126030",
+    "nombre": "El Tabacal"
+  },
+  {
+    "id": "66084020",
+    "nombre": "El Tala"
+  },
+  {
+    "id": "66112020",
+    "nombre": "El Tunal"
+  },
+  {
+    "id": "66056090",
+    "nombre": "Embarcación"
+  },
+  {
+    "id": "66007070",
+    "nombre": "Gaona"
+  },
+  {
+    "id": "66056100",
+    "nombre": "General Ballivián"
+  },
+  {
+    "id": "66049040",
+    "nombre": "General Güemes"
+  },
+  {
+    "id": "66056110",
+    "nombre": "General Mosconi"
+  },
+  {
+    "id": "66007080",
+    "nombre": "General Pizarro"
+  },
+  {
+    "id": "66063010",
+    "nombre": "Guachipas"
+  },
+  {
+    "id": "66056120",
+    "nombre": "Hickman"
+  },
+  {
+    "id": "66126040",
+    "nombre": "Hipólito Yrigoyen"
+  },
+  {
+    "id": "66133035",
+    "nombre": "Hito 1"
+  },
+  {
+    "id": "66070010",
+    "nombre": "Iruya"
+  },
+  {
+    "id": "66070020",
+    "nombre": "Isla de Cañas"
+  },
+  {
+    "id": "66007090",
+    "nombre": "Joaquín V. González"
+  },
+  {
+    "id": "66077010",
+    "nombre": "La Caldera"
+  },
+  {
+    "id": "66084030",
+    "nombre": "La Candelaria"
+  },
+  {
+    "id": "66035020",
+    "nombre": "La Merced"
+  },
+  {
+    "id": "66147015",
+    "nombre": "La Merced del Encón"
+  },
+  {
+    "id": "6612602002",
+    "nombre": "La Misión"
+  },
+  {
+    "id": "66091020",
+    "nombre": "La Poma"
+  },
+  {
+    "id": "66119010",
+    "nombre": "La Puerta"
+  },
+  {
+    "id": "66147020",
+    "nombre": "La Silleta"
+  },
+  {
+    "id": "66133040",
+    "nombre": "La Unión"
+  },
+  {
+    "id": "66098040",
+    "nombre": "La Viña"
+  },
+  {
+    "id": "66007100",
+    "nombre": "Las Lajitas"
+  },
+  {
+    "id": "66133050",
+    "nombre": "Los Blancos"
+  },
+  {
+    "id": "66161030",
+    "nombre": "Los Toldos"
+  },
+  {
+    "id": "66007110",
+    "nombre": "Luis Burela"
+  },
+  {
+    "id": "66112030",
+    "nombre": "Lumbreras"
+  },
+  {
+    "id": "66007120",
+    "nombre": "Macapillo"
+  },
+  {
+    "id": "66056130",
+    "nombre": "Misión Chaqueña"
+  },
+  {
+    "id": "66056150",
+    "nombre": "Misión Kilómetro 6"
+  },
+  {
+    "id": "6605609002",
+    "nombre": "Misión Tierras Fiscales"
+  },
+  {
+    "id": "66119020",
+    "nombre": "Molinos"
+  },
+  {
+    "id": "66161040",
+    "nombre": "Nazareno"
+  },
+  {
+    "id": "66007130",
+    "nombre": "Nuestra Señora de Talavera"
+  },
+  {
+    "id": "66105010",
+    "nombre": "Olacapato"
+  },
+  {
+    "id": "66056170",
+    "nombre": "Pacará"
+  },
+  {
+    "id": "66056180",
+    "nombre": "Padre Lozano"
+  },
+  {
+    "id": "66014020",
+    "nombre": "Payogasta"
+  },
+  {
+    "id": "66126060",
+    "nombre": "Pichanal"
+  },
+  {
+    "id": "66007140",
+    "nombre": "Piquete Cabado"
+  },
+  {
+    "id": "66056190",
+    "nombre": "Piquirenda"
+  },
+  {
+    "id": "66133060",
+    "nombre": "Pluma de Pato"
+  },
+  {
+    "id": "66161050",
+    "nombre": "Poscaya"
+  },
+  {
+    "id": "66056200",
+    "nombre": "Profesor Salvador Mazza"
+  },
+  {
+    "id": "66070030",
+    "nombre": "Pueblo Viejo"
+  },
+  {
+    "id": "6605611002",
+    "nombre": "Recaredo"
+  },
+  {
+    "id": "66007150",
+    "nombre": "Río del Valle"
+  },
+  {
+    "id": "66112070",
+    "nombre": "Río Piedras"
+  },
+  {
+    "id": "66133070",
+    "nombre": "Rivadavia"
+  },
+  {
+    "id": "66140050",
+    "nombre": "Rosario de la Frontera"
+  },
+  {
+    "id": "66147030",
+    "nombre": "Rosario de Lerma"
+  },
+  {
+    "id": "6602805003",
+    "nombre": "Salta"
+  },
+  {
+    "id": "66035030",
+    "nombre": "San Agustín"
+  },
+  {
+    "id": "66105020",
+    "nombre": "San Antonio de los Cobres"
+  },
+  {
+    "id": "66154040",
+    "nombre": "San Carlos"
+  },
+  {
+    "id": "66140060",
+    "nombre": "San Felipe"
+  },
+  {
+    "id": "66112040",
+    "nombre": "San José de Metán (Est. Metán)"
+  },
+  {
+    "id": "66112080",
+    "nombre": "San José de Orquera"
+  },
+  {
+    "id": "66161060",
+    "nombre": "San Marcos"
+  },
+  {
+    "id": "66126070",
+    "nombre": "San Ramón de la Nueva Orán"
+  },
+  {
+    "id": "66133080",
+    "nombre": "Santa María"
+  },
+  {
+    "id": "66133090",
+    "nombre": "Santa Rosa"
+  },
+  {
+    "id": "66105030",
+    "nombre": "Santa Rosa de los Pastos Grandes"
+  },
+  {
+    "id": "66161070",
+    "nombre": "Santa Victoria"
+  },
+  {
+    "id": "66133100",
+    "nombre": "Santa Victoria Este"
+  },
+  {
+    "id": "66119030",
+    "nombre": "Seclantás"
+  },
+  {
+    "id": "66098050",
+    "nombre": "Talapampa"
+  },
+  {
+    "id": "66056220",
+    "nombre": "Tartagal"
+  },
+  {
+    "id": "66056230",
+    "nombre": "Tobantirenda"
+  },
+  {
+    "id": "66105040",
+    "nombre": "Tolar Grande"
+  },
+  {
+    "id": "66007160",
+    "nombre": "Tolloche"
+  },
+  {
+    "id": "66021020",
+    "nombre": "Tolombón"
+  },
+  {
+    "id": "66056240",
+    "nombre": "Tranquitas"
+  },
+  {
+    "id": "66126080",
+    "nombre": "Urundel"
+  },
+  {
+    "id": "66077020",
+    "nombre": "Vaqueros"
+  },
+  {
+    "id": "66028060",
+    "nombre": "Villa San Lorenzo"
+  },
+  {
+    "id": "66056250",
+    "nombre": "Yacuy"
+  }
+]

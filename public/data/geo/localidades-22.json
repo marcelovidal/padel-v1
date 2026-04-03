@@ -1,0 +1,366 @@
+[
+  {
+    "id": "22070010",
+    "nombre": "Avia Terai"
+  },
+  {
+    "id": "22140010",
+    "nombre": "Barranqueras"
+  },
+  {
+    "id": "22126010",
+    "nombre": "Barrio de los Pescadores"
+  },
+  {
+    "id": "22140020",
+    "nombre": "Basail"
+  },
+  {
+    "id": "22070020",
+    "nombre": "Campo Largo"
+  },
+  {
+    "id": "22154010",
+    "nombre": "Capitán Solari"
+  },
+  {
+    "id": "22161010",
+    "nombre": "Charadai"
+  },
+  {
+    "id": "22028010",
+    "nombre": "Charata"
+  },
+  {
+    "id": "22043010",
+    "nombre": "Chorotis"
+  },
+  {
+    "id": "22084010",
+    "nombre": "Ciervo Petiso"
+  },
+  {
+    "id": "22168010",
+    "nombre": "Colonia Aborigen"
+  },
+  {
+    "id": "22140030",
+    "nombre": "Colonia Baranda"
+  },
+  {
+    "id": "22126020",
+    "nombre": "Colonia Benítez"
+  },
+  {
+    "id": "22154020",
+    "nombre": "Colonia Elisa"
+  },
+  {
+    "id": "22077010",
+    "nombre": "Colonia Popular"
+  },
+  {
+    "id": "22154030",
+    "nombre": "Colonias Unidas"
+  },
+  {
+    "id": "22007010",
+    "nombre": "Concepción del Bermejo"
+  },
+  {
+    "id": "22098010",
+    "nombre": "Coronel Du Graty"
+  },
+  {
+    "id": "22049010",
+    "nombre": "Corzuela"
+  },
+  {
+    "id": "22161020",
+    "nombre": "Cote Lai"
+  },
+  {
+    "id": "22063010",
+    "nombre": "El Espinillo"
+  },
+  {
+    "id": "22063020",
+    "nombre": "El Sauzal"
+  },
+  {
+    "id": "22063030",
+    "nombre": "El Sauzalito"
+  },
+  {
+    "id": "22098020",
+    "nombre": "Enrique Urien"
+  },
+  {
+    "id": "22077020",
+    "nombre": "Estación General Obligado"
+  },
+  {
+    "id": "22140040",
+    "nombre": "Fontana"
+  },
+  {
+    "id": "22070030",
+    "nombre": "Fortín Las Chuñas"
+  },
+  {
+    "id": "22063040",
+    "nombre": "Fortín Lavalle"
+  },
+  {
+    "id": "22063050",
+    "nombre": "Fuerte Esperanza"
+  },
+  {
+    "id": "22036010",
+    "nombre": "Gancedo"
+  },
+  {
+    "id": "22036020",
+    "nombre": "General Capdevila"
+  },
+  {
+    "id": "22084020",
+    "nombre": "General José de San Martín"
+  },
+  {
+    "id": "22036030",
+    "nombre": "General Pinedo"
+  },
+  {
+    "id": "22014010",
+    "nombre": "General Vedia"
+  },
+  {
+    "id": "22161030",
+    "nombre": "Haumonia"
+  },
+  {
+    "id": "22039010",
+    "nombre": "Hermoso Campo"
+  },
+  {
+    "id": "22161040",
+    "nombre": "Horquilla"
+  },
+  {
+    "id": "22154040",
+    "nombre": "Ingeniero Barbet"
+  },
+  {
+    "id": "22014020",
+    "nombre": "Isla del Cerrito"
+  },
+  {
+    "id": "22039020",
+    "nombre": "Itín"
+  },
+  {
+    "id": "22063060",
+    "nombre": "Juan José Castelli"
+  },
+  {
+    "id": "22112010",
+    "nombre": "La Clotilde"
+  },
+  {
+    "id": "22084030",
+    "nombre": "La Eduvigis"
+  },
+  {
+    "id": "22056010",
+    "nombre": "La Escondida"
+  },
+  {
+    "id": "22014030",
+    "nombre": "La Leonesa"
+  },
+  {
+    "id": "22161050",
+    "nombre": "La Sabana"
+  },
+  {
+    "id": "22112020",
+    "nombre": "La Tigra"
+  },
+  {
+    "id": "22056020",
+    "nombre": "La Verde"
+  },
+  {
+    "id": "22077030",
+    "nombre": "Laguna Blanca"
+  },
+  {
+    "id": "22084040",
+    "nombre": "Laguna Limpia"
+  },
+  {
+    "id": "22056030",
+    "nombre": "Lapachito"
+  },
+  {
+    "id": "22105010",
+    "nombre": "Las Breñas"
+  },
+  {
+    "id": "22154050",
+    "nombre": "Las Garcitas"
+  },
+  {
+    "id": "22014040",
+    "nombre": "Las Palmas"
+  },
+  {
+    "id": "22007020",
+    "nombre": "Los Frentones"
+  },
+  {
+    "id": "22168020",
+    "nombre": "Machagai"
+  },
+  {
+    "id": "22056040",
+    "nombre": "Makallé"
+  },
+  {
+    "id": "22126030",
+    "nombre": "Margarita Belén"
+  },
+  {
+    "id": "22036040",
+    "nombre": "Mesón de Fierro"
+  },
+  {
+    "id": "22063070",
+    "nombre": "Miraflores"
+  },
+  {
+    "id": "22168030",
+    "nombre": "Napalpí"
+  },
+  {
+    "id": "22070040",
+    "nombre": "Napenay"
+  },
+  {
+    "id": "22063080",
+    "nombre": "Nueva Pompeya"
+  },
+  {
+    "id": "22084050",
+    "nombre": "Pampa Almirón"
+  },
+  {
+    "id": "22084060",
+    "nombre": "Pampa del Indio"
+  },
+  {
+    "id": "22007030",
+    "nombre": "Pampa del Infierno"
+  },
+  {
+    "id": "22036050",
+    "nombre": "Pampa Landriel"
+  },
+  {
+    "id": "22119010",
+    "nombre": "Presidencia de la Plaza"
+  },
+  {
+    "id": "22084070",
+    "nombre": "Presidencia Roca"
+  },
+  {
+    "id": "22021010",
+    "nombre": "Presidencia Roque Sáenz Peña"
+  },
+  {
+    "id": "22014050",
+    "nombre": "Puerto Bermejo Nuevo"
+  },
+  {
+    "id": "22014060",
+    "nombre": "Puerto Bermejo Viejo"
+  },
+  {
+    "id": "22014070",
+    "nombre": "Puerto Eva Perón"
+  },
+  {
+    "id": "22077040",
+    "nombre": "Puerto Tirol"
+  },
+  {
+    "id": "22140050",
+    "nombre": "Puerto Vilelas"
+  },
+  {
+    "id": "22133010",
+    "nombre": "Quitilipi"
+  },
+  {
+    "id": "22140060",
+    "nombre": "Resistencia"
+  },
+  {
+    "id": "22007040",
+    "nombre": "Río Muerto"
+  },
+  {
+    "id": "22147010",
+    "nombre": "Samuhú"
+  },
+  {
+    "id": "22112030",
+    "nombre": "San Bernardo"
+  },
+  {
+    "id": "22043020",
+    "nombre": "Santa Sylvina"
+  },
+  {
+    "id": "22084080",
+    "nombre": "Selvas del Río de Oro"
+  },
+  {
+    "id": "22007050",
+    "nombre": "Taco Pozo"
+  },
+  {
+    "id": "22091010",
+    "nombre": "Tres Isletas"
+  },
+  {
+    "id": "22043030",
+    "nombre": "Venados Grandes"
+  },
+  {
+    "id": "22098030",
+    "nombre": "Villa Angela"
+  },
+  {
+    "id": "22147020",
+    "nombre": "Villa Berthet"
+  },
+  {
+    "id": "22133020",
+    "nombre": "Villa El Palmar"
+  },
+  {
+    "id": "22063100",
+    "nombre": "Villa Río Bermejito"
+  },
+  {
+    "id": "22063110",
+    "nombre": "Wichi"
+  },
+  {
+    "id": "22063120",
+    "nombre": "Zaparinqui"
+  }
+]

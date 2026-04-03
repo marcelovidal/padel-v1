@@ -1,0 +1,198 @@
+[
+  {
+    "id": "0210501001",
+    "nombre": "Agronomía"
+  },
+  {
+    "id": "0203501001",
+    "nombre": "Almagro"
+  },
+  {
+    "id": "0202101001",
+    "nombre": "Balvanera"
+  },
+  {
+    "id": "0202801001",
+    "nombre": "Barracas"
+  },
+  {
+    "id": "0209101001",
+    "nombre": "Belgrano"
+  },
+  {
+    "id": "0202801002",
+    "nombre": "Boca"
+  },
+  {
+    "id": "0203501002",
+    "nombre": "Boedo"
+  },
+  {
+    "id": "0204201001",
+    "nombre": "Caballito"
+  },
+  {
+    "id": "0210501002",
+    "nombre": "Chacarita"
+  },
+  {
+    "id": "02014010",
+    "nombre": "Ciudad de Buenos Aires"
+  },
+  {
+    "id": "0208401001",
+    "nombre": "Coghlan"
+  },
+  {
+    "id": "0209101002",
+    "nombre": "Colegiales"
+  },
+  {
+    "id": "0200701001",
+    "nombre": "Constitución"
+  },
+  {
+    "id": "0204901001",
+    "nombre": "Flores"
+  },
+  {
+    "id": "0207001001",
+    "nombre": "Floresta"
+  },
+  {
+    "id": "0206301001",
+    "nombre": "Liniers"
+  },
+  {
+    "id": "0206301002",
+    "nombre": "Mataderos"
+  },
+  {
+    "id": "0200701002",
+    "nombre": "Monserrat"
+  },
+  {
+    "id": "0207001002",
+    "nombre": "Monte Castro"
+  },
+  {
+    "id": "0202801003",
+    "nombre": "Nueva Pompeya"
+  },
+  {
+    "id": "0209101003",
+    "nombre": "Nuñez"
+  },
+  {
+    "id": "0209801001",
+    "nombre": "Palermo"
+  },
+  {
+    "id": "0206301003",
+    "nombre": "Parque Avellaneda"
+  },
+  {
+    "id": "0204901002",
+    "nombre": "Parque Chacabuco"
+  },
+  {
+    "id": "0210501003",
+    "nombre": "Parque Chas"
+  },
+  {
+    "id": "0202801004",
+    "nombre": "Parque Patricios"
+  },
+  {
+    "id": "0210501004",
+    "nombre": "Paternal"
+  },
+  {
+    "id": "0200701003",
+    "nombre": "Puerto Madero"
+  },
+  {
+    "id": "0201401001",
+    "nombre": "Recoleta"
+  },
+  {
+    "id": "0200701004",
+    "nombre": "Retiro"
+  },
+  {
+    "id": "0208401002",
+    "nombre": "Saavedra"
+  },
+  {
+    "id": "0202101002",
+    "nombre": "San Cristóbal"
+  },
+  {
+    "id": "0200701005",
+    "nombre": "San Nicolás"
+  },
+  {
+    "id": "0200701006",
+    "nombre": "San Telmo"
+  },
+  {
+    "id": "0207001003",
+    "nombre": "Vélez Sarsfield"
+  },
+  {
+    "id": "0207001004",
+    "nombre": "Versalles"
+  },
+  {
+    "id": "0210501005",
+    "nombre": "Villa Crespo"
+  },
+  {
+    "id": "0207701001",
+    "nombre": "Villa del Parque"
+  },
+  {
+    "id": "0207701002",
+    "nombre": "Villa Devoto"
+  },
+  {
+    "id": "0207701003",
+    "nombre": "Villa General Mitre"
+  },
+  {
+    "id": "0205601001",
+    "nombre": "Villa Lugano"
+  },
+  {
+    "id": "0207001005",
+    "nombre": "Villa Luro"
+  },
+  {
+    "id": "0210501006",
+    "nombre": "Villa Ortúzar"
+  },
+  {
+    "id": "0208401003",
+    "nombre": "Villa Pueyrredón"
+  },
+  {
+    "id": "0207001006",
+    "nombre": "Villa Real"
+  },
+  {
+    "id": "0205601002",
+    "nombre": "Villa Riachuelo"
+  },
+  {
+    "id": "0207701004",
+    "nombre": "Villa Santa Rita"
+  },
+  {
+    "id": "0205601003",
+    "nombre": "Villa Soldati"
+  },
+  {
+    "id": "0208401004",
+    "nombre": "Villa Urquiza"
+  }
+]

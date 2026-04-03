@@ -1,0 +1,354 @@
+[
+  {
+    "id": "70063040",
+    "nombre": "9 de Julio"
+  },
+  {
+    "id": "70063010",
+    "nombre": "Alto de Sierra"
+  },
+  {
+    "id": "70049010",
+    "nombre": "Angualasto"
+  },
+  {
+    "id": "70119010",
+    "nombre": "Astica"
+  },
+  {
+    "id": "70119020",
+    "nombre": "Balde del Rosario"
+  },
+  {
+    "id": "70021010",
+    "nombre": "Barreal - Villa Pituil"
+  },
+  {
+    "id": "70070005",
+    "nombre": "Barrio Municipal"
+  },
+  {
+    "id": "70070010",
+    "nombre": "Barrio Ruta 40"
+  },
+  {
+    "id": "70091010",
+    "nombre": "Barrio Sadop - Bella Vista"
+  },
+  {
+    "id": "70035010",
+    "nombre": "Bermejo"
+  },
+  {
+    "id": "70021020",
+    "nombre": "Calingasta"
+  },
+  {
+    "id": "70105010",
+    "nombre": "Cañada Honda"
+  },
+  {
+    "id": "70070020",
+    "nombre": "Carpintería"
+  },
+  {
+    "id": "70035020",
+    "nombre": "Caucete"
+  },
+  {
+    "id": "70042010",
+    "nombre": "Chimbas"
+  },
+  {
+    "id": "70119030",
+    "nombre": "Chucuma"
+  },
+  {
+    "id": "70105020",
+    "nombre": "Cienaguita"
+  },
+  {
+    "id": "70105030",
+    "nombre": "Colonia Fiscal"
+  },
+  {
+    "id": "7009801001",
+    "nombre": "Colonia Gutiérrez"
+  },
+  {
+    "id": "70105040",
+    "nombre": "Divisadero"
+  },
+  {
+    "id": "70091020",
+    "nombre": "Dos Acequias"
+  },
+  {
+    "id": "70126010",
+    "nombre": "El Encón"
+  },
+  {
+    "id": "7007701001",
+    "nombre": "El Medanito"
+  },
+  {
+    "id": "70056010",
+    "nombre": "El Médano"
+  },
+  {
+    "id": "70035030",
+    "nombre": "El Rincón"
+  },
+  {
+    "id": "70056020",
+    "nombre": "Gran China"
+  },
+  {
+    "id": "70056030",
+    "nombre": "Huaco"
+  },
+  {
+    "id": "70049030",
+    "nombre": "Iglesia"
+  },
+  {
+    "id": "7012603001",
+    "nombre": "La Chimbera"
+  },
+  {
+    "id": "7005606002",
+    "nombre": "La Falda"
+  },
+  {
+    "id": "7007004001",
+    "nombre": "La Rinconada"
+  },
+  {
+    "id": "70063030",
+    "nombre": "Las Chacritas"
+  },
+  {
+    "id": "70049040",
+    "nombre": "Las Flores"
+  },
+  {
+    "id": "70105060",
+    "nombre": "Las Lagunas"
+  },
+  {
+    "id": "7003504001",
+    "nombre": "Las Talas"
+  },
+  {
+    "id": "70035040",
+    "nombre": "Las Talas - Los Médanos"
+  },
+  {
+    "id": "70014010",
+    "nombre": "Las Tapias"
+  },
+  {
+    "id": "70119040",
+    "nombre": "Los Baldecitos"
+  },
+  {
+    "id": "70105070",
+    "nombre": "Los Berros"
+  },
+  {
+    "id": "7003504002",
+    "nombre": "Los Médanos"
+  },
+  {
+    "id": "70035050",
+    "nombre": "Marayes"
+  },
+  {
+    "id": "70056040",
+    "nombre": "Mogna"
+  },
+  {
+    "id": "70056050",
+    "nombre": "Niquivil"
+  },
+  {
+    "id": "70056060",
+    "nombre": "Pampa Vieja"
+  },
+  {
+    "id": "70105080",
+    "nombre": "Pedernal"
+  },
+  {
+    "id": "70035060",
+    "nombre": "Pie de Palo"
+  },
+  {
+    "id": "70049050",
+    "nombre": "Pismanta"
+  },
+  {
+    "id": "70105090",
+    "nombre": "Punta del Médano"
+  },
+  {
+    "id": "70070030",
+    "nombre": "Quinto Cuartel"
+  },
+  {
+    "id": "7007701002",
+    "nombre": "Rawson"
+  },
+  {
+    "id": "70084010",
+    "nombre": "Rivadavia"
+  },
+  {
+    "id": "70049060",
+    "nombre": "Rodeo"
+  },
+  {
+    "id": "70091030",
+    "nombre": "San Isidro"
+  },
+  {
+    "id": "70056080",
+    "nombre": "San José de Jáchal"
+  },
+  {
+    "id": "70028010",
+    "nombre": "San Juan"
+  },
+  {
+    "id": "7009801002",
+    "nombre": "Santa Lucía"
+  },
+  {
+    "id": "70056090",
+    "nombre": "Tamberías"
+  },
+  {
+    "id": "70049070",
+    "nombre": "Tudcum"
+  },
+  {
+    "id": "70126020",
+    "nombre": "Tupelí"
+  },
+  {
+    "id": "70119050",
+    "nombre": "Usno"
+  },
+  {
+    "id": "70035070",
+    "nombre": "Vallecito"
+  },
+  {
+    "id": "7007004002",
+    "nombre": "Villa Aberastain"
+  },
+  {
+    "id": "70070040",
+    "nombre": "Villa Aberastain - La Rinconada"
+  },
+  {
+    "id": "7007005001",
+    "nombre": "Villa Barboza"
+  },
+  {
+    "id": "70070050",
+    "nombre": "Villa Barboza - Villa Nacusi"
+  },
+  {
+    "id": "70133010",
+    "nombre": "Villa Basilio Nievas"
+  },
+  {
+    "id": "70077020",
+    "nombre": "Villa Bolaños (Médano de Oro)"
+  },
+  {
+    "id": "7012603002",
+    "nombre": "Villa Borjas"
+  },
+  {
+    "id": "70126030",
+    "nombre": "Villa Borjas - La Chimbera"
+  },
+  {
+    "id": "70070060",
+    "nombre": "Villa Centenario"
+  },
+  {
+    "id": "70091040",
+    "nombre": "Villa del Salvador"
+  },
+  {
+    "id": "70091050",
+    "nombre": "Villa Dominguito"
+  },
+  {
+    "id": "70091060",
+    "nombre": "Villa Don Bosco"
+  },
+  {
+    "id": "7001402001",
+    "nombre": "Villa El Salvador"
+  },
+  {
+    "id": "70014020",
+    "nombre": "Villa El Salvador - Villa Sefair"
+  },
+  {
+    "id": "70126040",
+    "nombre": "Villa El Tango"
+  },
+  {
+    "id": "70007020",
+    "nombre": "Villa General San Martín - Campo Afuera"
+  },
+  {
+    "id": "70112010",
+    "nombre": "Villa Ibáñez"
+  },
+  {
+    "id": "70035080",
+    "nombre": "Villa Independencia"
+  },
+  {
+    "id": "70056100",
+    "nombre": "Villa Malvinas Argentinas"
+  },
+  {
+    "id": "70105100",
+    "nombre": "Villa Media Agua"
+  },
+  {
+    "id": "70056110",
+    "nombre": "Villa Mercedes"
+  },
+  {
+    "id": "7007005002",
+    "nombre": "Villa Nacusi"
+  },
+  {
+    "id": "70119060",
+    "nombre": "Villa San Agustín"
+  },
+  {
+    "id": "70091070",
+    "nombre": "Villa San Martín"
+  },
+  {
+    "id": "70126050",
+    "nombre": "Villa Santa Rosa"
+  },
+  {
+    "id": "7001402002",
+    "nombre": "Villa Sefair"
+  },
+  {
+    "id": "7013301002",
+    "nombre": "Villa Tacú"
+  }
+]

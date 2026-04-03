@@ -1,0 +1,618 @@
+[
+  {
+    "id": "86035010",
+    "nombre": "Abra Grande"
+  },
+  {
+    "id": "86119010",
+    "nombre": "Aerolito"
+  },
+  {
+    "id": "86119020",
+    "nombre": "Alhuampa"
+  },
+  {
+    "id": "86063010",
+    "nombre": "Ancaján"
+  },
+  {
+    "id": "86035020",
+    "nombre": "Antajé"
+  },
+  {
+    "id": "86077010",
+    "nombre": "Añatuya"
+  },
+  {
+    "id": "86035030",
+    "nombre": "Ardiles"
+  },
+  {
+    "id": "86007010",
+    "nombre": "Argentina"
+  },
+  {
+    "id": "86189010",
+    "nombre": "Árraga"
+  },
+  {
+    "id": "86077020",
+    "nombre": "Averías"
+  },
+  {
+    "id": "86042010",
+    "nombre": "Bandera"
+  },
+  {
+    "id": "86070010",
+    "nombre": "Bandera Bajada"
+  },
+  {
+    "id": "86161010",
+    "nombre": "Beltrán"
+  },
+  {
+    "id": "86175010",
+    "nombre": "Brea Pozo"
+  },
+  {
+    "id": "86014010",
+    "nombre": "Campo Gallo"
+  },
+  {
+    "id": "86035040",
+    "nombre": "Cañada Escobar"
+  },
+  {
+    "id": "86007020",
+    "nombre": "Casares"
+  },
+  {
+    "id": "86070020",
+    "nombre": "Caspi Corral"
+  },
+  {
+    "id": "86147020",
+    "nombre": "Chauchillas"
+  },
+  {
+    "id": "86035050",
+    "nombre": "Chaupi Pozo"
+  },
+  {
+    "id": "86168010",
+    "nombre": "Chilca Juliana"
+  },
+  {
+    "id": "86063020",
+    "nombre": "Choya"
+  },
+  {
+    "id": "86035060",
+    "nombre": "Clodomira"
+  },
+  {
+    "id": "86154010",
+    "nombre": "Colonia Alpina"
+  },
+  {
+    "id": "86028010",
+    "nombre": "Colonia Dora"
+  },
+  {
+    "id": "86161020",
+    "nombre": "Colonia El Simbolar"
+  },
+  {
+    "id": "86070030",
+    "nombre": "Colonia San Juan"
+  },
+  {
+    "id": "86147030",
+    "nombre": "Colonia Tinco"
+  },
+  {
+    "id": "86014020",
+    "nombre": "Coronel Manuel L. Rico"
+  },
+  {
+    "id": "86042020",
+    "nombre": "Cuatro Bocas"
+  },
+  {
+    "id": "86014030",
+    "nombre": "Donadeu"
+  },
+  {
+    "id": "86126010",
+    "nombre": "El 49"
+  },
+  {
+    "id": "86091005",
+    "nombre": "El Arenal"
+  },
+  {
+    "id": "86091010",
+    "nombre": "El Bobadal"
+  },
+  {
+    "id": "86056010",
+    "nombre": "El Caburé"
+  },
+  {
+    "id": "86091020",
+    "nombre": "El Charco"
+  },
+  {
+    "id": "86098010",
+    "nombre": "El Colorado"
+  },
+  {
+    "id": "86070040",
+    "nombre": "El Crucero"
+  },
+  {
+    "id": "86098020",
+    "nombre": "El Cuadrado"
+  },
+  {
+    "id": "86049010",
+    "nombre": "El Deán"
+  },
+  {
+    "id": "86133010",
+    "nombre": "El Mojón"
+  },
+  {
+    "id": "86091030",
+    "nombre": "El Rincón"
+  },
+  {
+    "id": "86147120",
+    "nombre": "El Sauzal"
+  },
+  {
+    "id": "86049030",
+    "nombre": "El Zanjón"
+  },
+  {
+    "id": "86021010",
+    "nombre": "Estación Atamisqui"
+  },
+  {
+    "id": "86063030",
+    "nombre": "Estación La Punta"
+  },
+  {
+    "id": "86175020",
+    "nombre": "Estación Robles"
+  },
+  {
+    "id": "86175030",
+    "nombre": "Estación Taboada"
+  },
+  {
+    "id": "86077030",
+    "nombre": "Estación Tacañitas"
+  },
+  {
+    "id": "86161030",
+    "nombre": "Fernández"
+  },
+  {
+    "id": "86042030",
+    "nombre": "Fortín Inca"
+  },
+  {
+    "id": "86063040",
+    "nombre": "Frías"
+  },
+  {
+    "id": "86182010",
+    "nombre": "Garza"
+  },
+  {
+    "id": "86091040",
+    "nombre": "Gramilla"
+  },
+  {
+    "id": "86042040",
+    "nombre": "Guardia Escolta"
+  },
+  {
+    "id": "86119030",
+    "nombre": "Hasse"
+  },
+  {
+    "id": "86119040",
+    "nombre": "Hernán Mejía Miraval"
+  },
+  {
+    "id": "86028020",
+    "nombre": "Herrera"
+  },
+  {
+    "id": "86035070",
+    "nombre": "Huyamampa"
+  },
+  {
+    "id": "86028030",
+    "nombre": "Icaño"
+  },
+  {
+    "id": "86161040",
+    "nombre": "Ingeniero Forres"
+  },
+  {
+    "id": "86091050",
+    "nombre": "Isca Yacu"
+  },
+  {
+    "id": "86091060",
+    "nombre": "Isca Yacu Semaul"
+  },
+  {
+    "id": "86035080",
+    "nombre": "La Aurora"
+  },
+  {
+    "id": "86035090",
+    "nombre": "La Banda"
+  },
+  {
+    "id": "86070060",
+    "nombre": "La Cañada"
+  },
+  {
+    "id": "86035100",
+    "nombre": "La Dársena"
+  },
+  {
+    "id": "86070070",
+    "nombre": "La Invernada"
+  },
+  {
+    "id": "86077040",
+    "nombre": "La Nena"
+  },
+  {
+    "id": "86147060",
+    "nombre": "La Nueva Donosa"
+  },
+  {
+    "id": "86063050",
+    "nombre": "Laprida"
+  },
+  {
+    "id": "86133020",
+    "nombre": "Las Delicias"
+  },
+  {
+    "id": "86119050",
+    "nombre": "Las Tinajas"
+  },
+  {
+    "id": "86084010",
+    "nombre": "Lavalle"
+  },
+  {
+    "id": "86119060",
+    "nombre": "Libertad"
+  },
+  {
+    "id": "86119070",
+    "nombre": "Lilo Viejo"
+  },
+  {
+    "id": "86049040",
+    "nombre": "Los Cardozos"
+  },
+  {
+    "id": "86077050",
+    "nombre": "Los Juríes"
+  },
+  {
+    "id": "86147070",
+    "nombre": "Los Miranda"
+  },
+  {
+    "id": "86147080",
+    "nombre": "Los Núñez"
+  },
+  {
+    "id": "86056030",
+    "nombre": "Los Pirpintos"
+  },
+  {
+    "id": "86035110",
+    "nombre": "Los Quiroga"
+  },
+  {
+    "id": "86035120",
+    "nombre": "Los Soria"
+  },
+  {
+    "id": "86168020",
+    "nombre": "Los Telares"
+  },
+  {
+    "id": "86056040",
+    "nombre": "Los Tigres"
+  },
+  {
+    "id": "86028040",
+    "nombre": "Lugones"
+  },
+  {
+    "id": "86049050",
+    "nombre": "Maco"
+  },
+  {
+    "id": "86007030",
+    "nombre": "Malbrán"
+  },
+  {
+    "id": "86147090",
+    "nombre": "Mansupa"
+  },
+  {
+    "id": "86049060",
+    "nombre": "Maquito"
+  },
+  {
+    "id": "86098030",
+    "nombre": "Matará"
+  },
+  {
+    "id": "86021020",
+    "nombre": "Medellín"
+  },
+  {
+    "id": "86070080",
+    "nombre": "Minerva"
+  },
+  {
+    "id": "86056050",
+    "nombre": "Monte Quemado"
+  },
+  {
+    "id": "86049070",
+    "nombre": "Morales"
+  },
+  {
+    "id": "86133030",
+    "nombre": "Nueva Esperanza"
+  },
+  {
+    "id": "86189020",
+    "nombre": "Nueva Francia"
+  },
+  {
+    "id": "86154020",
+    "nombre": "Palo Negro"
+  },
+  {
+    "id": "86056070",
+    "nombre": "Pampa de los Guanacos"
+  },
+  {
+    "id": "86119080",
+    "nombre": "Patay"
+  },
+  {
+    "id": "86133040",
+    "nombre": "Pozo Betbeder"
+  },
+  {
+    "id": "86091070",
+    "nombre": "Pozo Hondo"
+  },
+  {
+    "id": "86147100",
+    "nombre": "Pozuelos"
+  },
+  {
+    "id": "86119090",
+    "nombre": "Pueblo Pablo Torelo"
+  },
+  {
+    "id": "86049080",
+    "nombre": "Puesto de San Antonio"
+  },
+  {
+    "id": "86119100",
+    "nombre": "Quimili"
+  },
+  {
+    "id": "86140010",
+    "nombre": "Ramírez de Velazco"
+  },
+  {
+    "id": "86133050",
+    "nombre": "Rapelli"
+  },
+  {
+    "id": "86028050",
+    "nombre": "Real Sayana"
+  },
+  {
+    "id": "86147110",
+    "nombre": "Rodeo de Valdez"
+  },
+  {
+    "id": "86119110",
+    "nombre": "Roversi"
+  },
+  {
+    "id": "86014040",
+    "nombre": "Sachayoj"
+  },
+  {
+    "id": "86056080",
+    "nombre": "San José del Boquerón"
+  },
+  {
+    "id": "86091080",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "86049100",
+    "nombre": "Santa María"
+  },
+  {
+    "id": "86049110",
+    "nombre": "Santiago del Estero"
+  },
+  {
+    "id": "86133060",
+    "nombre": "Santo Domingo"
+  },
+  {
+    "id": "86014050",
+    "nombre": "Santos Lugares"
+  },
+  {
+    "id": "86154030",
+    "nombre": "Selva"
+  },
+  {
+    "id": "86189030",
+    "nombre": "Simbol"
+  },
+  {
+    "id": "86035130",
+    "nombre": "Simbolar"
+  },
+  {
+    "id": "86126020",
+    "nombre": "Sol de Julio"
+  },
+  {
+    "id": "86189040",
+    "nombre": "Sumamao"
+  },
+  {
+    "id": "86140020",
+    "nombre": "Sumampa"
+  },
+  {
+    "id": "86140030",
+    "nombre": "Sumampa Viejo"
+  },
+  {
+    "id": "86098040",
+    "nombre": "Suncho Corral"
+  },
+  {
+    "id": "86063080",
+    "nombre": "Tapso"
+  },
+  {
+    "id": "86147130",
+    "nombre": "Termas de Río Hondo"
+  },
+  {
+    "id": "86119120",
+    "nombre": "Tintina"
+  },
+  {
+    "id": "86077060",
+    "nombre": "Tomás Young"
+  },
+  {
+    "id": "86035140",
+    "nombre": "Tramo 16"
+  },
+  {
+    "id": "86035150",
+    "nombre": "Tramo 20"
+  },
+  {
+    "id": "86056090",
+    "nombre": "Urutaú"
+  },
+  {
+    "id": "86070090",
+    "nombre": "Vaca Huañuna"
+  },
+  {
+    "id": "86098050",
+    "nombre": "Vilelas"
+  },
+  {
+    "id": "86021030",
+    "nombre": "Villa Atamisqui"
+  },
+  {
+    "id": "86070100",
+    "nombre": "Villa Figueroa"
+  },
+  {
+    "id": "86007040",
+    "nombre": "Villa General Mitre"
+  },
+  {
+    "id": "86147140",
+    "nombre": "Villa Giménez"
+  },
+  {
+    "id": "86063090",
+    "nombre": "Villa La Punta"
+  },
+  {
+    "id": "86028060",
+    "nombre": "Villa Mailín"
+  },
+  {
+    "id": "86175040",
+    "nombre": "Villa Nueva"
+  },
+  {
+    "id": "86126030",
+    "nombre": "Villa Ojo de Agua"
+  },
+  {
+    "id": "86147150",
+    "nombre": "Villa Río Hondo"
+  },
+  {
+    "id": "86168030",
+    "nombre": "Villa Salavina"
+  },
+  {
+    "id": "86105010",
+    "nombre": "Villa San Martín (Est. Loreto)"
+  },
+  {
+    "id": "86189050",
+    "nombre": "Villa Silípica"
+  },
+  {
+    "id": "86112010",
+    "nombre": "Villa Unión"
+  },
+  {
+    "id": "86161050",
+    "nombre": "Vilmer"
+  },
+  {
+    "id": "86147170",
+    "nombre": "Vinará"
+  },
+  {
+    "id": "86049120",
+    "nombre": "Vuelta de la Barranca"
+  },
+  {
+    "id": "86119130",
+    "nombre": "Weisburd"
+  },
+  {
+    "id": "86049130",
+    "nombre": "Yanda"
+  },
+  {
+    "id": "86098060",
+    "nombre": "Yuchán"
+  }
+]

@@ -1,0 +1,410 @@
+[
+  {
+    "id": "90070010",
+    "nombre": "Acheral"
+  },
+  {
+    "id": "90077010",
+    "nombre": "Aguilares"
+  },
+  {
+    "id": "9001401001",
+    "nombre": "Alderetes"
+  },
+  {
+    "id": "90021010",
+    "nombre": "Alpachiri"
+  },
+  {
+    "id": "90021020",
+    "nombre": "Alto Verde"
+  },
+  {
+    "id": "90098010",
+    "nombre": "Amaicha del Valle"
+  },
+  {
+    "id": "90021030",
+    "nombre": "Arcadia"
+  },
+  {
+    "id": "90091010",
+    "nombre": "Atahona"
+  },
+  {
+    "id": "9001402001",
+    "nombre": "Banda del Río Salí"
+  },
+  {
+    "id": "9001402002",
+    "nombre": "Barrio Aeropuerto"
+  },
+  {
+    "id": "9006302001",
+    "nombre": "Barrio Araujo"
+  },
+  {
+    "id": "90105030",
+    "nombre": "Barrio Mutual San Martín"
+  },
+  {
+    "id": "90063010",
+    "nombre": "Barrio San Felipe"
+  },
+  {
+    "id": "90007010",
+    "nombre": "Barrio San Jorge"
+  },
+  {
+    "id": "90056010",
+    "nombre": "Bella Vista"
+  },
+  {
+    "id": "90028020",
+    "nombre": "Campo de Herrera"
+  },
+  {
+    "id": "90070020",
+    "nombre": "Capitán Cáceres"
+  },
+  {
+    "id": "90112010",
+    "nombre": "Choromoro"
+  },
+  {
+    "id": "90098020",
+    "nombre": "Colalao del Valle"
+  },
+  {
+    "id": "90014040",
+    "nombre": "Colombres"
+  },
+  {
+    "id": "90014050",
+    "nombre": "Colonia Mayo - Barrio La Milagrosa"
+  },
+  {
+    "id": "90021050",
+    "nombre": "Concepción"
+  },
+  {
+    "id": "90014060",
+    "nombre": "Delfín Gallo"
+  },
+  {
+    "id": "90014070",
+    "nombre": "El Bracho"
+  },
+  {
+    "id": "90105070",
+    "nombre": "El Cadillal"
+  },
+  {
+    "id": "90007020",
+    "nombre": "El Chañar"
+  },
+  {
+    "id": "9001401002",
+    "nombre": "El Corte"
+  },
+  {
+    "id": "9006302002",
+    "nombre": "El Manantial"
+  },
+  {
+    "id": "90098030",
+    "nombre": "El Mollar"
+  },
+  {
+    "id": "90007030",
+    "nombre": "El Naranjo"
+  },
+  {
+    "id": "9001406001",
+    "nombre": "El Paraíso"
+  },
+  {
+    "id": "90056020",
+    "nombre": "Estación Aráoz"
+  },
+  {
+    "id": "9001406002",
+    "nombre": "Ex Ingenio Esperanza"
+  },
+  {
+    "id": "9001410001",
+    "nombre": "Ex Ingenio Los Ralos"
+  },
+  {
+    "id": "9001406003",
+    "nombre": "Ex Ingenio Luján"
+  },
+  {
+    "id": "9002803001",
+    "nombre": "Ex Ingenio Nueva Baviera"
+  },
+  {
+    "id": "9011903001",
+    "nombre": "Ex Ingenio San José"
+  },
+  {
+    "id": "90028030",
+    "nombre": "Famaillá"
+  },
+  {
+    "id": "90007040",
+    "nombre": "Garmendia"
+  },
+  {
+    "id": "90035010",
+    "nombre": "Graneros"
+  },
+  {
+    "id": "90021060",
+    "nombre": "Iltico"
+  },
+  {
+    "id": "90028040",
+    "nombre": "Ingenio Fronterita"
+  },
+  {
+    "id": "9001408001",
+    "nombre": "Ingenio La Florida"
+  },
+  {
+    "id": "90063030",
+    "nombre": "Ingenio San Pablo"
+  },
+  {
+    "id": "9007701002",
+    "nombre": "Ingenio Santa Bárbara"
+  },
+  {
+    "id": "90042010",
+    "nombre": "Juan Bautista Alberdi"
+  },
+  {
+    "id": "90049010",
+    "nombre": "La Cocha"
+  },
+  {
+    "id": "9001408002",
+    "nombre": "La Florida"
+  },
+  {
+    "id": "90007050",
+    "nombre": "La Ramada"
+  },
+  {
+    "id": "90063040",
+    "nombre": "La Reducción"
+  },
+  {
+    "id": "90021070",
+    "nombre": "La Trinidad"
+  },
+  {
+    "id": "90035020",
+    "nombre": "Lamadrid"
+  },
+  {
+    "id": "90014090",
+    "nombre": "Las Cejas"
+  },
+  {
+    "id": "9001402003",
+    "nombre": "Lastenia"
+  },
+  {
+    "id": "9001401003",
+    "nombre": "Los Gutiérrez"
+  },
+  {
+    "id": "90056030",
+    "nombre": "Los Puestos"
+  },
+  {
+    "id": "90014100",
+    "nombre": "Los Ralos"
+  },
+  {
+    "id": "90077020",
+    "nombre": "Los Sarmientos"
+  },
+  {
+    "id": "90063050",
+    "nombre": "Lules"
+  },
+  {
+    "id": "90007060",
+    "nombre": "Macomitas"
+  },
+  {
+    "id": "90056040",
+    "nombre": "Manuel García Fernández"
+  },
+  {
+    "id": "90021080",
+    "nombre": "Medina"
+  },
+  {
+    "id": "90091020",
+    "nombre": "Monteagudo"
+  },
+  {
+    "id": "90070030",
+    "nombre": "Monteros"
+  },
+  {
+    "id": "90091030",
+    "nombre": "Nueva Trinidad"
+  },
+  {
+    "id": "90014110",
+    "nombre": "Pacará"
+  },
+  {
+    "id": "90007070",
+    "nombre": "Piedrabuena"
+  },
+  {
+    "id": "90070040",
+    "nombre": "Pueblo Independencia"
+  },
+  {
+    "id": "90014120",
+    "nombre": "Ranchillos"
+  },
+  {
+    "id": "90077030",
+    "nombre": "Río Chico"
+  },
+  {
+    "id": "90056060",
+    "nombre": "Río Colorado"
+  },
+  {
+    "id": "90070050",
+    "nombre": "Río Seco"
+  },
+  {
+    "id": "90014130",
+    "nombre": "San Andrés"
+  },
+  {
+    "id": "90049020",
+    "nombre": "San José de La Cocha"
+  },
+  {
+    "id": "90084010",
+    "nombre": "San Miguel de Tucumán"
+  },
+  {
+    "id": "90112020",
+    "nombre": "San Pedro de Colalao"
+  },
+  {
+    "id": "90077040",
+    "nombre": "Santa Ana"
+  },
+  {
+    "id": "90091040",
+    "nombre": "Santa Cruz"
+  },
+  {
+    "id": "90070060",
+    "nombre": "Santa Lucía"
+  },
+  {
+    "id": "90056070",
+    "nombre": "Santa Rosa de Leales"
+  },
+  {
+    "id": "90070070",
+    "nombre": "Sargento Moya"
+  },
+  {
+    "id": "90091050",
+    "nombre": "Simoca"
+  },
+  {
+    "id": "90070080",
+    "nombre": "Soldado Maldonado"
+  },
+  {
+    "id": "90035030",
+    "nombre": "Taco Ralo"
+  },
+  {
+    "id": "90098040",
+    "nombre": "Tafí del Valle"
+  },
+  {
+    "id": "90105080",
+    "nombre": "Tafí Viejo"
+  },
+  {
+    "id": "90070090",
+    "nombre": "Teniente Berdina"
+  },
+  {
+    "id": "90042020",
+    "nombre": "Villa Belgrano"
+  },
+  {
+    "id": "90007090",
+    "nombre": "Villa Benjamín Aráoz"
+  },
+  {
+    "id": "90007100",
+    "nombre": "Villa Burruyacú"
+  },
+  {
+    "id": "90119020",
+    "nombre": "Villa Carmela"
+  },
+  {
+    "id": "90091060",
+    "nombre": "Villa Chicligasta"
+  },
+  {
+    "id": "90077050",
+    "nombre": "Villa Clodomiro Hileret"
+  },
+  {
+    "id": "90056090",
+    "nombre": "Villa de Leales"
+  },
+  {
+    "id": "90112030",
+    "nombre": "Villa de Trancas"
+  },
+  {
+    "id": "90056080",
+    "nombre": "Villa Fiad - Ingenio Leales"
+  },
+  {
+    "id": "90105100",
+    "nombre": "Villa Mariano Moreno - El Colmenar"
+  },
+  {
+    "id": "90007110",
+    "nombre": "Villa Padre Monti"
+  },
+  {
+    "id": "90070100",
+    "nombre": "Villa Quinteros"
+  },
+  {
+    "id": "9001410002",
+    "nombre": "Villa Recaste"
+  },
+  {
+    "id": "9001410003",
+    "nombre": "Villa Tercera"
+  },
+  {
+    "id": "9011903002",
+    "nombre": "Yerba Buena - Marcos Paz"
+  }
+]

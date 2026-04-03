@@ -65,11 +65,11 @@ export function useGeoLocation() {
                 throw new Error(`reverse_error:${res.status}`);
             }
 
-            const data: GeoLocationResult = await res.json();
+            const data = await res.json();
 
-            if (!data.provincia) {
+            if (data.error === 'gps_unavailable' || !data.provincia) {
                 setStatus("error");
-                setError("No encontramos tu provincia. Seleccionala manualmente.");
+                setError("No pudimos detectar tu ubicación. Ingresala manualmente.");
                 return null;
             }
 

@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export const revalidate = 0;
 
 const GEOREF_BASE = 'https://apis.datos.gob.ar/georef/api';
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 3000;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -35,14 +35,14 @@ export async function GET(request: Request) {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            return NextResponse.json({ error: 'georef_error' }, { status: 502 });
+            return NextResponse.json({ error: 'gps_unavailable' });
         }
 
         const data = await response.json();
         const ubicacion = data.ubicacion;
 
         if (!ubicacion) {
-            return NextResponse.json({ error: 'no_location_found' }, { status: 404 });
+            return NextResponse.json({ error: 'gps_unavailable' });
         }
 
         // Best city name: prefer municipio, fall back to departamento
@@ -58,9 +58,6 @@ export async function GET(request: Request) {
     } catch (error: any) {
         clearTimeout(timeoutId);
         console.error('Geo reverse error:', error?.message);
-        if (error?.name === 'AbortError') {
-            return NextResponse.json({ error: 'timeout' }, { status: 504 });
-        }
-        return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+        return NextResponse.json({ error: 'gps_unavailable' });
     }
 }

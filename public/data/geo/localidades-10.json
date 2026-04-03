@@ -1,0 +1,586 @@
+[
+  {
+    "id": "1002106001",
+    "nombre": "Aconquija"
+  },
+  {
+    "id": "10098010",
+    "nombre": "Alijilán"
+  },
+  {
+    "id": "1002106002",
+    "nombre": "Alto de las Juntas"
+  },
+  {
+    "id": "10077010",
+    "nombre": "Amadores"
+  },
+  {
+    "id": "10021010",
+    "nombre": "Amanao"
+  },
+  {
+    "id": "10014010",
+    "nombre": "Ancasti"
+  },
+  {
+    "id": "10021020",
+    "nombre": "Andalgalá"
+  },
+  {
+    "id": "10091010",
+    "nombre": "Andalhualá"
+  },
+  {
+    "id": "10105010",
+    "nombre": "Anillaco"
+  },
+  {
+    "id": "10014020",
+    "nombre": "Anquincila"
+  },
+  {
+    "id": "10028010",
+    "nombre": "Antofagasta de la Sierra"
+  },
+  {
+    "id": "10098020",
+    "nombre": "Bañado de Ovanta"
+  },
+  {
+    "id": "10035010",
+    "nombre": "Barranca Larga"
+  },
+  {
+    "id": "10035020",
+    "nombre": "Belén"
+  },
+  {
+    "id": "1002105001",
+    "nombre": "Buena Vista"
+  },
+  {
+    "id": "10042030",
+    "nombre": "Capayán"
+  },
+  {
+    "id": "10070010",
+    "nombre": "Casa de Piedra"
+  },
+  {
+    "id": "10091030",
+    "nombre": "Chañar Punco"
+  },
+  {
+    "id": "10021030",
+    "nombre": "Chaquiago"
+  },
+  {
+    "id": "10021040",
+    "nombre": "Choya"
+  },
+  {
+    "id": "10007010",
+    "nombre": "Chuchucaruana"
+  },
+  {
+    "id": "10042040",
+    "nombre": "Chumbicha"
+  },
+  {
+    "id": "10084020",
+    "nombre": "Colana"
+  },
+  {
+    "id": "10042050",
+    "nombre": "Colonia del Valle"
+  },
+  {
+    "id": "10042060",
+    "nombre": "Colonia Nueva Coneta"
+  },
+  {
+    "id": "10084030",
+    "nombre": "Colpes"
+  },
+  {
+    "id": "10042070",
+    "nombre": "Concepción"
+  },
+  {
+    "id": "10035030",
+    "nombre": "Cóndor Huasi"
+  },
+  {
+    "id": "10042080",
+    "nombre": "Coneta"
+  },
+  {
+    "id": "10105050",
+    "nombre": "Copacabana"
+  },
+  {
+    "id": "10035040",
+    "nombre": "Corral Quemado"
+  },
+  {
+    "id": "10021050",
+    "nombre": "El Alamito"
+  },
+  {
+    "id": "10056010",
+    "nombre": "El Alto"
+  },
+  {
+    "id": "10070020",
+    "nombre": "El Aybal"
+  },
+  {
+    "id": "10042090",
+    "nombre": "El Bañado"
+  },
+  {
+    "id": "10070030",
+    "nombre": "El Ba��ado"
+  },
+  {
+    "id": "10007030",
+    "nombre": "El Bolsón"
+  },
+  {
+    "id": "10091040",
+    "nombre": "El Cajón"
+  },
+  {
+    "id": "1009111001",
+    "nombre": "El Cerrito"
+  },
+  {
+    "id": "10091050",
+    "nombre": "El Desmonte"
+  },
+  {
+    "id": "10070040",
+    "nombre": "El Divisadero"
+  },
+  {
+    "id": "10035050",
+    "nombre": "El Durazno"
+  },
+  {
+    "id": "1006304001",
+    "nombre": "El Hueco"
+  },
+  {
+    "id": "10021060",
+    "nombre": "El Lindero"
+  },
+  {
+    "id": "10084040",
+    "nombre": "El Pajonal"
+  },
+  {
+    "id": "10028030",
+    "nombre": "El Peñón"
+  },
+  {
+    "id": "10112010",
+    "nombre": "El Portezuelo"
+  },
+  {
+    "id": "10021070",
+    "nombre": "El Potrero"
+  },
+  {
+    "id": "10105090",
+    "nombre": "El Puesto"
+  },
+  {
+    "id": "10070050",
+    "nombre": "El Quimilo"
+  },
+  {
+    "id": "10007040",
+    "nombre": "El Rodeo"
+  },
+  {
+    "id": "10105100",
+    "nombre": "El Salado"
+  },
+  {
+    "id": "10070060",
+    "nombre": "Esquiú"
+  },
+  {
+    "id": "10091070",
+    "nombre": "Famatanca"
+  },
+  {
+    "id": "10035060",
+    "nombre": "Farallón Negro"
+  },
+  {
+    "id": "10105110",
+    "nombre": "Fiambalá"
+  },
+  {
+    "id": "10091080",
+    "nombre": "Fuerte Quemado"
+  },
+  {
+    "id": "10056020",
+    "nombre": "Guayamba"
+  },
+  {
+    "id": "10035070",
+    "nombre": "Hualfín"
+  },
+  {
+    "id": "10112020",
+    "nombre": "Huaycama"
+  },
+  {
+    "id": "10042100",
+    "nombre": "Huillapima"
+  },
+  {
+    "id": "10070070",
+    "nombre": "Icaño"
+  },
+  {
+    "id": "10056030",
+    "nombre": "Infanzón"
+  },
+  {
+    "id": "10035080",
+    "nombre": "Jacipunco"
+  },
+  {
+    "id": "10014030",
+    "nombre": "La Candelaria"
+  },
+  {
+    "id": "1006304002",
+    "nombre": "La Carrera"
+  },
+  {
+    "id": "10070080",
+    "nombre": "La Dorada"
+  },
+  {
+    "id": "1006304003",
+    "nombre": "La Falda de San Antonio"
+  },
+  {
+    "id": "10070090",
+    "nombre": "La Guardia"
+  },
+  {
+    "id": "10077040",
+    "nombre": "La Higuera"
+  },
+  {
+    "id": "10091090",
+    "nombre": "La Hoyada"
+  },
+  {
+    "id": "10014040",
+    "nombre": "La Majada"
+  },
+  {
+    "id": "10077050",
+    "nombre": "La Merced"
+  },
+  {
+    "id": "1002106004",
+    "nombre": "La Mesada"
+  },
+  {
+    "id": "10007060",
+    "nombre": "La Puerta"
+  },
+  {
+    "id": "10035090",
+    "nombre": "La Puntilla"
+  },
+  {
+    "id": "1010511002",
+    "nombre": "La Ramadita"
+  },
+  {
+    "id": "1006304004",
+    "nombre": "La Tercena"
+  },
+  {
+    "id": "10077060",
+    "nombre": "La Viña"
+  },
+  {
+    "id": "1009103002",
+    "nombre": "Lampacito"
+  },
+  {
+    "id": "10098030",
+    "nombre": "Las Cañas"
+  },
+  {
+    "id": "10007070",
+    "nombre": "Las Chacritas"
+  },
+  {
+    "id": "10070100",
+    "nombre": "Las Esquinas"
+  },
+  {
+    "id": "10035100",
+    "nombre": "Las Juntas"
+  },
+  {
+    "id": "10077070",
+    "nombre": "Las Lajas"
+  },
+  {
+    "id": "10091110",
+    "nombre": "Las Mojarras"
+  },
+  {
+    "id": "10070110",
+    "nombre": "Las Palmitas"
+  },
+  {
+    "id": "10112030",
+    "nombre": "Las Tejas"
+  },
+  {
+    "id": "10098040",
+    "nombre": "Lavalle"
+  },
+  {
+    "id": "10035110",
+    "nombre": "Londres"
+  },
+  {
+    "id": "10098050",
+    "nombre": "Los Altos"
+  },
+  {
+    "id": "10042110",
+    "nombre": "Los Angeles"
+  },
+  {
+    "id": "1004211001",
+    "nombre": "Los Ángeles Norte"
+  },
+  {
+    "id": "1004211002",
+    "nombre": "Los Ángeles Sur"
+  },
+  {
+    "id": "10007090",
+    "nombre": "Los Castillos"
+  },
+  {
+    "id": "10056040",
+    "nombre": "Los Corrales"
+  },
+  {
+    "id": "10035120",
+    "nombre": "Los Nacimientos"
+  },
+  {
+    "id": "10007100",
+    "nombre": "Los Talas"
+  },
+  {
+    "id": "10007110",
+    "nombre": "Los Varela"
+  },
+  {
+    "id": "10098060",
+    "nombre": "Manantiales"
+  },
+  {
+    "id": "10105130",
+    "nombre": "Medanitos"
+  },
+  {
+    "id": "10042120",
+    "nombre": "Miraflores"
+  },
+  {
+    "id": "10077080",
+    "nombre": "Monte Potrero"
+  },
+  {
+    "id": "10084060",
+    "nombre": "Mutquin"
+  },
+  {
+    "id": "10105140",
+    "nombre": "Palo Blanco"
+  },
+  {
+    "id": "10077090",
+    "nombre": "Palo Labrado"
+  },
+  {
+    "id": "1009114003",
+    "nombre": "Palo Seco"
+  },
+  {
+    "id": "1010511003",
+    "nombre": "Pampa Blanca"
+  },
+  {
+    "id": "1011204002",
+    "nombre": "Polcos"
+  },
+  {
+    "id": "10084070",
+    "nombre": "Pomán"
+  },
+  {
+    "id": "10063020",
+    "nombre": "Pomancillo Este"
+  },
+  {
+    "id": "10063030",
+    "nombre": "Pomancillo Oeste"
+  },
+  {
+    "id": "1011204003",
+    "nombre": "Pozo del Mistol"
+  },
+  {
+    "id": "10035130",
+    "nombre": "Puerta de Corral Quemado"
+  },
+  {
+    "id": "10035140",
+    "nombre": "Puerta de San José"
+  },
+  {
+    "id": "10091130",
+    "nombre": "Punta de Balasto"
+  },
+  {
+    "id": "10070120",
+    "nombre": "Quirós"
+  },
+  {
+    "id": "10070130",
+    "nombre": "Ramblones"
+  },
+  {
+    "id": "10070140",
+    "nombre": "Recreo"
+  },
+  {
+    "id": "10084080",
+    "nombre": "Rincón"
+  },
+  {
+    "id": "10077100",
+    "nombre": "San Antonio"
+  },
+  {
+    "id": "10049030",
+    "nombre": "San Fernando del Valle de Catamarca"
+  },
+  {
+    "id": "1011204004",
+    "nombre": "San Isidro"
+  },
+  {
+    "id": "10091140",
+    "nombre": "San José"
+  },
+  {
+    "id": "1009107002",
+    "nombre": "San José Banda"
+  },
+  {
+    "id": "1009114004",
+    "nombre": "San José Norte"
+  },
+  {
+    "id": "1009114005",
+    "nombre": "San José Villa"
+  },
+  {
+    "id": "10042130",
+    "nombre": "San Martín"
+  },
+  {
+    "id": "10084090",
+    "nombre": "San Miguel"
+  },
+  {
+    "id": "10042140",
+    "nombre": "San Pablo"
+  },
+  {
+    "id": "10042150",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "10112050",
+    "nombre": "Santa Cruz"
+  },
+  {
+    "id": "10091150",
+    "nombre": "Santa María"
+  },
+  {
+    "id": "1011204005",
+    "nombre": "Santa Rosa"
+  },
+  {
+    "id": "10105160",
+    "nombre": "Saujil"
+  },
+  {
+    "id": "10084110",
+    "nombre": "Siján"
+  },
+  {
+    "id": "10007120",
+    "nombre": "Singuil"
+  },
+  {
+    "id": "1011204006",
+    "nombre": "Sumalao"
+  },
+  {
+    "id": "10056050",
+    "nombre": "Tapso"
+  },
+  {
+    "id": "10105180",
+    "nombre": "Tinogasta"
+  },
+  {
+    "id": "10056060",
+    "nombre": "Vilismán"
+  },
+  {
+    "id": "10077110",
+    "nombre": "Villa de Balcozna"
+  },
+  {
+    "id": "1011204007",
+    "nombre": "Villa Dolores"
+  },
+  {
+    "id": "10063050",
+    "nombre": "Villa Las Pirquitas"
+  },
+  {
+    "id": "10035150",
+    "nombre": "Villa Vil"
+  },
+  {
+    "id": "10091160",
+    "nombre": "Yapes"
+  }
+]

@@ -1,0 +1,362 @@
+[
+  {
+    "id": "26042040",
+    "nombre": "28 de Julio"
+  },
+  {
+    "id": "2602103001",
+    "nombre": "Acceso Norte"
+  },
+  {
+    "id": "26084010",
+    "nombre": "Aldea Apeleg"
+  },
+  {
+    "id": "26084020",
+    "nombre": "Aldea Beleiro"
+  },
+  {
+    "id": "26056010",
+    "nombre": "Aldea Epulef"
+  },
+  {
+    "id": "26035010",
+    "nombre": "Aldea Escolar (Los Rápidos)"
+  },
+  {
+    "id": "26084030",
+    "nombre": "Alto Río Senguer"
+  },
+  {
+    "id": "26007010",
+    "nombre": "Arroyo Verde"
+  },
+  {
+    "id": "26021010",
+    "nombre": "Astra"
+  },
+  {
+    "id": "26021020",
+    "nombre": "Bahía Bustamante"
+  },
+  {
+    "id": "2602103016",
+    "nombre": "Barrio 25 de Mayo"
+  },
+  {
+    "id": "2602103002",
+    "nombre": "Barrio Caleta Córdova"
+  },
+  {
+    "id": "2602103004",
+    "nombre": "Barrio Castelli"
+  },
+  {
+    "id": "2602103005",
+    "nombre": "Barrio Ciudadela"
+  },
+  {
+    "id": "2602103006",
+    "nombre": "Barrio Gasoducto"
+  },
+  {
+    "id": "2602103007",
+    "nombre": "Barrio Güemes"
+  },
+  {
+    "id": "2602103008",
+    "nombre": "Barrio Laprida"
+  },
+  {
+    "id": "2602103009",
+    "nombre": "Barrio Manantial Rosales"
+  },
+  {
+    "id": "2602103010",
+    "nombre": "Barrio Militar y Aeropuerto"
+  },
+  {
+    "id": "2602103011",
+    "nombre": "Barrio Próspero Palazzo"
+  },
+  {
+    "id": "2602103012",
+    "nombre": "Barrio Restinga Alí"
+  },
+  {
+    "id": "2602103013",
+    "nombre": "Barrio Rodríguez Peña"
+  },
+  {
+    "id": "2602103014",
+    "nombre": "Barrio Saavedra"
+  },
+  {
+    "id": "2602103015",
+    "nombre": "Barrio Sarmiento"
+  },
+  {
+    "id": "2602103017",
+    "nombre": "Barrio Villa S.U.P.E."
+  },
+  {
+    "id": "26049010",
+    "nombre": "Blancuntre"
+  },
+  {
+    "id": "26091010",
+    "nombre": "Buen Pasto"
+  },
+  {
+    "id": "26014010",
+    "nombre": "Buenos Aires Chico"
+  },
+  {
+    "id": "2602103003",
+    "nombre": "Caleta Olivares"
+  },
+  {
+    "id": "26028010",
+    "nombre": "Camarones"
+  },
+  {
+    "id": "26056020",
+    "nombre": "Carrenleufú"
+  },
+  {
+    "id": "26070010",
+    "nombre": "Cerro Cóndor"
+  },
+  {
+    "id": "26014020",
+    "nombre": "Cholila"
+  },
+  {
+    "id": "26056030",
+    "nombre": "Colan Conhué"
+  },
+  {
+    "id": "26021030",
+    "nombre": "Comodoro Rivadavia"
+  },
+  {
+    "id": "26035020",
+    "nombre": "Corcovado"
+  },
+  {
+    "id": "26014025",
+    "nombre": "Costa del Chubut"
+  },
+  {
+    "id": "26014030",
+    "nombre": "Cushamen Centro"
+  },
+  {
+    "id": "26021040",
+    "nombre": "Diadema Argentina"
+  },
+  {
+    "id": "26042010",
+    "nombre": "Dique Florentino Ameghino"
+  },
+  {
+    "id": "26098010",
+    "nombre": "Doctor Oscar Atilio Viglione (Frontera de Río Pico)"
+  },
+  {
+    "id": "26084040",
+    "nombre": "Doctor Ricardo Rojas"
+  },
+  {
+    "id": "26042020",
+    "nombre": "Dolavon"
+  },
+  {
+    "id": "26049020",
+    "nombre": "El Escorial"
+  },
+  {
+    "id": "26014040",
+    "nombre": "El Hoyo"
+  },
+  {
+    "id": "26014050",
+    "nombre": "El Maitén"
+  },
+  {
+    "id": "26063010",
+    "nombre": "El Mirasol"
+  },
+  {
+    "id": "26014060",
+    "nombre": "Epuyén"
+  },
+  {
+    "id": "26035030",
+    "nombre": "Esquel"
+  },
+  {
+    "id": "26084050",
+    "nombre": "Facundo"
+  },
+  {
+    "id": "26014065",
+    "nombre": "Fofo Cahuel"
+  },
+  {
+    "id": "26042030",
+    "nombre": "Gaiman"
+  },
+  {
+    "id": "26105010",
+    "nombre": "Gan Gan"
+  },
+  {
+    "id": "26028020",
+    "nombre": "Garayalde"
+  },
+  {
+    "id": "26049030",
+    "nombre": "Gastre"
+  },
+  {
+    "id": "26098020",
+    "nombre": "Gobernador Costa"
+  },
+  {
+    "id": "26014070",
+    "nombre": "Gualjaina"
+  },
+  {
+    "id": "26098030",
+    "nombre": "José de San Martín"
+  },
+  {
+    "id": "2602103021",
+    "nombre": "Kilómetro 11 - Cuarteles"
+  },
+  {
+    "id": "2602103022",
+    "nombre": "Kilómetro 3 - General Mosconi"
+  },
+  {
+    "id": "2602103019",
+    "nombre": "Kilómetro 5 - Presidente Ortíz"
+  },
+  {
+    "id": "2602103020",
+    "nombre": "Kilómetro 8 - Don Bosco"
+  },
+  {
+    "id": "26084060",
+    "nombre": "Lago Blanco"
+  },
+  {
+    "id": "26014080",
+    "nombre": "Lago Epuyén"
+  },
+  {
+    "id": "26014090",
+    "nombre": "Lago Puelo"
+  },
+  {
+    "id": "26035040",
+    "nombre": "Lago Rosario"
+  },
+  {
+    "id": "26049040",
+    "nombre": "Lagunita Salada"
+  },
+  {
+    "id": "26063020",
+    "nombre": "Las Plumas"
+  },
+  {
+    "id": "26014100",
+    "nombre": "Leleque"
+  },
+  {
+    "id": "26070020",
+    "nombre": "Los Altares"
+  },
+  {
+    "id": "26035050",
+    "nombre": "Los Cipreses"
+  },
+  {
+    "id": "26070030",
+    "nombre": "Paso de Indios"
+  },
+  {
+    "id": "26056040",
+    "nombre": "Paso del Sapo"
+  },
+  {
+    "id": "26077010",
+    "nombre": "Playa Magagna"
+  },
+  {
+    "id": "26077020",
+    "nombre": "Playa Unión"
+  },
+  {
+    "id": "26007020",
+    "nombre": "Puerto Madryn"
+  },
+  {
+    "id": "26007030",
+    "nombre": "Puerto Pirámides"
+  },
+  {
+    "id": "26007040",
+    "nombre": "Quintas El Mirador"
+  },
+  {
+    "id": "26021050",
+    "nombre": "Rada Tilly"
+  },
+  {
+    "id": "26077030",
+    "nombre": "Rawson"
+  },
+  {
+    "id": "26007050",
+    "nombre": "Reserva Area Protegida El Doradillo"
+  },
+  {
+    "id": "26084070",
+    "nombre": "Río Mayo"
+  },
+  {
+    "id": "26098040",
+    "nombre": "Río Pico"
+  },
+  {
+    "id": "26091020",
+    "nombre": "Sarmiento"
+  },
+  {
+    "id": "26056050",
+    "nombre": "Tecka"
+  },
+  {
+    "id": "26105020",
+    "nombre": "Telsen"
+  },
+  {
+    "id": "26077040",
+    "nombre": "Trelew"
+  },
+  {
+    "id": "26035060",
+    "nombre": "Trevelín"
+  },
+  {
+    "id": "26035070",
+    "nombre": "Villa Futalaufquen"
+  },
+  {
+    "id": "26049050",
+    "nombre": "Yala Laubat"
+  }
+]

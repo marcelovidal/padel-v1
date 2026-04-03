@@ -1,0 +1,614 @@
+[
+  {
+    "id": "38007020",
+    "nombre": "Abra Pampa"
+  },
+  {
+    "id": "38007030",
+    "nombre": "Abralaite"
+  },
+  {
+    "id": "38007035",
+    "nombre": "Agua de Castilla"
+  },
+  {
+    "id": "38014010",
+    "nombre": "Aguas Calientes"
+  },
+  {
+    "id": "38028003",
+    "nombre": "Aparzo"
+  },
+  {
+    "id": "38063010",
+    "nombre": "Arrayanal"
+  },
+  {
+    "id": "38063020",
+    "nombre": "Arroyo Colorado"
+  },
+  {
+    "id": "38035010",
+    "nombre": "Bananal"
+  },
+  {
+    "id": "38098010",
+    "nombre": "Bárcena"
+  },
+  {
+    "id": "38014020",
+    "nombre": "Barrio El Milagro"
+  },
+  {
+    "id": "38014030",
+    "nombre": "Barrio La Unión"
+  },
+  {
+    "id": "38112010",
+    "nombre": "Barrios"
+  },
+  {
+    "id": "38035020",
+    "nombre": "Bermejito"
+  },
+  {
+    "id": "38035030",
+    "nombre": "Caimancito"
+  },
+  {
+    "id": "38035040",
+    "nombre": "Calilegua"
+  },
+  {
+    "id": "38112020",
+    "nombre": "Cangrejillos"
+  },
+  {
+    "id": "38042010",
+    "nombre": "Carahunco"
+  },
+  {
+    "id": "38049003",
+    "nombre": "Casa Colorada"
+  },
+  {
+    "id": "38007040",
+    "nombre": "Casabindo"
+  },
+  {
+    "id": "38077010",
+    "nombre": "Casira"
+  },
+  {
+    "id": "38105010",
+    "nombre": "Caspalá"
+  },
+  {
+    "id": "38084010",
+    "nombre": "Catua"
+  },
+  {
+    "id": "38042020",
+    "nombre": "Centro Forestal"
+  },
+  {
+    "id": "38035050",
+    "nombre": "Chalicán"
+  },
+  {
+    "id": "38028007",
+    "nombre": "Cianzo"
+  },
+  {
+    "id": "38077020",
+    "nombre": "Ciénega de Paicone"
+  },
+  {
+    "id": "38077030",
+    "nombre": "Cieneguillas"
+  },
+  {
+    "id": "38007050",
+    "nombre": "Cochinoca"
+  },
+  {
+    "id": "38028010",
+    "nombre": "Coctaca"
+  },
+  {
+    "id": "38094010",
+    "nombre": "Colonia San José"
+  },
+  {
+    "id": "38084020",
+    "nombre": "Coranzuli"
+  },
+  {
+    "id": "38049007",
+    "nombre": "Coyaguaima"
+  },
+  {
+    "id": "38077040",
+    "nombre": "Cusi Cusi"
+  },
+  {
+    "id": "38063030",
+    "nombre": "Don Emilio"
+  },
+  {
+    "id": "38063040",
+    "nombre": "El Acheral"
+  },
+  {
+    "id": "38028020",
+    "nombre": "El Aguilar"
+  },
+  {
+    "id": "38077045",
+    "nombre": "El Angosto"
+  },
+  {
+    "id": "38014040",
+    "nombre": "El Carmen"
+  },
+  {
+    "id": "38056010",
+    "nombre": "El Ceibal"
+  },
+  {
+    "id": "38112030",
+    "nombre": "El Cóndor"
+  },
+  {
+    "id": "38070010",
+    "nombre": "El Fuerte"
+  },
+  {
+    "id": "38098020",
+    "nombre": "El Moreno"
+  },
+  {
+    "id": "38070020",
+    "nombre": "El Piquete"
+  },
+  {
+    "id": "38063050",
+    "nombre": "El Puesto"
+  },
+  {
+    "id": "38063060",
+    "nombre": "El Quemado"
+  },
+  {
+    "id": "38070030",
+    "nombre": "El Talar"
+  },
+  {
+    "id": "38084030",
+    "nombre": "El Toro"
+  },
+  {
+    "id": "3801401002",
+    "nombre": "Fleming"
+  },
+  {
+    "id": "38035060",
+    "nombre": "Fraile Pintado"
+  },
+  {
+    "id": "38021010",
+    "nombre": "Guerrero"
+  },
+  {
+    "id": "38028030",
+    "nombre": "Hipólito Yrigoyen"
+  },
+  {
+    "id": "38094020",
+    "nombre": "Huacalera"
+  },
+  {
+    "id": "38084040",
+    "nombre": "Huáncar"
+  },
+  {
+    "id": "38028040",
+    "nombre": "Humahuaca"
+  },
+  {
+    "id": "38084045",
+    "nombre": "Jama"
+  },
+  {
+    "id": "38094030",
+    "nombre": "Juella"
+  },
+  {
+    "id": "38021020",
+    "nombre": "La Almona"
+  },
+  {
+    "id": "38077050",
+    "nombre": "La Ciénega"
+  },
+  {
+    "id": "38063070",
+    "nombre": "La Esperanza"
+  },
+  {
+    "id": "38112040",
+    "nombre": "La Intermedia"
+  },
+  {
+    "id": "38063080",
+    "nombre": "La Manga"
+  },
+  {
+    "id": "38063090",
+    "nombre": "La Mendieta"
+  },
+  {
+    "id": "38112050",
+    "nombre": "La Quiaca"
+  },
+  {
+    "id": "38007055",
+    "nombre": "La Redonda"
+  },
+  {
+    "id": "38049010",
+    "nombre": "Lagunillas de Farallón"
+  },
+  {
+    "id": "38021030",
+    "nombre": "León"
+  },
+  {
+    "id": "38035070",
+    "nombre": "Libertad"
+  },
+  {
+    "id": "38035080",
+    "nombre": "Libertador General San Martín"
+  },
+  {
+    "id": "38049020",
+    "nombre": "Liviara"
+  },
+  {
+    "id": "38112060",
+    "nombre": "Llulluchayoc"
+  },
+  {
+    "id": "38049025",
+    "nombre": "Loma Blanca"
+  },
+  {
+    "id": "38056017",
+    "nombre": "Los Alisos"
+  },
+  {
+    "id": "38014050",
+    "nombre": "Los Lapachos"
+  },
+  {
+    "id": "3802107001",
+    "nombre": "Los Nogales"
+  },
+  {
+    "id": "38056020",
+    "nombre": "Loteo Navea"
+  },
+  {
+    "id": "38021040",
+    "nombre": "Lozano"
+  },
+  {
+    "id": "38094040",
+    "nombre": "Maimará"
+  },
+  {
+    "id": "38035090",
+    "nombre": "Maíz Negro"
+  },
+  {
+    "id": "38014060",
+    "nombre": "Manantiales"
+  },
+  {
+    "id": "38084050",
+    "nombre": "Mina Providencia"
+  },
+  {
+    "id": "38077060",
+    "nombre": "Misarrumi"
+  },
+  {
+    "id": "38014070",
+    "nombre": "Monterrico"
+  },
+  {
+    "id": "38056025",
+    "nombre": "Nuestra Señora del Rosario"
+  },
+  {
+    "id": "38049030",
+    "nombre": "Nuevo Pirquitas"
+  },
+  {
+    "id": "38021050",
+    "nombre": "Ocloyas"
+  },
+  {
+    "id": "38084055",
+    "nombre": "Olacapato"
+  },
+  {
+    "id": "38084060",
+    "nombre": "Olaroz Chico"
+  },
+  {
+    "id": "38077070",
+    "nombre": "Oratorio"
+  },
+  {
+    "id": "38049035",
+    "nombre": "Orosmayo"
+  },
+  {
+    "id": "38077080",
+    "nombre": "Paicone"
+  },
+  {
+    "id": "38028043",
+    "nombre": "Palca de Aparzo"
+  },
+  {
+    "id": "38028045",
+    "nombre": "Palca de Varas"
+  },
+  {
+    "id": "38070040",
+    "nombre": "Palma Sola"
+  },
+  {
+    "id": "38063110",
+    "nombre": "Palos Blancos"
+  },
+  {
+    "id": "3804204001",
+    "nombre": "Palpalá"
+  },
+  {
+    "id": "38014080",
+    "nombre": "Pampa Blanca"
+  },
+  {
+    "id": "38105020",
+    "nombre": "Pampichuela"
+  },
+  {
+    "id": "38084070",
+    "nombre": "Pastos Chicos"
+  },
+  {
+    "id": "38035100",
+    "nombre": "Paulina"
+  },
+  {
+    "id": "38014090",
+    "nombre": "Perico"
+  },
+  {
+    "id": "38063130",
+    "nombre": "Piedritas"
+  },
+  {
+    "id": "3801401003",
+    "nombre": "Pila Pardo"
+  },
+  {
+    "id": "3803508002",
+    "nombre": "Pueblo Ledesma"
+  },
+  {
+    "id": "38070050",
+    "nombre": "Puente Lavayén"
+  },
+  {
+    "id": "38098025",
+    "nombre": "Puerta de Colorados"
+  },
+  {
+    "id": "38007060",
+    "nombre": "Puesto del Marquéz"
+  },
+  {
+    "id": "38084080",
+    "nombre": "Puesto Sey"
+  },
+  {
+    "id": "38014100",
+    "nombre": "Puesto Viejo"
+  },
+  {
+    "id": "38112070",
+    "nombre": "Pumahuasi"
+  },
+  {
+    "id": "38098030",
+    "nombre": "Purmamarca"
+  },
+  {
+    "id": "38007063",
+    "nombre": "Quebraleña"
+  },
+  {
+    "id": "38007067",
+    "nombre": "Quera"
+  },
+  {
+    "id": "38049040",
+    "nombre": "Rinconada"
+  },
+  {
+    "id": "38007070",
+    "nombre": "Rinconadillas"
+  },
+  {
+    "id": "3804204002",
+    "nombre": "Río Blanco"
+  },
+  {
+    "id": "38063140",
+    "nombre": "Rodeito"
+  },
+  {
+    "id": "38028047",
+    "nombre": "Rodero"
+  },
+  {
+    "id": "38063150",
+    "nombre": "Rosario de Río Grande (ex Barro Negro)"
+  },
+  {
+    "id": "38063160",
+    "nombre": "San Antonio"
+  },
+  {
+    "id": "38105030",
+    "nombre": "San Francisco"
+  },
+  {
+    "id": "38007080",
+    "nombre": "San Francisco de Alfarcito"
+  },
+  {
+    "id": "38014110",
+    "nombre": "San Isidro"
+  },
+  {
+    "id": "3811208001",
+    "nombre": "San José"
+  },
+  {
+    "id": "38077090",
+    "nombre": "San Juan de Oros"
+  },
+  {
+    "id": "38084090",
+    "nombre": "San Juan de Quillaqués"
+  },
+  {
+    "id": "38014120",
+    "nombre": "San Juancito"
+  },
+  {
+    "id": "38063170",
+    "nombre": "San Lucas"
+  },
+  {
+    "id": "3802107002",
+    "nombre": "San Pablo de Reyes"
+  },
+  {
+    "id": "38063180",
+    "nombre": "San Pedro"
+  },
+  {
+    "id": "38021060",
+    "nombre": "San Salvador de Jujuy"
+  },
+  {
+    "id": "38105040",
+    "nombre": "Santa Ana"
+  },
+  {
+    "id": "38007085",
+    "nombre": "Santa Ana de la Puna"
+  },
+  {
+    "id": "38077100",
+    "nombre": "Santa Catalina"
+  },
+  {
+    "id": "38070060",
+    "nombre": "Santa Clara"
+  },
+  {
+    "id": "38007090",
+    "nombre": "Santuario de Tres Pozos"
+  },
+  {
+    "id": "38084100",
+    "nombre": "Susques"
+  },
+  {
+    "id": "38007095",
+    "nombre": "Tambillos"
+  },
+  {
+    "id": "38021065",
+    "nombre": "Tesorero"
+  },
+  {
+    "id": "38094050",
+    "nombre": "Tilcara"
+  },
+  {
+    "id": "38028050",
+    "nombre": "Tres Cruces"
+  },
+  {
+    "id": "38098040",
+    "nombre": "Tumbaya"
+  },
+  {
+    "id": "38007100",
+    "nombre": "Tusaquillas"
+  },
+  {
+    "id": "38028060",
+    "nombre": "Uquía"
+  },
+  {
+    "id": "38105050",
+    "nombre": "Valle Colorado"
+  },
+  {
+    "id": "38105060",
+    "nombre": "Valle Grande"
+  },
+  {
+    "id": "38070070",
+    "nombre": "Vinalito"
+  },
+  {
+    "id": "38098050",
+    "nombre": "Volcán"
+  },
+  {
+    "id": "3809401002",
+    "nombre": "Yacoraite"
+  },
+  {
+    "id": "3802107003",
+    "nombre": "Yala"
+  },
+  {
+    "id": "38112080",
+    "nombre": "Yavi"
+  },
+  {
+    "id": "38112090",
+    "nombre": "Yavi Chico"
+  },
+  {
+    "id": "38077110",
+    "nombre": "Yoscaba"
+  },
+  {
+    "id": "38035110",
+    "nombre": "Yuto"
+  }
+]

@@ -1,0 +1,234 @@
+[
+  {
+    "id": "58014005",
+    "nombre": "Aguada San Roque"
+  },
+  {
+    "id": "58007010",
+    "nombre": "Aluminé"
+  },
+  {
+    "id": "58077010",
+    "nombre": "Andacollo"
+  },
+  {
+    "id": "58014010",
+    "nombre": "Añelo"
+  },
+  {
+    "id": "58035010",
+    "nombre": "Arroyito"
+  },
+  {
+    "id": "58105010",
+    "nombre": "Bajada del Agrio"
+  },
+  {
+    "id": "58091010",
+    "nombre": "Barrancas"
+  },
+  {
+    "id": "58091020",
+    "nombre": "Buta Ranquil"
+  },
+  {
+    "id": "58084010",
+    "nombre": "Caviahue"
+  },
+  {
+    "id": "58035030",
+    "nombre": "Centenario"
+  },
+  {
+    "id": "58063010",
+    "nombre": "Chorriaca"
+  },
+  {
+    "id": "58042010",
+    "nombre": "Chos Malal"
+  },
+  {
+    "id": "58084020",
+    "nombre": "Copahue"
+  },
+  {
+    "id": "5811202001",
+    "nombre": "Covunco Centro"
+  },
+  {
+    "id": "58035040",
+    "nombre": "Cutral Có"
+  },
+  {
+    "id": "58084030",
+    "nombre": "El Cholar"
+  },
+  {
+    "id": "58084040",
+    "nombre": "El Huecú"
+  },
+  {
+    "id": "58098005",
+    "nombre": "El Sauce"
+  },
+  {
+    "id": "58077020",
+    "nombre": "Huinganco"
+  },
+  {
+    "id": "58049010",
+    "nombre": "Junín de los Andes"
+  },
+  {
+    "id": "58105020",
+    "nombre": "La Buitrera"
+  },
+  {
+    "id": "58021010",
+    "nombre": "Las Coloradas"
+  },
+  {
+    "id": "58105030",
+    "nombre": "Las Lajas"
+  },
+  {
+    "id": "58077030",
+    "nombre": "Las Ovejas"
+  },
+  {
+    "id": "58063020",
+    "nombre": "Loncopué"
+  },
+  {
+    "id": "58112010",
+    "nombre": "Los Catutos"
+  },
+  {
+    "id": "58077040",
+    "nombre": "Los Miches"
+  },
+  {
+    "id": "58077050",
+    "nombre": "Manzano Amargo"
+  },
+  {
+    "id": "58035060",
+    "nombre": "Mari Menuco"
+  },
+  {
+    "id": "58112020",
+    "nombre": "Mariano Moreno"
+  },
+  {
+    "id": "58007015",
+    "nombre": "Moquehue"
+  },
+  {
+    "id": "58035070",
+    "nombre": "Neuquén"
+  },
+  {
+    "id": "58091030",
+    "nombre": "Octavio Pico"
+  },
+  {
+    "id": "58098010",
+    "nombre": "Paso Aguerre"
+  },
+  {
+    "id": "58098020",
+    "nombre": "Picún Leufú"
+  },
+  {
+    "id": "58028010",
+    "nombre": "Piedra del Águila"
+  },
+  {
+    "id": "58035090",
+    "nombre": "Plaza Huincul"
+  },
+  {
+    "id": "58035100",
+    "nombre": "Plottier"
+  },
+  {
+    "id": "58105040",
+    "nombre": "Quili Malal"
+  },
+  {
+    "id": "58112030",
+    "nombre": "Ramón M. Castro"
+  },
+  {
+    "id": "58091040",
+    "nombre": "Rincón de los Sauces"
+  },
+  {
+    "id": "58056010",
+    "nombre": "San Martín de los Andes"
+  },
+  {
+    "id": "58014020",
+    "nombre": "San Patricio del Chañar"
+  },
+  {
+    "id": "58028020",
+    "nombre": "Santo Tomás"
+  },
+  {
+    "id": "58035110",
+    "nombre": "Senillosa"
+  },
+  {
+    "id": "58084050",
+    "nombre": "Taquimilán"
+  },
+  {
+    "id": "58042020",
+    "nombre": "Tricao Malal"
+  },
+  {
+    "id": "58077060",
+    "nombre": "Varvarco"
+  },
+  {
+    "id": "58042030",
+    "nombre": "Villa del Curi Leuvú"
+  },
+  {
+    "id": "58077070",
+    "nombre": "Villa del Nahueve"
+  },
+  {
+    "id": "58035120",
+    "nombre": "Villa El Chocón"
+  },
+  {
+    "id": "58070010",
+    "nombre": "Villa La Angostura"
+  },
+  {
+    "id": "58056020",
+    "nombre": "Villa Lago Meliquina"
+  },
+  {
+    "id": "58007020",
+    "nombre": "Villa Pehuenia"
+  },
+  {
+    "id": "58070020",
+    "nombre": "Villa Traful"
+  },
+  {
+    "id": "58035130",
+    "nombre": "Vista Alegre Norte"
+  },
+  {
+    "id": "58035140",
+    "nombre": "Vista Alegre Sur"
+  },
+  {
+    "id": "58112040",
+    "nombre": "Zapala"
+  }
+]
