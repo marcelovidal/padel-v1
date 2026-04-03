@@ -6,6 +6,7 @@ import { createBrowserSupabase } from "@/lib/supabase/client";
 import { finalizeClaimFlowAction } from "@/lib/actions/claim.actions";
 import { GeoSelect } from "@/components/geo/GeoSelect";
 import AvatarUploader from "@/components/player/AvatarUploader";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 type ClaimOnboardingFlowProps = {
   targetPlayerId: string;
@@ -61,29 +62,61 @@ export default function ClaimOnboardingFlow({
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
 
   const [provincias, setProvincias] = useState<any[]>([]);
+  const [provinciasError, setProvinciasError] = useState(false);
   const [localidades, setLocalidades] = useState<any[]>([]);
   const [loadingGeo, setLoadingGeo] = useState(false);
+  const [geoHint, setGeoHint] = useState<string | null>(null);
+  const [pendingCity, setPendingCity] = useState<{ id: string; nombre: string } | null>(null);
 
-  useEffect(() => {
+  const { detect: detectLocation, status: geoStatus, error: geoError } = useGeoLocation();
+
+  function loadProvincias() {
+    setProvinciasError(false);
     fetch("/api/geo/provincias")
       .then((res) => res.json())
-      .then((data) => setProvincias(data))
-      .catch(() => setProvincias([]));
-  }, []);
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setProvincias(data);
+        else setProvinciasError(true);
+      })
+      .catch(() => setProvinciasError(true));
+  }
+
+  useEffect(() => { loadProvincias(); }, []);
 
   useEffect(() => {
-    if (!regionCode) {
-      setLocalidades([]);
-      return;
-    }
-
+    if (!regionCode) { setLocalidades([]); return; }
     setLoadingGeo(true);
     fetch(`/api/geo/localidades?provincia=${regionCode}`)
       .then((res) => res.json())
-      .then((data) => setLocalidades(data))
+      .then((data) => setLocalidades(Array.isArray(data) ? data : []))
       .catch(() => setLocalidades([]))
       .finally(() => setLoadingGeo(false));
   }, [regionCode]);
+
+  // Auto-select city detected via GPS once localidades load
+  useEffect(() => {
+    if (!pendingCity || loadingGeo || localidades.length === 0) return;
+    const match =
+      localidades.find((l: any) => l.id === pendingCity.id) ||
+      localidades.find((l: any) => l.nombre.toLowerCase() === pendingCity.nombre.toLowerCase());
+    if (match) { setCityId(match.id); setCity(match.nombre); }
+    setPendingCity(null);
+  }, [localidades, loadingGeo, pendingCity]);
+
+  async function handleDetectLocation() {
+    setGeoHint(null);
+    const result = await detectLocation();
+    if (!result) return;
+    if (result.provincia) {
+      setRegionCode(result.provincia.id);
+      setRegionName(result.provincia.nombre);
+      setCityId(""); setCity("");
+    }
+    if (result.ciudad) {
+      setPendingCity(result.ciudad);
+      setGeoHint(`Ubicación detectada: ${result.ciudad.nombre}, ${result.provincia?.nombre}. Podés cambiarlo.`);
+    }
+  }
 
   const currentYear = new Date().getFullYear();
   const years = useMemo(
@@ -92,7 +125,8 @@ export default function ClaimOnboardingFlow({
   );
 
   const canStep1 = firstName.trim().length >= 2 && lastName.trim().length >= 2 && displayName.trim().length >= 2 && phone.trim().length >= 8;
-  const canStep2 = !!regionCode && !!cityId && !!position && !!category;
+  const geoValid = (!!regionCode && !!cityId) || (regionName.trim().length >= 2 && city.trim().length >= 2);
+  const canStep2 = geoValid && !!position && !!category;
 
   const targetNameNormalized = normalize(targetName);
   const fullNameNormalized = normalize(`${firstName} ${lastName}`);
@@ -239,31 +273,69 @@ export default function ClaimOnboardingFlow({
           <h3 className="text-3xl font-black text-gray-900">Tu perfil de juego.</h3>
           <p className="text-gray-600">Necesitamos estos datos para completar tu ficha.</p>
 
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleDetectLocation}
+              disabled={geoStatus === "loading"}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60 transition-colors"
+            >
+              {geoStatus === "loading" ? "Detectando ubicación..." : "Usar mi ubicación"}
+            </button>
+            {geoHint && <p className="text-xs text-blue-600 font-medium px-1">{geoHint}</p>}
+            {geoError && <p className="text-xs text-amber-600 font-medium px-1">{geoError}</p>}
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <GeoSelect
-              label="Provincia*"
-              placeholder="Elegí tu provincia"
-              options={provincias}
-              value={regionCode}
-              onChange={(opt) => {
-                setRegionCode(opt?.id || "");
-                setRegionName(opt?.nombre || "");
-                setCityId("");
-                setCity("");
-              }}
-            />
-            <GeoSelect
-              label="Ciudad*"
-              placeholder="Buscá tu ciudad"
-              options={localidades}
-              value={cityId}
-              isLoading={loadingGeo}
-              disabled={!regionCode}
-              onChange={(opt) => {
-                setCityId(opt?.id || "");
-                setCity(opt?.nombre || "");
-              }}
-            />
+            {provinciasError ? (
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Provincia* <span className="text-xs text-amber-600 font-normal">(ingresá manualmente)</span>
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    className="flex-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Ej: Río Negro"
+                    value={regionName}
+                    onChange={(e) => { setRegionName(e.target.value); setRegionCode(""); setCityId(""); setCity(""); }}
+                  />
+                  <button type="button" onClick={loadProvincias} className="rounded-xl border border-gray-300 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50">↺</button>
+                </div>
+              </div>
+            ) : (
+              <GeoSelect
+                label="Provincia*"
+                placeholder="Elegí tu provincia"
+                options={provincias}
+                value={regionCode}
+                onChange={(opt) => { setRegionCode(opt?.id || ""); setRegionName(opt?.nombre || ""); setCityId(""); setCity(""); }}
+              />
+            )}
+
+            {!provinciasError && regionCode ? (
+              <GeoSelect
+                label="Ciudad*"
+                placeholder="Buscá tu ciudad"
+                options={localidades}
+                value={cityId}
+                isLoading={loadingGeo}
+                disabled={!regionCode}
+                onChange={(opt) => { setCityId(opt?.id || ""); setCity(opt?.nombre || ""); }}
+              />
+            ) : (
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Ciudad* {provinciasError && <span className="text-xs text-amber-600 font-normal">(ingresá manualmente)</span>}
+                </label>
+                <input
+                  className="w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Ej: General Roca"
+                  value={city}
+                  disabled={!provinciasError && !regionCode && !regionName}
+                  onChange={(e) => { setCity(e.target.value); setCityId(""); }}
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
