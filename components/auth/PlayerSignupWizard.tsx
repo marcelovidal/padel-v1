@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { GeoSelect } from "@/components/geo/GeoSelect";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { completePlayerSignupOnboardingAction } from "@/lib/actions/portal-auth.actions";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 type PlayerPosition = "drive" | "reves" | "cualquiera";
 
@@ -63,6 +64,10 @@ export default function PlayerSignupWizard({
   const [provincias, setProvincias] = useState<GeoOption[]>([]);
   const [localidades, setLocalidades] = useState<GeoOption[]>([]);
   const [loadingGeo, setLoadingGeo] = useState(false);
+  const [geoHint, setGeoHint] = useState<string | null>(null);
+  const [pendingCity, setPendingCity] = useState<GeoOption | null>(null);
+
+  const { detect: detectLocation, status: geoStatus } = useGeoLocation();
 
   useEffect(() => {
     fetch("/api/geo/provincias")
@@ -80,6 +85,40 @@ export default function PlayerSignupWizard({
       .catch(() => setLocalidades([]))
       .finally(() => setLoadingGeo(false));
   }, [regionCode]);
+
+  // When localidades finish loading after GPS detection, auto-select the detected city.
+  // We match by ID first, then by name as fallback (municipio IDs may differ from localidad IDs).
+  useEffect(() => {
+    if (!pendingCity || loadingGeo || localidades.length === 0) return;
+    const match =
+      localidades.find((l) => l.id === pendingCity.id) ||
+      localidades.find((l) => l.nombre.toLowerCase() === pendingCity.nombre.toLowerCase());
+    if (match) {
+      setCityId(match.id);
+      setCity(match.nombre);
+    }
+    setPendingCity(null);
+  }, [localidades, loadingGeo, pendingCity]);
+
+  async function handleDetectLocation() {
+    setGeoHint(null);
+    const result = await detectLocation();
+    if (!result) return;
+
+    if (result.provincia) {
+      setRegionCode(result.provincia.id);
+      setRegionName(result.provincia.nombre);
+      setCityId("");
+      setCity("");
+    }
+
+    if (result.ciudad) {
+      // localidades se recarga por el useEffect de regionCode.
+      // Guardamos la ciudad detectada para setearla una vez que carguen.
+      setPendingCity(result.ciudad);
+      setGeoHint(`Ubicación detectada: ${result.ciudad.nombre}, ${result.provincia?.nombre}. Podés cambiarlo si no es correcto.`);
+    }
+  }
 
   const years = useMemo(() => {
     const current = new Date().getFullYear();
@@ -175,6 +214,36 @@ export default function PlayerSignupWizard({
           </div>
           <input className="w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Nick*" value={nick} onChange={(e) => setNick(e.target.value)} />
           <input className="w-full rounded-xl border border-gray-300 px-4 py-3" placeholder="Celular (WhatsApp)*" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={handleDetectLocation}
+              disabled={geoStatus === "loading"}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60 transition-colors"
+            >
+              {geoStatus === "loading" ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Detectando ubicacion...
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                  </svg>
+                  Usar mi ubicacion
+                </>
+              )}
+            </button>
+            {geoHint && (
+              <p className="text-xs text-blue-600 font-medium px-1">{geoHint}</p>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <GeoSelect
               label="Provincia*"

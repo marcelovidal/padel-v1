@@ -1,6 +1,33 @@
 import { NextResponse } from 'next/server';
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
+
+const GEOREF_BASE = 'https://apis.datos.gob.ar/georef/api';
+const MAX_LOCALIDADES = 3000;
+const TIMEOUT_MS = 10000;
+const MAX_RETRIES = 2;
+
+async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<Response> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+        try {
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (res.ok) return res;
+            // Rate limit: no retry
+            if (res.status === 429) throw Object.assign(new Error('rate_limit'), { status: 429 });
+            if (attempt === retries) throw new Error(`external_error:${res.status}`);
+        } catch (err: any) {
+            clearTimeout(timeoutId);
+            if (err.status === 429) throw err;
+            if (attempt === retries) throw err;
+            // Wait before retry: 300ms, 700ms
+            await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+        }
+    }
+    throw new Error('unreachable');
+}
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -11,48 +38,30 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'provincia parameter is required' }, { status: 400 });
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const url = new URL(`${GEOREF_BASE}/localidades`);
+    url.searchParams.set('provincia', provinciaId);
+    url.searchParams.set('max', String(MAX_LOCALIDADES));
+    if (query) url.searchParams.set('nombre', query);
 
     try {
-        // We fetch a larger amount if no search query is provided, or filter by name
-        const url = new URL('https://apis.datos.gob.ar/georef/api/localidades');
-        url.searchParams.set('provincia', provinciaId);
-        url.searchParams.set('max', '500'); // Reasonable limit for a province's cities
-        if (query) {
-            url.searchParams.set('nombre', query);
-        }
-
-        const response = await fetch(url.toString(), {
-            signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            if (response.status === 429) {
-                return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
-            }
-            throw new Error(`External API error: ${response.status}`);
-        }
-
+        const response = await fetchWithRetry(url.toString());
         const data = await response.json();
 
-        // Normalize response to a simple shape
-        const localidades = data.localidades.map((l: any) => ({
-            id: l.id,
-            nombre: l.nombre,
-        })).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
+        const localidades = (data.localidades ?? [])
+            .map((l: any) => ({ id: l.id, nombre: l.nombre }))
+            .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
 
         return NextResponse.json(localidades);
     } catch (error: any) {
-        clearTimeout(timeoutId);
-        console.error('Geo API Proxy Error (Localidades):', error);
+        console.error('Geo API (localidades) failed after retries:', error?.message);
 
-        if (error.name === 'AbortError') {
-            return NextResponse.json({ error: 'External API timeout' }, { status: 504 });
+        if (error?.status === 429 || error?.message === 'rate_limit') {
+            return NextResponse.json([], { headers: { 'X-Geo-Fallback': 'rate_limit' } });
         }
-
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        if (error?.name === 'AbortError') {
+            return NextResponse.json([], { headers: { 'X-Geo-Fallback': 'timeout' } });
+        }
+        // Always return empty array (never 500) so the UI degrades gracefully
+        return NextResponse.json([], { headers: { 'X-Geo-Fallback': 'error' } });
     }
 }

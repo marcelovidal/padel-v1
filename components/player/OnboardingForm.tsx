@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/card";
 import { GeoSelect } from "@/components/geo/GeoSelect";
 import AvatarUploader from "@/components/player/AvatarUploader";
 import { completeOnboardingAction } from "@/app/actions/onboarding.actions";
-import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles, LocateFixed } from "lucide-react";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 import { cn } from "@/lib/utils";
 
 const onboardingSchema = z.object({
@@ -50,6 +51,10 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
     const [loadingGeo, setLoadingGeo] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [geoHint, setGeoHint] = useState<string | null>(null);
+    const [pendingCity, setPendingCity] = useState<{ id: string; nombre: string } | null>(null);
+
+    const { detect: detectLocation, status: geoStatus } = useGeoLocation();
 
     const {
         register,
@@ -86,15 +91,46 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
             fetch(`/api/geo/localidades?provincia=${formData.region_code}`)
                 .then(res => res.json())
                 .then(data => {
-                    setLocalidades(data);
+                    setLocalidades(Array.isArray(data) ? data : []);
                     setLoadingGeo(false);
                 })
                 .catch(err => {
                     console.error("Error localidades:", err);
+                    setLocalidades([]);
                     setLoadingGeo(false);
                 });
         }
     }, [formData.region_code]);
+
+    // Auto-select city detected via GPS once localidades load
+    useEffect(() => {
+        if (!pendingCity || loadingGeo || localidades.length === 0) return;
+        const match =
+            localidades.find((l: any) => l.id === pendingCity.id) ||
+            localidades.find((l: any) => l.nombre.toLowerCase() === pendingCity.nombre.toLowerCase());
+        if (match) {
+            setValue("city_id", match.id);
+            setValue("city", match.nombre);
+        }
+        setPendingCity(null);
+    }, [localidades, loadingGeo, pendingCity, setValue]);
+
+    async function handleDetectLocation() {
+        setGeoHint(null);
+        const result = await detectLocation();
+        if (!result) return;
+
+        if (result.provincia) {
+            setValue("region_code", result.provincia.id);
+            setValue("region_name", result.provincia.nombre);
+            setValue("city_id", "");
+            setValue("city", "");
+        }
+        if (result.ciudad) {
+            setPendingCity(result.ciudad);
+            setGeoHint(`Ubicacion detectada: ${result.ciudad.nombre}, ${result.provincia?.nombre}. Podés cambiarlo si no es correcto.`);
+        }
+    }
 
     async function onSubmit(data: OnboardingValues) {
         setSubmitting(true);
@@ -224,6 +260,25 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
                             <div className="space-y-2">
                                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">Tu perfil de juego.</h2>
                                 <p className="text-gray-500">{formData.first_name}, necesitamos saber cómo jugás.</p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleDetectLocation}
+                                    disabled={geoStatus === "loading"}
+                                    className="w-full rounded-xl border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                                >
+                                    {geoStatus === "loading" ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Detectando ubicacion...</>
+                                    ) : (
+                                        <><LocateFixed className="mr-2 h-4 w-4" /> Usar mi ubicacion</>
+                                    )}
+                                </Button>
+                                {geoHint && (
+                                    <p className="text-xs text-blue-600 font-medium px-1">{geoHint}</p>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
