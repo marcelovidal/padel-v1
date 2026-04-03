@@ -47,7 +47,17 @@ export async function GET(request: Request) {
         const response = await fetchWithRetry(url.toString());
         const data = await response.json();
 
-        const localidades = (data.localidades ?? [])
+        // Prefer "Localidad simple" when deduplicating by name — avoids showing
+        // the same city twice (georef returns both "Entidad" and "Localidad simple")
+        const byName = new Map<string, any>();
+        for (const l of (data.localidades ?? [])) {
+            const key = l.nombre.toLowerCase();
+            const existing = byName.get(key);
+            if (!existing || l.categoria === "Localidad simple") {
+                byName.set(key, l);
+            }
+        }
+        const localidades = Array.from(byName.values())
             .map((l: any) => ({ id: String(l.id), nombre: l.nombre }))
             .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
 

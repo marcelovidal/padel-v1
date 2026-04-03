@@ -49,11 +49,14 @@ export async function resolvePlayerCityAction(): Promise<{ resolved: boolean; ci
 
     if (hits.length === 0) return { resolved: false };
 
-    // Take the best match: exact name match preferred, else first result
-    const exactMatch = hits.find(
-      (h) => h.nombre.toLowerCase() === city.toLowerCase()
-    );
-    const best = exactMatch || hits[0];
+    // Prefer "Localidad simple" over "Entidad" when name matches — avoids duplicate entries
+    const PREFERRED = "Localidad simple";
+    const exactMatches = hits.filter((h) => h.nombre.toLowerCase() === city.toLowerCase());
+    const best =
+      exactMatches.find((h) => h.categoria === PREFERRED) ||
+      exactMatches[0] ||
+      hits.find((h) => h.categoria === PREFERRED) ||
+      hits[0];
 
     // Also resolve province code if missing
     const resolvedRegionCode: string = player.region_code || String(best.provincia?.id || "");
