@@ -17,6 +17,8 @@ interface GeoSelectProps {
     onChange: (option: GeoOption | null) => void;
     isLoading?: boolean;
     disabled?: boolean;
+    loadError?: boolean;
+    onRetry?: () => void;
 }
 
 function normalizeText(value: string) {
@@ -34,13 +36,16 @@ export function GeoSelect({
     value,
     onChange,
     isLoading,
-    disabled
+    disabled,
+    loadError,
+    onRetry,
 }: GeoSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Compare as strings to handle number/string ID mismatches from external API
     const selectedOption = useMemo(() =>
-        options.find(o => o.id === value) || null,
+        options.find(o => String(o.id) === String(value ?? "")) || null,
         [options, value]);
 
     const filteredOptions = useMemo(() => {
@@ -63,6 +68,26 @@ export function GeoSelect({
         }
     }, [selectedOption, isOpen]);
 
+    if (loadError) {
+        return (
+            <div className="space-y-2">
+                <Label>{label}</Label>
+                <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2">
+                    <span className="flex-1 text-sm text-red-600">Error al cargar</span>
+                    {onRetry && (
+                        <button
+                            type="button"
+                            onClick={onRetry}
+                            className="text-xs font-semibold text-red-700 underline hover:no-underline"
+                        >
+                            Reintentar
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-2 relative">
             <Label>{label}</Label>
@@ -74,14 +99,16 @@ export function GeoSelect({
                     if (!isOpen) setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                disabled={disabled}
+                disabled={disabled || isLoading}
                 className="w-full"
                 autoComplete="off"
             />
 
             {isOpen && !disabled && (
                 <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
-                    {filteredOptions.length > 0 ? (
+                    {isLoading ? (
+                        <div className="px-3 py-2 text-sm text-slate-500">Cargando...</div>
+                    ) : filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => (
                             <div
                                 key={option.id}

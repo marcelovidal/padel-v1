@@ -48,7 +48,7 @@ export async function GET(request: Request) {
         const data = await response.json();
 
         const localidades = (data.localidades ?? [])
-            .map((l: any) => ({ id: l.id, nombre: l.nombre }))
+            .map((l: any) => ({ id: String(l.id), nombre: l.nombre }))
             .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
 
         return NextResponse.json(localidades);

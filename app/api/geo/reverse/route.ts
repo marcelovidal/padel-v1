@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             provincia: ubicacion.provincia
-                ? { id: ubicacion.provincia.id, nombre: ubicacion.provincia.nombre }
+                ? { id: String(ubicacion.provincia.id), nombre: ubicacion.provincia.nombre }
                 : null,
             ciudad: ciudad ? { id: String(ciudadId), nombre: ciudad } : null,
         });

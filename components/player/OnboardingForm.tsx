@@ -47,6 +47,7 @@ interface OnboardingFormProps {
 export default function OnboardingForm({ initialData }: OnboardingFormProps) {
     const [step, setStep] = useState(1);
     const [provincias, setProvincias] = useState<any[]>([]);
+    const [provinciasError, setProvinciasError] = useState(false);
     const [localidades, setLocalidades] = useState<any[]>([]);
     const [loadingGeo, setLoadingGeo] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -54,7 +55,7 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
     const [geoHint, setGeoHint] = useState<string | null>(null);
     const [pendingCity, setPendingCity] = useState<{ id: string; nombre: string } | null>(null);
 
-    const { detect: detectLocation, status: geoStatus } = useGeoLocation();
+    const { detect: detectLocation, status: geoStatus, error: geoError } = useGeoLocation();
 
     const {
         register,
@@ -76,13 +77,22 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
 
     const formData = watch();
 
-    // Fetch provincias on mount
-    useEffect(() => {
+    function loadProvincias() {
+        setProvinciasError(false);
         fetch("/api/geo/provincias")
             .then(res => res.json())
-            .then(data => setProvincias(data))
-            .catch(err => console.error("Error provincias:", err));
-    }, []);
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    setProvincias(data);
+                } else {
+                    setProvinciasError(true);
+                }
+            })
+            .catch(() => setProvinciasError(true));
+    }
+
+    // Fetch provincias on mount
+    useEffect(() => { loadProvincias(); }, []);
 
     // Fetch localidades when region_code changes
     useEffect(() => {
@@ -279,6 +289,9 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
                                 {geoHint && (
                                     <p className="text-xs text-blue-600 font-medium px-1">{geoHint}</p>
                                 )}
+                                {geoError && (
+                                    <p className="text-xs text-amber-600 font-medium px-1">{geoError}</p>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -287,6 +300,8 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
                                     placeholder="Elegí tu provincia"
                                     options={provincias}
                                     value={formData.region_code}
+                                    loadError={provinciasError}
+                                    onRetry={loadProvincias}
                                     onChange={(opt) => {
                                         setValue("region_code", opt?.id || "");
                                         setValue("region_name", opt?.nombre || "");

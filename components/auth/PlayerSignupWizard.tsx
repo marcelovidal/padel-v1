@@ -62,19 +62,29 @@ export default function PlayerSignupWizard({
   const [result, setResult] = useState<{ success: boolean; candidates: PlayerCandidate[] } | null>(null);
 
   const [provincias, setProvincias] = useState<GeoOption[]>([]);
+  const [provinciasError, setProvinciasError] = useState(false);
   const [localidades, setLocalidades] = useState<GeoOption[]>([]);
   const [loadingGeo, setLoadingGeo] = useState(false);
   const [geoHint, setGeoHint] = useState<string | null>(null);
   const [pendingCity, setPendingCity] = useState<GeoOption | null>(null);
 
-  const { detect: detectLocation, status: geoStatus } = useGeoLocation();
+  const { detect: detectLocation, status: geoStatus, error: geoError } = useGeoLocation();
 
-  useEffect(() => {
+  function loadProvincias() {
+    setProvinciasError(false);
     fetch("/api/geo/provincias")
       .then((res) => res.json())
-      .then((data) => setProvincias(Array.isArray(data) ? data : []))
-      .catch(() => setProvincias([]));
-  }, []);
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProvincias(data);
+        } else {
+          setProvinciasError(true);
+        }
+      })
+      .catch(() => setProvinciasError(true));
+  }
+
+  useEffect(() => { loadProvincias(); }, []);
 
   useEffect(() => {
     if (!regionCode) return;
@@ -242,6 +252,9 @@ export default function PlayerSignupWizard({
             {geoHint && (
               <p className="text-xs text-blue-600 font-medium px-1">{geoHint}</p>
             )}
+            {geoError && (
+              <p className="text-xs text-amber-600 font-medium px-1">{geoError}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -250,6 +263,8 @@ export default function PlayerSignupWizard({
               placeholder="Elegi provincia"
               options={provincias}
               value={regionCode}
+              loadError={provinciasError}
+              onRetry={loadProvincias}
               onChange={(opt) => {
                 setRegionCode(opt?.id || "");
                 setRegionName(opt?.nombre || "");
