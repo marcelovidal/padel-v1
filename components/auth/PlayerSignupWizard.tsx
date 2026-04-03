@@ -337,7 +337,7 @@ export default function PlayerSignupWizard({
             </p>
           )}
           <select className="w-full rounded-xl border border-gray-300 px-4 py-3" value={birthYear} onChange={(e) => setBirthYear(e.target.value)}>
-            <option value="">Ano de nacimiento (opcional)</option>
+            <option value="">Año de nacimiento (opcional)</option>
             {years.map((year) => (
               <option key={year} value={year}>
                 {year}
