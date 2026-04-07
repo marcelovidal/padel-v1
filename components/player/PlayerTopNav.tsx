@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X, CalendarDays, Star } from "lucide-react";
+import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X, CalendarDays, Star, GraduationCap } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface PlayerTopNavProps {
@@ -12,9 +12,10 @@ interface PlayerTopNavProps {
     email?: string | null;
     avatarSrc?: string | null;
     avatarInitials?: string;
+    isCoach?: boolean;
 }
 
-const navItems = [
+const BASE_NAV_ITEMS = [
     { href: "/player", label: "Resumen", icon: Home },
     { href: "/player/matches", label: "Partidos", icon: Trophy },
     { href: "/player/events", label: "Eventos", icon: Star },
@@ -23,8 +24,11 @@ const navItems = [
     { href: "/player/profile", label: "Perfil", icon: UserCircle },
 ];
 
-export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials }: PlayerTopNavProps) {
+const COACH_NAV_ITEM = { href: "/player/coach", label: "Mi equipo", icon: GraduationCap };
+
+export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, isCoach }: PlayerTopNavProps) {
     const [open, setOpen] = useState(false);
+    const navItems = isCoach ? [...BASE_NAV_ITEMS, COACH_NAV_ITEM] : BASE_NAV_ITEMS;
 
     return (
         <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
