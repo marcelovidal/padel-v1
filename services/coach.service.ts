@@ -135,4 +135,8 @@ export class CoachService {
   async getBookings(coachId: string) {
     return this.repo.getBookings(coachId);
   }
+
+  async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {
+    return this.repo.getCoachPlayersStatus(coachId);
+  }
 }

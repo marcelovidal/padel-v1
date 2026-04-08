@@ -3,7 +3,68 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { CoachService } from "@/services/coach.service";
+import { createClient } from "@/lib/supabase/server";
 import type { CoachNote, CoachChallenge } from "@/repositories/coach.repository";
+
+// ── Player details for coach expand panel ────────────────────
+
+const SKILL_KEYS = [
+  "volea", "globo", "remate", "bandeja",
+  "vibora", "bajada_pared", "saque", "recepcion_saque",
+] as const;
+
+export type PlayerCoachDetails = {
+  lastMatches: { match_at: string; outcome: "win" | "loss" | "unknown"; score: string }[];
+  skills: Record<string, number> | null;
+};
+
+export async function getPlayerCoachDetailsAction(playerId: string): Promise<PlayerCoachDetails> {
+  const supabase = await createClient();
+
+  const [matchRes, assessRes] = await Promise.all([
+    (supabase as any)
+      .from("matches")
+      .select("id, match_at, match_players!inner(player_id, team), match_results(sets, winner_team)")
+      .eq("match_players.player_id", playerId)
+      .eq("status", "completed")
+      .order("match_at", { ascending: false })
+      .limit(3),
+    (supabase as any)
+      .from("player_match_assessments")
+      .select("volea, globo, remate, bandeja, vibora, bajada_pared, saque, recepcion_saque")
+      .eq("player_id", playerId)
+      .limit(20),
+  ]);
+
+  const lastMatches = ((matchRes.data as any[]) ?? []).map((m: any) => {
+    const playerTeam = ((m.match_players as any[]) ?? []).find((mp: any) => mp.player_id === playerId)?.team;
+    const result = ((m.match_results as any[]) ?? [])[0];
+    const winnerTeam = result?.winner_team;
+    const outcome: "win" | "loss" | "unknown" = !winnerTeam
+      ? "unknown"
+      : winnerTeam === playerTeam
+        ? "win"
+        : "loss";
+    const sets = (result?.sets as any[]) ?? [];
+    const score = Array.isArray(sets) && playerTeam
+      ? sets.map((s: any) => playerTeam === "A" ? `${s.a}-${s.b}` : `${s.b}-${s.a}`).join("  ")
+      : "-";
+    return { match_at: m.match_at as string, outcome, score };
+  });
+
+  const assessments = (assessRes.data as any[]) ?? [];
+  let skills: Record<string, number> | null = null;
+  if (assessments.length > 0) {
+    const avgs: Record<string, number> = {};
+    for (const key of SKILL_KEYS) {
+      const vals = assessments.filter((a) => a[key] != null).map((a) => Number(a[key]));
+      avgs[key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : 0;
+    }
+    skills = avgs;
+  }
+
+  return { lastMatches, skills };
+}
 
 // ── Enable coach profile ──────────────────────────────────────
 

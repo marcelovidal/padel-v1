@@ -1,5 +1,6 @@
 import { requirePlayer } from "@/lib/auth";
 import { CoachService } from "@/services/coach.service";
+import { PlayerService } from "@/services/player.service";
 import { enableCoachProfileAction } from "@/lib/actions/coach.actions";
 import { CoachDashboard } from "@/components/coach/CoachDashboard";
 import { GraduationCap } from "lucide-react";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function CoachPage({
   searchParams,
 }: {
-  searchParams: { tab?: string; player?: string };
+  searchParams: { tab?: string; player?: string; q?: string };
 }) {
   const { player } = await requirePlayer();
   const isCoach = (player as any).is_coach === true;
@@ -50,13 +51,15 @@ export default async function CoachPage({
     coachService.getMyPlayers().catch(() => []),
   ]);
 
-  const activeTab   = searchParams.tab    ?? "jugadores";
+  const activeTab        = searchParams.tab    ?? "jugadores";
   const selectedPlayerId = searchParams.player ?? null;
 
   let challenges: any[] = [];
   let bookings: any[] = [];
   let notes: any[] = [];
   let sessions: any[] = [];
+  let directoryPlayers: any[] = [];
+  let coachPlayerStatuses: { player_id: string; status: string }[] = [];
 
   if (coachProfile) {
     if (activeTab === "desafios") {
@@ -72,6 +75,20 @@ export default async function CoachPage({
         coachService.getChallenges(coachProfile.id, selectedPlayerId).catch(() => []),
       ]);
     }
+    if (activeTab === "jugadores") {
+      const playerService = new PlayerService();
+      const [dirResult, statuses] = await Promise.all([
+        playerService.getPlayersDirectory({
+          query:        searchParams.q ?? "",
+          viewerCityId: (player as any).city_id ?? null,
+          limit:        200,
+          offset:       0,
+        }).catch(() => ({ total: 0, players: [] })),
+        coachService.getCoachPlayersStatus(coachProfile.id).catch(() => []),
+      ]);
+      directoryPlayers    = dirResult.players ?? [];
+      coachPlayerStatuses = statuses;
+    }
   }
 
   return (
@@ -84,6 +101,10 @@ export default async function CoachPage({
       bookings={bookings}
       notes={notes}
       sessions={sessions}
+      directoryPlayers={directoryPlayers}
+      coachPlayerStatuses={coachPlayerStatuses}
+      myPlayerId={player.id}
+      initialQuery={searchParams.q ?? ""}
     />
   );
 }

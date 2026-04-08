@@ -369,4 +369,14 @@ export class CoachRepository {
     if (error) throw error;
     return (data as CoachBooking[]) ?? [];
   }
+
+  async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any)
+      .from("coach_players")
+      .select("player_id, status")
+      .eq("coach_id", coachId);
+    if (error) throw error;
+    return (data ?? []) as { player_id: string; status: string }[];
+  }
 }

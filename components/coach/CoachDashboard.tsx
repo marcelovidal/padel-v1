@@ -18,6 +18,10 @@ interface Props {
   bookings: CoachBooking[];
   notes: CoachNote[];
   sessions: TrainingSession[];
+  directoryPlayers: any[];
+  coachPlayerStatuses: { player_id: string; status: string }[];
+  myPlayerId: string;
+  initialQuery: string;
 }
 
 const TABS = [
@@ -35,6 +39,10 @@ export function CoachDashboard({
   bookings,
   notes,
   sessions,
+  directoryPlayers,
+  coachPlayerStatuses,
+  myPlayerId,
+  initialQuery,
 }: Props) {
   const isLegajo = activeTab === "legajo" && selectedPlayerId;
   const selectedStudent = students.find((s) => s.id === selectedPlayerId) ?? null;
@@ -97,6 +105,10 @@ export function CoachDashboard({
         <CoachMyPlayers
           students={students}
           coachProfile={coachProfile}
+          directoryPlayers={directoryPlayers}
+          coachPlayerStatuses={coachPlayerStatuses}
+          myPlayerId={myPlayerId}
+          initialQuery={initialQuery}
         />
       ) : activeTab === "agenda" ? (
         <CoachAgenda bookings={bookings} coachProfile={coachProfile} />

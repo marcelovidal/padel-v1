@@ -42,7 +42,7 @@ export async function requirePlayer() {
   const { data: player, error: playerError } = await (supabase
     .from("players")
     .select(
-      "id, onboarding_completed, display_name, avatar_url, first_name, last_name, city, city_id, region_code, region_name, country_code, position, category, birth_year, phone"
+      "id, onboarding_completed, display_name, avatar_url, first_name, last_name, city, city_id, region_code, region_name, country_code, position, category, birth_year, phone, is_coach, coach_enabled_at"
     )
     .eq("user_id", user.id)
     .maybeSingle() as any);
