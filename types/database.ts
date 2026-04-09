@@ -72,6 +72,9 @@ export interface Database {
           onboarding_completed: boolean;
           onboarding_completed_at: string | null;
           onboarding_version: number;
+          pasala_index: number | null;
+          is_coach: boolean;
+          coach_enabled_at: string | null;
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
@@ -101,6 +104,9 @@ export interface Database {
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           onboarding_version?: number;
+          pasala_index?: number | null;
+          is_coach?: boolean;
+          coach_enabled_at?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
@@ -130,6 +136,9 @@ export interface Database {
           onboarding_completed?: boolean;
           onboarding_completed_at?: string | null;
           onboarding_version?: number;
+          pasala_index?: number | null;
+          is_coach?: boolean;
+          coach_enabled_at?: string | null;
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;

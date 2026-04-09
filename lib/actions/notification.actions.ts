@@ -13,7 +13,17 @@ export type NotificationType =
   | "tournament_registration_requested"
   | "league_registration_requested"
   | "tournament_registration_confirmed"
-  | "league_registration_confirmed";
+  | "league_registration_confirmed"
+  | "coach_invitation"
+  | "coach_invitation_accepted"
+  | "coach_challenge_assigned"
+  | "coach_booking_request"
+  | "coach_booking_confirmed"
+  | "booking_confirmed"
+  | "booking_cancelled"
+  | "booking_requested"
+  | "training_session_scheduled"
+  | "coach_booking_cancelled";
 
 export interface NotificationItem {
   id: string;
