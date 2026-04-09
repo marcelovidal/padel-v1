@@ -1,17 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCircle2 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics/gtag";
-import {
-  getNotificationsAction,
-  getUnreadNotificationCountAction,
-  markAllNotificationsReadAction,
-  markNotificationReadAction,
-  type NotificationItem,
-  type NotificationTarget,
-} from "@/lib/actions/notification.actions";
+import type { NotificationItem } from "@/lib/actions/notification.actions";
 
 function formatRelative(createdAt: string) {
   const diffMs = Date.now() - new Date(createdAt).getTime();
@@ -27,51 +20,51 @@ function formatRelative(createdAt: string) {
 
 function fallbackTitleByType(type: NotificationItem["type"]) {
   switch (type) {
-    case "player_match_result_ready":
-      return "Resultado cargado";
-    case "player_claim_success":
-      return "Perfil reclamado";
-    case "club_claim_requested":
-      return "Nuevo reclamo de club";
-    case "club_match_created":
-      return "Nuevo partido en tu club";
-    case "tournament_open_for_registration":
-      return "Torneo abierto para inscripcion";
-    case "league_open_for_registration":
-      return "Liga abierta para inscripcion";
-    case "tournament_registration_requested":
-      return "Nueva solicitud de torneo";
-    case "league_registration_requested":
-      return "Nueva solicitud de liga";
-    case "tournament_registration_confirmed":
-      return "Inscripcion a torneo confirmada";
-    case "league_registration_confirmed":
-      return "Inscripcion a liga confirmada";
-    default:
-      return "Nueva notificacion";
+    case "player_match_result_ready":       return "Resultado cargado";
+    case "player_claim_success":            return "Perfil reclamado";
+    case "club_claim_requested":            return "Nuevo reclamo de club";
+    case "club_match_created":              return "Nuevo partido en tu club";
+    case "tournament_open_for_registration":return "Torneo abierto para inscripcion";
+    case "league_open_for_registration":    return "Liga abierta para inscripcion";
+    case "tournament_registration_requested":return "Nueva solicitud de torneo";
+    case "league_registration_requested":   return "Nueva solicitud de liga";
+    case "tournament_registration_confirmed":return "Inscripcion a torneo confirmada";
+    case "league_registration_confirmed":   return "Inscripcion a liga confirmada";
+    case "coach_invitation":                return "Invitación de entrenador";
+    case "coach_invitation_accepted":       return "Invitación aceptada";
+    case "coach_challenge_assigned":        return "Nuevo desafío";
+    case "coach_booking_request":           return "Nueva reserva de clase";
+    case "coach_booking_confirmed":         return "Clase confirmada";
+    default:                                return "Nueva notificacion";
   }
 }
 
-export function NotificationBell({ target }: { target: NotificationTarget }) {
+interface NotificationBellProps {
+  items: NotificationItem[];
+  totalUnread: number;
+  loading: boolean;
+  onMarkRead: (id: string) => Promise<void>;
+  onMarkAllRead: () => Promise<void>;
+  onRefresh: () => Promise<void>;
+}
+
+export function NotificationBell({
+  items,
+  totalUnread,
+  loading,
+  onMarkRead,
+  onMarkAllRead,
+  onRefresh,
+}: NotificationBellProps) {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const refresh = useCallback(async () => {
-    const [listRes, countRes] = await Promise.all([
-      getNotificationsAction({ target, limit: 10 }),
-      getUnreadNotificationCountAction({ target }),
-    ]);
-    if (listRes.success) setItems(listRes.data);
-    if (countRes.success) setUnreadCount(countRes.count);
-  }, [target]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const unreadIds = useMemo(
+    () => new Set(items.filter((i) => !i.read_at).map((i) => i.id)),
+    [items]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -85,49 +78,38 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
 
-  const unreadIds = useMemo(
-    () => new Set(items.filter((i) => !i.read_at).map((i) => i.id)),
-    [items]
-  );
-
   async function handleToggle() {
     const next = !open;
     setOpen(next);
     if (next) {
-      trackEvent("notification_bell_opened", { target });
-      setLoading(true);
+      trackEvent("notification_bell_opened", { target: "player" });
+      setRefreshing(true);
       try {
-        await refresh();
+        await onRefresh();
       } finally {
-        setLoading(false);
+        setRefreshing(false);
       }
     }
   }
 
   async function handleItemClick(item: NotificationItem) {
     if (unreadIds.has(item.id)) {
-      const res = await markNotificationReadAction({ id: item.id });
-      if (res.success) {
-        setItems((prev) =>
-          prev.map((n) => (n.id === item.id ? { ...n, read_at: new Date().toISOString() } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-        trackEvent("notification_mark_read", { target, type: item.type });
-      }
+      await onMarkRead(item.id);
+      trackEvent("notification_mark_read", { target: "player", type: item.type });
     }
 
     trackEvent("notification_clicked", {
-      target,
+      target: "player",
       type: item.type,
       has_link: Boolean(item.payload?.link),
     });
 
     if (item.payload?.link && typeof item.payload.link === "string") {
-      const shouldGoToRegistrations =
+      let link = item.payload.link;
+      const isRegistration =
         item.type === "tournament_registration_requested" ||
         item.type === "league_registration_requested";
-      let link = item.payload.link;
-      if (shouldGoToRegistrations && !link.includes("#")) {
+      if (isRegistration && !link.includes("#")) {
         link = `${link}#registrations`;
       }
 
@@ -145,16 +127,11 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
   }
 
   async function handleMarkAllRead() {
-    const res = await markAllNotificationsReadAction({ target });
-    if (!res.success) return;
-    if (res.count > 0) {
-      setItems((prev) =>
-        prev.map((n) => (n.read_at ? n : { ...n, read_at: new Date().toISOString() }))
-      );
-      setUnreadCount(0);
-      trackEvent("notification_mark_all_read", { target, count: res.count });
-    }
+    await onMarkAllRead();
+    trackEvent("notification_mark_all_read", { target: "player", count: totalUnread });
   }
+
+  const isLoading = loading || refreshing;
 
   return (
     <div className="relative" ref={rootRef}>
@@ -165,9 +142,9 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
         aria-label="Notificaciones"
       >
         <Bell className="h-5 w-5" />
-        {unreadCount > 0 ? (
+        {totalUnread > 0 ? (
           <span className="absolute -right-1 -top-1 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] leading-[18px] text-white font-black text-center">
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {totalUnread > 9 ? "9+" : totalUnread}
           </span>
         ) : null}
       </button>
@@ -178,10 +155,10 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
             <div>
               <p className="text-sm font-black text-gray-900">Notificaciones</p>
               <p className="text-[11px] text-gray-500">
-                {unreadCount > 0 ? `${unreadCount} sin leer` : "Sin pendientes"}
+                {totalUnread > 0 ? `${totalUnread} sin leer` : "Sin pendientes"}
               </p>
             </div>
-            {unreadCount > 0 ? (
+            {totalUnread > 0 ? (
               <button
                 type="button"
                 onClick={() => void handleMarkAllRead()}
@@ -193,7 +170,7 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
           </div>
 
           <div className="max-h-[420px] overflow-y-auto">
-            {loading ? (
+            {isLoading ? (
               <div className="px-4 py-6 text-sm text-gray-500">Cargando...</div>
             ) : items.length === 0 ? (
               <div className="px-4 py-8 text-center">
@@ -258,4 +235,3 @@ export function NotificationBell({ target }: { target: NotificationTarget }) {
     </div>
   );
 }
-

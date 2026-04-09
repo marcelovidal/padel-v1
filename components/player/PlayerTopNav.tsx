@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Home, Trophy, Users, UserCircle, LogOut, Plus, Menu, X, CalendarDays, Star, GraduationCap } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useNotificationsContext } from "@/contexts/player-notifications.context";
+import type { NavSection } from "@/hooks/usePlayerNotifications";
 
 interface PlayerTopNavProps {
     displayName: string;
@@ -15,20 +17,44 @@ interface PlayerTopNavProps {
     isCoach?: boolean;
 }
 
-const BASE_NAV_ITEMS = [
-    { href: "/player", label: "Resumen", icon: Home },
-    { href: "/player/matches", label: "Partidos", icon: Trophy },
-    { href: "/player/events", label: "Eventos", icon: Star },
-    { href: "/player/bookings", label: "Reservas", icon: CalendarDays },
-    { href: "/player/players", label: "Jugadores", icon: Users },
-    { href: "/player/profile", label: "Perfil", icon: UserCircle },
+interface NavItem {
+    href: string;
+    label: string;
+    icon: React.ElementType;
+    section?: NavSection;
+}
+
+const BASE_NAV_ITEMS: NavItem[] = [
+    { href: "/player",          label: "Resumen",  icon: Home },
+    { href: "/player/matches",  label: "Partidos", icon: Trophy,      section: "partidos" },
+    { href: "/player/events",   label: "Eventos",  icon: Star,        section: "eventos" },
+    { href: "/player/bookings", label: "Reservas", icon: CalendarDays, section: "reservas" },
+    { href: "/player/players",  label: "Jugadores", icon: Users },
+    { href: "/player/profile",  label: "Perfil",   icon: UserCircle },
 ];
 
-const COACH_NAV_ITEM = { href: "/player/coach", label: "Mi equipo", icon: GraduationCap };
+const COACH_NAV_ITEM: NavItem = {
+    href: "/player/coach",
+    label: "Mi equipo",
+    icon: GraduationCap,
+    section: "coach",
+};
+
+function NavBadge({ count }: { count: number }) {
+    if (count <= 0) return null;
+    return (
+        <span className="ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black leading-none text-white">
+            {count > 9 ? "9+" : count}
+        </span>
+    );
+}
 
 export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, isCoach }: PlayerTopNavProps) {
     const [open, setOpen] = useState(false);
     const navItems = isCoach ? [...BASE_NAV_ITEMS, COACH_NAV_ITEM] : BASE_NAV_ITEMS;
+
+    const { items, loading, sectionCounts, totalUnread, refresh, markRead, markAllRead } =
+        useNotificationsContext();
 
     return (
         <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
@@ -40,6 +66,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
                     <nav className="hidden lg:flex gap-2">
                         {navItems.map((item) => {
                             const Icon = item.icon;
+                            const badge = item.section ? sectionCounts[item.section] : 0;
                             return (
                                 <Link
                                     key={item.href}
@@ -48,6 +75,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
                                 >
                                     <Icon className="w-4 h-4" />
                                     {item.label}
+                                    <NavBadge count={badge} />
                                 </Link>
                             );
                         })}
@@ -55,7 +83,14 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <NotificationBell target="player" />
+                    <NotificationBell
+                        items={items}
+                        totalUnread={totalUnread}
+                        loading={loading}
+                        onMarkRead={markRead}
+                        onMarkAllRead={markAllRead}
+                        onRefresh={refresh}
+                    />
                     <div className="hidden md:flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
                         <UserAvatar src={avatarSrc || null} initials={avatarInitials} size="xs" />
                         <div className="min-w-0 max-w-[180px]">
@@ -94,6 +129,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {navItems.map((item) => {
                                 const Icon = item.icon;
+                                const badge = item.section ? sectionCounts[item.section] : 0;
                                 return (
                                     <Link
                                         key={item.href}
@@ -103,6 +139,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
                                     >
                                         <Icon className="w-4 h-4" />
                                         {item.label}
+                                        <NavBadge count={badge} />
                                     </Link>
                                 );
                             })}

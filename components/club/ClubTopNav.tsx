@@ -16,7 +16,6 @@ import {
   X,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface ClubTopNavProps {
   clubName: string;
@@ -71,7 +70,6 @@ export function ClubTopNav({ clubName, email, avatarSrc }: ClubTopNavProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <NotificationBell target="club" />
           <button
             onClick={() => setOpen((prev) => !prev)}
             className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
