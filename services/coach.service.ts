@@ -164,6 +164,15 @@ export class CoachService {
     return this.repo.cancelBooking(bookingId);
   }
 
+  async requestBooking(params: {
+    coachId: string;
+    scheduledAt: string;
+    durationMinutes: number;
+    notesPlayer?: string | null;
+  }): Promise<string> {
+    return this.repo.requestBooking(params);
+  }
+
   async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {
     return this.repo.getCoachPlayersStatus(coachId);
   }

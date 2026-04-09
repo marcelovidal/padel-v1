@@ -145,12 +145,12 @@ export default async function CoachPublicPage({
         {/* CTA */}
         <div className="rounded-[28px] border border-blue-100 bg-blue-50 p-6 text-center space-y-3">
           <p className="font-bold text-blue-900">¿Querés reservar una clase?</p>
-          <p className="text-sm text-blue-700">Iniciá sesión en PASALA para reservar.</p>
+          <p className="text-sm text-blue-700">Iniciá sesión en PASALA para solicitar una clase.</p>
           <a
-            href="/player"
+            href={`/player/entrenadores/${params.coachId}`}
             className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98]"
           >
-            Reservar clase
+            Solicitar clase
           </a>
         </div>
       </main>

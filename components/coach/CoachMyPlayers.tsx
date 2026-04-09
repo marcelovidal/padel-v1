@@ -4,16 +4,11 @@ import Link from "next/link";
 import { TrendingUp, TrendingDown, Minus, Flame, Clock, Activity } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Badge } from "@/components/ui/Badge";
-import { CoachPlayerSearch } from "./CoachPlayerSearch";
 import type { CoachProfile, CoachStudentRow } from "@/repositories/coach.repository";
 
 interface Props {
   students: CoachStudentRow[];
   coachProfile: CoachProfile | null;
-  directoryPlayers: any[];
-  coachPlayerStatuses: { player_id: string; status: string }[];
-  myPlayerId: string;
-  initialQuery: string;
 }
 
 function StateBadge({ state }: { state: CoachStudentRow["player_state"] }) {
@@ -33,18 +28,10 @@ function StateBadge({ state }: { state: CoachStudentRow["player_state"] }) {
   );
 }
 
-export function CoachMyPlayers({
-  students,
-  coachProfile,
-  directoryPlayers,
-  coachPlayerStatuses,
-  myPlayerId,
-  initialQuery,
-}: Props) {
+export function CoachMyPlayers({ students, coachProfile }: Props) {
   return (
     <div className="space-y-8">
-      {/* ── Bloque 1: Alumnos actuales ──────────────────────── */}
-      {students.length > 0 && (
+      {students.length > 0 ? (
         <div className="space-y-3">
           <h2 className="text-sm font-black uppercase tracking-wide text-gray-500">Mis alumnos</h2>
           <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
@@ -115,16 +102,23 @@ export function CoachMyPlayers({
             </div>
           </div>
         </div>
+      ) : (
+        <div className="rounded-3xl border border-dashed border-gray-200 bg-white p-12 text-center space-y-3">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-50">
+            <Activity className="h-8 w-8 text-gray-300" />
+          </div>
+          <div>
+            <p className="font-bold text-gray-900">Sin alumnos activos</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Invitá jugadores desde el{" "}
+              <Link href="/player/players" className="text-blue-600 underline font-semibold">
+                directorio
+              </Link>{" "}
+              para sumarlos como alumnos.
+            </p>
+          </div>
+        </div>
       )}
-
-      {/* ── Bloque 2: Buscador de jugadores ─────────────────── */}
-      <CoachPlayerSearch
-        players={directoryPlayers}
-        coachPlayerStatuses={coachPlayerStatuses}
-        coachProfile={coachProfile}
-        myPlayerId={myPlayerId}
-        initialQuery={initialQuery}
-      />
     </div>
   );
 }

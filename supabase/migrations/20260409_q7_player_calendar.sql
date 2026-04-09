@@ -160,6 +160,7 @@ BEGIN
       'coach_name',         p_coach.display_name,
       'coach_pasala_index', p_coach.pasala_index,
       'duration_minutes',   cb.duration_minutes,
+      'tarifa_por_hora',    CASE WHEN cp.tarifa_publica THEN cp.tarifa_por_hora ELSE NULL END,
       'link',               '/player/coach'
     )                                                                  AS metadata
   FROM public.coach_bookings cb

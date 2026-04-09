@@ -438,6 +438,23 @@ export class CoachRepository {
     if (error) throw error;
   }
 
+  async requestBooking(params: {
+    coachId: string;
+    scheduledAt: string;
+    durationMinutes: number;
+    notesPlayer?: string | null;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_request_coach_booking", {
+      p_coach_id:         params.coachId,
+      p_scheduled_at:     params.scheduledAt,
+      p_duration_minutes: params.durationMinutes,
+      p_notes_player:     params.notesPlayer ?? null,
+    });
+    if (error) throw error;
+    return data as string;
+  }
+
   async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)

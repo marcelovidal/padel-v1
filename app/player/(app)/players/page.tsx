@@ -1,30 +1,9 @@
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/Badge";
-import { UserAvatar } from "@/components/ui/UserAvatar";
 import { requirePlayer } from "@/lib/auth";
 import { PlayerService } from "@/services/player.service";
+import { CoachService } from "@/services/coach.service";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
-import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
-
-type DirectoryRow = {
-  id: string;
-  display_name: string;
-  city: string | null;
-  city_id: string | null;
-  region_code: string | null;
-  region_name: string | null;
-  category: number | null;
-  user_id: string | null;
-  pasala_index: number | null;
-  level: "ROOKIE" | "AMATEUR" | "COMPETITIVO" | "PRO" | "ELITE";
-  win_rate: number;
-  played: number;
-  current_streak: string;
-  activity_level: "muy_activo" | "activo" | "ocasional" | "inactivo" | "nuevo";
-  is_same_city: boolean;
-  avatarData?: { src: string | null; initials: string };
-};
+import { PlayersDirectoryTable, type DirectoryRow } from "@/components/player/PlayersDirectoryTable";
 
 function categoryLabel(value?: number | null) {
   if (!value) return "-";
@@ -79,7 +58,12 @@ export default async function PlayersPage({
   const sortBy = searchParams.sort || "pasala_desc";
 
   const playerService = new PlayerService();
-  const players = (await playerService.getPlayersDirectory(query, mePlayer.city_id || null)) as DirectoryRow[];
+  const isCoach = (mePlayer as any).is_coach === true;
+
+  const [players, coachProfile] = await Promise.all([
+    playerService.getPlayersDirectory(query, mePlayer.city_id || null) as Promise<DirectoryRow[]>,
+    isCoach ? new CoachService().getProfileByPlayerId(mePlayer.id).catch(() => null) : Promise.resolve(null),
+  ]);
 
   const list = await Promise.all(
     players.map(async (p) => {
@@ -186,101 +170,7 @@ export default async function PlayersPage({
         </form>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] table-fixed">
-          <thead className="border-b border-gray-200 bg-gray-50">
-            <tr className="text-left">
-              <th className="w-[19%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Jugador</th>
-              <th className="w-[13%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Ubicacion</th>
-              <th className="w-[8%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Categoria</th>
-              <th className="w-[15%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Indice PASALA</th>
-              <th className="w-[10%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Nivel</th>
-              <th className="w-[7%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">WR</th>
-              <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">PJ</th>
-              <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Racha</th>
-              <th className="w-[9%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Actividad</th>
-              <th className="w-[7%] px-3 py-2 text-right text-[11px] font-black uppercase tracking-wide text-gray-500">Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length > 0 ? (
-              filtered.map((p) => {
-                const activity = activityMeta(p.activity_level);
-                const pasala = pasalaProgress(p.pasala_index);
-                return (
-                  <tr key={p.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/70">
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-2.5">
-                        <UserAvatar src={p.avatarData?.src || null} initials={p.avatarData?.initials || p.display_name?.slice(0, 2)} size="sm" />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-gray-900">{p.display_name}</p>
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            {p.id === meId && <Badge className="bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white">Tu perfil</Badge>}
-                            {p.is_same_city && (
-                              <Badge className="border border-indigo-100 bg-indigo-50/50 text-[8px] font-medium lowercase tracking-normal text-indigo-500">
-                                tu ciudad
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 text-sm text-gray-700">
-                      <span className="line-clamp-2">{formatCityWithProvinceAbbr(p.city, p.region_code, p.region_name)}</span>
-                    </td>
-                    <td className="px-3 py-2">
-                      <Badge className="border border-gray-200 bg-gray-100 text-gray-700">Cat. {categoryLabel(p.category)}</Badge>
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="w-full max-w-[150px]">
-                        <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-gray-700">
-                          <span>{p.pasala_index == null ? "-" : p.pasala_index.toFixed(1)}</span>
-                          <span>/100</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                          <div className="h-full rounded-full bg-blue-600" style={{ width: `${pasala}%` }} />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2">
-                      <Badge className={levelClass(p.level)}>{levelLabel(p.level)}</Badge>
-                    </td>
-                    <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.win_rate.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.played}</td>
-                    <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.current_streak || "-"}</td>
-                    <td className="px-3 py-2">
-                      <Badge className={activity.className}>{activity.label}</Badge>
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      <Link href={`/p/${p.id}`} className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:border-gray-300">
-                        Ver perfil
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={10} className="px-6 py-20 text-center">
-                  <div className="space-y-3">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-50">
-                      <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900">No se encontraron jugadores</p>
-                      <p className="text-sm text-gray-500">Proba con otro filtro o termino de busqueda</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        </div>
-      </div>
+      <PlayersDirectoryTable players={filtered} meId={meId} coachProfile={coachProfile} />
     </div>
   );
 }

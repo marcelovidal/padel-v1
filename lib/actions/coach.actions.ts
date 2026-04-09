@@ -283,6 +283,24 @@ export async function coachCancelBookingAction(bookingId: string) {
   }
 }
 
+// ── Player request booking ────────────────────────────────────
+
+export async function playerRequestCoachBookingAction(params: {
+  coachId: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  notesPlayer?: string | null;
+}) {
+  const service = new CoachService();
+  try {
+    const id = await service.requestBooking(params);
+    revalidatePath("/player/calendario");
+    return { id };
+  } catch (e: any) {
+    return { error: e.message ?? "Error al solicitar la clase" };
+  }
+}
+
 // ── Add session ───────────────────────────────────────────────
 
 export async function addTrainingSessionAction(params: {

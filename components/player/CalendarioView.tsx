@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { ChevronLeft, ChevronRight, CalendarDays, List, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { coachCancelBookingAction } from "@/lib/actions/coach.actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -109,6 +111,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
+  const [showDaySheet, setShowDaySheet] = useState(false);
 
   // Date range for the current view
   const { dateFrom, dateTo } = useMemo(() => {
@@ -146,6 +149,18 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   useEffect(() => {
     void fetchEvents();
   }, [fetchEvents]);
+
+  function handleDayClick(day: Date) {
+    setSelectedDay(day);
+    const dayEvts = events
+      .filter(e => isSameDay(new Date(e.start_at), day))
+      .sort((a, b) => a.start_at.localeCompare(b.start_at));
+    if (dayEvts.length === 1) {
+      setSelectedEvent(dayEvts[0]);
+    } else if (dayEvts.length > 1) {
+      setShowDaySheet(true);
+    }
+  }
 
   function toggleView(v: "monthly" | "weekly") {
     setView(v);
@@ -328,7 +343,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                 return (
                   <button
                     key={key}
-                    onClick={() => setSelectedDay(day)}
+                    onClick={() => handleDayClick(day)}
                     className={`h-14 sm:h-16 border-b border-r border-gray-100 p-1 text-left transition-colors hover:bg-blue-50/40 ${
                       isSelected ? "bg-blue-50" : ""
                     }`}
@@ -381,24 +396,22 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                     key={i}
                     className={`border-b border-gray-100 last:border-b-0 ${isSelected ? "bg-blue-50/30" : ""}`}
                   >
-                    <button
-                      onClick={() => setSelectedDay(day)}
-                      className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-blue-50/30 transition-colors"
-                    >
-                      <div
-                        className={`flex-shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center ${
+                    <div className="flex items-start gap-3 px-4 py-3">
+                      <button
+                        onClick={() => handleDayClick(day)}
+                        className={`flex-shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-colors ${
                           isToday
                             ? "bg-blue-600 text-white"
                             : isSelected
                             ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
                         <span className="text-xs font-black leading-tight">{day.getDate()}</span>
                         <span className="text-[9px] font-semibold uppercase leading-tight">
                           {WEEKDAYS[day.getDay()]}
                         </span>
-                      </div>
+                      </button>
 
                       {dayEvts.length === 0 ? (
                         <span className="pt-2.5 text-sm text-gray-400">Sin actividad</span>
@@ -407,20 +420,21 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                           {dayEvts.map(e => {
                             const cfg = EVENT_CONFIG[e.type];
                             return (
-                              <span
+                              <button
                                 key={e.id}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.badge}`}
+                                onClick={() => setSelectedEvent(e)}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
                               >
                                 <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
                                 <span className="truncate max-w-[120px]">
                                   {e.title.length > 22 ? e.title.slice(0, 22) + "…" : e.title}
                                 </span>
-                              </span>
+                              </button>
                             );
                           })}
                         </div>
                       )}
-                    </button>
+                    </div>
                   </div>
                 );
               })}
@@ -429,61 +443,15 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
         </div>
       )}
 
-      {/* ── Selected day detail panel ── */}
-      <div className="mt-4 bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-          <p className="text-sm font-bold text-gray-900">
-            {WEEKDAYS[selectedDay.getDay()]}{" "}
-            {selectedDay.getDate()} de {MONTHS_ES[selectedDay.getMonth()]}
-          </p>
-          <span className="text-xs text-gray-500">
-            {dayEvents.length} evento{dayEvents.length !== 1 ? "s" : ""}
-          </span>
-        </div>
-
-        {loading ? (
-          <div className="px-4 py-6 text-sm text-gray-400">Cargando...</div>
-        ) : dayEvents.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">Sin actividad este día.</div>
-        ) : (
-          <ul className="divide-y divide-gray-100">
-            {dayEvents.map(e => {
-              const cfg = EVENT_CONFIG[e.type];
-              const allDay = isAllDay(e.start_at);
-              return (
-                <li key={e.id}>
-                  <button
-                    onClick={() => setSelectedEvent(e)}
-                    className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
-                          {!allDay && (
-                            <span className="text-xs text-gray-400 flex-shrink-0">
-                              {formatTime(e.start_at)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
-                            {cfg.label}
-                          </span>
-                          {e.club_name && (
-                            <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+      {/* ── Day events sheet (multiple events) ── */}
+      {showDaySheet && (
+        <DayEventsSheet
+          day={selectedDay}
+          events={dayEvents}
+          onSelectEvent={(e) => { setShowDaySheet(false); setSelectedEvent(e); }}
+          onClose={() => setShowDaySheet(false)}
+        />
+      )}
 
       {/* ── Event detail modal ── */}
       {selectedEvent && (
@@ -493,13 +461,103 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   );
 }
 
+// ── Day events sheet ──────────────────────────────────────────────────────────
+
+function DayEventsSheet({
+  day,
+  events,
+  onSelectEvent,
+  onClose,
+}: {
+  day: Date;
+  events: CalEvent[];
+  onSelectEvent: (e: CalEvent) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+          <p className="text-sm font-bold text-gray-900">
+            {WEEKDAYS[day.getDay()]} {day.getDate()} de {MONTHS_ES[day.getMonth()]}
+          </p>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <ul className="divide-y divide-gray-100">
+          {events.map(e => {
+            const cfg = EVENT_CONFIG[e.type];
+            const allDay = isAllDay(e.start_at);
+            return (
+              <li key={e.id}>
+                <button
+                  onClick={() => onSelectEvent(e)}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                          {cfg.label}
+                        </span>
+                        {e.club_name && (
+                          <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
+                        )}
+                      </div>
+                    </div>
+                    {!allDay && (
+                      <span className="text-xs text-gray-400 flex-shrink-0">{formatTime(e.start_at)}</span>
+                    )}
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 // ── Event detail modal ────────────────────────────────────────────────────────
 
 function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => void }) {
   const cfg = EVENT_CONFIG[event.type];
   const meta = event.metadata;
-  const link = typeof meta?.link === "string" ? meta.link : null;
+  // Training events don't use a link CTA — they have their own cancel button
+  const link = event.type !== "training" && typeof meta?.link === "string" ? meta.link : null;
   const allDay = isAllDay(event.start_at);
+  const router = useRouter();
+  const [isCancelling, startCancel] = useTransition();
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const isFuture = new Date(event.start_at) > new Date();
+  const isTraining = event.type === "training";
+  const showPending = isTraining && event.status === "pending";
+  const showCancel = isTraining && event.status === "confirmed" && isFuture;
+
+  function handleCancel() {
+    setCancelError(null);
+    startCancel(async () => {
+      const result = await coachCancelBookingAction(event.id);
+      if (result?.error) {
+        setCancelError(result.error);
+      } else {
+        onClose();
+        router.refresh();
+      }
+    });
+  }
 
   return (
     <div
@@ -568,8 +626,8 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
               👤 Entrenador:{" "}
               <span className="font-semibold">{meta.coach_name as string}</span>
               {typeof meta.coach_pasala_index === "number" && (
-                <span className="ml-1 text-xs text-gray-400">
-                  PASALA {(meta.coach_pasala_index as number).toFixed(1)}
+                <span className="text-xs text-gray-400">
+                  {" · "}PASALA {(meta.coach_pasala_index as number).toFixed(1)}
                 </span>
               )}
             </p>
@@ -582,22 +640,54 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
             </p>
           )}
 
+          {/* Tarifa (solo si pública) */}
+          {typeof meta?.tarifa_por_hora === "number" && (
+            <p className="text-sm text-gray-600">
+              💲 ${(meta.tarifa_por_hora as number).toLocaleString("es-AR")} / hora
+            </p>
+          )}
+
           {/* Notes */}
           {typeof meta?.notes === "string" && meta.notes && (
             <p className="text-sm text-gray-500 italic">"{meta.notes as string}"</p>
           )}
+
+          {/* Training: pending message */}
+          {showPending && (
+            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              Esperando confirmación del entrenador
+            </p>
+          )}
+
+          {/* Cancel error */}
+          {cancelError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+              {cancelError}
+            </p>
+          )}
         </div>
 
         {/* CTA */}
-        {link && (
-          <div className="px-4 pb-4">
-            <Link
-              href={link}
-              onClick={onClose}
-              className="block w-full text-center px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
-            >
-              {typeof meta?.cta_label === "string" ? (meta.cta_label as string) : "Ver detalle"}
-            </Link>
+        {(link || showCancel) && (
+          <div className="px-4 pb-4 flex flex-col gap-2">
+            {link && (
+              <Link
+                href={link}
+                onClick={onClose}
+                className="block w-full text-center px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+              >
+                {typeof meta?.cta_label === "string" ? (meta.cta_label as string) : "Ver detalle"}
+              </Link>
+            )}
+            {showCancel && (
+              <button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                className="w-full px-4 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isCancelling ? "Cancelando..." : "Cancelar clase"}
+              </button>
+            )}
           </div>
         )}
       </div>

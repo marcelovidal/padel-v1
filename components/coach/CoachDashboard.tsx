@@ -25,9 +25,9 @@ interface Props {
 }
 
 const TABS = [
-  { key: "jugadores", label: "Mis jugadores", icon: Users },
-  { key: "agenda",    label: "Agenda",        icon: CalendarDays },
-  { key: "desafios",  label: "Desafíos",      icon: Target },
+  { key: "alumnos",  label: "Alumnos",  icon: Users },
+  { key: "agenda",   label: "Agenda",   icon: CalendarDays },
+  { key: "desafios", label: "Desafíos", icon: Target },
 ];
 
 export function CoachDashboard({
@@ -101,14 +101,10 @@ export function CoachDashboard({
           sessions={sessions}
           challenges={challenges}
         />
-      ) : activeTab === "jugadores" ? (
+      ) : activeTab === "alumnos" ? (
         <CoachMyPlayers
           students={students}
           coachProfile={coachProfile}
-          directoryPlayers={directoryPlayers}
-          coachPlayerStatuses={coachPlayerStatuses}
-          myPlayerId={myPlayerId}
-          initialQuery={initialQuery}
         />
       ) : activeTab === "agenda" ? (
         <CoachAgenda bookings={bookings} coachProfile={coachProfile} students={students} />

@@ -55,7 +55,7 @@ BEGIN
   )
   VALUES (
     v_coach_id, p_player_id, p_club_id, p_court_id,
-    p_scheduled_at, p_duration_minutes, 'pending', p_notes_coach
+    p_scheduled_at, p_duration_minutes, 'confirmed', p_notes_coach
   )
   RETURNING id INTO v_booking_id;
 
@@ -64,7 +64,7 @@ BEGIN
     INSERT INTO public.notifications (user_id, type, entity_id, payload, priority, dedupe_key)
     VALUES (
       v_player_uid,
-      'coach_booking_request',
+      'coach_booking_confirmed',
       v_booking_id,
       jsonb_build_object(
         'schema_version', 1,
@@ -77,8 +77,8 @@ BEGIN
         'booking_id', v_booking_id,
         'coach_name', v_coach_name
       ),
-      1,
-      'coach_booking_request:' || v_booking_id::text
+      2,
+      'coach_booking_confirmed:' || v_booking_id::text
     )
     ON CONFLICT DO NOTHING;
   END IF;

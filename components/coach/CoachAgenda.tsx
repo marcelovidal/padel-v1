@@ -1,16 +1,25 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarX, Plus, Check, X, Clock, User } from "lucide-react";
+import { CalendarX, Plus, Check, X, Clock, User, Search } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { createBrowserSupabase } from "@/lib/supabase/client";
 import type { CoachProfile, CoachStudentRow, CoachBookingEnriched } from "@/repositories/coach.repository";
 import {
   coachCreateBookingAction,
   coachConfirmBookingAction,
   coachRejectBookingAction,
 } from "@/lib/actions/coach.actions";
+
+type PlayerOption = {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  pasala_index: number | null;
+  is_student?: boolean;
+};
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -293,7 +302,64 @@ function NewSessionModal({
   onSuccess: () => void;
 }) {
   const today = new Date().toISOString().slice(0, 10);
+
+  // Player selection + search
+  const studentOptions: PlayerOption[] = students.map((s) => ({
+    id: s.id,
+    display_name: s.display_name,
+    avatar_url: s.avatar_url,
+    pasala_index: s.pasala_index,
+    is_student: true,
+  }));
   const [playerId, setPlayerId] = useState(students[0]?.id ?? "");
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerOption | null>(studentOptions[0] ?? null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<PlayerOption[]>([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) {
+      setSearchResults([]);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      const supabase = createBrowserSupabase();
+      const { data } = await (supabase as any).rpc("player_search_players", {
+        p_query: q,
+        p_limit: 10,
+      });
+      const studentIds = new Set(students.map((s) => s.id));
+      const results: PlayerOption[] = ((data as any[]) ?? [])
+        .filter((p: any) => !studentIds.has(p.id))
+        .map((p: any) => ({
+          id: p.id,
+          display_name: p.display_name,
+          avatar_url: p.avatar_url ?? null,
+          pasala_index: p.pasala_index ?? null,
+        }));
+      setSearchResults(results);
+      setSearching(false);
+    }, 300);
+  }, [searchQuery, students]);
+
+  const visibleOptions: PlayerOption[] =
+    searchQuery.trim()
+      ? [...studentOptions.filter((s) =>
+          s.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+        ), ...searchResults]
+      : studentOptions;
+
+  function selectPlayer(p: PlayerOption) {
+    setPlayerId(p.id);
+    setSelectedPlayer(p);
+    setSearchQuery("");
+    setSearchResults([]);
+  }
+
   const [date, setDate] = useState(today);
   const [time, setTime] = useState("10:00");
   const [duration, setDuration] = useState<30 | 45 | 60>(60);
@@ -353,50 +419,67 @@ function NewSessionModal({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-1">
               <User className="h-3 w-3" />
-              Alumno
+              Jugador
             </label>
-            {students.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">
-                No tenés alumnos activos. Invitá a un jugador primero.
-              </p>
-            ) : (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                {students.map((s) => (
-                  <label
-                    key={s.id}
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                      playerId === s.id
-                        ? "border-blue-300 bg-blue-50"
-                        : "border-gray-200 hover:bg-gray-50"
-                    }`}
+
+            {/* Selected player chip */}
+            {selectedPlayer && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-200">
+                <UserAvatar src={selectedPlayer.avatar_url} initials={selectedPlayer.display_name.slice(0, 2)} size="xs" />
+                <span className="text-sm font-semibold text-blue-900 flex-1 truncate">{selectedPlayer.display_name}</span>
+                {selectedPlayer.is_student && (
+                  <span className="text-[10px] text-blue-500 font-bold uppercase">Alumno</span>
+                )}
+                <button type="button" onClick={() => { setSelectedPlayer(null); setPlayerId(""); }} className="text-blue-400 hover:text-blue-600">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Search input */}
+            {!selectedPlayer && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={students.length > 0 ? "Alumnos o buscar jugador..." : "Buscar jugador..."}
+                  className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+            )}
+
+            {/* Options list */}
+            {!selectedPlayer && (
+              <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
+                {searching && (
+                  <p className="text-xs text-gray-400 px-1 py-2">Buscando...</p>
+                )}
+                {!searching && visibleOptions.length === 0 && searchQuery.trim() && (
+                  <p className="text-xs text-gray-400 px-1 py-2">Sin resultados</p>
+                )}
+                {!searching && visibleOptions.length === 0 && !searchQuery.trim() && (
+                  <p className="text-xs text-gray-400 px-1 py-2 italic">Escribí para buscar jugadores</p>
+                )}
+                {visibleOptions.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => selectPlayer(p)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-left transition-colors"
                   >
-                    <input
-                      type="radio"
-                      name="player"
-                      value={s.id}
-                      checked={playerId === s.id}
-                      onChange={() => setPlayerId(s.id)}
-                      className="sr-only"
-                    />
-                    <UserAvatar
-                      src={s.avatar_url}
-                      initials={s.display_name.slice(0, 2)}
-                      size="xs"
-                    />
+                    <UserAvatar src={p.avatar_url} initials={p.display_name.slice(0, 2)} size="xs" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {s.display_name}
-                      </p>
-                      {s.pasala_index != null && (
-                        <p className="text-[11px] text-gray-400">
-                          PASALA {s.pasala_index.toFixed(1)}
-                        </p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">{p.display_name}</p>
+                      {p.pasala_index != null && (
+                        <p className="text-[11px] text-gray-400">PASALA {p.pasala_index.toFixed(1)}</p>
                       )}
                     </div>
-                    {playerId === s.id && (
-                      <Check className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    {p.is_student && (
+                      <span className="text-[10px] text-emerald-600 font-bold uppercase flex-shrink-0">Alumno</span>
                     )}
-                  </label>
+                  </button>
                 ))}
               </div>
             )}
@@ -462,7 +545,10 @@ function NewSessionModal({
 
           {!coachProfile.primary_club_id && (
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-              Necesitás configurar tu club principal antes de agendar sesiones.
+              Necesitás configurar tu club principal antes de agendar sesiones.{" "}
+              <a href="/player/coach?tab=perfil" className="underline font-bold">
+                Configurar perfil
+              </a>
             </p>
           )}
 
@@ -483,7 +569,7 @@ function NewSessionModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!canSubmit || isPending || students.length === 0}
+            disabled={!canSubmit || isPending}
             className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-colors"
           >
             {isPending ? "Agendando..." : "Agendar sesión"}
