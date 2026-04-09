@@ -66,7 +66,7 @@ export default async function CoachPage({
       challenges = await coachService.getChallenges(coachProfile.id).catch(() => []);
     }
     if (activeTab === "agenda") {
-      bookings = await coachService.getBookings(coachProfile.id).catch(() => []);
+      bookings = await coachService.getBookingsEnriched(coachProfile.id).catch(() => []);
     }
     if (activeTab === "legajo" && selectedPlayerId) {
       [notes, sessions, challenges] = await Promise.all([

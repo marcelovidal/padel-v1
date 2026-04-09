@@ -4,29 +4,36 @@ import { useCallback, useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import type { NotificationItem, NotificationType } from "@/lib/actions/notification.actions";
 
-export type NavSection = "partidos" | "reservas" | "coach" | "eventos";
+export type NavSection = "partidos" | "calendario" | "coach" | "eventos";
 export type SectionCounts = Record<NavSection, number>;
 
 const SECTION_MAP: Partial<Record<NotificationType, NavSection>> = {
+  // partidos
   player_match_result_ready:          "partidos",
-  coach_invitation:                   "coach",
-  coach_invitation_accepted:          "coach",
-  coach_challenge_assigned:           "coach",
-  coach_booking_request:              "coach",
-  coach_booking_confirmed:            "coach",
+  club_match_created:                 "partidos",
+  // eventos
   tournament_open_for_registration:   "eventos",
   league_open_for_registration:       "eventos",
-  tournament_registration_confirmed:  "eventos",
-  league_registration_confirmed:      "eventos",
   tournament_registration_requested:  "eventos",
   league_registration_requested:      "eventos",
+  tournament_registration_confirmed:  "eventos",
+  league_registration_confirmed:      "eventos",
+  // calendario (reservas y entrenamientos agendados)
+  booking_confirmed:                  "calendario",
+  booking_cancelled:                  "calendario",
+  booking_requested:                  "calendario",
+  coach_booking_request:              "calendario",
+  coach_booking_confirmed:            "calendario",
+  coach_booking_cancelled:            "calendario",
+  training_session_scheduled:         "calendario",
+  // campana: coach_invitation, coach_invitation_accepted, coach_challenge_assigned → sin sección
 };
 
 const EMPTY_COUNTS: SectionCounts = {
-  partidos: 0,
-  reservas: 0,
-  coach:    0,
-  eventos:  0,
+  partidos:   0,
+  calendario: 0,
+  coach:      0,
+  eventos:    0,
 };
 
 export function usePlayerNotifications() {

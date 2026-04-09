@@ -7,7 +7,7 @@ import { CoachMyPlayers } from "./CoachMyPlayers";
 import { CoachAgenda } from "./CoachAgenda";
 import { CoachChallenges } from "./CoachChallenges";
 import { CoachLegajo } from "./CoachLegajo";
-import type { CoachProfile, CoachStudentRow, CoachNote, CoachChallenge, TrainingSession, CoachBooking } from "@/repositories/coach.repository";
+import type { CoachProfile, CoachStudentRow, CoachNote, CoachChallenge, TrainingSession, CoachBookingEnriched } from "@/repositories/coach.repository";
 
 interface Props {
   coachProfile: CoachProfile | null;
@@ -15,7 +15,7 @@ interface Props {
   activeTab: string;
   selectedPlayerId: string | null;
   challenges: CoachChallenge[];
-  bookings: CoachBooking[];
+  bookings: CoachBookingEnriched[];
   notes: CoachNote[];
   sessions: TrainingSession[];
   directoryPlayers: any[];
@@ -111,7 +111,7 @@ export function CoachDashboard({
           initialQuery={initialQuery}
         />
       ) : activeTab === "agenda" ? (
-        <CoachAgenda bookings={bookings} coachProfile={coachProfile} />
+        <CoachAgenda bookings={bookings} coachProfile={coachProfile} students={students} />
       ) : activeTab === "desafios" ? (
         <CoachChallenges
           challenges={challenges}

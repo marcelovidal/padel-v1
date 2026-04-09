@@ -229,6 +229,60 @@ export async function updateChallengeStatusAction(
   }
 }
 
+// ── Coach booking flow ────────────────────────────────────────
+
+export async function coachCreateBookingAction(params: {
+  playerId: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  clubId: string;
+  courtId?: string | null;
+  notesCoach?: string | null;
+}) {
+  const service = new CoachService();
+  try {
+    const id = await service.createBooking(params);
+    revalidatePath("/player/coach");
+    return { id };
+  } catch (e: any) {
+    return { error: e.message ?? "Error al crear la reserva" };
+  }
+}
+
+export async function coachConfirmBookingAction(bookingId: string) {
+  const service = new CoachService();
+  try {
+    await service.confirmBooking(bookingId);
+    revalidatePath("/player/coach");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message ?? "Error al confirmar la reserva" };
+  }
+}
+
+export async function coachRejectBookingAction(bookingId: string, reason?: string) {
+  const service = new CoachService();
+  try {
+    await service.rejectBooking(bookingId, reason);
+    revalidatePath("/player/coach");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message ?? "Error al rechazar la reserva" };
+  }
+}
+
+export async function coachCancelBookingAction(bookingId: string) {
+  const service = new CoachService();
+  try {
+    await service.cancelBooking(bookingId);
+    revalidatePath("/player/coach");
+    revalidatePath("/player/calendario");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message ?? "Error al cancelar la reserva" };
+  }
+}
+
 // ── Add session ───────────────────────────────────────────────
 
 export async function addTrainingSessionAction(params: {

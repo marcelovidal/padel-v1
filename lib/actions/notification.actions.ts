@@ -18,7 +18,12 @@ export type NotificationType =
   | "coach_invitation_accepted"
   | "coach_challenge_assigned"
   | "coach_booking_request"
-  | "coach_booking_confirmed";
+  | "coach_booking_confirmed"
+  | "booking_confirmed"
+  | "booking_cancelled"
+  | "booking_requested"
+  | "training_session_scheduled"
+  | "coach_booking_cancelled";
 
 export interface NotificationItem {
   id: string;

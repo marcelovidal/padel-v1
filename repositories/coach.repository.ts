@@ -126,6 +126,12 @@ export type CoachBooking = {
   created_at: string;
 };
 
+export type CoachBookingEnriched = CoachBooking & {
+  player: { display_name: string; avatar_url: string | null } | null;
+  club:   { name: string } | null;
+  court:  { name: string } | null;
+};
+
 export class CoachRepository {
   private async getClient() {
     return await createClient();
@@ -368,6 +374,68 @@ export class CoachRepository {
       .order("scheduled_at", { ascending: true });
     if (error) throw error;
     return (data as CoachBooking[]) ?? [];
+  }
+
+  async getBookingsEnriched(coachId: string): Promise<CoachBookingEnriched[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any)
+      .from("coach_bookings")
+      .select(`
+        *,
+        player:players!player_id ( display_name, avatar_url ),
+        club:clubs!club_id ( name ),
+        court:club_courts!court_id ( name )
+      `)
+      .eq("coach_id", coachId)
+      .order("scheduled_at", { ascending: true });
+    if (error) throw error;
+    return (data as CoachBookingEnriched[]) ?? [];
+  }
+
+  async createBooking(params: {
+    playerId: string;
+    scheduledAt: string;
+    durationMinutes: number;
+    clubId: string;
+    courtId?: string | null;
+    notesCoach?: string | null;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("coach_create_booking", {
+      p_player_id:        params.playerId,
+      p_scheduled_at:     params.scheduledAt,
+      p_duration_minutes: params.durationMinutes,
+      p_club_id:          params.clubId,
+      p_court_id:         params.courtId ?? null,
+      p_notes_coach:      params.notesCoach ?? null,
+    });
+    if (error) throw error;
+    return data as string;
+  }
+
+  async confirmBooking(bookingId: string): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any).rpc("coach_confirm_booking", {
+      p_booking_id: bookingId,
+    });
+    if (error) throw error;
+  }
+
+  async rejectBooking(bookingId: string, reason?: string): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any).rpc("coach_reject_booking", {
+      p_booking_id: bookingId,
+      p_reason:     reason ?? null,
+    });
+    if (error) throw error;
+  }
+
+  async cancelBooking(bookingId: string): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any).rpc("coach_cancel_booking", {
+      p_booking_id: bookingId,
+    });
+    if (error) throw error;
   }
 
   async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {

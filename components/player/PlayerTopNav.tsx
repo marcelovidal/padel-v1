@@ -28,7 +28,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
     { href: "/player",          label: "Resumen",  icon: Home },
     { href: "/player/matches",  label: "Partidos", icon: Trophy,      section: "partidos" },
     { href: "/player/events",   label: "Eventos",  icon: Star,        section: "eventos" },
-    { href: "/player/bookings", label: "Reservas", icon: CalendarDays, section: "reservas" },
+    { href: "/player/calendario", label: "Calendario", icon: CalendarDays, section: "calendario" },
     { href: "/player/players",  label: "Jugadores", icon: Users },
     { href: "/player/profile",  label: "Perfil",   icon: UserCircle },
 ];

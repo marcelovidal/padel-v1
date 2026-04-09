@@ -7,6 +7,7 @@ import {
   type CoachNote,
   type CoachChallenge,
   type TrainingSession,
+  type CoachBookingEnriched,
 } from "@/repositories/coach.repository";
 
 export class CoachService {
@@ -134,6 +135,33 @@ export class CoachService {
 
   async getBookings(coachId: string) {
     return this.repo.getBookings(coachId);
+  }
+
+  async getBookingsEnriched(coachId: string): Promise<CoachBookingEnriched[]> {
+    return this.repo.getBookingsEnriched(coachId);
+  }
+
+  async createBooking(params: {
+    playerId: string;
+    scheduledAt: string;
+    durationMinutes: number;
+    clubId: string;
+    courtId?: string | null;
+    notesCoach?: string | null;
+  }): Promise<string> {
+    return this.repo.createBooking(params);
+  }
+
+  async confirmBooking(bookingId: string): Promise<void> {
+    return this.repo.confirmBooking(bookingId);
+  }
+
+  async rejectBooking(bookingId: string, reason?: string): Promise<void> {
+    return this.repo.rejectBooking(bookingId, reason);
+  }
+
+  async cancelBooking(bookingId: string): Promise<void> {
+    return this.repo.cancelBooking(bookingId);
   }
 
   async getCoachPlayersStatus(coachId: string): Promise<{ player_id: string; status: string }[]> {
