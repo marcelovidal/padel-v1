@@ -53,7 +53,7 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
     const [open, setOpen] = useState(false);
     const navItems = isCoach ? [...BASE_NAV_ITEMS, COACH_NAV_ITEM] : BASE_NAV_ITEMS;
 
-    const { items, loading, sectionCounts, totalUnread, refresh, markRead, markAllRead } =
+    const { bellItems, bellUnread, loading, sectionCounts, refresh, markRead, markAllRead } =
         useNotificationsContext();
 
     return (
@@ -84,8 +84,8 @@ export function PlayerTopNav({ displayName, email, avatarSrc, avatarInitials, is
 
                 <div className="flex items-center gap-3">
                     <NotificationBell
-                        items={items}
-                        totalUnread={totalUnread}
+                        items={bellItems}
+                        totalUnread={bellUnread}
                         loading={loading}
                         onMarkRead={markRead}
                         onMarkAllRead={markAllRead}

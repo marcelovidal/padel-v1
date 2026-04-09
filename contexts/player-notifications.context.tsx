@@ -9,6 +9,8 @@ import type { NotificationItem } from "@/lib/actions/notification.actions";
 
 interface NotificationsContextValue {
   items: NotificationItem[];
+  bellItems: NotificationItem[];
+  bellUnread: number;
   loading: boolean;
   sectionCounts: SectionCounts;
   totalUnread: number;

@@ -12,8 +12,8 @@ const SECTION_MAP: Partial<Record<NotificationType, NavSection>> = {
   coach_invitation:                   "coach",
   coach_invitation_accepted:          "coach",
   coach_challenge_assigned:           "coach",
-  coach_booking_request:              "reservas",
-  coach_booking_confirmed:            "reservas",
+  coach_booking_request:              "coach",
+  coach_booking_confirmed:            "coach",
   tournament_open_for_registration:   "eventos",
   league_open_for_registration:       "eventos",
   tournament_registration_confirmed:  "eventos",
@@ -37,7 +37,7 @@ export function usePlayerNotifications() {
     const supabase = createBrowserSupabase();
     const { data, error } = await (supabase as any).rpc("notification_list", {
       p_limit:  50,
-      p_target: "player",
+      p_target: "auto",
     });
     if (!error && Array.isArray(data)) {
       setItems(
@@ -71,6 +71,10 @@ export function usePlayerNotifications() {
 
   const totalUnread = Object.values(sectionCounts).reduce((a, b) => a + b, 0);
 
+  // Items sin sección propia en el nav → exclusivos de la campana
+  const bellItems = items.filter((i) => !(i.type in SECTION_MAP));
+  const bellUnread = bellItems.filter((i) => !i.read_at).length;
+
   async function markRead(id: string) {
     const supabase = createBrowserSupabase();
     await (supabase as any).rpc("notification_mark_read", {
@@ -84,12 +88,12 @@ export function usePlayerNotifications() {
   async function markAllRead() {
     const supabase = createBrowserSupabase();
     await (supabase as any).rpc("notification_mark_all_read", {
-      p_target: "player",
+      p_target: "auto",
     });
     setItems((prev) =>
       prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() }))
     );
   }
 
-  return { items, loading, sectionCounts, totalUnread, refresh, markRead, markAllRead };
+  return { items, bellItems, bellUnread, loading, sectionCounts, totalUnread, refresh, markRead, markAllRead };
 }
