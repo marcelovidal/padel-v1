@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   Home,
   Calendar,
@@ -14,6 +15,7 @@ import {
   Trophy,
   Star,
   MapPin,
+  Share2,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -67,6 +69,78 @@ function Divider() {
   return <div className="my-1.5 border-t border-slate-200" />;
 }
 
+// ── Acciones contextuales por sección ────────────────────────────────────────
+
+interface Accion {
+  label: string;
+  icon: React.ElementType;
+  href: string;
+}
+
+const ACCION_FALLBACK: Accion = {
+  label: "Cargar partido",
+  icon: Plus,
+  href: "/player/matches/new",
+};
+
+const ACCIONES: Array<{ match: (p: string) => boolean; accion: Accion }> = [
+  {
+    match: (p) => p === "/player",
+    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new" },
+  },
+  {
+    match: (p) => p.startsWith("/player/calendario") || p.startsWith("/player/bookings"),
+    accion: { label: "Nueva reserva", icon: Calendar, href: "/player/calendario?action=nueva-reserva" },
+  },
+  {
+    match: (p) => p.startsWith("/player/matches"),
+    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new" },
+  },
+  {
+    match: (p) => p.startsWith("/player/events"),
+    accion: { label: "Ver torneos", icon: Star, href: "/player/events" },
+  },
+  {
+    match: (p) => p.startsWith("/player/players"),
+    accion: { label: "Invitar jugador", icon: Users, href: "/player/players?action=invitar" },
+  },
+  {
+    match: (p) => p.startsWith("/player/entrenadores"),
+    accion: { label: "Reservar clase", icon: GraduationCap, href: "/player/entrenadores" },
+  },
+  {
+    match: (p) => p.startsWith("/player/coach"),
+    accion: { label: "Nueva sesión", icon: GraduationCap, href: "/player/coach?tab=agenda&action=nueva" },
+  },
+  {
+    match: (p) => p.startsWith("/player/profile"),
+    accion: { label: "Compartir perfil", icon: Share2, href: "/player/profile" },
+  },
+];
+
+function resolveAccion(pathname: string): Accion {
+  return ACCIONES.find(({ match }) => match(pathname))?.accion ?? ACCION_FALLBACK;
+}
+
+// ── Hook: fade-in al cambiar label ───────────────────────────────────────────
+
+function useFadeOnChange(value: string) {
+  const [opacity, setOpacity] = useState(1);
+  const prev = useRef(value);
+
+  useEffect(() => {
+    if (prev.current === value) return;
+    setOpacity(0);
+    const t = setTimeout(() => {
+      prev.current = value;
+      setOpacity(1);
+    }, 100);
+    return () => clearTimeout(t);
+  }, [value]);
+
+  return { opacity, style: { opacity, transition: "opacity 150ms ease" } as React.CSSProperties };
+}
+
 export function PlayerSidebar({
   displayName,
   location,
@@ -95,6 +169,10 @@ export function PlayerSidebar({
   const onComunidad =
     pathname.startsWith("/player/players") ||
     pathname.startsWith("/player/entrenadores");
+
+  const accion = resolveAccion(pathname);
+  const { style: fadeStyle } = useFadeOnChange(accion.label);
+  const AccionIcon = accion.icon;
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
@@ -211,11 +289,12 @@ export function PlayerSidebar({
       {/* ── Footer ── */}
       <div className="px-3 pb-3 pt-2 border-t border-slate-200 space-y-2">
         <Link
-          href="/player/matches/new"
+          href={accion.href}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors"
+          style={fadeStyle}
         >
-          <Plus className="w-4 h-4" />
-          Cargar partido
+          <AccionIcon className="w-4 h-4 shrink-0" />
+          {accion.label}
         </Link>
         <form action="/auth/signout" method="post">
           <button
