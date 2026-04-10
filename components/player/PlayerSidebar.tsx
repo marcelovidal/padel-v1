@@ -19,6 +19,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ProximoEvento } from "@/components/player/ProximoEvento";
 import { UltimoPartido } from "@/components/player/UltimoPartido";
+import { DesafioActivo } from "@/components/player/DesafioActivo";
 import { useNotificationsContext } from "@/contexts/player-notifications.context";
 
 interface PlayerSidebarProps {
@@ -205,6 +206,7 @@ export function PlayerSidebar({
       {/* ── Cards de actividad ── */}
       <ProximoEvento />
       <UltimoPartido />
+      <DesafioActivo />
 
       {/* ── Footer ── */}
       <div className="px-3 pb-3 pt-2 border-t border-slate-200 space-y-2">
