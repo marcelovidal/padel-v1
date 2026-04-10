@@ -100,6 +100,7 @@ export function PlayerSidebar({
             onMarkRead={markRead}
             onMarkAllRead={markAllRead}
             onRefresh={refresh}
+            dropdownAlign="left"
           />
         </div>
         <div className="flex items-center gap-3">
