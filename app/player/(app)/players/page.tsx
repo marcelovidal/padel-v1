@@ -67,14 +67,17 @@ export default async function PlayersPage({
 
   const list = await Promise.all(
     players.map(async (p) => {
-      const avatarData = await resolveAvatarSrc({
+      const resolved = await resolveAvatarSrc({
         player: p as any,
         user: p.user_id === user.id ? user : undefined,
       });
 
       return {
         ...p,
-        avatarData,
+        avatarData: {
+          src: resolved.src ?? null,
+          initials: (resolved as any).initials ?? "",
+        } as { src: string | null; initials: string },
       };
     })
   );
