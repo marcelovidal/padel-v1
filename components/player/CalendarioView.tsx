@@ -649,7 +649,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Notes */}
           {typeof meta?.notes === "string" && meta.notes && (
-            <p className="text-sm text-gray-500 italic">"{meta.notes as string}"</p>
+            <p className="text-sm text-gray-500 italic">&ldquo;{meta.notes as string}&rdquo;</p>
           )}
 
           {/* Training: pending message */}

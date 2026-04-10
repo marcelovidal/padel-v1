@@ -125,7 +125,7 @@ export function CoachAgenda({ bookings, coachProfile, students }: Props) {
           <div>
             <p className="font-bold text-gray-900">Sin sesiones agendadas</p>
             <p className="text-sm text-gray-500 mt-1">
-              Usá "Nueva sesión" para agendar una clase con un alumno.
+              Usá &ldquo;Nueva sesión&rdquo; para agendar una clase con un alumno.
             </p>
           </div>
         </div>
@@ -231,7 +231,7 @@ function PendingRow({
               </p>
             )}
             {booking.notes_player && (
-              <p className="text-xs text-gray-500 mt-0.5 italic line-clamp-1">"{booking.notes_player}"</p>
+              <p className="text-xs text-gray-500 mt-0.5 italic line-clamp-1">&ldquo;{booking.notes_player}&rdquo;</p>
             )}
           </div>
         </div>
@@ -279,7 +279,7 @@ function BookingRow({ booking }: { booking: CoachBookingEnriched }) {
             {booking.duration_minutes} min
           </p>
           {booking.notes_player && (
-            <p className="text-xs text-gray-500 mt-0.5 italic line-clamp-1">"{booking.notes_player}"</p>
+            <p className="text-xs text-gray-500 mt-0.5 italic line-clamp-1">&ldquo;{booking.notes_player}&rdquo;</p>
           )}
         </div>
       </div>
