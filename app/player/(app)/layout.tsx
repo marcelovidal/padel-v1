@@ -15,13 +15,14 @@ export default async function PlayerLayout({
     const { user, player } = await requirePlayer();
     const avatarData = await resolveAvatarSrc({ player, user });
     const isCoach = (player as any).is_coach === true;
+    const location = [player.city, player.region_code].filter(Boolean).join(", ") || null;
 
     return (
         <PlayerNotificationsProvider>
             <div className="min-h-screen bg-slate-50 md:flex">
                 <PlayerSidebar
                     displayName={player.display_name}
-                    email={user.email ?? null}
+                    location={location}
                     avatarSrc={avatarData.src}
                     avatarInitials={avatarData.initials}
                     isCoach={isCoach}
