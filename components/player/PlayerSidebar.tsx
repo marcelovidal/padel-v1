@@ -75,18 +75,21 @@ interface Accion {
   label: string;
   icon: React.ElementType;
   href: string;
+  /** Cuando es true se muestran los dos botones de crear partido en lugar del botón único */
+  isDefault?: boolean;
 }
 
 const ACCION_FALLBACK: Accion = {
   label: "Cargar partido",
   icon: Plus,
   href: "/player/matches/new",
+  isDefault: true,
 };
 
 const ACCIONES: Array<{ match: (p: string) => boolean; accion: Accion }> = [
   {
     match: (p) => p === "/player",
-    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new" },
+    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new", isDefault: true },
   },
   {
     match: (p) => p.startsWith("/player/calendario") || p.startsWith("/player/bookings"),
@@ -94,7 +97,7 @@ const ACCIONES: Array<{ match: (p: string) => boolean; accion: Accion }> = [
   },
   {
     match: (p) => p.startsWith("/player/matches"),
-    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new" },
+    accion: { label: "Cargar partido", icon: Plus, href: "/player/matches/new", isDefault: true },
   },
   {
     match: (p) => p.startsWith("/player/events"),
@@ -287,15 +290,44 @@ export function PlayerSidebar({
       <DesafioActivo />
 
       {/* ── Footer ── */}
-      <div className="px-3 pb-3 pt-2 border-t border-slate-200 space-y-2">
-        <Link
-          href={accion.href}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors"
-          style={fadeStyle}
-        >
-          <AccionIcon className="w-4 h-4 shrink-0" />
-          {accion.label}
-        </Link>
+      <div className="px-3 pb-3 pt-2 border-t border-slate-200 space-y-1.5">
+        {accion.isDefault ? (
+          /* Doble botón: flujo con club / sin club */
+          <>
+            <Link
+              href="/player/bookings/new"
+              className="flex w-full flex-col items-start rounded-lg bg-blue-600 px-3 py-2 hover:bg-blue-700 transition-colors"
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-200 leading-none mb-0.5">
+                En un club
+              </span>
+              <span className="text-[12px] font-semibold text-white leading-none">
+                Reservar y crear partido
+              </span>
+            </Link>
+            <Link
+              href="/player/matches/new?mode=direct"
+              className="flex w-full flex-col items-start rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 transition-colors"
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-0.5">
+                Sin club
+              </span>
+              <span className="text-[12px] font-semibold text-slate-900 leading-none">
+                Solo crear partido
+              </span>
+            </Link>
+          </>
+        ) : (
+          /* Botón único contextual */
+          <Link
+            href={accion.href}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors"
+            style={fadeStyle}
+          >
+            <AccionIcon className="w-4 h-4 shrink-0" />
+            {accion.label}
+          </Link>
+        )}
         <form action="/auth/signout" method="post">
           <button
             type="submit"
