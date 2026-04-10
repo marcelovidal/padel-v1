@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ProximoEvento } from "@/components/player/ProximoEvento";
 import { useNotificationsContext } from "@/contexts/player-notifications.context";
 
 interface PlayerSidebarProps {
   displayName: string;
-  /** "General Roca, RN" o similar — reemplaza el email en el header */
   location?: string | null;
   avatarSrc?: string | null;
   avatarInitials?: string;
@@ -37,21 +37,33 @@ function NavBadge({ count }: { count: number }) {
   );
 }
 
-/** Label de sección sin ruta propia */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-widest text-slate-400 select-none">
-      {children}
-    </p>
-  );
+// ── Level 1: ítem principal con ícono ────────────────────────────────────────
+
+const L1_BASE =
+  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium w-full transition-colors";
+const L1_INACTIVE = "text-slate-900 hover:bg-slate-100";
+const L1_ACTIVE   = "bg-blue-50 text-blue-700 font-semibold";
+
+function l1Cls(active: boolean) {
+  return `${L1_BASE} ${active ? L1_ACTIVE : L1_INACTIVE}`;
 }
 
-const itemBase =
-  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors w-full";
-const activeClass = "bg-blue-50 text-blue-700 font-semibold";
-const inactiveClass = "text-slate-700 hover:bg-slate-100 font-medium";
-const subItemBase =
-  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.8125rem] transition-colors w-full";
+// ── Level 2: sub-ítem sin ícono, indentado ───────────────────────────────────
+
+const L2_BASE =
+  "flex items-center pl-9 pr-3 py-1.5 rounded-lg text-[13px] font-normal w-full transition-colors";
+const L2_INACTIVE = "text-slate-600 hover:text-blue-600";
+const L2_ACTIVE   = "text-blue-600 font-medium";
+
+function l2Cls(active: boolean) {
+  return `${L2_BASE} ${active ? L2_ACTIVE : L2_INACTIVE}`;
+}
+
+// ── Separador ────────────────────────────────────────────────────────────────
+
+function Divider() {
+  return <div className="my-1.5 border-t border-slate-200" />;
+}
 
 export function PlayerSidebar({
   displayName,
@@ -72,14 +84,19 @@ export function PlayerSidebar({
     markAllRead,
   } = useNotificationsContext();
 
-  const actividadBadge = sectionCounts.partidos + sectionCounts.eventos;
-
-  function cls(active: boolean, base = itemBase) {
-    return `${base} ${active ? activeClass : inactiveClass}`;
-  }
+  const onCalendario =
+    pathname.startsWith("/player/calendario") ||
+    pathname.startsWith("/player/bookings");
+  const onActividad =
+    pathname.startsWith("/player/matches") ||
+    pathname.startsWith("/player/events");
+  const onComunidad =
+    pathname.startsWith("/player/players") ||
+    pathname.startsWith("/player/entrenadores");
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
+
       {/* ── Header ── */}
       <div className="p-4 border-b border-slate-200">
         <div className="flex items-center justify-between mb-3">
@@ -114,96 +131,81 @@ export function PlayerSidebar({
       </div>
 
       {/* ── Nav ── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2">
+      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+
         {/* Resumen */}
-        <Link href="/player" className={cls(pathname === "/player")}>
-          <Home className="w-4 h-4 shrink-0" />
+        <Link href="/player" className={l1Cls(pathname === "/player")}>
+          <Home className="w-[18px] h-[18px] shrink-0" />
           Resumen
         </Link>
 
-        {/* Calendario */}
-        <SectionLabel>Calendario</SectionLabel>
-        <Link
-          href="/player/calendario"
-          className={cls(
-            pathname.startsWith("/player/calendario") || pathname.startsWith("/player/bookings")
-          )}
-        >
-          <Calendar className="w-4 h-4 shrink-0" />
-          <span className="flex-1">Mis reservas</span>
+        <Divider />
+
+        {/* Calendario (L1 con ruta propia) */}
+        <Link href="/player/calendario" className={l1Cls(onCalendario)}>
+          <Calendar className="w-[18px] h-[18px] shrink-0" />
+          Calendario
+        </Link>
+        <Link href="/player/calendario" className={l2Cls(onCalendario && pathname === "/player/calendario")}>
+          Mis reservas
           <NavBadge count={sectionCounts.calendario} />
         </Link>
-        <Link
-          href="/player/entrenadores"
-          className={cls(false, subItemBase)}
-        >
+        <Link href="/player/entrenadores" className={l2Cls(false)}>
           Reservar clase
         </Link>
 
-        {/* Actividad */}
-        <SectionLabel>Actividad</SectionLabel>
-        <Link
-          href="/player/matches"
-          className={cls(pathname.startsWith("/player/matches"))}
-        >
-          <Trophy className="w-4 h-4 shrink-0" />
-          <span className="flex-1">Partidos</span>
+        {/* Actividad (L1 con ruta primaria) */}
+        <Link href="/player/matches" className={l1Cls(onActividad)}>
+          <Zap className="w-[18px] h-[18px] shrink-0" />
+          Actividad
+        </Link>
+        <Link href="/player/matches" className={l2Cls(pathname.startsWith("/player/matches"))}>
+          <Trophy className="w-3.5 h-3.5 shrink-0" />
+          Partidos
           <NavBadge count={sectionCounts.partidos} />
         </Link>
-        <Link
-          href="/player/events"
-          className={cls(pathname.startsWith("/player/events"))}
-        >
-          <Star className="w-4 h-4 shrink-0" />
-          <span className="flex-1">Eventos</span>
+        <Link href="/player/events" className={l2Cls(pathname.startsWith("/player/events"))}>
+          <Star className="w-3.5 h-3.5 shrink-0" />
+          Eventos
           <NavBadge count={sectionCounts.eventos} />
         </Link>
 
-        {/* Comunidad */}
-        <SectionLabel>Comunidad</SectionLabel>
-        <Link
-          href="/player/players"
-          className={cls(pathname.startsWith("/player/players"))}
-        >
-          <Users className="w-4 h-4 shrink-0" />
+        {/* Comunidad (L1 con ruta primaria) */}
+        <Link href="/player/players" className={l1Cls(onComunidad)}>
+          <Users className="w-[18px] h-[18px] shrink-0" />
+          Comunidad
+        </Link>
+        <Link href="/player/players" className={l2Cls(pathname.startsWith("/player/players"))}>
           Jugadores
         </Link>
-        <Link
-          href="/player/entrenadores"
-          className={cls(pathname.startsWith("/player/entrenadores"))}
-        >
-          <GraduationCap className="w-4 h-4 shrink-0" />
+        <Link href="/player/entrenadores" className={l2Cls(pathname.startsWith("/player/entrenadores"))}>
           Entrenadores
         </Link>
 
+        <Divider />
+
         {/* Mi equipo — solo coaches */}
         {isCoach && (
-          <>
-            <SectionLabel>Equipo</SectionLabel>
-            <Link
-              href="/player/coach"
-              className={cls(pathname.startsWith("/player/coach"))}
-            >
-              <GraduationCap className="w-4 h-4 shrink-0" />
-              <span className="flex-1">Mi equipo</span>
-              <NavBadge count={sectionCounts.coach} />
-            </Link>
-          </>
+          <Link href="/player/coach" className={l1Cls(pathname.startsWith("/player/coach"))}>
+            <GraduationCap className="w-[18px] h-[18px] shrink-0" />
+            <span className="flex-1">Mi equipo</span>
+            <NavBadge count={sectionCounts.coach} />
+          </Link>
         )}
 
         {/* Perfil */}
-        <SectionLabel>Cuenta</SectionLabel>
-        <Link
-          href="/player/profile"
-          className={cls(pathname.startsWith("/player/profile"))}
-        >
-          <UserCircle className="w-4 h-4 shrink-0" />
+        <Link href="/player/profile" className={l1Cls(pathname.startsWith("/player/profile"))}>
+          <UserCircle className="w-[18px] h-[18px] shrink-0" />
           Perfil
         </Link>
+
       </nav>
 
+      {/* ── Próximo evento ── */}
+      <ProximoEvento />
+
       {/* ── Footer ── */}
-      <div className="p-3 border-t border-slate-200 space-y-2">
+      <div className="px-3 pb-3 pt-2 border-t border-slate-200 space-y-2">
         <Link
           href="/player/matches/new"
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors"
@@ -221,6 +223,7 @@ export function PlayerSidebar({
           </button>
         </form>
       </div>
+
     </aside>
   );
 }
