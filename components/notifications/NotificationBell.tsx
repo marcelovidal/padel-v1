@@ -46,6 +46,8 @@ interface NotificationBellProps {
   onMarkRead: (id: string) => Promise<void>;
   onMarkAllRead: () => Promise<void>;
   onRefresh: () => Promise<void>;
+  /** Alineación del dropdown. Default: "right" (se abre hacia la izquierda). */
+  dropdownAlign?: "left" | "right";
 }
 
 export function NotificationBell({
@@ -55,6 +57,7 @@ export function NotificationBell({
   onMarkRead,
   onMarkAllRead,
   onRefresh,
+  dropdownAlign = "right",
 }: NotificationBellProps) {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -150,7 +153,7 @@ export function NotificationBell({
       </button>
 
       {open ? (
-        <div className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-1rem)] rounded-2xl border border-gray-200 bg-white shadow-xl z-50 overflow-hidden">
+        <div className={`absolute mt-2 w-[340px] max-w-[calc(100vw-1rem)] rounded-2xl border border-gray-200 bg-white shadow-xl z-50 overflow-hidden ${dropdownAlign === "left" ? "left-0" : "right-0"}`}>
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <p className="text-sm font-black text-gray-900">Notificaciones</p>

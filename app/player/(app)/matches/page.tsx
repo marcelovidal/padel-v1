@@ -32,7 +32,7 @@ export default async function PlayerMatchesPage() {
   }, { scheduled: [] as any[], completed: [] as any[], cancelled: [] as any[] });
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Mis Partidos</h1>
         <p className="text-sm text-gray-500 mt-1">Historial, programados y pendientes de resultado</p>
@@ -52,6 +52,7 @@ export default async function PlayerMatchesPage() {
                 .sort((a, b) => new Date(a.match_at).getTime() - new Date(b.match_at).getTime())}
                 currentUserId={user.id}
                 currentPlayerId={mePlayer.id}
+                layout="grid"
               />
             </div>
           )}
@@ -64,6 +65,7 @@ export default async function PlayerMatchesPage() {
                 .sort((a, b) => new Date(b.match_at).getTime() - new Date(a.match_at).getTime())}
                 currentUserId={user.id}
                 currentPlayerId={mePlayer.id}
+                layout="grid"
               />
             </div>
           )}

@@ -31,7 +31,7 @@ export default async function PlayerProfilePage() {
     const hasMatches = metrics.played > 0;
 
     return (
-        <div className="container mx-auto p-4 max-w-2xl pb-20">
+        <div className="py-4">
             {/* HERO SECTION */}
             <div className="flex justify-between items-center mb-8 bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-6">

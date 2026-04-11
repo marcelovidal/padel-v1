@@ -105,7 +105,7 @@ export default async function PlayerEventsPage({
   };
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-6 p-4">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Eventos disponibles</h1>
         <p className="mt-1 text-sm text-gray-500">

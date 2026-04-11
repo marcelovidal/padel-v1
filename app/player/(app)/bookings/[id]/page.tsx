@@ -25,7 +25,7 @@ export default async function PlayerBookingDetailPage({ params }: { params: { id
   };
 
   return (
-    <div className="container mx-auto px-4 max-w-3xl space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Detalle de reserva</h1>
         <BookingStatusBadge status={booking.status} />

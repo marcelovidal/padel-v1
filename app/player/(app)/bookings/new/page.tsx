@@ -264,7 +264,7 @@ export default async function PlayerNewBookingPage({
   const selectedSlotState = clubSlotStates.find((state) => state.time === effectiveTime) || null;
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-6 px-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Nueva reserva</h1>

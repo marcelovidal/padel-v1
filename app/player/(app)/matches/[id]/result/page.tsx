@@ -50,7 +50,7 @@ export default async function MatchResultEntryPage({
     const teamBNames = playersByTeam.B.map((p: any) => `${p.players?.first_name} ${p.players?.last_name}`);
 
     return (
-        <div className="p-6 max-w-2xl mx-auto space-y-8">
+        <div className="py-6 space-y-8">
             <header className="flex items-center justify-between">
                 <Link
                     href={`/player/matches/${params.id}`}

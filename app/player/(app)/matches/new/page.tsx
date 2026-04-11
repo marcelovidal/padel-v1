@@ -32,7 +32,7 @@ export default async function CreateMatchPage({
 
   if (!fromBooking && mode === null) {
     return (
-      <div className="container mx-auto max-w-3xl p-4 space-y-6">
+      <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Crear Partido</h1>
           <p className="text-sm text-gray-500">Un solo flujo para partido con o sin reserva de club.</p>
@@ -71,7 +71,7 @@ export default async function CreateMatchPage({
       : null;
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
+    <div className="py-4">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Crear Nuevo Partido</h1>
         <p className="text-gray-500 text-sm">Organiza tu proximo enfrentamiento</p>

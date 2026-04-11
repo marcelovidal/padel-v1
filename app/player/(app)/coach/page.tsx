@@ -16,7 +16,7 @@ export default async function CoachPage({
 
   if (!isCoach) {
     return (
-      <div className="container mx-auto max-w-2xl p-4 py-16">
+      <div className="py-16">
         <div className="rounded-[32px] border border-blue-100 bg-white p-10 shadow-sm text-center space-y-6">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-50">
             <GraduationCap className="h-8 w-8 text-blue-600" />

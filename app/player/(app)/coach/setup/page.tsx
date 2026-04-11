@@ -16,7 +16,7 @@ export default async function CoachSetupPage() {
   const clubs = await clubService.searchClubsForPlayer("", 100).catch(() => []);
 
   return (
-    <div className="container mx-auto max-w-2xl p-4 py-8">
+    <div className="py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">
           Configurá tu perfil

@@ -107,7 +107,7 @@ export default async function PlayersPage({
   });
 
   return (
-    <div className="container mx-auto max-w-[1280px] p-4">
+    <div className="py-4">
       <div className="mb-6 space-y-3">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900">Directorio</h1>
