@@ -19,8 +19,8 @@ export default async function PlayerLayout({
             <PlayerLayoutShell
                 displayName={player.display_name}
                 location={location}
-                avatarSrc={avatarData.src}
-                avatarInitials={avatarData.initials}
+                avatarSrc={avatarData.src ?? null}
+                avatarInitials={avatarData.initials ?? ""}
                 isCoach={isCoach}
             >
                 {children}
