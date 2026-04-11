@@ -74,6 +74,21 @@ function isAllDay(iso: string): boolean {
   return t.getUTCHours() === 0 && t.getUTCMinutes() === 0 && t.getUTCSeconds() === 0;
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function calcPeriodLabel(view: "monthly" | "weekly", currentMonth: Date, weekAnchor: Date): string {
+  if (view === "monthly") {
+    return `${MONTHS_ES[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+  }
+  const sw = startOfWeek(weekAnchor);
+  const ew = new Date(sw);
+  ew.setDate(sw.getDate() + 6);
+  const sameMon = sw.getMonth() === ew.getMonth();
+  return sameMon
+    ? `${sw.getDate()}–${ew.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} ${sw.getFullYear()}`
+    : `${sw.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} – ${ew.getDate()} ${MONTHS_ES[ew.getMonth()].slice(0, 3)}`;
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface CalendarioViewProps {
@@ -81,32 +96,30 @@ interface CalendarioViewProps {
 }
 
 export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
-  const [view, setView] = useState<"monthly" | "weekly">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("padel:calendar:view");
-      if (saved === "monthly" || saved === "weekly") return saved;
-    }
-    return "monthly";
-  });
+  // mounted — evita hydration mismatch por new Date() y localStorage en SSR.
+  // Todos los valores dependientes de la fecha actual se calculan solo en cliente.
+  const [mounted, setMounted] = useState(false);
 
-  const [currentMonth, setCurrentMonth] = useState(() => {
-    const d = new Date();
-    d.setDate(1);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
+  // Valores estables en servidor (nunca se renderizan — se devuelve skeleton hasta mounted)
+  const [view, setView] = useState<"monthly" | "weekly">("monthly");
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date(2000, 0, 1));
+  const [selectedDay, setSelectedDay] = useState<Date>(new Date(2000, 0, 1));
+  const [weekAnchor, setWeekAnchor] = useState<Date>(new Date(2000, 0, 1));
 
-  const [selectedDay, setSelectedDay] = useState<Date>(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
+  // Un solo useEffect inicializa todo con valores reales del cliente
+  useEffect(() => {
+    const saved = localStorage.getItem("padel:calendar:view");
+    if (saved === "monthly" || saved === "weekly") setView(saved);
 
-  const [weekAnchor, setWeekAnchor] = useState<Date>(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
+    const now = new Date();
+    const month = new Date(now.getFullYear(), now.getMonth(), 1);
+    const day = new Date(now);
+    day.setHours(0, 0, 0, 0);
+    setCurrentMonth(month);
+    setSelectedDay(day);
+    setWeekAnchor(day);
+    setMounted(true);
+  }, []);
 
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -240,21 +253,38 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     return d;
   }, []);
 
-  const periodLabel =
-    view === "monthly"
-      ? `${MONTHS_ES[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
-      : (() => {
-          const sw = startOfWeek(weekAnchor);
-          const ew = new Date(sw);
-          ew.setDate(sw.getDate() + 6);
-          const sameMon = sw.getMonth() === ew.getMonth();
-          return sameMon
-            ? `${sw.getDate()}–${ew.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} ${sw.getFullYear()}`
-            : `${sw.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} – ${ew.getDate()} ${MONTHS_ES[ew.getMonth()].slice(0, 3)}`;
-        })();
+  // periodLabel — calculado solo en cliente para evitar hydration mismatch
+  // (new Date() en server vs client puede diferir por zona horaria UTC-3)
+  const [periodLabel, setPeriodLabel] = useState("");
+  useEffect(() => {
+    setPeriodLabel(calcPeriodLabel(view, currentMonth, weekAnchor));
+  }, [view, currentMonth, weekAnchor]);
+
+  // Skeleton hasta que el cliente haya inicializado todos los valores de fecha
+  if (!mounted) {
+    return (
+      <div className="animate-pulse">
+        <div className="flex items-center justify-between mb-4">
+          <div className="h-8 w-8 rounded-xl bg-slate-200" />
+          <div className="h-5 w-40 rounded bg-slate-200" />
+          <div className="h-8 w-8 rounded-xl bg-slate-200" />
+        </div>
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="h-4 rounded bg-slate-100" />
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 35 }).map((_, i) => (
+            <div key={i} className="h-10 rounded-lg bg-slate-100" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 max-w-4xl">
+    <div>
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <div className="flex items-center gap-2">

@@ -29,7 +29,7 @@ export default async function EditPlayerPage({
     }
 
     return (
-        <div className="container mx-auto p-4 max-w-2xl">
+        <div className="py-4">
             <div className="mb-8">
                 <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">
                     {isOwnProfile ? "Editar Mi Perfil" : `Editar Invitado: ${player.display_name}`}

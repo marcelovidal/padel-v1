@@ -6,9 +6,10 @@ interface PlayerMatchesProps {
     matches: any[]; // Ideally typed with MatchWithPlayers from service
     currentUserId?: string;
     currentPlayerId?: string;
+    layout?: "list" | "grid";
 }
 
-export function PlayerMatches({ matches, currentUserId, currentPlayerId }: PlayerMatchesProps) {
+export function PlayerMatches({ matches, currentUserId, currentPlayerId, layout = "list" }: PlayerMatchesProps) {
     if (matches.length === 0) {
         return (
             <div className="bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
@@ -18,7 +19,7 @@ export function PlayerMatches({ matches, currentUserId, currentPlayerId }: Playe
     }
 
     return (
-        <div className="space-y-4">
+        <div className={layout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}>
             {matches.map((match) => {
                 const model = toMatchCardModel(match, {
                     playerTeam: match.team,

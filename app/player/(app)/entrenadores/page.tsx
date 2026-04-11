@@ -37,7 +37,7 @@ export default async function EntrenadoresPage({
   });
 
   return (
-    <div className="container mx-auto max-w-5xl p-4 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900">Entrenadores</h1>

@@ -4,7 +4,6 @@ import { AssessmentService } from "@/services/assessment.service";
 import { MatchService } from "@/services/match.service";
 import { LeaguesService } from "@/services/leagues.service";
 import { PlayerMatches } from "@/components/player/PlayerMatches";
-import { PendingAssessmentCard } from "@/components/assessments/PendingAssessmentCard";
 import { PlayerRadarChart } from "@/components/player/PlayerRadarChart";
 import { PlayerHeroCard } from "@/components/player/PlayerHeroCard";
 import { PlayerIndexEvolution } from "@/components/player/PlayerIndexEvolution";
@@ -44,7 +43,7 @@ export default async function PlayerDashboard() {
 
   if (firstMatchCheck.length === 0) {
     return (
-      <div className="container mx-auto max-w-3xl p-4 pb-20">
+      <div className="py-4">
         <div className="rounded-[32px] border border-blue-100 bg-white p-8 shadow-xl shadow-blue-900/5">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
@@ -115,7 +114,7 @@ export default async function PlayerDashboard() {
   const hasMatches = metrics.played > 0;
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 p-4 pb-20">
+    <div className="space-y-6 py-4">
       {recentMatches.length === 1 && (
         <div className="rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -185,6 +184,39 @@ export default async function PlayerDashboard() {
         <PlayerBadges badges={badges} />
       </div>
 
+      {/* Ranking por clubes + Contexto competitivo — 2 columnas en desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      {/* Club rankings */}
+      <section className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Ranking por Clubes</h2>
+          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+            Ver detalle
+          </Link>
+        </div>
+        {clubRankings.length === 0 ? (
+          <p className="text-sm text-gray-500">Aun no tienes posicion de ranking disponible.</p>
+        ) : (
+          <div className="grid gap-3">
+            {clubRankings.map((item: any) => (
+              <div key={item.club_id} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 p-4">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-gray-900">{item.club_name}</p>
+                  <p className="text-xs text-gray-500">
+                    {item.matches_played} PJ · {item.wins} G · {item.losses} P
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-black text-blue-700">#{item.rank}</p>
+                  <p className="text-sm font-black text-gray-900">{item.points} pts</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Competitive context */}
       <div className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm">
         <h3 className="mb-6 text-xs font-black uppercase tracking-widest text-gray-400">Contexto Competitivo</h3>
@@ -231,35 +263,7 @@ export default async function PlayerDashboard() {
         </div>
       </div>
 
-      {/* Club rankings */}
-      <section className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Ranking por Clubes</h2>
-          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
-            Ver detalle
-          </Link>
-        </div>
-        {clubRankings.length === 0 ? (
-          <p className="text-sm text-gray-500">Aun no tienes posicion de ranking disponible.</p>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {clubRankings.map((item: any) => (
-              <div key={item.club_id} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 p-4">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-gray-900">{item.club_name}</p>
-                  <p className="text-xs text-gray-500">
-                    {item.matches_played} PJ · {item.wins} G · {item.losses} P
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-black text-blue-700">#{item.rank}</p>
-                  <p className="text-sm font-black text-gray-900">{item.points} pts</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      </div>{/* end grid ranking + contexto */}
 
       {/* Recent matches */}
       <section className="space-y-4">
@@ -284,22 +288,6 @@ export default async function PlayerDashboard() {
         )}
       </section>
 
-      {/* Pending assessments */}
-      {pendingAssessments.length > 0 && (
-        <section className="rounded-[32px] border border-orange-100 bg-orange-50/50 p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-orange-800">Evaluaciones Pendientes</h2>
-            <span className="rounded-full bg-orange-200 px-2 py-0.5 text-[10px] font-black text-orange-900">
-              {pendingAssessments.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-4">
-            {pendingAssessments.map((match: any) => (
-              <PendingAssessmentCard key={match.id} match={match} playerId={playerId} />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

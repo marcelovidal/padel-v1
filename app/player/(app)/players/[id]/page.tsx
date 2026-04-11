@@ -27,7 +27,7 @@ export default async function PlayerDetailPage({
     const canEdit = isOwnProfile || isOwnerOfGuest;
 
     return (
-        <div className="container mx-auto p-4 max-w-2xl">
+        <div className="py-4">
             <div className="mb-6 flex items-center gap-4">
                 <Link href="/player/players" className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

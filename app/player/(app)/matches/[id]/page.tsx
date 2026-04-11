@@ -105,7 +105,7 @@ export default async function MatchDetailPage({
     } : undefined;
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-8">
+        <div className="py-6 space-y-8">
             <header className="flex justify-between items-center">
                 <Link
                     href="/player/matches"

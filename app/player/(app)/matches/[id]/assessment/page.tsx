@@ -79,7 +79,7 @@ export default async function MatchAssessmentPage({
   })();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 p-6">
+    <div className="space-y-8 py-6">
       <header className="flex items-center justify-between">
         <Link
           href={`/player/matches/${params.id}`}

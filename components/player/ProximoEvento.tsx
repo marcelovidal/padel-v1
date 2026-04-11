@@ -47,8 +47,9 @@ function formatEventTime(startAt: string): string {
   return `${WEEKDAYS[eventDate.getDay()]} ${time}`;
 }
 
-function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+// Devuelve YYYY-MM-DD en zona horaria Argentina (UTC-3) para pasarla al RPC
+function toArgDateStr(d: Date): string {
+  return d.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
 }
 
 export function ProximoEvento() {
@@ -59,12 +60,12 @@ export function ProximoEvento() {
     async function load() {
       const supabase = createBrowserSupabase();
       const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      const weekAhead = new Date(today);
+      weekAhead.setDate(weekAhead.getDate() + 7);
 
       const { data, error } = await (supabase as any).rpc("get_player_calendar", {
-        p_date_from: toDateStr(today),
-        p_date_to: toDateStr(tomorrow),
+        p_date_from: toArgDateStr(today),
+        p_date_to: toArgDateStr(weekAhead),
       });
 
       if (error || !Array.isArray(data)) {

@@ -54,7 +54,7 @@ export default async function PlayerCoachProfilePage({
   );
 
   return (
-    <div className="container mx-auto max-w-2xl p-4 py-8 space-y-6">
+    <div className="py-8 space-y-6">
       {/* Back */}
       <Link
         href="/player/players"
