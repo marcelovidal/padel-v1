@@ -66,7 +66,7 @@ export function ProfileIssueTooltip({
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-20 right-5 z-50 md:bottom-5">
       {open && (
         <div className="mb-3 w-[340px] max-w-[92vw] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl">
           <p className="text-sm font-black text-gray-900">Sugerencias de testing</p>
