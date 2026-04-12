@@ -1,6 +1,6 @@
 import { requireClub } from "@/lib/auth";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
-import { ClubTopNav } from "@/components/club/ClubTopNav";
+import { ClubLayoutShell } from "@/components/club/ClubLayoutShell";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 
 export default async function ClubLayout({
@@ -8,7 +8,7 @@ export default async function ClubLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, club } = await requireClub();
+  const { club } = await requireClub();
   const avatarData = await resolveAvatarSrc({
     player: {
       avatar_url: club.avatar_url,
@@ -17,14 +17,19 @@ export default async function ClubLayout({
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ClubTopNav clubName={club.name} email={user.email} avatarSrc={avatarData.src} />
-      <main className="py-6">{children}</main>
+    <>
+      <ClubLayoutShell
+        clubName={club.name}
+        city={(club as any).city ?? null}
+        avatarSrc={avatarData.src ?? null}
+      >
+        {children}
+      </ClubLayoutShell>
       <ProfileIssueTooltip
         targetProfileType="club"
         targetProfileId={club.id}
         targetProfileName={club.name}
       />
-    </div>
+    </>
   );
 }
