@@ -32,7 +32,7 @@ export default async function ClubRankingPage() {
   }, null);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4">
+    <div className="w-full space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

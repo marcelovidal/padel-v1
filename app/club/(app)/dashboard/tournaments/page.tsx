@@ -14,7 +14,7 @@ export default async function ClubTournamentsPage() {
   const tournaments = await service.listClubTournaments(club.id);
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 p-4">
+    <div className="w-full space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Torneos del Club</h1>

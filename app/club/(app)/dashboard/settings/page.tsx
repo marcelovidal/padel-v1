@@ -12,7 +12,7 @@ export default async function ClubBookingSettingsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 max-w-4xl space-y-6">
+    <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Configuracion de reservas</h1>
         <p className="text-sm text-gray-500">Define la duracion del turno y el tiempo entre turnos.</p>

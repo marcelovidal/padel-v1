@@ -17,8 +17,8 @@ export default async function ClubMatchesPage() {
   );
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="container mx-auto p-4 max-w-2xl">
+    <div className="w-full">
+      <div className="mb-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Mis Partidos</h1>
           <a

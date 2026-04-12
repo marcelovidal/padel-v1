@@ -70,7 +70,7 @@ export default async function ClubHomePage() {
   const peakHour = [...stats.matches_by_hour].sort((a, b) => b.count - a.count)[0];
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 p-4">
+    <div className="w-full space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-gradient-to-r from-white via-cyan-50/70 to-blue-50/70 p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

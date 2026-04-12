@@ -119,7 +119,7 @@ export default async function ClubBookingsPage({
     }));
 
     return (
-      <div className="container mx-auto max-w-7xl space-y-4 p-4">
+      <div className="w-full space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
@@ -266,7 +266,7 @@ export default async function ClubBookingsPage({
   };
 
   return (
-    <div className="container mx-auto px-4 max-w-6xl space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Reservas</h1>

@@ -23,7 +23,7 @@ export default async function ClubCourtsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 max-w-5xl space-y-6">
+    <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Canchas</h1>
         <p className="text-sm text-gray-500">Gestiona canchas activas para reservas.</p>
