@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Home,
   Calendar,
+  CalendarDays,
   Zap,
   Users,
   GraduationCap,
@@ -330,10 +331,12 @@ export function PlayerSidebar({
               href="/player/calendario"
               className={l2Cls(onCalendario && pathname === "/player/calendario")}
             >
+              <CalendarDays className="w-[15px] h-[15px] shrink-0" />
               Mis reservas
               <NavBadge count={sectionCounts.calendario} />
             </Link>
             <Link href="/player/entrenadores" className={l2Cls(false)}>
+              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
               Reservar clase
             </Link>
 
@@ -366,12 +369,14 @@ export function PlayerSidebar({
               href="/player/players"
               className={l2Cls(pathname.startsWith("/player/players"))}
             >
+              <Users className="w-[15px] h-[15px] shrink-0" />
               Jugadores
             </Link>
             <Link
               href="/player/entrenadores"
               className={l2Cls(pathname.startsWith("/player/entrenadores"))}
             >
+              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
               Entrenadores
             </Link>
 

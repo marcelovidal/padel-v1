@@ -18,6 +18,10 @@ import {
   BookOpen,
   GraduationCap,
   Medal,
+  Building2,
+  CalendarRange,
+  Swords,
+  BarChart2,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 
@@ -312,6 +316,7 @@ export function ClubSidebar({
               href="/club/dashboard/bookings"
               className={l2Cls(pathname.startsWith("/club/dashboard/bookings"))}
             >
+              <CalendarDays className="w-[15px] h-[15px] shrink-0" />
               Reservas
               <NavBadge count={pendingBookings} />
             </Link>
@@ -319,12 +324,14 @@ export function ClubSidebar({
               href="/club/dashboard/courts"
               className={l2Cls(pathname.startsWith("/club/dashboard/courts"))}
             >
+              <Building2 className="w-[15px] h-[15px] shrink-0" />
               Canchas
             </Link>
             <Link
               href="/club/dashboard/agenda"
               className={l2Cls(pathname.startsWith("/club/dashboard/agenda"))}
             >
+              <CalendarRange className="w-[15px] h-[15px] shrink-0" />
               Agenda
             </Link>
 
@@ -357,25 +364,28 @@ export function ClubSidebar({
               href="/club/players"
               className={l2Cls(pathname.startsWith("/club/players"))}
             >
+              <Users className="w-[15px] h-[15px] shrink-0" />
               Jugadores
             </Link>
             <Link
               href="/club/entrenadores"
               className={l2Cls(pathname.startsWith("/club/entrenadores"))}
             >
-              <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
               Entrenadores
             </Link>
             <Link
               href="/club/matches"
               className={l2Cls(pathname.startsWith("/club/matches"))}
             >
+              <Swords className="w-[15px] h-[15px] shrink-0" />
               Partidos
             </Link>
             <Link
               href="/club/dashboard/ranking"
               className={l2Cls(pathname.startsWith("/club/dashboard/ranking"))}
             >
+              <BarChart2 className="w-[15px] h-[15px] shrink-0" />
               Ranking
             </Link>
 
