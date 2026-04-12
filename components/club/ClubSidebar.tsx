@@ -304,10 +304,10 @@ export function ClubSidebar({
             <Divider />
 
             {/* Gestión */}
-            <div className={l1Cls(onGestion)}>
+            <Link href="/club/dashboard/bookings" className={l1Cls(onGestion)}>
               <CalendarDays className="w-[18px] h-[18px] shrink-0" />
               Gestión
-            </div>
+            </Link>
             <Link
               href="/club/dashboard/bookings"
               className={l2Cls(pathname.startsWith("/club/dashboard/bookings"))}
@@ -329,10 +329,10 @@ export function ClubSidebar({
             </Link>
 
             {/* Competencia */}
-            <div className={l1Cls(onCompetencia)}>
+            <Link href="/club/dashboard/leagues" className={l1Cls(onCompetencia)}>
               <Trophy className="w-[18px] h-[18px] shrink-0" />
               Competencia
-            </div>
+            </Link>
             <Link
               href="/club/dashboard/leagues"
               className={l2Cls(pathname.startsWith("/club/dashboard/leagues"))}
@@ -349,10 +349,10 @@ export function ClubSidebar({
             </Link>
 
             {/* Comunidad */}
-            <div className={l1Cls(onComunidad)}>
+            <Link href="/club/players" className={l1Cls(onComunidad)}>
               <Users className="w-[18px] h-[18px] shrink-0" />
               Comunidad
-            </div>
+            </Link>
             <Link
               href="/club/players"
               className={l2Cls(pathname.startsWith("/club/players"))}
