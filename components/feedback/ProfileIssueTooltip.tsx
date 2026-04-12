@@ -109,7 +109,7 @@ export function ProfileIssueTooltip({
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         title="Sugerencias de testing"
-        className="rounded-full bg-red-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:bg-red-700"
+        className="rounded-full bg-teal-500 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:bg-teal-600"
       >
         Sugerencias
       </button>
