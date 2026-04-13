@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
-import { ChevronLeft, ChevronRight, CalendarDays, List, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, List, X, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { coachCancelBookingAction } from "@/lib/actions/coach.actions";
@@ -32,6 +32,42 @@ const EVENT_CONFIG: Record<CalEventType, { label: string; dot: string; badge: st
   booking:    { label: "Reserva",       dot: "bg-yellow-500", badge: "bg-yellow-100 text-yellow-800" },
   training:   { label: "Entrenamiento", dot: "bg-red-500",    badge: "bg-red-100 text-red-700" },
 };
+
+const CAL_FILTERS: { key: CalEventType | "all"; label: string }[] = [
+  { key: "all",        label: "Todos" },
+  { key: "match",      label: "Partidos" },
+  { key: "booking",    label: "Reservas" },
+  { key: "training",   label: "Entrenamientos" },
+  { key: "tournament", label: "Torneos" },
+  { key: "league",     label: "Ligas" },
+];
+
+const DAY_ACTIONS = [
+  {
+    key: "match_club",
+    icon: "🎾",
+    label: "Registrar partido en club",
+    href: (date: string) => `/player/matches/new?date=${date}&mode=club`,
+  },
+  {
+    key: "match_direct",
+    icon: "🎾",
+    label: "Registrar partido sin club",
+    href: (date: string) => `/player/matches/new?date=${date}&mode=direct`,
+  },
+  {
+    key: "booking",
+    icon: "🏟️",
+    label: "Reservar cancha",
+    href: (date: string) => `/player/bookings/new?date=${date}`,
+  },
+  {
+    key: "training",
+    icon: "👨‍🏫",
+    label: "Reservar clase",
+    href: (date: string) => `/player/entrenadores?date=${date}`,
+  },
+] as const;
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS_ES = [
@@ -74,8 +110,6 @@ function isAllDay(iso: string): boolean {
   return t.getUTCHours() === 0 && t.getUTCMinutes() === 0 && t.getUTCSeconds() === 0;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function calcPeriodLabel(view: "monthly" | "weekly", currentMonth: Date, weekAnchor: Date): string {
   if (view === "monthly") {
     return `${MONTHS_ES[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
@@ -89,6 +123,14 @@ function calcPeriodLabel(view: "monthly" | "weekly", currentMonth: Date, weekAnc
     : `${sw.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} – ${ew.getDate()} ${MONTHS_ES[ew.getMonth()].slice(0, 3)}`;
 }
 
+function toDateParam(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDayLabel(d: Date): string {
+  return `${WEEKDAYS[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface CalendarioViewProps {
@@ -97,7 +139,6 @@ interface CalendarioViewProps {
 
 export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   // mounted — evita hydration mismatch por new Date() y localStorage en SSR.
-  // Todos los valores dependientes de la fecha actual se calculan solo en cliente.
   const [mounted, setMounted] = useState(false);
 
   // Valores estables en servidor (nunca se renderizan — se devuelve skeleton hasta mounted)
@@ -125,8 +166,9 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [showDaySheet, setShowDaySheet] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<CalEventType | "all">("all");
 
-  // Date range for the current view
+  // Date range for the current view (month or week visible)
   const { dateFrom, dateTo } = useMemo(() => {
     if (view === "monthly") {
       const from = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -163,16 +205,20 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     void fetchEvents();
   }, [fetchEvents]);
 
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
   function handleDayClick(day: Date) {
+    const isPast = day < today;
+    // Past day with no events: do nothing
+    const key = toDateParam(day);
+    const hasEventsOnDay = eventsListByDay.has(key);
+    if (isPast && !hasEventsOnDay) return;
     setSelectedDay(day);
-    const dayEvts = events
-      .filter(e => isSameDay(new Date(e.start_at), day))
-      .sort((a, b) => a.start_at.localeCompare(b.start_at));
-    if (dayEvts.length === 1) {
-      setSelectedEvent(dayEvts[0]);
-    } else if (dayEvts.length > 1) {
-      setShowDaySheet(true);
-    }
+    setShowDaySheet(true);
   }
 
   function toggleView(v: "monthly" | "weekly") {
@@ -204,27 +250,33 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     }
   }
 
-  // Events for selected day, sorted by time
-  const dayEvents = useMemo(
-    () =>
-      events
-        .filter(e => isSameDay(new Date(e.start_at), selectedDay))
-        .sort((a, b) => a.start_at.localeCompare(b.start_at)),
-    [events, selectedDay]
+  // Filtered events (respects active filter pill)
+  const filteredEvents = useMemo(
+    () => (activeFilter === "all" ? events : events.filter(e => e.type === activeFilter)),
+    [events, activeFilter]
   );
 
-  // Map: "YYYY-MM-DD" → Set<CalEventType> (for monthly dots)
-  const eventsByDay = useMemo(() => {
-    const map = new Map<string, Set<CalEventType>>();
-    events.forEach(e => {
-      const key = new Date(e.start_at).toISOString().slice(0, 10);
-      if (!map.has(key)) map.set(key, new Set());
-      map.get(key)!.add(e.type);
-    });
-    return map;
-  }, [events]);
+  // Events for selected day (filtered)
+  const dayEvents = useMemo(
+    () =>
+      filteredEvents
+        .filter(e => isSameDay(new Date(e.start_at), selectedDay))
+        .sort((a, b) => a.start_at.localeCompare(b.start_at)),
+    [filteredEvents, selectedDay]
+  );
 
-  // Monthly grid cells (null = empty padding cell)
+  // Map: "YYYY-MM-DD" → CalEvent[] sorted by start_at (for chips in grid, filtered)
+  const eventsListByDay = useMemo(() => {
+    const map = new Map<string, CalEvent[]>();
+    filteredEvents.forEach(e => {
+      const key = new Date(e.start_at).toISOString().slice(0, 10);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
+    });
+    map.forEach(evts => evts.sort((a, b) => a.start_at.localeCompare(b.start_at)));
+    return map;
+  }, [filteredEvents]);
+
   const monthGrid = useMemo<(Date | null)[]>(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -237,7 +289,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     return cells;
   }, [currentMonth]);
 
-  // Weekly view: 7 days starting from Sunday of weekAnchor's week
   const weekDays = useMemo<Date[]>(() => {
     const sw = startOfWeek(weekAnchor);
     return Array.from({ length: 7 }, (_, i) => {
@@ -247,14 +298,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     });
   }, [weekAnchor]);
 
-  const today = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, []);
-
   // periodLabel — calculado solo en cliente para evitar hydration mismatch
-  // (new Date() en server vs client puede diferir por zona horaria UTC-3)
   const [periodLabel, setPeriodLabel] = useState("");
   useEffect(() => {
     setPeriodLabel(calcPeriodLabel(view, currentMonth, weekAnchor));
@@ -329,16 +373,28 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
         </div>
       </div>
 
-      {/* ── Legend ── */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        {(Object.entries(EVENT_CONFIG) as [CalEventType, (typeof EVENT_CONFIG)[CalEventType]][]).map(
-          ([type, cfg]) => (
-            <span key={type} className="flex items-center gap-1.5 text-xs text-gray-500">
-              <span className={`inline-block w-2 h-2 rounded-full ${cfg.dot}`} />
-              {cfg.label}
-            </span>
-          )
-        )}
+      {/* ── Filtros (reemplaza la leyenda estática) ── */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-0.5 scrollbar-hide">
+        {CAL_FILTERS.map(f => {
+          const cfg = f.key !== "all" ? EVENT_CONFIG[f.key] : null;
+          const active = activeFilter === f.key;
+          return (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                active
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+              }`}
+            >
+              {cfg && (
+                <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot} ${active ? "opacity-100" : ""}`} />
+              )}
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Monthly view ── */}
@@ -365,16 +421,20 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                     />
                   );
                 }
-                const key = day.toISOString().slice(0, 10);
-                const types = eventsByDay.get(key);
+                const key = toDateParam(day);
+                const dayEvts = eventsListByDay.get(key) ?? [];
                 const isToday = isSameDay(day, today);
                 const isSelected = isSameDay(day, selectedDay);
+                const isPast = day < today;
+                const MAX_CHIPS = 2;
+                const visibleChips = dayEvts.slice(0, MAX_CHIPS);
+                const extraCount = dayEvts.length - MAX_CHIPS;
 
                 return (
                   <button
                     key={key}
                     onClick={() => handleDayClick(day)}
-                    className={`h-14 sm:h-16 border-b border-r border-gray-100 p-1 text-left transition-colors hover:bg-blue-50/40 ${
+                    className={`min-h-[3.5rem] sm:min-h-[4.5rem] w-full border-b border-r border-gray-100 p-1 text-left align-top transition-colors hover:bg-blue-50/40 ${
                       isSelected ? "bg-blue-50" : ""
                     }`}
                   >
@@ -384,19 +444,36 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                           ? "bg-blue-600 text-white"
                           : isSelected
                           ? "text-blue-700 font-black"
+                          : isPast
+                          ? "text-gray-300"
                           : "text-gray-700"
                       }`}
                     >
                       {day.getDate()}
                     </span>
-                    {types && (
-                      <div className="flex flex-wrap gap-0.5 mt-0.5 px-0.5">
-                        {[...types].slice(0, 4).map(t => (
-                          <span
-                            key={t}
-                            className={`h-1.5 w-1.5 rounded-full ${EVENT_CONFIG[t].dot}`}
-                          />
-                        ))}
+                    {dayEvts.length > 0 && (
+                      <div className="mt-0.5 flex flex-col gap-0.5 px-0.5">
+                        {visibleChips.map(ev => {
+                          const evCfg = EVENT_CONFIG[ev.type];
+                          const timeStr = !isAllDay(ev.start_at) ? formatTime(ev.start_at) : null;
+                          return (
+                            <div
+                              key={ev.id}
+                              className={`flex items-center gap-0.5 rounded px-1 py-[2px] ${evCfg.badge} ${isPast ? "opacity-60" : ""}`}
+                            >
+                              <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${evCfg.dot}`} />
+                              <span className="truncate text-[10px] leading-none min-w-0">
+                                {timeStr && <span className="font-bold">{timeStr} </span>}
+                                {ev.title.slice(0, 11)}{ev.title.length > 11 ? "…" : ""}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {extraCount > 0 && (
+                          <span className={`pl-1 text-[9px] leading-none text-gray-400 ${isPast ? "opacity-60" : ""}`}>
+                            +{extraCount} más
+                          </span>
+                        )}
                       </div>
                     )}
                   </button>
@@ -415,11 +492,12 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
           ) : (
             <div>
               {weekDays.map((day, i) => {
-                const dayEvts = events
+                const dayEvts = filteredEvents
                   .filter(e => isSameDay(new Date(e.start_at), day))
                   .sort((a, b) => a.start_at.localeCompare(b.start_at));
                 const isToday = isSameDay(day, today);
                 const isSelected = isSameDay(day, selectedDay);
+                const isPast = day < today;
 
                 return (
                   <div
@@ -434,6 +512,8 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                             ? "bg-blue-600 text-white"
                             : isSelected
                             ? "bg-blue-100 text-blue-700"
+                            : isPast
+                            ? "bg-gray-50 text-gray-300"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
@@ -443,26 +523,43 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                         </span>
                       </button>
 
-                      {dayEvts.length === 0 ? (
-                        <span className="pt-2.5 text-sm text-gray-400">Sin actividad</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1.5 pt-1.5">
-                          {dayEvts.map(e => {
-                            const cfg = EVENT_CONFIG[e.type];
-                            return (
-                              <button
-                                key={e.id}
-                                onClick={() => setSelectedEvent(e)}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
-                              >
-                                <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                                <span className="truncate max-w-[120px]">
-                                  {e.title.length > 22 ? e.title.slice(0, 22) + "…" : e.title}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        {dayEvts.length === 0 ? (
+                          <span className="pt-2.5 block text-sm text-gray-400">Sin actividad</span>
+                        ) : (
+                          <div className={`flex flex-wrap gap-1.5 pt-1.5 ${isPast ? "opacity-60" : ""}`}>
+                            {dayEvts.map(e => {
+                              const cfg = EVENT_CONFIG[e.type];
+                              return (
+                                <button
+                                  key={e.id}
+                                  onClick={() => setSelectedEvent(e)}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
+                                >
+                                  <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                                  <span className="truncate max-w-[140px]">
+                                    {!isAllDay(e.start_at) && (
+                                      <span className="font-black">{formatTime(e.start_at)} </span>
+                                    )}
+                                    {e.title.length > 18 ? e.title.slice(0, 18) + "…" : e.title}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* + Agregar — solo días no pasados */}
+                      {!isPast && (
+                        <button
+                          onClick={() => handleDayClick(day)}
+                          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors mt-1.5"
+                          aria-label={`Agregar al ${formatDayLabel(day)}`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Agregar
+                        </button>
                       )}
                     </div>
                   </div>
@@ -473,11 +570,12 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
         </div>
       )}
 
-      {/* ── Day events sheet (multiple events) ── */}
+      {/* ── Day sheet (events + actions) ── */}
       {showDaySheet && (
-        <DayEventsSheet
+        <DaySheet
           day={selectedDay}
           events={dayEvents}
+          isPast={selectedDay < today}
           onSelectEvent={(e) => { setShowDaySheet(false); setSelectedEvent(e); }}
           onClose={() => setShowDaySheet(false)}
         />
@@ -491,19 +589,24 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   );
 }
 
-// ── Day events sheet ──────────────────────────────────────────────────────────
+// ── Day sheet ─────────────────────────────────────────────────────────────────
 
-function DayEventsSheet({
+function DaySheet({
   day,
   events,
+  isPast,
   onSelectEvent,
   onClose,
 }: {
   day: Date;
   events: CalEvent[];
+  isPast: boolean;
   onSelectEvent: (e: CalEvent) => void;
   onClose: () => void;
 }) {
+  const dateParam = toDateParam(day);
+  const hasEvents = events.length > 0;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
@@ -511,49 +614,149 @@ function DayEventsSheet({
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">
-            {WEEKDAYS[day.getDay()]} {day.getDate()} de {MONTHS_ES[day.getMonth()]}
-          </p>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100 flex-shrink-0">
+          <p className="text-sm font-bold text-gray-900">{formatDayLabel(day)}</p>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <ul className="divide-y divide-gray-100">
-          {events.map(e => {
-            const cfg = EVENT_CONFIG[e.type];
-            const allDay = isAllDay(e.start_at);
-            return (
-              <li key={e.id}>
-                <button
-                  onClick={() => onSelectEvent(e)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
-                          {cfg.label}
-                        </span>
-                        {e.club_name && (
-                          <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
-                        )}
+
+        <div className="overflow-y-auto flex-1">
+          {/* Section 1: Events */}
+          {hasEvents ? (
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                Actividad
+              </p>
+              <ul className="divide-y divide-gray-100">
+                {events.map(e => {
+                  const cfg = EVENT_CONFIG[e.type];
+                  const allDay = isAllDay(e.start_at);
+                  const meta = e.metadata;
+                  const link =
+                    e.type !== "training" && typeof meta?.link === "string"
+                      ? (meta.link as string)
+                      : null;
+                  const ctaLabel =
+                    typeof meta?.cta_label === "string" ? (meta.cta_label as string) : null;
+                  const coachName =
+                    e.type === "training" && typeof meta?.coach_name === "string"
+                      ? (meta.coach_name as string)
+                      : null;
+                  const durationMin =
+                    typeof meta?.duration_minutes === "number"
+                      ? (meta.duration_minutes as number)
+                      : null;
+                  const statusLabels: Record<string, string> = {
+                    pending: "Pendiente",
+                    confirmed: "Confirmado",
+                    completed: "Completado",
+                    cancelled: "Cancelado",
+                  };
+                  const statusLabel = statusLabels[e.status] ?? e.status;
+
+                  return (
+                    <li key={e.id} className="px-4 py-3">
+                      <div className="flex items-start gap-2.5">
+                        <span className={`mt-0.5 h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                        <div className="min-w-0 flex-1 space-y-1">
+                          {/* Título + hora */}
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-bold text-gray-900 leading-tight">{e.title}</p>
+                            {!allDay && (
+                              <span className="text-xs font-bold text-gray-500 flex-shrink-0">
+                                {formatTime(e.start_at)}
+                              </span>
+                            )}
+                          </div>
+                          {/* Subtítulo: entrenador / club+cancha */}
+                          {coachName ? (
+                            <p className="text-xs text-gray-500">
+                              Clase con <span className="font-semibold">{coachName}</span>
+                            </p>
+                          ) : e.club_name ? (
+                            <p className="text-xs text-gray-500 truncate">
+                              {e.club_name}
+                              {e.court_name ? ` · ${e.court_name}` : ""}
+                            </p>
+                          ) : null}
+                          {/* Duración */}
+                          {durationMin && (
+                            <p className="text-xs text-gray-400">⏱ {durationMin} min</p>
+                          )}
+                          {/* Badge tipo + estado */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                              {cfg.label}
+                            </span>
+                            {e.status && (
+                              <span className="text-[10px] text-gray-400">{statusLabel}</span>
+                            )}
+                          </div>
+                          {/* CTA */}
+                          {link && (
+                            <Link
+                              href={link}
+                              onClick={onClose}
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              {ctaLabel ?? "Ver detalle"} →
+                            </Link>
+                          )}
+                          {e.type === "training" && (
+                            <button
+                              onClick={() => onSelectEvent(e)}
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                              Ver detalle →
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    {!allDay && (
-                      <span className="text-xs text-gray-400 flex-shrink-0">{formatTime(e.start_at)}</span>
-                    )}
-                  </div>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : (
+            <p className="px-4 pt-4 pb-2 text-sm text-gray-400">Sin actividad este día.</p>
+          )}
+
+          {/* Section 2: Actions — solo días no pasados */}
+          {!isPast && (
+            <>
+              {hasEvents && <div className="mx-4 my-2 border-t border-gray-100" />}
+              <div className="px-4 pb-4 pt-2">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">
+                  ¿Qué querés hacer el {formatDayLabel(day)}?
+                </p>
+                <div className="flex flex-col gap-2">
+                  {DAY_ACTIONS.map(action => (
+                    <Link
+                      key={action.key}
+                      href={action.href(dateParam)}
+                      onClick={onClose}
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-lg border border-[#E2E8F0] bg-white text-[13px] font-semibold text-[#0F172A] hover:border-blue-500 hover:bg-[#EFF6FF] transition-colors"
+                    >
+                      <span className="text-xl leading-none">{action.icon}</span>
+                      {action.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Padding bottom for past days with no actions */}
+          {isPast && <div className="pb-4" />}
+        </div>
       </div>
     </div>
   );

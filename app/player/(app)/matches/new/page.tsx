@@ -27,7 +27,7 @@ export default async function CreateMatchPage({
   const mode = searchParams?.mode === "club" ? "club" : searchParams?.mode === "direct" ? "direct" : null;
 
   if (!fromBooking && mode === "club") {
-    redirect("/player/bookings/new");
+    redirect(searchParams?.date ? `/player/bookings/new?date=${searchParams.date}` : "/player/bookings/new");
   }
 
   if (!fromBooking && mode === null) {
