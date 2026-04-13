@@ -335,6 +335,14 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     setPeriodLabel(calcPeriodLabel(view, currentMonth, weekAnchor));
   }, [view, currentMonth, weekAnchor]);
 
+  const filteredHistory = useMemo(() => {
+    if (historyFilter === "all") return historyEvents;
+    return historyEvents.filter(e => e.type === historyFilter);
+  }, [historyEvents, historyFilter]);
+
+  const visibleHistory = filteredHistory.slice(0, (historyPage + 1) * HISTORY_PAGE_SIZE);
+  const hasMoreHistory = visibleHistory.length < filteredHistory.length;
+
   // Skeleton hasta que el cliente haya inicializado todos los valores de fecha
   if (!mounted) {
     return (
@@ -357,14 +365,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
       </div>
     );
   }
-
-  const filteredHistory = useMemo(() => {
-    if (historyFilter === "all") return historyEvents;
-    return historyEvents.filter(e => e.type === historyFilter);
-  }, [historyEvents, historyFilter]);
-
-  const visibleHistory = filteredHistory.slice(0, (historyPage + 1) * HISTORY_PAGE_SIZE);
-  const hasMoreHistory = visibleHistory.length < filteredHistory.length;
 
   return (
     <div>
