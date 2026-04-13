@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCircle2 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics/gtag";
@@ -61,8 +61,10 @@ export function NotificationBell({
 }: NotificationBellProps) {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   const unreadIds = useMemo(
     () => new Set(items.filter((i) => !i.read_at).map((i) => i.id)),
@@ -81,8 +83,24 @@ export function NotificationBell({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
 
+  const computeDropdownStyle = useCallback((): React.CSSProperties => {
+    if (!btnRef.current) return {};
+    const rect = btnRef.current.getBoundingClientRect();
+    const panelW = 340;
+    const gap = 8;
+    const top = rect.bottom + gap;
+    // "left": panel abre a la derecha del botón (sidebar) — left = rect.right + gap
+    // "right": panel abre hacia la izquierda alineando bordes derechos (header mobile)
+    const rawLeft = dropdownAlign === "left"
+      ? rect.right + gap
+      : rect.right - panelW;
+    const left = Math.max(gap, Math.min(rawLeft, window.innerWidth - panelW - gap));
+    return { position: "fixed", top, left };
+  }, [dropdownAlign]);
+
   async function handleToggle() {
     const next = !open;
+    if (next) setDropdownStyle(computeDropdownStyle());
     setOpen(next);
     if (next) {
       trackEvent("notification_bell_opened", { target: "player" });
@@ -139,6 +157,7 @@ export function NotificationBell({
   return (
     <div className="relative" ref={rootRef}>
       <button
+        ref={btnRef}
         type="button"
         onClick={handleToggle}
         className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
@@ -153,7 +172,7 @@ export function NotificationBell({
       </button>
 
       {open ? (
-        <div className={`absolute mt-2 w-[340px] max-w-[calc(100vw-1rem)] rounded-2xl border border-gray-200 bg-white shadow-xl z-50 overflow-hidden ${dropdownAlign === "left" ? "left-0" : "right-0"}`}>
+        <div style={dropdownStyle} className="w-[340px] rounded-2xl border border-gray-200 bg-white shadow-xl z-[200] overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <p className="text-sm font-black text-gray-900">Notificaciones</p>
