@@ -202,8 +202,9 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   }, [dateFrom, dateTo]);
 
   useEffect(() => {
+    if (!mounted) return;
     void fetchEvents();
-  }, [fetchEvents]);
+  }, [mounted, fetchEvents]);
 
   const today = useMemo(() => {
     const d = new Date();
