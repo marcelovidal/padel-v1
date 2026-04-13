@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
-import { ChevronLeft, ChevronRight, CalendarDays, List, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, List, X, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { coachCancelBookingAction } from "@/lib/actions/coach.actions";
@@ -33,11 +33,42 @@ const EVENT_CONFIG: Record<CalEventType, { label: string; dot: string; badge: st
   training:   { label: "Entrenamiento", dot: "bg-red-500",    badge: "bg-red-100 text-red-700" },
 };
 
+const HISTORY_FILTERS: { key: CalEventType | "all"; label: string; emptyMsg: string }[] = [
+  { key: "all",        label: "Todos",           emptyMsg: "No tenés actividad registrada" },
+  { key: "match",      label: "Partidos",         emptyMsg: "No tenés partidos registrados" },
+  { key: "booking",    label: "Reservas",         emptyMsg: "No tenés reservas registradas" },
+  { key: "training",   label: "Entrenamientos",   emptyMsg: "No tenés entrenamientos registrados" },
+  { key: "tournament", label: "Torneos",          emptyMsg: "No tenés torneos registrados" },
+  { key: "league",     label: "Ligas",            emptyMsg: "No tenés ligas registradas" },
+];
+
+const DAY_ACTIONS = [
+  {
+    key: "match",
+    icon: "🎾",
+    label: "Registrar partido",
+    href: (date: string) => `/player/matches/new?date=${date}`,
+  },
+  {
+    key: "booking",
+    icon: "🏟️",
+    label: "Reservar cancha",
+    href: (date: string) => `/player/bookings/new?date=${date}`,
+  },
+  {
+    key: "training",
+    icon: "👨‍🏫",
+    label: "Reservar clase",
+    href: (date: string) => `/player/entrenadores?date=${date}`,
+  },
+] as const;
+
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS_ES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
+const HISTORY_PAGE_SIZE = 20;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -51,7 +82,7 @@ function isSameDay(a: Date, b: Date) {
 
 function startOfWeek(d: Date): Date {
   const result = new Date(d);
-  result.setDate(d.getDate() - d.getDay()); // Sunday = 0
+  result.setDate(d.getDate() - d.getDay());
   result.setHours(0, 0, 0, 0);
   return result;
 }
@@ -69,12 +100,9 @@ function formatTime(iso: string): string {
 }
 
 function isAllDay(iso: string): boolean {
-  // Supabase returns dates cast to timestamptz as midnight UTC or midnight with offset
   const t = new Date(iso);
   return t.getUTCHours() === 0 && t.getUTCMinutes() === 0 && t.getUTCSeconds() === 0;
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function calcPeriodLabel(view: "monthly" | "weekly", currentMonth: Date, weekAnchor: Date): string {
   if (view === "monthly") {
@@ -87,6 +115,35 @@ function calcPeriodLabel(view: "monthly" | "weekly", currentMonth: Date, weekAnc
   return sameMon
     ? `${sw.getDate()}–${ew.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} ${sw.getFullYear()}`
     : `${sw.getDate()} ${MONTHS_ES[sw.getMonth()].slice(0, 3)} – ${ew.getDate()} ${MONTHS_ES[ew.getMonth()].slice(0, 3)}`;
+}
+
+function toDateParam(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDayLabel(d: Date): string {
+  return `${WEEKDAYS[d.getDay()]} ${d.getDate()} de ${MONTHS_ES[d.getMonth()]}`;
+}
+
+function getHistorySubtitle(e: CalEvent): string {
+  const meta = e.metadata;
+  if (e.type === "match") {
+    const rival = typeof meta?.rival_name === "string" ? meta.rival_name : null;
+    const club = e.club_name;
+    if (rival && club) return `vs ${rival} · ${club}`;
+    if (rival) return `vs ${rival}`;
+    if (club) return club;
+    return "";
+  }
+  if (e.type === "booking") {
+    const parts = [e.club_name, e.court_name].filter(Boolean);
+    return parts.join(" · ");
+  }
+  if (e.type === "training") {
+    const coach = typeof meta?.coach_name === "string" ? meta.coach_name : null;
+    return coach ? `con ${coach}` : e.club_name ?? "";
+  }
+  return e.club_name ?? "";
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -126,6 +183,12 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [showDaySheet, setShowDaySheet] = useState(false);
 
+  // History state
+  const [historyEvents, setHistoryEvents] = useState<CalEvent[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyFilter, setHistoryFilter] = useState<CalEventType | "all">("all");
+  const [historyPage, setHistoryPage] = useState(0);
+
   // Date range for the current view
   const { dateFrom, dateTo } = useMemo(() => {
     if (view === "monthly") {
@@ -163,16 +226,32 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     void fetchEvents();
   }, [fetchEvents]);
 
+  const fetchHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    const supabase = createBrowserSupabase();
+    const dateTo = new Date();
+    dateTo.setDate(dateTo.getDate() - 1);
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - 90);
+    const { data, error } = await (supabase as any).rpc("get_player_calendar", {
+      p_date_from: dateFrom.toISOString().slice(0, 10),
+      p_date_to: dateTo.toISOString().slice(0, 10),
+    });
+    if (!error && Array.isArray(data)) {
+      setHistoryEvents(
+        (data as CalEvent[]).sort((a, b) => b.start_at.localeCompare(a.start_at))
+      );
+    }
+    setHistoryLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void fetchHistory();
+  }, [fetchHistory]);
+
   function handleDayClick(day: Date) {
     setSelectedDay(day);
-    const dayEvts = events
-      .filter(e => isSameDay(new Date(e.start_at), day))
-      .sort((a, b) => a.start_at.localeCompare(b.start_at));
-    if (dayEvts.length === 1) {
-      setSelectedEvent(dayEvts[0]);
-    } else if (dayEvts.length > 1) {
-      setShowDaySheet(true);
-    }
+    setShowDaySheet(true);
   }
 
   function toggleView(v: "monthly" | "weekly") {
@@ -204,7 +283,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     }
   }
 
-  // Events for selected day, sorted by time
   const dayEvents = useMemo(
     () =>
       events
@@ -213,7 +291,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     [events, selectedDay]
   );
 
-  // Map: "YYYY-MM-DD" → Set<CalEventType> (for monthly dots)
   const eventsByDay = useMemo(() => {
     const map = new Map<string, Set<CalEventType>>();
     events.forEach(e => {
@@ -224,7 +301,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     return map;
   }, [events]);
 
-  // Monthly grid cells (null = empty padding cell)
   const monthGrid = useMemo<(Date | null)[]>(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -237,7 +313,6 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     return cells;
   }, [currentMonth]);
 
-  // Weekly view: 7 days starting from Sunday of weekAnchor's week
   const weekDays = useMemo<Date[]>(() => {
     const sw = startOfWeek(weekAnchor);
     return Array.from({ length: 7 }, (_, i) => {
@@ -282,6 +357,14 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
       </div>
     );
   }
+
+  const filteredHistory = useMemo(() => {
+    if (historyFilter === "all") return historyEvents;
+    return historyEvents.filter(e => e.type === historyFilter);
+  }, [historyEvents, historyFilter]);
+
+  const visibleHistory = filteredHistory.slice(0, (historyPage + 1) * HISTORY_PAGE_SIZE);
+  const hasMoreHistory = visibleHistory.length < filteredHistory.length;
 
   return (
     <div>
@@ -443,27 +526,39 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                         </span>
                       </button>
 
-                      {dayEvts.length === 0 ? (
-                        <span className="pt-2.5 text-sm text-gray-400">Sin actividad</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1.5 pt-1.5">
-                          {dayEvts.map(e => {
-                            const cfg = EVENT_CONFIG[e.type];
-                            return (
-                              <button
-                                key={e.id}
-                                onClick={() => setSelectedEvent(e)}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
-                              >
-                                <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                                <span className="truncate max-w-[120px]">
-                                  {e.title.length > 22 ? e.title.slice(0, 22) + "…" : e.title}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        {dayEvts.length === 0 ? (
+                          <span className="pt-2.5 block text-sm text-gray-400">Sin actividad</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5 pt-1.5">
+                            {dayEvts.map(e => {
+                              const cfg = EVENT_CONFIG[e.type];
+                              return (
+                                <button
+                                  key={e.id}
+                                  onClick={() => setSelectedEvent(e)}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
+                                >
+                                  <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                                  <span className="truncate max-w-[120px]">
+                                    {e.title.length > 22 ? e.title.slice(0, 22) + "…" : e.title}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* + Agregar button */}
+                      <button
+                        onClick={() => handleDayClick(day)}
+                        className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors mt-1.5"
+                        aria-label={`Agregar al ${formatDayLabel(day)}`}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Agregar
+                      </button>
                     </div>
                   </div>
                 );
@@ -473,9 +568,9 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
         </div>
       )}
 
-      {/* ── Day events sheet (multiple events) ── */}
+      {/* ── Day sheet (events + actions) ── */}
       {showDaySheet && (
-        <DayEventsSheet
+        <DaySheet
           day={selectedDay}
           events={dayEvents}
           onSelectEvent={(e) => { setShowDaySheet(false); setSelectedEvent(e); }}
@@ -487,13 +582,26 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
       {selectedEvent && (
         <EventDetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
+
+      {/* ── History section ── */}
+      <HistorySection
+        events={historyEvents}
+        loading={historyLoading}
+        filter={historyFilter}
+        onFilterChange={(f) => { setHistoryFilter(f); setHistoryPage(0); }}
+        filteredEvents={filteredHistory}
+        visibleEvents={visibleHistory}
+        hasMore={hasMoreHistory}
+        onLoadMore={() => setHistoryPage(p => p + 1)}
+        onSelectEvent={setSelectedEvent}
+      />
     </div>
   );
 }
 
-// ── Day events sheet ──────────────────────────────────────────────────────────
+// ── Day sheet ─────────────────────────────────────────────────────────────────
 
-function DayEventsSheet({
+function DaySheet({
   day,
   events,
   onSelectEvent,
@@ -504,6 +612,9 @@ function DayEventsSheet({
   onSelectEvent: (e: CalEvent) => void;
   onClose: () => void;
 }) {
+  const dateParam = toDateParam(day);
+  const hasEvents = events.length > 0;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
@@ -511,49 +622,89 @@ function DayEventsSheet({
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">
-            {WEEKDAYS[day.getDay()]} {day.getDate()} de {MONTHS_ES[day.getMonth()]}
-          </p>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100 flex-shrink-0">
+          <p className="text-sm font-bold text-gray-900">{formatDayLabel(day)}</p>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <ul className="divide-y divide-gray-100">
-          {events.map(e => {
-            const cfg = EVENT_CONFIG[e.type];
-            const allDay = isAllDay(e.start_at);
-            return (
-              <li key={e.id}>
-                <button
-                  onClick={() => onSelectEvent(e)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+
+        <div className="overflow-y-auto flex-1">
+          {/* Section 1: Events */}
+          {hasEvents && (
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                Actividad
+              </p>
+              <ul className="divide-y divide-gray-100">
+                {events.map(e => {
+                  const cfg = EVENT_CONFIG[e.type];
+                  const allDay = isAllDay(e.start_at);
+                  return (
+                    <li key={e.id}>
+                      <button
+                        onClick={() => onSelectEvent(e)}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                                {cfg.label}
+                              </span>
+                              {e.club_name && (
+                                <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
+                              )}
+                            </div>
+                          </div>
+                          {!allDay && (
+                            <span className="text-xs text-gray-400 flex-shrink-0">{formatTime(e.start_at)}</span>
+                          )}
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {!hasEvents && (
+            <p className="px-4 pt-4 text-sm text-gray-400">Sin actividad este día.</p>
+          )}
+
+          {/* Divider between sections (only if there are events) */}
+          {hasEvents && <div className="mx-4 my-2 border-t border-gray-100" />}
+
+          {/* Section 2: Actions */}
+          <div className="px-4 pb-4 pt-2">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">
+              ¿Qué querés hacer el {formatDayLabel(day)}?
+            </p>
+            <div className="flex flex-col gap-2">
+              {DAY_ACTIONS.map(action => (
+                <Link
+                  key={action.key}
+                  href={action.href(dateParam)}
+                  onClick={onClose}
+                  className="flex items-center gap-3 w-full px-3 py-3 rounded-lg border border-[#E2E8F0] bg-white text-[13px] font-semibold text-[#0F172A] hover:border-blue-500 hover:bg-[#EFF6FF] transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
-                          {cfg.label}
-                        </span>
-                        {e.club_name && (
-                          <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
-                        )}
-                      </div>
-                    </div>
-                    {!allDay && (
-                      <span className="text-xs text-gray-400 flex-shrink-0">{formatTime(e.start_at)}</span>
-                    )}
-                  </div>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                  <span className="text-xl leading-none">{action.icon}</span>
+                  {action.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -564,7 +715,6 @@ function DayEventsSheet({
 function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => void }) {
   const cfg = EVENT_CONFIG[event.type];
   const meta = event.metadata;
-  // Training events don't use a link CTA — they have their own cancel button
   const link = event.type !== "training" && typeof meta?.link === "string" ? meta.link : null;
   const allDay = isAllDay(event.start_at);
   const router = useRouter();
@@ -619,7 +769,6 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
         <div className="px-4 py-4 space-y-2.5">
           <p className="text-base font-black text-gray-900">{event.title}</p>
 
-          {/* Date/time */}
           <p className="text-sm text-gray-600">
             🗓{" "}
             {new Date(event.start_at).toLocaleDateString("es-AR", {
@@ -635,7 +784,6 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
             )}
           </p>
 
-          {/* Club + court */}
           {event.club_name && (
             <p className="text-sm text-gray-600">
               📍 {event.club_name}
@@ -643,14 +791,12 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
             </p>
           )}
 
-          {/* Status */}
           {event.status && event.status !== "confirmed" && (
             <p className="text-sm text-gray-500 capitalize">
               Estado: <span className="font-semibold">{event.status}</span>
             </p>
           )}
 
-          {/* Coach name (for training) */}
           {typeof meta?.coach_name === "string" && event.type === "training" && (
             <p className="text-sm text-gray-600">
               👤 Entrenador:{" "}
@@ -663,33 +809,28 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
             </p>
           )}
 
-          {/* Duration */}
           {typeof meta?.duration_minutes === "number" && (
             <p className="text-sm text-gray-500">
               ⏱ {meta.duration_minutes as number} min
             </p>
           )}
 
-          {/* Tarifa (solo si pública) */}
           {typeof meta?.tarifa_por_hora === "number" && (
             <p className="text-sm text-gray-600">
               💲 ${(meta.tarifa_por_hora as number).toLocaleString("es-AR")} / hora
             </p>
           )}
 
-          {/* Notes */}
           {typeof meta?.notes === "string" && meta.notes && (
             <p className="text-sm text-gray-500 italic">&ldquo;{meta.notes as string}&rdquo;</p>
           )}
 
-          {/* Training: pending message */}
           {showPending && (
             <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
               Esperando confirmación del entrenador
             </p>
           )}
 
-          {/* Cancel error */}
           {cancelError && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
               {cancelError}
@@ -721,6 +862,120 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── History section ───────────────────────────────────────────────────────────
+
+function HistorySection({
+  loading,
+  filter,
+  onFilterChange,
+  filteredEvents,
+  visibleEvents,
+  hasMore,
+  onLoadMore,
+  onSelectEvent,
+}: {
+  events: CalEvent[];
+  loading: boolean;
+  filter: CalEventType | "all";
+  onFilterChange: (f: CalEventType | "all") => void;
+  filteredEvents: CalEvent[];
+  visibleEvents: CalEvent[];
+  hasMore: boolean;
+  onLoadMore: () => void;
+  onSelectEvent: (e: CalEvent) => void;
+}) {
+  const emptyMsg =
+    HISTORY_FILTERS.find(f => f.key === filter)?.emptyMsg ?? "No tenés actividad registrada";
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-base font-bold text-gray-900 mb-3">Historial de actividad</h2>
+
+      {/* Filter pills */}
+      <div className="flex gap-2 flex-wrap mb-4">
+        {HISTORY_FILTERS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => onFilterChange(f.key)}
+            className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+              filter === f.key
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="py-8 flex items-center justify-center text-sm text-gray-400">
+          Cargando historial...
+        </div>
+      ) : filteredEvents.length === 0 ? (
+        <div className="py-8 text-center text-sm text-gray-400">{emptyMsg}</div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <ul className="divide-y divide-gray-100">
+            {visibleEvents.map(e => {
+              const cfg = EVENT_CONFIG[e.type];
+              const subtitle = getHistorySubtitle(e);
+              const allDay = isAllDay(e.start_at);
+              return (
+                <li key={e.id}>
+                  <button
+                    onClick={() => onSelectEvent(e)}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                            {cfg.label}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(e.start_at).toLocaleDateString("es-AR", {
+                              day: "numeric",
+                              month: "short",
+                            })}
+                            {!allDay && ` · ${formatTime(e.start_at)}`}
+                          </span>
+                          {e.status && e.status !== "confirmed" && (
+                            <span className="text-[10px] font-medium text-gray-400 capitalize">
+                              {e.status}
+                            </span>
+                          )}
+                        </div>
+                        {subtitle && (
+                          <p className="text-sm font-semibold text-gray-800 mt-0.5 truncate">
+                            {subtitle}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {hasMore && (
+            <div className="px-4 py-3 border-t border-gray-100">
+              <button
+                onClick={onLoadMore}
+                className="w-full py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                Ver más
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
