@@ -335,11 +335,6 @@ export function PlayerSidebar({
               Mis reservas
               <NavBadge count={sectionCounts.calendario} />
             </Link>
-            <Link href="/player/entrenadores" className={l2Cls(false)}>
-              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
-              Reservar clase
-            </Link>
-
             <Link href="/player/matches" className={l1Cls(onActividad)}>
               <Zap className="w-[18px] h-[18px] shrink-0" />
               Actividad
