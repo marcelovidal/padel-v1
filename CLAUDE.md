@@ -1,10 +1,10 @@
 # PASALA — Claude Code Context
 
 ### Versión actual
-v0.9.0
+v0.9.1
 
 ### Features completos
-- Q1–Q4: Core — partidos, reservas, resultados, 
+- Q1–Q4: Core — partidos, reservas, resultados,
   ranking, auth, RLS
 - Q3.1: Agenda multi-canchas — matriz hora×cancha
 - Índice PASALA: rating 0-100, 5 factores, historial
@@ -15,10 +15,18 @@ v0.9.0
   reserva de clase, buscador de entrenadores
 - Q7: Calendario unificado — todos los eventos
   del jugador en una sola vista
-- Q8: Sidebar player — desktop colapsable + 
+- Q8: Sidebar player — desktop colapsable +
   bottom nav mobile + cards contextuales
-- Q9: Sidebar club — desktop colapsable + 
+- Q9: Sidebar club — desktop colapsable +
   bottom nav mobile + página entrenadores del club
+- Calendario hub UX: eventos visibles en grid
+  mensual (chips hora+título, máx 2 por celda),
+  filtros por tipo, DaySheet con cards enriquecidas
+  por tipo de evento + acciones directas; días
+  pasados solo eventos, días futuros eventos +
+  4 acciones (partido en club / sin club / reservar
+  cancha / reservar clase); flujo directo sin
+  pantalla intermedia desde calendario
 
 ### Arquitectura de navegación
 - Desktop (md+): sidebar fijo colapsable 
