@@ -44,10 +44,16 @@ const CAL_FILTERS: { key: CalEventType | "all"; label: string }[] = [
 
 const DAY_ACTIONS = [
   {
-    key: "match",
+    key: "match_club",
     icon: "🎾",
-    label: "Registrar partido",
-    href: (date: string) => `/player/matches/new?date=${date}`,
+    label: "Registrar partido en club",
+    href: (date: string) => `/player/matches/new?date=${date}&mode=club`,
+  },
+  {
+    key: "match_direct",
+    icon: "🎾",
+    label: "Registrar partido sin club",
+    href: (date: string) => `/player/matches/new?date=${date}&mode=direct`,
   },
   {
     key: "booking",
@@ -209,7 +215,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     const isPast = day < today;
     // Past day with no events: do nothing
     const key = toDateParam(day);
-    const hasEventsOnDay = filteredEventsByDay.has(key);
+    const hasEventsOnDay = eventsListByDay.has(key);
     if (isPast && !hasEventsOnDay) return;
     setSelectedDay(day);
     setShowDaySheet(true);
@@ -259,14 +265,15 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     [filteredEvents, selectedDay]
   );
 
-  // Map: "YYYY-MM-DD" → Set<CalEventType> (for dots in grid, filtered)
-  const filteredEventsByDay = useMemo(() => {
-    const map = new Map<string, Set<CalEventType>>();
+  // Map: "YYYY-MM-DD" → CalEvent[] sorted by start_at (for chips in grid, filtered)
+  const eventsListByDay = useMemo(() => {
+    const map = new Map<string, CalEvent[]>();
     filteredEvents.forEach(e => {
       const key = new Date(e.start_at).toISOString().slice(0, 10);
-      if (!map.has(key)) map.set(key, new Set());
-      map.get(key)!.add(e.type);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
     });
+    map.forEach(evts => evts.sort((a, b) => a.start_at.localeCompare(b.start_at)));
     return map;
   }, [filteredEvents]);
 
@@ -415,16 +422,19 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                   );
                 }
                 const key = toDateParam(day);
-                const types = filteredEventsByDay.get(key);
+                const dayEvts = eventsListByDay.get(key) ?? [];
                 const isToday = isSameDay(day, today);
                 const isSelected = isSameDay(day, selectedDay);
                 const isPast = day < today;
+                const MAX_CHIPS = 2;
+                const visibleChips = dayEvts.slice(0, MAX_CHIPS);
+                const extraCount = dayEvts.length - MAX_CHIPS;
 
                 return (
                   <button
                     key={key}
                     onClick={() => handleDayClick(day)}
-                    className={`h-14 sm:h-16 border-b border-r border-gray-100 p-1 text-left transition-colors hover:bg-blue-50/40 ${
+                    className={`min-h-[3.5rem] sm:min-h-[4.5rem] w-full border-b border-r border-gray-100 p-1 text-left align-top transition-colors hover:bg-blue-50/40 ${
                       isSelected ? "bg-blue-50" : ""
                     }`}
                   >
@@ -441,14 +451,29 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                     >
                       {day.getDate()}
                     </span>
-                    {types && (
-                      <div className={`flex flex-wrap gap-0.5 mt-0.5 px-0.5 ${isPast ? "opacity-50" : ""}`}>
-                        {[...types].slice(0, 4).map(t => (
-                          <span
-                            key={t}
-                            className={`h-1.5 w-1.5 rounded-full ${EVENT_CONFIG[t].dot}`}
-                          />
-                        ))}
+                    {dayEvts.length > 0 && (
+                      <div className="mt-0.5 flex flex-col gap-0.5 px-0.5">
+                        {visibleChips.map(ev => {
+                          const evCfg = EVENT_CONFIG[ev.type];
+                          const timeStr = !isAllDay(ev.start_at) ? formatTime(ev.start_at) : null;
+                          return (
+                            <div
+                              key={ev.id}
+                              className={`flex items-center gap-0.5 rounded px-1 py-[2px] ${evCfg.badge} ${isPast ? "opacity-60" : ""}`}
+                            >
+                              <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${evCfg.dot}`} />
+                              <span className="truncate text-[10px] leading-none min-w-0">
+                                {timeStr && <span className="font-bold">{timeStr} </span>}
+                                {ev.title.slice(0, 11)}{ev.title.length > 11 ? "…" : ""}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {extraCount > 0 && (
+                          <span className={`pl-1 text-[9px] leading-none text-gray-400 ${isPast ? "opacity-60" : ""}`}>
+                            +{extraCount} más
+                          </span>
+                        )}
                       </div>
                     )}
                   </button>
@@ -512,8 +537,11 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
                                 >
                                   <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                                  <span className="truncate max-w-[120px]">
-                                    {e.title.length > 22 ? e.title.slice(0, 22) + "…" : e.title}
+                                  <span className="truncate max-w-[140px]">
+                                    {!isAllDay(e.start_at) && (
+                                      <span className="font-black">{formatTime(e.start_at)} </span>
+                                    )}
+                                    {e.title.length > 18 ? e.title.slice(0, 18) + "…" : e.title}
                                   </span>
                                 </button>
                               );
@@ -611,30 +639,87 @@ function DaySheet({
                 {events.map(e => {
                   const cfg = EVENT_CONFIG[e.type];
                   const allDay = isAllDay(e.start_at);
+                  const meta = e.metadata;
+                  const link =
+                    e.type !== "training" && typeof meta?.link === "string"
+                      ? (meta.link as string)
+                      : null;
+                  const ctaLabel =
+                    typeof meta?.cta_label === "string" ? (meta.cta_label as string) : null;
+                  const coachName =
+                    e.type === "training" && typeof meta?.coach_name === "string"
+                      ? (meta.coach_name as string)
+                      : null;
+                  const durationMin =
+                    typeof meta?.duration_minutes === "number"
+                      ? (meta.duration_minutes as number)
+                      : null;
+                  const statusLabels: Record<string, string> = {
+                    pending: "Pendiente",
+                    confirmed: "Confirmado",
+                    completed: "Completado",
+                    cancelled: "Cancelado",
+                  };
+                  const statusLabel = statusLabels[e.status] ?? e.status;
+
                   return (
-                    <li key={e.id}>
-                      <button
-                        onClick={() => onSelectEvent(e)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold text-gray-900 truncate">{e.title}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
-                                {cfg.label}
+                    <li key={e.id} className="px-4 py-3">
+                      <div className="flex items-start gap-2.5">
+                        <span className={`mt-0.5 h-2.5 w-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                        <div className="min-w-0 flex-1 space-y-1">
+                          {/* Título + hora */}
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-bold text-gray-900 leading-tight">{e.title}</p>
+                            {!allDay && (
+                              <span className="text-xs font-bold text-gray-500 flex-shrink-0">
+                                {formatTime(e.start_at)}
                               </span>
-                              {e.club_name && (
-                                <span className="text-xs text-gray-500 truncate">{e.club_name}</span>
-                              )}
-                            </div>
+                            )}
                           </div>
-                          {!allDay && (
-                            <span className="text-xs text-gray-400 flex-shrink-0">{formatTime(e.start_at)}</span>
+                          {/* Subtítulo: entrenador / club+cancha */}
+                          {coachName ? (
+                            <p className="text-xs text-gray-500">
+                              Clase con <span className="font-semibold">{coachName}</span>
+                            </p>
+                          ) : e.club_name ? (
+                            <p className="text-xs text-gray-500 truncate">
+                              {e.club_name}
+                              {e.court_name ? ` · ${e.court_name}` : ""}
+                            </p>
+                          ) : null}
+                          {/* Duración */}
+                          {durationMin && (
+                            <p className="text-xs text-gray-400">⏱ {durationMin} min</p>
+                          )}
+                          {/* Badge tipo + estado */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                              {cfg.label}
+                            </span>
+                            {e.status && (
+                              <span className="text-[10px] text-gray-400">{statusLabel}</span>
+                            )}
+                          </div>
+                          {/* CTA */}
+                          {link && (
+                            <Link
+                              href={link}
+                              onClick={onClose}
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              {ctaLabel ?? "Ver detalle"} →
+                            </Link>
+                          )}
+                          {e.type === "training" && (
+                            <button
+                              onClick={() => onSelectEvent(e)}
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                              Ver detalle →
+                            </button>
                           )}
                         </div>
-                      </button>
+                      </div>
                     </li>
                   );
                 })}
