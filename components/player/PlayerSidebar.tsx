@@ -19,6 +19,11 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
+  Building2,
+  LayoutDashboard,
+  BookOpen,
+  Dumbbell,
+  Settings,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -33,6 +38,7 @@ interface PlayerSidebarProps {
   avatarSrc?: string | null;
   avatarInitials?: string;
   isCoach: boolean;
+  isClubOwner: boolean;
   collapsed: boolean;
   onToggle: () => void;
 }
@@ -190,6 +196,7 @@ export function PlayerSidebar({
   avatarSrc,
   avatarInitials,
   isCoach,
+  isClubOwner,
   collapsed,
   onToggle,
 }: PlayerSidebarProps) {
@@ -204,6 +211,7 @@ export function PlayerSidebar({
     pathname.startsWith("/player/matches") || pathname.startsWith("/player/events");
   const onComunidad =
     pathname.startsWith("/player/players") || pathname.startsWith("/player/entrenadores");
+  const onMiClub = pathname.startsWith("/player/mi-club");
 
   const accion = resolveAccion(pathname);
   const { style: fadeStyle } = useFadeOnChange(accion.label);
@@ -306,6 +314,14 @@ export function PlayerSidebar({
                 badgeCount={sectionCounts.coach}
               />
             )}
+            {isClubOwner && (
+              <CollapsedNavItem
+                href="/player/mi-club"
+                icon={Building2}
+                label="Mi club"
+                active={onMiClub}
+              />
+            )}
             <CollapsedNavItem
               href="/player/profile"
               icon={UserCircle}
@@ -386,6 +402,64 @@ export function PlayerSidebar({
                 <span className="flex-1">Mi equipo</span>
                 <NavBadge count={sectionCounts.coach} />
               </Link>
+            )}
+
+            {isClubOwner && (
+              <>
+                <Link href="/player/mi-club" className={l1Cls(onMiClub)}>
+                  <Building2 className="w-[18px] h-[18px] shrink-0" />
+                  Mi club
+                </Link>
+                <Link
+                  href="/player/mi-club"
+                  className={l2Cls(onMiClub && pathname === "/player/mi-club")}
+                >
+                  <LayoutDashboard className="w-[15px] h-[15px] shrink-0" />
+                  Dashboard
+                </Link>
+                <Link
+                  href="/player/mi-club/dashboard/bookings"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/bookings"))}
+                >
+                  <Calendar className="w-[15px] h-[15px] shrink-0" />
+                  Reservas
+                </Link>
+                <Link
+                  href="/player/mi-club/dashboard/courts"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/courts"))}
+                >
+                  <Dumbbell className="w-[15px] h-[15px] shrink-0" />
+                  Canchas
+                </Link>
+                <Link
+                  href="/player/mi-club/dashboard/leagues"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/leagues"))}
+                >
+                  <Trophy className="w-[15px] h-[15px] shrink-0" />
+                  Ligas
+                </Link>
+                <Link
+                  href="/player/mi-club/dashboard/tournaments"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/tournaments"))}
+                >
+                  <Star className="w-[15px] h-[15px] shrink-0" />
+                  Torneos
+                </Link>
+                <Link
+                  href="/player/mi-club/jugadores"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/jugadores"))}
+                >
+                  <Users className="w-[15px] h-[15px] shrink-0" />
+                  Jugadores
+                </Link>
+                <Link
+                  href="/player/mi-club/ajustes"
+                  className={l2Cls(pathname.startsWith("/player/mi-club/ajustes"))}
+                >
+                  <Settings className="w-[15px] h-[15px] shrink-0" />
+                  Ajustes
+                </Link>
+              </>
             )}
 
             <Link

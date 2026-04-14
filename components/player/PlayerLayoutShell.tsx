@@ -12,6 +12,7 @@ interface PlayerLayoutShellProps {
   avatarSrc: string | null;
   avatarInitials: string;
   isCoach: boolean;
+  isClubOwner: boolean;
 }
 
 export function PlayerLayoutShell({
@@ -21,6 +22,7 @@ export function PlayerLayoutShell({
   avatarSrc,
   avatarInitials,
   isCoach,
+  isClubOwner,
 }: PlayerLayoutShellProps) {
   // SSR default: expanded (md:ml-60). useEffect ajusta según localStorage / viewport.
   const [collapsed, setCollapsed] = useState(false);
@@ -51,6 +53,7 @@ export function PlayerLayoutShell({
         avatarSrc={avatarSrc}
         avatarInitials={avatarInitials}
         isCoach={isCoach}
+        isClubOwner={isClubOwner}
         collapsed={collapsed}
         onToggle={handleToggle}
       />
