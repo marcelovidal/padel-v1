@@ -36,15 +36,8 @@ export default async function WelcomePage({
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-white to-white">
-      <div className="w-full max-w-3xl space-y-8">
-        <div className="space-y-3 text-center">
-          <h1 className="text-6xl font-black text-blue-600 tracking-tighter italic transform -skew-x-6">PASALA</h1>
-          <p className="text-lg text-gray-600 font-medium">
-            Acceso unificado para jugadores y clubes.
-          </p>
-        </div>
-
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-[420px]">
         <WelcomePortalAuth
           nextPath={next}
           initialPortal={portal as PortalType}
