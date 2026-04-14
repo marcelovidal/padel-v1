@@ -259,17 +259,7 @@ export default function WelcomePortalAuth({
                 {pending ? "Enviando..." : "Enviar link de acceso"}
               </button>
 
-              {/* 3. OTP — botón secundario */}
-              <button
-                type="button"
-                disabled={pending}
-                onClick={sendOtp}
-                className="w-full min-h-[48px] rounded-xl border border-[#E2E8F0] bg-white text-[#0F172A] font-semibold text-sm hover:bg-[#F8FAFC] disabled:opacity-60 transition-colors"
-              >
-                {pending ? "Enviando..." : "Enviar código de 6 dígitos"}
-              </button>
-
-              {/* 4. Contraseña — texto link discreto */}
+              {/* 3. Contraseña — texto link discreto */}
               {!showPassword ? (
                 <div className="text-center pt-1">
                   <button
@@ -333,30 +323,56 @@ export default function WelcomePortalAuth({
 
           {/* Step: magic link enviado */}
           {loginStep === "magic-link-sent" && (
-            <div className="text-center space-y-4 py-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto">
-                <svg className="w-7 h-7 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <div className="space-y-5 py-2">
+              <div className="text-center space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto">
+                  <svg className="w-7 h-7 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-[#0F172A]">Revisá tu email</h2>
+                  <p className="text-sm text-[#64748B] mt-2 leading-relaxed">
+                    Te enviamos un link a{" "}
+                    <span className="font-semibold text-[#0F172A]">{email}</span>.
+                    <br />
+                    Hacé click en el link para ingresar.
+                    <br />
+                    <span className="text-xs text-[#94A3B8]">El link expira en 1 hora.</span>
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-[#0F172A]">Revisá tu email</h2>
-                <p className="text-sm text-[#64748B] mt-2 leading-relaxed">
-                  Te enviamos un link a{" "}
-                  <span className="font-semibold text-[#0F172A]">{email}</span>.
-                  <br />
-                  Hacé click en el link para ingresar.
-                  <br />
-                  <span className="text-xs text-[#94A3B8]">El link expira en 1 hora.</span>
+
+              {/* Contingencia OTP */}
+              <div className="border-t border-[#F1F5F9] pt-5 space-y-3">
+                <p className="text-xs text-center text-[#94A3B8]">
+                  ¿No te llegó el email o preferís un código?
                 </p>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={sendOtp}
+                  className="w-full min-h-[48px] rounded-xl border border-[#E2E8F0] bg-white text-[#0F172A] font-semibold text-sm hover:bg-[#F8FAFC] disabled:opacity-60 transition-colors"
+                >
+                  {pending ? "Enviando..." : "Enviar código de 6 dígitos"}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={resetToLogin}
-                className="text-sm text-[#2563EB] font-semibold hover:underline"
-              >
-                Volver
-              </button>
+
+              {error && (
+                <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 text-center">
+                  {error}
+                </p>
+              )}
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={resetToLogin}
+                  className="text-sm text-[#94A3B8] hover:text-[#64748B] transition-colors"
+                >
+                  Volver
+                </button>
+              </div>
             </div>
           )}
 
