@@ -23,7 +23,9 @@ export type NotificationType =
   | "booking_cancelled"
   | "booking_requested"
   | "training_session_scheduled"
-  | "coach_booking_cancelled";
+  | "coach_booking_cancelled"
+  | "club_owner_request_approved"
+  | "club_owner_request_rejected";
 
 export interface NotificationItem {
   id: string;

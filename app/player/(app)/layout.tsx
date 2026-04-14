@@ -12,6 +12,7 @@ export default async function PlayerLayout({
     const { user, player } = await requirePlayer();
     const avatarData = await resolveAvatarSrc({ player, user });
     const isCoach = !!(player as any).is_coach;
+    const isClubOwner = !!(player as any).is_club_owner;
     const location = [player.city, player.region_code].filter(Boolean).join(", ") || null;
 
     return (
@@ -22,6 +23,7 @@ export default async function PlayerLayout({
                 avatarSrc={avatarData.src ?? null}
                 avatarInitials={avatarData.initials ?? ""}
                 isCoach={isCoach}
+                isClubOwner={isClubOwner}
             >
                 {children}
             </PlayerLayoutShell>

@@ -1,7 +1,7 @@
 # PASALA — Claude Code Context
 
 ### Versión actual
-v0.9.1
+v0.10.0
 
 ### Features completos
 - Q1–Q4: Core — partidos, reservas, resultados,
@@ -27,6 +27,12 @@ v0.9.1
   4 acciones (partido en club / sin club / reservar
   cancha / reservar clase); flujo directo sin
   pantalla intermedia desde calendario
+- Rol dueño de club: jugador solicita acceso desde
+  perfil, super admin aprueba/rechaza con notif,
+  panel /player/mi-club con 18 páginas (reservas,
+  canchas, ligas, torneos, ranking, jugadores,
+  entrenadores, perfil, ajustes), sidebar condicional
+  is_club_owner; /club → redirect a /player/mi-club
 
 ### Arquitectura de navegación
 - Desktop (md+): sidebar fijo colapsable 
@@ -44,27 +50,37 @@ v0.9.1
 
 ### Roles del jugador
 - is_coach: activa "Mi equipo" en sidebar player
-- Pendiente: is_organizer, is_club_owner
+- is_club_owner: activa "Mi club" en sidebar player
+- Patrón de roles: flag en players + profile table
+  (coach_profiles / clubs.owner_player_id) +
+  tabla de solicitud (club_owner_requests) +
+  aprobación admin + sección en perfil del jugador
+- Pendiente: is_organizer
 
 ### Migraciones aplicadas (últimas)
 - 20260409_q7_coach_booking_rpcs.sql
 - 20260409_q7_player_calendar.sql
 - 20260409_q7_player_request_booking.sql
 - 20260410_sidebar_last_match.sql
+- players.is_club_owner, players.club_owner_enabled_at
+- clubs.owner_player_id
+- club_owner_requests (con RLS)
+- notifications.type CHECK constraint ampliado con
+  club_owner_request_approved/rejected
 
 ### Pendientes próximo sprint
-1. Mejora del login — magic link + OTP por email
-2. Landing page pública
-3. S1 mejoras — páginas /share/* + PhotoCardComposer
-4. Analítica para clubes
-5. Fix geo — datos estáticos
+1. Landing page pública
+2. S1 mejoras — páginas /share/* + PhotoCardComposer
+3. Analítica para clubes
+4. Fix geo — datos estáticos
+5. Port completo leagues/[id] y tournaments/[id]
+   en /player/mi-club (stubs apuntan a /club aún)
 
 ### Próximos features (post lanzamiento piloto)
 - Organizador de torneos (rol en player,
   reutiliza lógica de /club/torneos)
 - QR de torneo — URL pública + bracket tiempo real
 - Canchas virtuales del torneo (opt-in)
-- Dueño de club como rol del jugador
 - WhatsApp / IA con n8n
 
 ### Convenciones
