@@ -42,7 +42,7 @@ export async function requirePlayer() {
   const { data: player, error: playerError } = await (supabase
     .from("players")
     .select(
-      "id, onboarding_completed, display_name, avatar_url, first_name, last_name, city, city_id, region_code, region_name, country_code, position, category, birth_year, phone, is_coach, coach_enabled_at"
+      "id, onboarding_completed, display_name, avatar_url, first_name, last_name, city, city_id, region_code, region_name, country_code, position, category, birth_year, phone, is_coach, coach_enabled_at, is_club_owner, club_owner_enabled_at"
     )
     .eq("user_id", user.id)
     .maybeSingle() as any);
@@ -80,6 +80,27 @@ export async function requireClub() {
   }
 
   return { user, club };
+}
+
+export async function requireClubOwner() {
+  const { user, player } = await requirePlayer();
+
+  if (!(player as any).is_club_owner) {
+    redirect("/player/profile?msg=solicita-acceso-club");
+  }
+
+  const supabase = await createClient();
+  const { data: club, error: clubError } = await (supabase as any)
+    .from("clubs")
+    .select("id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id")
+    .eq("owner_player_id", player.id)
+    .maybeSingle();
+
+  if (clubError || !club) {
+    redirect("/player/profile?msg=club-no-encontrado");
+  }
+
+  return { user, player, club };
 }
 
 export async function getOptionalPlayer() {
