@@ -11,6 +11,8 @@ import { MapPin, Trophy, Target, Activity, Users, Zap } from "lucide-react";
 
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { ClubOwnerSection } from "@/components/player/ClubOwnerSection";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PlayerProfilePage() {
     const { user, player } = await requirePlayer();
@@ -21,12 +23,45 @@ export default async function PlayerProfilePage() {
     const assessmentService = new AssessmentService();
     const leaguesService = new LeaguesService();
 
-    const [metrics, pendingAssessments, compStats, clubRankings] = await Promise.all([
+    const supabase = await createClient();
+    const sb = supabase as any;
+
+    const [metrics, pendingAssessments, compStats, clubRankings, clubOwnerRequest] = await Promise.all([
         playerService.getProfileMetrics(playerId),
         assessmentService.getPendingAssessments(playerId),
         playerService.getCompetitiveStats(),
-        leaguesService.getMyClubRankings(5).catch(() => [])
+        leaguesService.getMyClubRankings(5).catch(() => []),
+        sb
+            .from("club_owner_requests")
+            .select("id, status, created_at, club_id, club_name_requested, clubs(name)")
+            .eq("player_id", player.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+            .then((res: any) => res.data),
     ]);
+
+    const isClubOwner = !!(player as any).is_club_owner;
+
+    let clubOwnerStatus: "none" | "pending" | "active" = "none";
+    let clubName: string | null = null;
+    let requestedClubName: string | null = null;
+    let requestedAt: string | null = null;
+
+    if (isClubOwner) {
+        clubOwnerStatus = "active";
+        // Buscar el club del owner para mostrar el nombre
+        const { data: ownerClub } = await sb
+            .from("clubs")
+            .select("name")
+            .eq("owner_player_id", player.id)
+            .maybeSingle();
+        clubName = ownerClub?.name || null;
+    } else if (clubOwnerRequest?.status === "pending") {
+        clubOwnerStatus = "pending";
+        requestedClubName = clubOwnerRequest.clubs?.name || clubOwnerRequest.club_name_requested || null;
+        requestedAt = clubOwnerRequest.created_at;
+    }
 
     const hasMatches = metrics.played > 0;
 
@@ -251,6 +286,16 @@ export default async function PlayerProfilePage() {
                         </Link>
                     </div>
                 )}
+            </div>
+
+            {/* SECCIÓN DUEÑO DE CLUB */}
+            <div className="mt-8">
+                <ClubOwnerSection
+                    status={clubOwnerStatus}
+                    clubName={clubName}
+                    requestedClubName={requestedClubName}
+                    requestedAt={requestedAt}
+                />
             </div>
 
         </div>
