@@ -205,6 +205,81 @@ export default function WelcomePortalAuth({
 
   // ── Render ───────────────────────────────────────────────────────
 
+  // Pantalla de confirmación: fondo azul full-screen, sin card
+  if (mode === "login" && loginStep === "magic-link-sent") {
+    return (
+      <div className="fixed inset-0 bg-[#2563EB] flex flex-col items-center justify-center px-8">
+        <div className="w-full max-w-[360px] flex flex-col items-center text-center gap-6">
+
+          {/* Ícono */}
+          <svg
+            className="w-14 h-14 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+
+          {/* Texto principal */}
+          <div className="space-y-3">
+            <h2 className="text-[22px] font-semibold text-white leading-snug">
+              ¡Listo! Revisá tu email
+            </h2>
+            <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
+              Te enviamos un link a{" "}
+              <span className="font-bold text-white">{email}</span>
+              <br />
+              Hacé click en el link y entrás directo.
+            </p>
+            <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+              El link expira en 1 hora.
+            </p>
+          </div>
+
+          {/* Separador */}
+          <div className="w-full" style={{ borderTop: "1px solid rgba(255,255,255,0.2)" }} />
+
+          {/* Contingencia OTP */}
+          <div className="w-full space-y-3">
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+              ¿No te llegó el email?
+            </p>
+            <button
+              type="button"
+              disabled={pending}
+              onClick={sendOtp}
+              className="w-full min-h-[48px] rounded-xl font-semibold text-sm text-white transition-colors disabled:opacity-50"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.3)",
+              }}
+            >
+              {pending ? "Enviando..." : "Enviar código de 6 dígitos"}
+            </button>
+          </div>
+
+          {error && (
+            <p className="w-full rounded-xl px-3 py-2 text-sm text-white text-center" style={{ background: "rgba(0,0,0,0.2)" }}>
+              {error}
+            </p>
+          )}
+
+          {/* Volver */}
+          <button
+            type="button"
+            onClick={resetToLogin}
+            className="text-sm transition-colors"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+          >
+            ← Volver
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8">
 
@@ -318,61 +393,6 @@ export default function WelcomePortalAuth({
                   Registrate
                 </button>
               </p>
-            </div>
-          )}
-
-          {/* Step: magic link enviado */}
-          {loginStep === "magic-link-sent" && (
-            <div className="space-y-5 py-2">
-              <div className="text-center space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-[#0F172A]">Revisá tu email</h2>
-                  <p className="text-sm text-[#64748B] mt-2 leading-relaxed">
-                    Te enviamos un link a{" "}
-                    <span className="font-semibold text-[#0F172A]">{email}</span>.
-                    <br />
-                    Hacé click en el link para ingresar.
-                    <br />
-                    <span className="text-xs text-[#94A3B8]">El link expira en 1 hora.</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Contingencia OTP */}
-              <div className="border-t border-[#F1F5F9] pt-5 space-y-3">
-                <p className="text-xs text-center text-[#94A3B8]">
-                  ¿No te llegó el email o preferís un código?
-                </p>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={sendOtp}
-                  className="w-full min-h-[48px] rounded-xl border border-[#E2E8F0] bg-white text-[#0F172A] font-semibold text-sm hover:bg-[#F8FAFC] disabled:opacity-60 transition-colors"
-                >
-                  {pending ? "Enviando..." : "Enviar código de 6 dígitos"}
-                </button>
-              </div>
-
-              {error && (
-                <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 text-center">
-                  {error}
-                </p>
-              )}
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={resetToLogin}
-                  className="text-sm text-[#94A3B8] hover:text-[#64748B] transition-colors"
-                >
-                  Volver
-                </button>
-              </div>
             </div>
           )}
 
