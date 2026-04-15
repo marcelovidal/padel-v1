@@ -54,6 +54,10 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
   const playerId = formData.get("player_id") as string;
   const clubId = (formData.get("club_id") as string) || null;
 
+  // Obtener userId del admin que aprueba
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id ?? null;
+
   // 1. Activar rol en el player
   const { error: playerErr } = await sb
     .from("players")
@@ -62,12 +66,26 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
 
   if (playerErr) return { error: playerErr.message };
 
-  // 2. Vincular club
+  // 2. Vincular club con rollback si falla
   if (clubId) {
-    await sb
+    const { error: clubError } = await sb
       .from("clubs")
-      .update({ owner_player_id: playerId })
+      .update({
+        owner_player_id: playerId,
+        claim_status: "claimed",
+        claimed_by: userId,
+      })
       .eq("id", clubId);
+
+    if (clubError) {
+      // Rollback: revertir is_club_owner en el player
+      await sb
+        .from("players")
+        .update({ is_club_owner: false, club_owner_enabled_at: null })
+        .eq("id", playerId);
+
+      return { error: "No se pudo vincular el club: " + clubError.message };
+    }
   }
 
   // 3. Resolver la solicitud
