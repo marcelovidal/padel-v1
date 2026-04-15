@@ -2,7 +2,15 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createNotificationInternal } from "@/lib/actions/notification.actions";
+
+function createAdminClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 type FormState = { error?: string } | null;
 
@@ -20,12 +28,17 @@ export async function createMatchAsClubAction(
     return { error: "Necesitas iniciar sesion." };
   }
 
-  const { data: club, error: clubError } = await (supabase as any)
+  // Buscar club vía claimed_by o owner_player_id (service role bypasa RLS)
+  const sbAdmin = createAdminClient();
+  const { data: playerRow } = await (sbAdmin as any)
+    .from("players").select("id").eq("user_id", user.id).maybeSingle();
+
+  const { data: club, error: clubError } = await (sbAdmin as any)
     .from("clubs")
     .select("id,name")
-    .eq("claimed_by", user.id)
     .eq("claim_status", "claimed")
     .is("deleted_at", null)
+    .or(`claimed_by.eq.${user.id}${playerRow?.id ? `,owner_player_id.eq.${playerRow.id}` : ""}`)
     .order("claimed_at", { ascending: false })
     .maybeSingle();
 
@@ -92,7 +105,7 @@ export async function createMatchAsClubAction(
     console.error("notification club_match_created failed", notificationError);
   }
 
-  redirect(`/club/matches`);
+  redirect(`/player/mi-club/partidos`);
 }
 
 export async function createMatchWithPlayersAsClubAction(
@@ -135,12 +148,17 @@ export async function createMatchWithPlayersAsClubAction(
     return { error: "Fecha y hora invalidas." };
   }
 
-  const { data: club, error: clubError } = await (supabase as any)
+  // Buscar club vía claimed_by o owner_player_id (service role bypasa RLS)
+  const sbAdmin = createAdminClient();
+  const { data: playerRow2 } = await (sbAdmin as any)
+    .from("players").select("id").eq("user_id", user.id).maybeSingle();
+
+  const { data: club, error: clubError } = await (sbAdmin as any)
     .from("clubs")
     .select("id")
-    .eq("claimed_by", user.id)
     .eq("claim_status", "claimed")
     .is("deleted_at", null)
+    .or(`claimed_by.eq.${user.id}${playerRow2?.id ? `,owner_player_id.eq.${playerRow2.id}` : ""}`)
     .order("claimed_at", { ascending: false })
     .maybeSingle();
 
@@ -186,5 +204,5 @@ export async function createMatchWithPlayersAsClubAction(
     console.error("notification club_match_created (with players) failed", notificationError);
   }
 
-  redirect(`/club/matches`);
+  redirect(`/player/mi-club/partidos`);
 }
