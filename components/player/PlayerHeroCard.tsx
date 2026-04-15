@@ -249,29 +249,33 @@ export function PlayerHeroCard({
           {actions ? (
             <div className="flex gap-2">{actions}</div>
           ) : (
-            <div className="flex gap-2">
-              <Link href="/player/matches/new" className="flex-1 min-w-0">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link href="/player/matches/new" className="w-full sm:min-w-0 sm:flex-1">
                 <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
                   <PlusCircle className="h-3.5 w-3.5 shrink-0" />
                   Cargar partido
                 </button>
               </Link>
-              <Link href="/player/profile" className="shrink-0">
-                <button className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
-                  Perfil
-                </button>
-              </Link>
-              {shareProps && (
-                <ShareCardButton
-                  type="player"
-                  shareUrl={shareProps.shareUrl}
-                  ogImageUrl={shareProps.ogImageUrl}
-                  whatsappText={shareProps.whatsappText}
-                  downloadName={shareProps.downloadName}
-                  label="Compartir"
-                  className="shrink-0 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
-                />
-              )}
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto">
+                <Link href="/player/profile" className="min-w-0">
+                  <button className="w-full rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
+                    Perfil
+                  </button>
+                </Link>
+                {shareProps ? (
+                  <ShareCardButton
+                    type="player"
+                    shareUrl={shareProps.shareUrl}
+                    ogImageUrl={shareProps.ogImageUrl}
+                    whatsappText={shareProps.whatsappText}
+                    downloadName={shareProps.downloadName}
+                    label="Compartir"
+                    className="min-w-0 justify-center rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+                  />
+                ) : (
+                  <div />
+                )}
+              </div>
             </div>
           )}
         </div>
