@@ -1,9 +1,17 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { requirePlayer } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { createNotificationInternal } from "@/lib/actions/notification.actions";
+
+function createAdminClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 // ── Player: enviar solicitud ────────────────────────────────────────────────
 
@@ -58,6 +66,10 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
 
+  console.log("[approveClubOwnerRequest] clubId:", clubId);
+  console.log("[approveClubOwnerRequest] playerId:", playerId);
+  console.log("[approveClubOwnerRequest] userId:", userId);
+
   // 1. Activar rol en el player
   const { error: playerErr } = await sb
     .from("players")
@@ -66,19 +78,24 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
 
   if (playerErr) return { error: playerErr.message };
 
-  // 2. Vincular club con rollback si falla
+  // 2. Vincular club con rollback si falla (service role — bypasa RLS)
   if (clubId) {
-    const { error: clubError } = await sb
+    const sbAdmin = createAdminClient();
+    const { data: clubData, error: clubError } = await (sbAdmin as any)
       .from("clubs")
       .update({
         owner_player_id: playerId,
         claim_status: "claimed",
         claimed_by: userId,
       })
-      .eq("id", clubId);
+      .eq("id", clubId)
+      .select();
+
+    console.log("[approveClubOwnerRequest] clubs UPDATE result:", clubData, clubError);
 
     if (clubError) {
       // Rollback: revertir is_club_owner en el player
+      console.log("[approveClubOwnerRequest] ROLLBACK — revirtiendo is_club_owner");
       await sb
         .from("players")
         .update({ is_club_owner: false, club_owner_enabled_at: null })
