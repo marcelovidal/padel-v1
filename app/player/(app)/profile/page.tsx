@@ -14,7 +14,11 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 import { ClubOwnerSection } from "@/components/player/ClubOwnerSection";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function PlayerProfilePage() {
+export default async function PlayerProfilePage({
+    searchParams,
+}: {
+    searchParams?: { access?: string };
+}) {
     const { user, player } = await requirePlayer();
     const playerId = player.id;
     const avatarData = await resolveAvatarSrc({ player, user });
@@ -64,6 +68,7 @@ export default async function PlayerProfilePage() {
     }
 
     const hasMatches = metrics.played > 0;
+    const openClubAccess = searchParams?.access === "club" && clubOwnerStatus === "none";
 
     return (
         <div className="py-4">
@@ -295,6 +300,7 @@ export default async function PlayerProfilePage() {
                     clubName={clubName}
                     requestedClubName={requestedClubName}
                     requestedAt={requestedAt}
+                    initialOpen={openClubAccess}
                 />
             </div>
 

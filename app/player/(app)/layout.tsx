@@ -18,6 +18,7 @@ export default async function PlayerLayout({
     return (
         <PlayerNotificationsProvider>
             <PlayerLayoutShell
+                playerId={player.id}
                 displayName={player.display_name}
                 location={location}
                 avatarSrc={avatarData.src ?? null}

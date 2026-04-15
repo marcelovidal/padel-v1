@@ -7,6 +7,7 @@ import { PlayerMobileHeader } from "@/components/player/PlayerMobileHeader";
 
 interface PlayerLayoutShellProps {
   children: React.ReactNode;
+  playerId: string;
   displayName: string;
   location: string | null;
   avatarSrc: string | null;
@@ -17,6 +18,7 @@ interface PlayerLayoutShellProps {
 
 export function PlayerLayoutShell({
   children,
+  playerId,
   displayName,
   location,
   avatarSrc,
@@ -48,6 +50,7 @@ export function PlayerLayoutShell({
   return (
     <div className="min-h-screen bg-slate-50">
       <PlayerSidebar
+        playerId={playerId}
         displayName={displayName}
         location={location}
         avatarSrc={avatarSrc}
@@ -68,7 +71,7 @@ export function PlayerLayoutShell({
         <main className="pt-6 pb-24 md:pb-6 px-6 xl:px-8">{children}</main>
       </div>
 
-      <PlayerBottomNav />
+      <PlayerBottomNav playerId={playerId} isCoach={isCoach} isClubOwner={isClubOwner} />
     </div>
   );
 }

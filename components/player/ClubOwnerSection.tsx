@@ -11,6 +11,7 @@ interface ClubOwnerSectionProps {
   clubName?: string | null;
   requestedClubName?: string | null;
   requestedAt?: string | null;
+  initialOpen?: boolean;
 }
 
 export function ClubOwnerSection({
@@ -18,8 +19,9 @@ export function ClubOwnerSection({
   clubName,
   requestedClubName,
   requestedAt,
+  initialOpen = false,
 }: ClubOwnerSectionProps) {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(initialOpen);
 
   if (status === "active") {
     return (

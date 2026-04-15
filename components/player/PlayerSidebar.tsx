@@ -33,6 +33,7 @@ import { DesafioActivo } from "@/components/player/DesafioActivo";
 import { useNotificationsContext } from "@/contexts/player-notifications.context";
 
 interface PlayerSidebarProps {
+  playerId: string;
   displayName: string;
   location?: string | null;
   avatarSrc?: string | null;
@@ -191,6 +192,7 @@ function useFadeOnChange(value: string) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function PlayerSidebar({
+  playerId,
   displayName,
   location,
   avatarSrc,
@@ -212,6 +214,13 @@ export function PlayerSidebar({
   const onComunidad =
     pathname.startsWith("/player/players") || pathname.startsWith("/player/entrenadores");
   const onMiClub = pathname.startsWith("/player/mi-club");
+  const onProfileEdit = pathname === `/player/players/${playerId}/edit`;
+  const onCoach = pathname.startsWith("/player/coach");
+  const onPerfil =
+    pathname.startsWith("/player/profile") ||
+    onCoach ||
+    onMiClub ||
+    onProfileEdit;
 
   const accion = resolveAccion(pathname);
   const { style: fadeStyle } = useFadeOnChange(accion.label);
@@ -326,7 +335,7 @@ export function PlayerSidebar({
               href="/player/profile"
               icon={UserCircle}
               label="Perfil"
-              active={pathname.startsWith("/player/profile")}
+              active={onPerfil}
             />
           </>
         ) : (
@@ -464,10 +473,31 @@ export function PlayerSidebar({
 
             <Link
               href="/player/profile"
-              className={l1Cls(pathname.startsWith("/player/profile"))}
+              className={l1Cls(onPerfil)}
             >
               <UserCircle className="w-[18px] h-[18px] shrink-0" />
               Perfil
+            </Link>
+            <Link
+              href={`/player/players/${playerId}/edit`}
+              className={l2Cls(onProfileEdit)}
+            >
+              <UserCircle className="w-[15px] h-[15px] shrink-0" />
+              Editar perfil
+            </Link>
+            <Link
+              href="/player/coach"
+              className={l2Cls(onCoach)}
+            >
+              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
+              {isCoach ? "Mi equipo" : "Perfil entrenador"}
+            </Link>
+            <Link
+              href={isClubOwner ? "/player/mi-club" : "/player/profile?access=club"}
+              className={l2Cls(isClubOwner ? onMiClub : pathname.startsWith("/player/profile") && !onProfileEdit && !onCoach)}
+            >
+              <Building2 className="w-[15px] h-[15px] shrink-0" />
+              {isClubOwner ? "Mi club" : "Acceso club"}
             </Link>
           </>
         )}

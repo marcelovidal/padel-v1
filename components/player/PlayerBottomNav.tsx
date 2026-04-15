@@ -12,6 +12,7 @@ import {
   Trophy,
   Star,
   GraduationCap,
+  Building2,
   ChevronRight,
   X,
 } from "lucide-react";
@@ -24,16 +25,12 @@ function BottomNavDot({ count }: { count: number }) {
   );
 }
 
-const SHEET_ITEMS = {
-  actividad: [
-    { href: "/player/matches", label: "Partidos", icon: Trophy },
-    { href: "/player/events", label: "Eventos", icon: Star },
-  ],
-  comunidad: [
-    { href: "/player/players", label: "Jugadores", icon: Users },
-    { href: "/player/entrenadores", label: "Entrenadores", icon: GraduationCap },
-  ],
-} as const;
+type SheetKey = "actividad" | "comunidad" | "perfil";
+type SheetOption = {
+  href: string;
+  label: string;
+  icon: typeof Home;
+};
 
 type BottomNavItem = {
   href: string;
@@ -41,66 +38,105 @@ type BottomNavItem = {
   icon: typeof Home;
   badge: (counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) => number;
   activeFor: (pathname: string) => boolean;
-  sheetKey?: keyof typeof SHEET_ITEMS;
+  sheetKey?: SheetKey;
 };
 
-const ITEMS: BottomNavItem[] = [
-  {
-    href: "/player",
-    label: "Resumen",
-    icon: Home,
-    badge: (counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) => 0,
-    activeFor: (p: string) => p === "/player",
-  },
-  {
-    href: "/player/calendario",
-    label: "Calendario",
-    icon: Calendar,
-    badge: (counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) =>
-      counts.calendario,
-    activeFor: (p: string) =>
-      p.startsWith("/player/calendario") || p.startsWith("/player/bookings"),
-  },
-  {
-    href: "/player/matches",
-    label: "Actividad",
-    icon: Zap,
-    sheetKey: "actividad",
-    badge: (counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) =>
-      counts.partidos + counts.eventos,
-    activeFor: (p: string) =>
-      p.startsWith("/player/matches") || p.startsWith("/player/events"),
-  },
-  {
-    href: "/player/players",
-    label: "Comunidad",
-    icon: Users,
-    sheetKey: "comunidad",
-    badge: (_counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) => 0,
-    activeFor: (p: string) =>
-      p.startsWith("/player/players") || p.startsWith("/player/entrenadores"),
-  },
-  {
-    href: "/player/profile",
-    label: "Perfil",
-    icon: UserCircle,
-    badge: (_counts: ReturnType<typeof useNotificationsContext>["sectionCounts"]) => 0,
-    activeFor: (p: string) =>
-      p.startsWith("/player/profile") || p.startsWith("/player/coach"),
-  },
-] as const;
+interface PlayerBottomNavProps {
+  playerId: string;
+  isCoach: boolean;
+  isClubOwner: boolean;
+}
 
-export function PlayerBottomNav() {
+export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { sectionCounts } = useNotificationsContext();
-  const [openSheet, setOpenSheet] = useState<keyof typeof SHEET_ITEMS | null>(null);
+  const [openSheet, setOpenSheet] = useState<SheetKey | null>(null);
+  const items: BottomNavItem[] = [
+    {
+      href: "/player",
+      label: "Resumen",
+      icon: Home,
+      badge: (counts) => 0,
+      activeFor: (p) => p === "/player",
+    },
+    {
+      href: "/player/calendario",
+      label: "Calendario",
+      icon: Calendar,
+      badge: (counts) => counts.calendario,
+      activeFor: (p) => p.startsWith("/player/calendario") || p.startsWith("/player/bookings"),
+    },
+    {
+      href: "/player/matches",
+      label: "Actividad",
+      icon: Zap,
+      sheetKey: "actividad",
+      badge: (counts) => counts.partidos + counts.eventos,
+      activeFor: (p) => p.startsWith("/player/matches") || p.startsWith("/player/events"),
+    },
+    {
+      href: "/player/players",
+      label: "Comunidad",
+      icon: Users,
+      sheetKey: "comunidad",
+      badge: () => 0,
+      activeFor: (p) => p.startsWith("/player/players") || p.startsWith("/player/entrenadores"),
+    },
+    {
+      href: "/player/profile",
+      label: "Perfil",
+      icon: UserCircle,
+      sheetKey: "perfil",
+      badge: () => 0,
+      activeFor: (p) =>
+        p.startsWith("/player/profile") ||
+        p.startsWith("/player/coach") ||
+        p.startsWith("/player/mi-club") ||
+        p === `/player/players/${playerId}/edit`,
+    },
+  ];
 
   useEffect(() => {
     setOpenSheet(null);
   }, [pathname]);
 
-  const sheetOptions = openSheet ? SHEET_ITEMS[openSheet] : [];
+  const sheetOptions: SheetOption[] = openSheet === "actividad"
+    ? [
+        { href: "/player/matches", label: "Partidos", icon: Trophy },
+        { href: "/player/events", label: "Eventos", icon: Star },
+      ]
+    : openSheet === "comunidad"
+      ? [
+          { href: "/player/players", label: "Jugadores", icon: Users },
+          { href: "/player/entrenadores", label: "Entrenadores", icon: GraduationCap },
+        ]
+      : openSheet === "perfil"
+        ? [
+            {
+              href: `/player/players/${playerId}/edit`,
+              label: "Editar perfil",
+              icon: UserCircle,
+            },
+            {
+              href: "/player/coach",
+              label: isCoach ? "Mi equipo" : "Perfil entrenador",
+              icon: GraduationCap,
+            },
+            {
+              href: isClubOwner ? "/player/mi-club" : "/player/profile?access=club",
+              label: isClubOwner ? "Mi club" : "Acceso club",
+              icon: Building2,
+            },
+          ]
+        : [];
+
+  const sheetTitle =
+    openSheet === "actividad"
+      ? "Actividad"
+      : openSheet === "comunidad"
+        ? "Comunidad"
+        : "Perfil";
 
   return (
     <>
@@ -117,9 +153,7 @@ export function PlayerBottomNav() {
           >
             <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-200" />
             <div className="flex items-center justify-between px-5 pb-3 pt-4">
-              <p className="text-base font-black text-slate-900">
-                {openSheet === "actividad" ? "Actividad" : "Comunidad"}
-              </p>
+              <p className="text-base font-black text-slate-900">{sheetTitle}</p>
               <button
                 type="button"
                 onClick={() => setOpenSheet(null)}
@@ -159,7 +193,7 @@ export function PlayerBottomNav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex h-16">
-          {ITEMS.map(({ href, label, icon: Icon, badge, activeFor, sheetKey }) => {
+          {items.map(({ href, label, icon: Icon, badge, activeFor, sheetKey }) => {
             const active = activeFor(pathname);
             const count = badge(sectionCounts);
             const className = `flex flex-1 flex-col items-center justify-center gap-1 transition-colors ${
