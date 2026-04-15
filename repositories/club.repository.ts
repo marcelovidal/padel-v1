@@ -403,9 +403,10 @@ export class ClubRepository {
     return data as string;
   }
 
-  async listMyClubMatches(limit: number = 100): Promise<ClubManagedMatchListItem[]> {
+  async listMyClubMatches(clubId: string, limit: number = 100): Promise<ClubManagedMatchListItem[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("club_list_my_matches", {
+      p_club_id: clubId,
       p_limit: limit,
     });
 

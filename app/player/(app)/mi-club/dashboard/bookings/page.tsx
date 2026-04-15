@@ -169,7 +169,7 @@ export default async function MiClubBookingsPage({
     bookingService.getClubBookingSettings(club.id),
     bookingService.listActiveClubCourts(club.id),
     playerService.searchPlayersWeighted("", 200),
-    clubService.listMyClubMatches(200),
+    clubService.listMyClubMatches(club.id, 200),
   ]);
   const matchesById = new Map((clubMatches || []).map((match) => [match.id, match]));
 

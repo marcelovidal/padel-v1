@@ -4,9 +4,9 @@ import { ClubMatches } from "@/components/club/ClubMatches";
 import { getEffectiveStatus } from "@/lib/match/matchUtils";
 
 export default async function MiClubMatchesPage() {
-  await requireClubOwner();
+  const { club } = await requireClubOwner();
   const clubService = new ClubService();
-  const matches = await clubService.listMyClubMatches(200);
+  const matches = await clubService.listMyClubMatches(club.id, 200);
   const categorized = matches.reduce(
     (acc, match) => {
       const status = getEffectiveStatus(match as any);

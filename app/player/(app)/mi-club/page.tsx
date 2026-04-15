@@ -38,7 +38,7 @@ export default async function MiClubHomePage() {
   const bookingService = new BookingService();
 
   const [matches, stats, bookings] = await Promise.all([
-    clubService.listMyClubMatches(60),
+    clubService.listMyClubMatches(club.id, 60),
     clubService.getDashboardStats(club.id),
     bookingService.listClubBookings(club.id),
   ]);
