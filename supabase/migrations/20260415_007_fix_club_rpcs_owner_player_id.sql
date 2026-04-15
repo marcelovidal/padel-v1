@@ -1,0 +1,4 @@
+-- Already applied in Supabase on 2026-04-15
+-- Documentation only
+-- (mismo contenido que 20260415_fix_club_rpcs_owner_player_id.sql)
+-- Ver ese archivo para el SQL completo de los 11 RPCs actualizados.
