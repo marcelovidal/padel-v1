@@ -14,13 +14,13 @@ export default async function ClubOwnerRequestsPage() {
   const { data: requests } = await sb
     .from("club_owner_requests")
     .select(
-      `id, status, created_at, resolved_at, club_name_requested,
+      `id, status, requested_at, resolved_at, club_name_requested,
        club_id,
        clubs ( name ),
        player_id,
        players ( display_name, first_name, last_name )`
     )
-    .order("created_at", { ascending: false });
+    .order("requested_at", { ascending: false });
 
   const pending = (requests || []).filter((r: any) => r.status === "pending");
   const resolved = (requests || []).filter((r: any) => r.status !== "pending");
@@ -88,7 +88,7 @@ export default async function ClubOwnerRequestsPage() {
                       <span className="ml-2 text-xs text-amber-600 font-medium">(club no registrado)</span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-400">Solicitado el {fmtDate(r.created_at)}</p>
+                  <p className="text-xs text-gray-400">Solicitado el {fmtDate(r.requested_at)}</p>
                 </div>
 
                 <div className="flex gap-2">

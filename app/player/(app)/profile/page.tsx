@@ -37,9 +37,9 @@ export default async function PlayerProfilePage({
         leaguesService.getMyClubRankings(5).catch(() => []),
         sb
             .from("club_owner_requests")
-            .select("id, status, created_at, club_id, club_name_requested, clubs(name)")
+            .select("id, status, requested_at, club_id, club_name_requested, clubs(name)")
             .eq("player_id", player.id)
-            .order("created_at", { ascending: false })
+            .order("requested_at", { ascending: false })
             .limit(1)
             .maybeSingle()
             .then((res: any) => res.data),
@@ -64,7 +64,7 @@ export default async function PlayerProfilePage({
     } else if (clubOwnerRequest?.status === "pending") {
         clubOwnerStatus = "pending";
         requestedClubName = clubOwnerRequest.clubs?.name || clubOwnerRequest.club_name_requested || null;
-        requestedAt = clubOwnerRequest.created_at;
+        requestedAt = clubOwnerRequest.requested_at;
     }
 
     const hasMatches = metrics.played > 0;
