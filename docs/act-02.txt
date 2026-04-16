@@ -1,0 +1,51 @@
+Fix de layout en el grid de disponibilidad 
+de la página de nueva reserva.
+
+El grid de canchas x horarios no aprovecha 
+el ancho completo de la pantalla en desktop.
+
+Antes de modificar leer el componente actual
+de la página de reserva.
+
+---
+
+## FIX — Grid a ancho completo
+
+El contenedor del grid de disponibilidad 
+debe ocupar el 100% del ancho disponible.
+
+1. Eliminar cualquier max-w-* o container 
+   que limite el ancho del grid
+
+2. Las columnas de horarios deben distribuirse
+   proporcionalmente en todo el ancho:
+   - Columna de canchas: 140px fija a la izquierda
+   - Columnas de horarios: flex-1, distribuidas 
+     uniformemente en el ancho restante
+
+3. El header de horarios y las celdas deben 
+   alinearse perfectamente — misma estructura 
+   de grid para el header y para cada fila
+
+4. En desktop (1280px+) el grid se ve espacioso
+   con celdas más grandes y legibles
+
+5. En mobile: scroll horizontal si los horarios
+   no entran — mantener comportamiento actual
+
+---
+
+## ADEMÁS — Slots seleccionados más visibles
+
+Cuando el jugador hace click en un slot:
+- Borde azul #2563EB más grueso (2px)
+- Fondo azul claro #EFF6FF
+- Texto azul #2563EB bold
+- Un check ✓ pequeño en la esquina superior 
+  derecha de la celda
+
+---
+
+No tocar la lógica de reserva.
+Commit: "fix: grid disponibilidad reserva 
+— ancho completo desktop + slot seleccionado"

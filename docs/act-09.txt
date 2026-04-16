@@ -1,0 +1,13 @@
+El SQL del PASO 2 ya está aplicado en Supabase.
+Corrección aplicada: status = 'active' 
+(no 'assigned') en el UNION ALL de fixed_slots.
+
+Continuar con PASO 3 (UI del club) y PASO 4 
+(calendario del jugador).
+
+Recordar mostrarme cualquier SQL necesario 
+antes de aplicarlo — yo lo ejecuto manualmente 
+en Supabase.
+
+Arrancar leyendo AgendaGrid.tsx antes de 
+modificar nada.

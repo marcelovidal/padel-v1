@@ -4,6 +4,7 @@ import { requirePlayer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import { requestBookingAction } from "@/lib/actions/booking.actions";
+import { ClubAutoSubmit } from "@/components/bookings/ClubAutoSubmit";
 
 function defaultDate() {
   const d = new Date();
@@ -134,8 +135,8 @@ export default async function PlayerNewBookingPage({
     closing_time: string;
     slot_interval_minutes: number | null;
   }> = [];
-  let checkedAvailability = false;
   let effectiveCourtId = selectedCourtId;
+  const courtSlotMap = new Map<string, Set<string>>();
 
   if (selectedClubId) {
     const settings = await bookingService.getClubBookingSettings(selectedClubId);
@@ -170,6 +171,7 @@ export default async function PlayerNewBookingPage({
     for (const court of activeCourtsForClub) {
       const courtSlotMinutes = court.slot_interval_minutes || fallbackSlotMinutes;
       const slots = buildSlotOptions(court.opening_time, court.closing_time, courtSlotMinutes);
+      courtSlotMap.set(court.id, new Set(slots));
       for (const slot of slots) {
         const start = buildStartAt(selectedDate, slot);
         if (!start) continue;
@@ -213,7 +215,6 @@ export default async function PlayerNewBookingPage({
     if (!effectiveCourtId && availableCourts.length > 0) {
       effectiveCourtId = availableCourts[0].id;
     }
-    checkedAvailability = !!currentSlotState;
   }
 
   const buildHref = (
@@ -261,7 +262,7 @@ export default async function PlayerNewBookingPage({
     redirect(`/player/matches/new?${next.toString()}`);
   };
 
-  const selectedSlotState = clubSlotStates.find((state) => state.time === effectiveTime) || null;
+  const canBook = !!selectedClubId && !!effectiveTime && !!effectiveCourtId;
 
   return (
     <div className="space-y-6">
@@ -350,102 +351,122 @@ export default async function PlayerNewBookingPage({
           )}
         </div>
 
-        <form method="get" className="grid gap-3 md:grid-cols-4">
-          <input type="hidden" name="date" value={selectedDate} />
-          <input type="hidden" name="view" value={calendarView} />
-          <input type="hidden" name="cursor" value={toDateInput(cursorDate)} />
-          <input type="hidden" name="court_id" value={effectiveCourtId} />
+        <div className="space-y-2">
+          <label className="block text-xs font-black uppercase tracking-wider text-gray-500">Club</label>
+          <ClubAutoSubmit
+            clubs={(clubs || []).map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              city: c.city,
+              region_name: c.region_name,
+            }))}
+            selectedClubId={selectedClubId}
+            currentParams={{
+              date: selectedDate,
+              view: calendarView,
+              cursor: toDateInput(cursorDate),
+            }}
+          />
+        </div>
 
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Club</label>
-            <select
-              name="club_id"
-              defaultValue={selectedClubId}
-              required
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-            >
-              <option value="">Selecciona club</option>
-              {(clubs || []).map((club: any) => (
-                <option key={club.id} value={club.id}>
-                  {club.name}
-                  {club.city ? ` - ${club.city}` : ""}
-                  {club.region_name ? ` (${club.region_name})` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-2 flex items-end">
-            <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Ver horarios disponibles
-            </button>
-          </div>
-        </form>
-
-        {selectedClubId && clubSlotStates.length > 0 ? (
+        {selectedClubId && activeCourtsForClub.length > 0 ? (
           <div className="rounded-xl border border-gray-100 p-3 space-y-2">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Horarios del club</p>
-            <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
-              {clubSlotStates.map((slot) => {
-                const isSelected = slot.time === effectiveTime;
-                const hasAvailability = slot.availableCourts.length > 0;
-                if (!hasAvailability) {
-                  return (
+            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Disponibilidad</p>
+            {clubSlotStates.length === 0 ? (
+              <p className="text-sm text-amber-700">No hay horarios configurados para este club.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                {/* Header */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: `140px repeat(${clubSlotStates.length}, minmax(60px, 1fr))`,
+                    gap: "3px",
+                  }}
+                  className="mb-[3px]"
+                >
+                  <div className="py-1.5 px-2 text-[10px] font-black uppercase text-gray-400">
+                    Cancha
+                  </div>
+                  {clubSlotStates.map((slot) => (
                     <div
                       key={slot.time}
-                      className="rounded-lg border border-gray-200 bg-gray-100 px-2 py-1.5 text-center text-sm font-semibold text-gray-400"
+                      className="py-1.5 text-[10px] font-black text-gray-500 text-center"
                     >
                       {slot.time}
                     </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={slot.time}
-                    href={buildHref({ time: slot.time })}
-                    className={`rounded-lg border px-2 py-1.5 text-center text-sm font-semibold ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
-                    }`}
+                  ))}
+                </div>
+                {/* Court rows */}
+                {activeCourtsForClub.map((court) => (
+                  <div
+                    key={court.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: `140px repeat(${clubSlotStates.length}, minmax(60px, 1fr))`,
+                      gap: "3px",
+                    }}
+                    className="mb-[3px]"
                   >
-                    {slot.time}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
+                    <div className="flex items-center px-2 py-2 text-xs font-semibold text-gray-700 truncate">
+                      {court.name}
+                    </div>
+                    {clubSlotStates.map((slot) => {
+                      const isApplicable = courtSlotMap.get(court.id)?.has(slot.time) ?? false;
+                      const isAvailable = isApplicable && slot.availableCourts.includes(court.id);
+                      const isSelected = effectiveTime === slot.time && effectiveCourtId === court.id;
 
-        {selectedClubId && selectedSlotState ? (
-          <div className="rounded-xl border border-gray-100 p-3 space-y-2">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Cancha</p>
-            <div className="flex flex-wrap gap-2">
-              {availableCourts.map((court) => (
-                <Link
-                  key={court.id}
-                  href={buildHref({ court_id: court.id })}
-                  className={`rounded-lg border px-3 py-1.5 text-sm font-semibold ${
-                    effectiveCourtId === court.id
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {court.name}
-                </Link>
-              ))}
-            </div>
+                      if (!isApplicable) {
+                        return (
+                          <div
+                            key={`${court.id}-${slot.time}`}
+                            className="rounded-md bg-gray-50 border border-dashed border-gray-100"
+                          />
+                        );
+                      }
+                      if (!isAvailable) {
+                        return (
+                          <div
+                            key={`${court.id}-${slot.time}`}
+                            className="rounded-md bg-gray-200 py-2 text-center text-[10px] font-semibold text-gray-500"
+                          >
+                            Ocupado
+                          </div>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={`${court.id}-${slot.time}`}
+                          href={buildHref({ time: slot.time, court_id: court.id })}
+                          className={`relative rounded-md py-2 text-center text-[10px] font-bold ${
+                            isSelected
+                              ? "border-2 border-blue-600 bg-blue-50 text-blue-600"
+                              : "bg-green-100 text-green-700 hover:bg-green-200"
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="absolute top-0.5 right-1 text-[8px] font-black text-blue-600">
+                              ✓
+                            </span>
+                          )}
+                          {slot.time}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        ) : selectedClubId && activeCourtsForClub.length === 0 ? (
+          <p className="text-sm text-amber-700">Este club no tiene canchas activas configuradas.</p>
         ) : null}
       </section>
 
       <section className="rounded-2xl border bg-white p-5 space-y-4">
-        {!checkedAvailability ? (
-          <p className="text-sm text-gray-500">Primero selecciona dia y club para ver horarios disponibles.</p>
-        ) : availableCourts.length === 0 ? (
-          <p className="text-sm text-amber-700">
-            No hay canchas disponibles para ese club y horario. Prueba otra hora o club.
+        {!canBook ? (
+          <p className="text-sm text-gray-500">
+            Selecciona un club y elige un horario disponible en el timeline para continuar.
           </p>
         ) : (
           <form action={submitBooking} className="space-y-4">
@@ -455,7 +476,9 @@ export default async function PlayerNewBookingPage({
             <input type="hidden" name="court_id" value={effectiveCourtId} />
 
             <div>
-              <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">Nota (opcional)</label>
+              <label className="mb-1 block text-xs font-black uppercase tracking-wider text-gray-500">
+                Nota (opcional)
+              </label>
               <textarea
                 name="note"
                 rows={3}
@@ -465,8 +488,8 @@ export default async function PlayerNewBookingPage({
               />
             </div>
 
-            <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Enviar solicitud
+            <button className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">
+              Reservar
             </button>
           </form>
         )}

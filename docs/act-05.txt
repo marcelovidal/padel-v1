@@ -1,0 +1,64 @@
+Agregar la opción de cargar jugador invitado 
+en el modal de nueva reserva del club.
+
+El sistema de invitados ya existe y está 
+centralizado — reutilizar sin duplicar nada.
+
+Antes de modificar leer:
+- El modal de nueva reserva del grid semanal
+- components/players/GuestPlayerModal.tsx
+- lib/actions/player.actions.ts — 
+  createGuestPlayerAction
+
+---
+
+## CAMBIO
+
+En el modal de nueva reserva (el que se abre 
+al hacer click en celda vacía del grid semanal),
+el campo "Jugador" tiene un buscador de jugadores 
+registrados. Agregar debajo del buscador:
+
+Si el jugador no aparece en la búsqueda:
+→ Link/botón: "+ Cargar jugador nuevo"
+→ Abre GuestPlayerModal existente
+→ Al crear el guest exitosamente:
+  - Cerrar GuestPlayerModal
+  - Seleccionar automáticamente ese jugador 
+    en el campo del modal de reserva
+  - Continuar el flujo de reserva normalmente
+
+El jugador invitado (is_guest=true, user_id=NULL)
+queda creado en players y se usa como cualquier
+otro jugador en la reserva.
+
+---
+
+## FLUJO COMPLETO
+
+1. Admin hace click en celda vacía del grid
+2. Se abre modal de nueva reserva
+3. Admin busca jugador → no lo encuentra
+4. Click en "+ Cargar jugador nuevo"
+5. Se abre GuestPlayerModal (ya existe)
+6. Admin completa nombre + datos opcionales
+7. Click en "Crear jugador"
+8. GuestPlayerModal se cierra
+9. El nuevo jugador queda seleccionado 
+   automáticamente en el modal de reserva
+10. Admin completa horario y confirma reserva
+
+---
+
+## CONSIDERACIONES
+
+- Reutilizar GuestPlayerModal sin modificarlo
+- Reutilizar createGuestPlayerAction sin modificarlo
+- No tocar el RPC player_create_guest_player
+- La lógica de reclamo posterior (WhatsApp, 
+  claim profile) ya existe y funciona sola —
+  no hay que tocarla
+- Empezar leyendo el modal de reserva actual
+  antes de modificar nada
+- Commit: "feat: reservas club — opción cargar 
+  jugador invitado desde modal de nueva reserva"

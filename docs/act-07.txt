@@ -1,0 +1,25 @@
+Antes de implementar turnos fijos necesito 
+entender la estructura actual.
+
+1. Ver la tabla court_bookings completa:
+   SELECT column_name, data_type 
+   FROM information_schema.columns 
+   WHERE table_name = 'court_bookings'
+   ORDER BY ordinal_position;
+
+2. Ver si existe alguna columna o tabla 
+   relacionada con reservas recurrentes:
+   SELECT table_name 
+   FROM information_schema.tables 
+   WHERE table_name LIKE '%recur%' 
+   OR table_name LIKE '%fixed%'
+   OR table_name LIKE '%turno%';
+
+3. Ver cómo se genera el grid semanal 
+   de reservas del club — qué RPC o query 
+   trae los slots:
+   grep -r "agenda\|slots\|bookings" 
+   app/player/\(app\)/mi-club/dashboard/bookings/ 
+   --include="*.tsx" -l
+
+Mostrar todo antes de modificar nada.
