@@ -1,0 +1,80 @@
+Dos fixes en el modal de nueva reserva del club.
+
+---
+
+## FIX 1 — z-index del modal de jugador invitado
+
+El modal "Nuevo jugador invitado" queda detrás 
+del modal de reserva.
+
+Asegurarse que el GuestPlayerModal tiene un 
+z-index mayor que el modal de reserva.
+Si el GuestPlayerModal usa z-50, el modal 
+de reserva debe usar z-40 o menos.
+
+---
+
+## FIX 2 — Cargar jugador nuevo inline (sin segundo modal)
+
+En lugar de abrir GuestPlayerModal encima 
+del modal de reserva, mostrar el formulario 
+de nuevo jugador directamente dentro del 
+mismo modal de reserva.
+
+### Comportamiento
+
+Click en "+ Cargar jugador nuevo":
+→ El campo de búsqueda se reemplaza por 
+  un formulario inline compacto:
+
+┌─────────────────────────────────┐
+│ Nuevo jugador                   │
+│ Nombre* [________________]      │
+│ Apellido [________________]     │
+│                                 │
+│ [Agregar] [Cancelar]            │
+└─────────────────────────────────┘
+
+Click en "Agregar":
+→ Llama a createGuestPlayerAction con 
+  el nombre ingresado
+→ El jugador queda seleccionado 
+  automáticamente en el campo Jugador
+→ El formulario inline desaparece
+→ Muestra el jugador seleccionado con 
+  un chip: "Nuevo jugador · Juan Pérez ×"
+
+Click en "Cancelar":
+→ Vuelve al buscador original
+
+### Campos del formulario inline
+- display_name (obligatorio) — nombre completo
+- Nada más — mantener simple para el admin
+
+El jugador se crea con is_guest=true, 
+user_id=NULL. El resto de datos opcionales 
+(geo, posición) los puede completar el jugador 
+cuando reclame su perfil.
+
+---
+
+## RESULTADO
+
+El flujo completo queda en un solo modal:
+1. Admin abre modal desde celda del grid
+2. Selecciona horario
+3. Si el jugador existe → lo busca y selecciona
+4. Si no existe → click "+ Cargar jugador nuevo"
+   → escribe nombre → click "Agregar"
+   → jugador seleccionado automáticamente
+5. Click "Confirmar reserva"
+
+Sin modales apilados, sin ir y volver.
+
+---
+
+No tocar GuestPlayerModal — ya no se usa acá.
+No tocar createGuestPlayerAction — se reutiliza.
+Empezar leyendo el modal de reserva actual.
+Commit: "fix: reservas club — jugador nuevo 
+inline en modal de reserva, fix z-index"

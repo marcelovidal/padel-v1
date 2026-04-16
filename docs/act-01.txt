@@ -1,0 +1,82 @@
+Mejorar el flujo de reserva de cancha del player.
+Son 4 fixes de UX. Antes de modificar leer
+el componente completo de reserva de cancha.
+
+---
+
+## FIX 1 — Disponibilidad automática al seleccionar club
+
+Cuando el jugador selecciona un club del dropdown,
+cargar automáticamente los horarios disponibles 
+sin necesidad de hacer click en "Ver horarios 
+disponibles".
+
+El botón "Ver horarios disponibles" se elimina.
+La disponibilidad carga con un skeleton/spinner
+mientras fetcha los datos.
+
+---
+
+## FIX 2 — Rediseño del selector de horarios
+
+Reemplazar los botones de horario en línea por 
+una grilla visual tipo timeline:
+
+- Eje X: horas del día (08:00 a 23:00)
+- Eje Y: canchas disponibles (Cancha 1, 2, 3, 4)
+- Slots ocupados: fondo gris oscuro con 
+  label "Ocupado"
+- Slots disponibles: fondo verde claro con 
+  la hora
+- Slot seleccionado: borde azul prominente
+
+Similar a la referencia adjunta pero con 
+la paleta de colores de PASALA.
+
+En mobile: scroll horizontal en el timeline.
+
+---
+
+## FIX 3 — CTA más visible y texto correcto
+
+El botón de acción final debe ser:
+- Texto: "Reservar" (no "Enviar solicitud")
+- Estilo: botón azul primario #2563EB 
+  bien visible, ancho completo
+- Solo se habilita cuando hay horario 
+  y cancha seleccionados
+
+Razón: el jugador reserva directamente —
+no envía una solicitud que alguien debe aprobar.
+
+---
+
+## FIX 4 — Botón "Omitir" en formulario de jugadores
+
+En el modal "Completar partido desde reserva",
+agregar junto al botón "Continuar generando 
+partido" un botón secundario "Omitir por ahora":
+
+[Continuar generando partido] [Omitir por ahora]
+
+"Omitir por ahora":
+- Cierra el modal
+- El partido queda creado sin jugadores
+- El jugador puede completarlos después 
+  desde /player/matches
+
+El botón "Continuar generando partido" sigue 
+deshabilitado hasta completar los campos.
+
+---
+
+## CONSIDERACIONES
+
+- Mobile first en todos los cambios
+- No romper la lógica de reserva existente
+- No tocar el flujo del lado del club
+- Empezar leyendo el componente actual 
+  antes de modificar nada
+- Commit: "feat: UX reserva cancha — 
+  disponibilidad automática, timeline visual,
+  CTA mejorado, omitir jugadores"

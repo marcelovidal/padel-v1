@@ -484,21 +484,43 @@ export function CreateMatchForm({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 pt-2">
-                <Button
-                  type="submit"
-                  className="w-full rounded-2xl bg-blue-600 py-6 text-white"
-                  disabled={!isFormValid || isSubmitting}
-                >
-                  {isSubmitting ? "Guardando..." : fromBooking ? "Continuar generando partido" : "Crear partido"}
-                </Button>
-                <Link
-                  href={bookingId ? `/player/bookings/${bookingId}` : "/player/matches"}
-                  className="text-center text-sm font-bold text-gray-400 hover:text-gray-600"
-                >
-                  Cancelar
-                </Link>
-              </div>
+              {fromBooking ? (
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    className="flex-1 rounded-2xl bg-blue-600 py-6 text-white"
+                    disabled={!isFormValid || isSubmitting}
+                  >
+                    {isSubmitting ? "Guardando..." : "Continuar generando partido"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCreateModalOpen(false);
+                      router.push(bookingId ? `/player/bookings/${bookingId}` : "/player/bookings");
+                    }}
+                    className="flex-1 rounded-2xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                  >
+                    Omitir por ahora
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    className="w-full rounded-2xl bg-blue-600 py-6 text-white"
+                    disabled={!isFormValid || isSubmitting}
+                  >
+                    {isSubmitting ? "Guardando..." : "Crear partido"}
+                  </Button>
+                  <Link
+                    href={bookingId ? `/player/bookings/${bookingId}` : "/player/matches"}
+                    className="text-center text-sm font-bold text-gray-400 hover:text-gray-600"
+                  >
+                    Cancelar
+                  </Link>
+                </div>
+              )}
             </form>
           </div>
         </div>

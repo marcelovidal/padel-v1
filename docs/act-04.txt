@@ -1,0 +1,33 @@
+Antes de implementar cualquier cambio, 
+necesito entender cómo funciona el sistema 
+de jugadores no registrados en PASALA.
+
+Leer y mostrar:
+
+1. Cómo funciona el flujo de "cargar invitado" 
+   cuando un jugador crea un partido:
+   - Buscar en los componentes de creación 
+     de partido cómo se carga un jugador 
+     que no está registrado
+   - Ver qué tabla/campo guarda esos jugadores
+   
+2. Qué pasa con ese jugador invitado después:
+   - ¿Queda en un estado de "reclamo pendiente"?
+   - ¿Puede reclamar su perfil después?
+   - ¿Qué tabla y columnas están involucradas?
+
+3. Buscar en el código:
+   grep -r "invitado\|guest\|claim\|reclamo" 
+   lib/actions --include="*.ts" -l
+   
+   grep -r "invited\|unclaimed\|WhatsApp" 
+   lib/ --include="*.ts" -l
+
+4. Ver el componente que ya existe para 
+   cargar invitados en creación de partido:
+   grep -r "CargarInvitado\|InvitadoForm\|guest" 
+   components/ --include="*.tsx" -l
+
+Mostrar todo antes de modificar nada —
+quiero reutilizar la lógica existente,
+no crear algo nuevo.

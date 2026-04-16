@@ -1,0 +1,147 @@
+Implementar el sistema de turnos fijos para 
+el panel del club owner.
+
+El SQL del PASO 1 ya está aplicado en Supabase:
+- Tabla court_fixed_slots creada ✅
+- RLS habilitado con policy club owner ✅
+- Tipos fixed_slot_assigned y fixed_slot_released 
+  agregados al constraint de notifications ✅
+
+Un turno fijo es una reserva recurrente semanal
+asignada a un jugador — queda reservado ese día 
+y horario todas las semanas hasta que el club 
+lo libere.
+
+Antes de escribir código leer:
+- app/player/(app)/mi-club/dashboard/bookings/page.tsx
+- components/club/agenda/AgendaGrid.tsx
+- El RPC club_get_agenda_slots en supabase/migrations/
+
+---
+
+## PASO 2 — Modificar club_get_agenda_slots
+
+Agregar los turnos fijos activos como slots 
+en el rango de fechas consultado.
+
+Para cada turno fijo activo del club dentro 
+del rango p_from → p_to:
+- Calcular todas las ocurrencias que caigan 
+  en el day_of_week correspondiente
+- Materializar cada ocurrencia como slot:
+  slot_type: 'fixed_slot'
+  start_at: fecha calculada + start_time
+  end_at: fecha calculada + end_time
+  entity_id: court_fixed_slots.id
+  entity_name: 'Turno fijo'
+  requester_name: player.display_name
+
+Usar generate_series para calcular las fechas
+dentro del rango que coincidan con day_of_week.
+
+Agregar UNION ALL al RPC existente.
+
+Generar el SQL y mostrármelo antes de aplicar
+en Supabase — yo lo aplico manualmente.
+
+---
+
+## PASO 3 — UI del club
+
+### Grid semanal — slots de tipo 'fixed_slot'
+
+En AgendaGrid/WeekView los fixed_slot se ven:
+- Fondo violeta suave #EDE9FE
+- Borde izquierdo violeta #7C3AED (3px)
+- Ícono de recurrencia ↻ pequeño
+- Texto: hora + nombre del jugador
+- Badge "FIJO" pequeño
+
+### Sección "Turnos fijos" en la página
+
+Agregar tab "Turnos fijos" junto al grid:
+
+Lista de turnos fijos activos:
+- Día de semana, horario, cancha, jugador
+- Botón "Liberar" por cada turno
+
+Botón "Nuevo turno fijo" arriba a la derecha.
+
+### Modal "Nuevo turno fijo"
+
+Campos:
+- Cancha (selector de canchas del club)
+- Día de semana (Lun/Mar/Mié/Jue/Vie/Sáb/Dom)
+- Horario (selector de slots disponibles 
+  para esa cancha ese día)
+- Jugador (buscador + opción crear invitado 
+  inline — mismo patrón que en reserva simple)
+- Nota (opcional)
+- Botón "Asignar turno fijo"
+
+Al confirmar:
+1. INSERT en court_fixed_slots
+2. Notificación al jugador: 'fixed_slot_assigned'
+3. Si el jugador es guest (user_id = NULL):
+   Mostrar botón WhatsApp con texto pre-armado:
+   "Hola [nombre], tu turno fijo en [club] 
+   quedó reservado: [día] [hora] en [cancha]."
+
+### Liberar turno fijo
+
+Click en "Liberar" → modal de confirmación:
+"¿Liberar el turno fijo de [jugador] 
+los [día] a las [hora]?"
+
+Al confirmar:
+1. UPDATE court_fixed_slots 
+   SET status = 'released',
+       released_at = now(),
+       released_by = auth.uid()
+2. Notificación al jugador: 'fixed_slot_released'
+
+---
+
+## PASO 4 — Calendario del jugador
+
+En CalendarioView los fixed_slot aparecen:
+- Dot violeta en grid mensual
+- Chip con ícono ↻ en vista semanal:
+  "Turno fijo · [hora]"
+- Click → modal de detalle:
+  "Turno fijo en [club] · [cancha]
+   Todos los [día] a las [hora]"
+  Sin opción de cancelar desde el lado 
+  del jugador.
+
+Verificar que get_player_calendar incluye 
+los turnos fijos. Si no, agregar consulta 
+a court_fixed_slots.
+
+Generar el SQL necesario para get_player_calendar
+y mostrármelo antes de aplicar.
+
+---
+
+## NOTIFICACIONES
+
+El RPC notification_create tiene lista 
+hardcodeada de tipos — actualizar para 
+incluir fixed_slot_assigned y fixed_slot_released.
+
+Generar el SQL y mostrármelo antes de aplicar.
+
+---
+
+## CONSIDERACIONES TÉCNICAS
+
+- Todo SQL que requiera cambios en Supabase 
+  mostrármelo primero — yo lo aplico manualmente
+- El UNIQUE en court_fixed_slots previene 
+  doble asignación del mismo slot
+- No romper el grid existente ni las reservas 
+  esporádicas existentes
+- Reutilizar el patrón de jugador invitado 
+  inline que ya implementamos en reserva simple
+- Rama: feature/turnos-fijos
+- Commits por paso

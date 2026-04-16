@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/client";
-import { ChevronLeft, ChevronRight, CalendarDays, List, X, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, List, X, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { coachCancelBookingAction } from "@/lib/actions/coach.actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type CalEventType = "match" | "tournament" | "league" | "booking" | "training";
+type CalEventType = "match" | "tournament" | "league" | "booking" | "training" | "fixed_slot";
 
 interface CalEvent {
   id: string;
@@ -26,17 +26,24 @@ interface CalEvent {
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const EVENT_CONFIG: Record<CalEventType, { label: string; dot: string; badge: string }> = {
-  match:      { label: "Partido",       dot: "bg-blue-500",   badge: "bg-blue-100 text-blue-700" },
-  tournament: { label: "Torneo",        dot: "bg-purple-500", badge: "bg-purple-100 text-purple-700" },
-  league:     { label: "Liga",          dot: "bg-green-500",  badge: "bg-green-100 text-green-700" },
-  booking:    { label: "Reserva",       dot: "bg-yellow-500", badge: "bg-yellow-100 text-yellow-800" },
-  training:   { label: "Entrenamiento", dot: "bg-red-500",    badge: "bg-red-100 text-red-700" },
+  match:       { label: "Partido",       dot: "bg-blue-500",   badge: "bg-blue-100 text-blue-700" },
+  tournament:  { label: "Torneo",        dot: "bg-purple-500", badge: "bg-purple-100 text-purple-700" },
+  league:      { label: "Liga",          dot: "bg-green-500",  badge: "bg-green-100 text-green-700" },
+  booking:     { label: "Reserva",       dot: "bg-yellow-500", badge: "bg-yellow-100 text-yellow-800" },
+  training:    { label: "Entrenamiento", dot: "bg-red-500",    badge: "bg-red-100 text-red-700" },
+  fixed_slot:  { label: "Turno fijo",    dot: "bg-violet-500", badge: "bg-violet-100 text-violet-800" },
+};
+
+const DOW_ES: Record<number, string> = {
+  0: "domingo", 1: "lunes", 2: "martes", 3: "miércoles",
+  4: "jueves", 5: "viernes", 6: "sábado",
 };
 
 const CAL_FILTERS: { key: CalEventType | "all"; label: string }[] = [
   { key: "all",        label: "Todos" },
   { key: "match",      label: "Partidos" },
   { key: "booking",    label: "Reservas" },
+  { key: "fixed_slot", label: "Turnos fijos" },
   { key: "training",   label: "Entrenamientos" },
   { key: "tournament", label: "Torneos" },
   { key: "league",     label: "Ligas" },
@@ -531,18 +538,25 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                           <div className={`flex flex-wrap gap-1.5 pt-1.5 ${isPast ? "opacity-60" : ""}`}>
                             {dayEvts.map(e => {
                               const cfg = EVENT_CONFIG[e.type];
+                              const isFixed = e.type === "fixed_slot";
                               return (
                                 <button
                                   key={e.id}
                                   onClick={() => setSelectedEvent(e)}
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 ${cfg.badge}`}
                                 >
-                                  <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                                  {isFixed
+                                    ? <RefreshCw className="h-2.5 w-2.5 flex-shrink-0" />
+                                    : <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+                                  }
                                   <span className="truncate max-w-[140px]">
                                     {!isAllDay(e.start_at) && (
                                       <span className="font-black">{formatTime(e.start_at)} </span>
                                     )}
-                                    {e.title.length > 18 ? e.title.slice(0, 18) + "…" : e.title}
+                                    {isFixed
+                                      ? `Turno fijo · ${formatTime(e.start_at)}`
+                                      : (e.title.length > 18 ? e.title.slice(0, 18) + "…" : e.title)
+                                    }
                                   </span>
                                 </button>
                               );
@@ -777,6 +791,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
   const isFuture = new Date(event.start_at) > new Date();
   const isTraining = event.type === "training";
+  const isFixed = event.type === "fixed_slot";
   const showPending = isTraining && event.status === "pending";
   const showCancel = isTraining && event.status === "confirmed" && isFuture;
 
@@ -823,24 +838,44 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
         <div className="px-4 py-4 space-y-2.5">
           <p className="text-base font-black text-gray-900">{event.title}</p>
 
-          {/* Date/time */}
-          <p className="text-sm text-gray-600">
-            🗓{" "}
-            {new Date(event.start_at).toLocaleDateString("es-AR", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })}
-            {!allDay && (
-              <>
-                {" "}· {formatTime(event.start_at)}
+          {/* Fixed slot: recurrence info */}
+          {isFixed && (
+            <div className="rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 space-y-0.5">
+              <p className="text-sm font-semibold text-violet-900">
+                {event.club_name}{event.court_name ? ` · ${event.court_name}` : ""}
+              </p>
+              <p className="text-sm text-violet-700">
+                Todos los{" "}
+                <span className="font-semibold">
+                  {DOW_ES[typeof meta?.day_of_week === "number" ? meta.day_of_week as number : new Date(event.start_at).getDay()] ?? ""}
+                </span>
+                {" "}a las{" "}
+                <span className="font-semibold">{formatTime(event.start_at)}</span>
                 {event.end_at ? ` – ${formatTime(event.end_at)}` : ""}
-              </>
-            )}
-          </p>
+              </p>
+            </div>
+          )}
 
-          {/* Club + court */}
-          {event.club_name && (
+          {/* Date/time (no fixed_slot — it shows recurrence instead) */}
+          {!isFixed && (
+            <p className="text-sm text-gray-600">
+              🗓{" "}
+              {new Date(event.start_at).toLocaleDateString("es-AR", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+              {!allDay && (
+                <>
+                  {" "}· {formatTime(event.start_at)}
+                  {event.end_at ? ` – ${formatTime(event.end_at)}` : ""}
+                </>
+              )}
+            </p>
+          )}
+
+          {/* Club + court (non-fixed) */}
+          {!isFixed && event.club_name && (
             <p className="text-sm text-gray-600">
               📍 {event.club_name}
               {event.court_name ? ` · ${event.court_name}` : ""}

@@ -1,0 +1,75 @@
+Mejorar la vista semanal de reservas del club
+para que el admin pueda crear reservas 
+directamente desde el grid sin cambiar de vista.
+
+Antes de modificar leer el componente actual
+de la agenda/reservas del club.
+
+---
+
+## CAMBIO — Click en celda vacía abre modal de reserva
+
+En la vista semanal del grid de canchas:
+
+CELDA VACÍA (sin reserva):
+- Al hacer hover: mostrar un "+" sutil 
+  en color verde claro con tooltip "Nueva reserva"
+- Al hacer click: abrir modal de nueva reserva
+  con estos campos pre-cargados:
+  - Fecha: el día de la columna clickeada
+  - Cancha: la fila clickeada (Cancha 1, 2, etc.)
+  - Horario: el slot más cercano disponible 
+    para esa cancha ese día
+  - Jugador: buscador de jugadores del club
+  - Nota: opcional
+  - Botón: "Confirmar reserva"
+
+CELDA OCUPADA (con reserva existente):
+- Comportamiento actual — click abre detalle
+
+---
+
+## MODAL DE NUEVA RESERVA DESDE GRID
+
+El modal es simple y directo:
+
+┌─────────────────────────────────┐
+│ Nueva reserva                   │
+│ Cancha 2 · Miércoles 15 Abr     │
+│                                 │
+│ Horario: [selector de slots     │
+│           disponibles ese día]  │
+│                                 │
+│ Jugador: [buscador]             │
+│                                 │
+│ Nota: [opcional]                │
+│                                 │
+│ [Confirmar reserva] [Cancelar]  │
+└─────────────────────────────────┘
+
+Al confirmar llama a 
+club_create_confirmed_booking_match RPC
+que ya existe y funciona.
+
+---
+
+## ADEMÁS — Indicador visual de slots disponibles
+
+En la vista semanal, las celdas vacías donde 
+el club tiene horarios configurados muestran 
+un fondo muy sutil (gris clarisimo #F8FAFC)
+para distinguirlas de horarios fuera de 
+la agenda del club.
+
+---
+
+## CONSIDERACIONES
+
+- No tocar la vista de día existente
+- No romper la visualización de reservas actuales
+- Mobile: en mobile el click en celda vacía 
+  abre un bottom sheet en lugar de modal
+- Empezar leyendo el componente actual 
+  antes de modificar nada
+- Commit: "feat: reservas club — crear reserva 
+  desde click en celda vacía del grid semanal"

@@ -1,20 +1,22 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, RefreshCw } from "lucide-react";
 
-export function BookingsViewToggle({ current }: { current: "agenda" | "lista" }) {
+type ViewMode = "agenda" | "lista" | "turnos";
+
+export function BookingsViewToggle({ current }: { current: ViewMode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const switchTo = (mode: "agenda" | "lista") => {
+  const switchTo = (mode: ViewMode) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("view_mode", mode);
     if (mode === "lista") {
       params.delete("date");
       params.delete("view");
-    } else {
+    } else if (mode === "agenda" || mode === "turnos") {
       params.delete("cursor");
     }
     router.push(`${pathname}?${params.toString()}`);
@@ -32,6 +34,17 @@ export function BookingsViewToggle({ current }: { current: "agenda" | "lista" })
       >
         <LayoutGrid className="w-4 h-4" />
         Agenda
+      </button>
+      <button
+        onClick={() => switchTo("turnos")}
+        className={`inline-flex items-center gap-1.5 px-4 py-2 transition-colors border-l border-gray-200 ${
+          current === "turnos"
+            ? "bg-violet-600 text-white border-violet-600"
+            : "text-gray-600 hover:bg-gray-50"
+        }`}
+      >
+        <RefreshCw className="w-4 h-4" />
+        Turnos fijos
       </button>
       <button
         onClick={() => switchTo("lista")}
