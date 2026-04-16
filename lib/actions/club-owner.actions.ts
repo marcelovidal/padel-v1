@@ -66,10 +66,6 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
 
-  console.log("[approveClubOwnerRequest] clubId:", clubId);
-  console.log("[approveClubOwnerRequest] playerId:", playerId);
-  console.log("[approveClubOwnerRequest] userId:", userId);
-
   // 1. Activar rol en el player
   const { error: playerErr } = await sb
     .from("players")
@@ -91,11 +87,8 @@ export async function approveClubOwnerRequestAction(formData: FormData) {
       .eq("id", clubId)
       .select();
 
-    console.log("[approveClubOwnerRequest] clubs UPDATE result:", clubData, clubError);
-
     if (clubError) {
       // Rollback: revertir is_club_owner en el player
-      console.log("[approveClubOwnerRequest] ROLLBACK — revirtiendo is_club_owner");
       await sb
         .from("players")
         .update({ is_club_owner: false, club_owner_enabled_at: null })
