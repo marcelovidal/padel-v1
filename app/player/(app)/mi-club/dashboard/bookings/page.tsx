@@ -3,6 +3,7 @@ import { requireClubOwner } from "@/lib/auth";
 import { BookingService } from "@/services/booking.service";
 import { PlayerService } from "@/services/player.service";
 import { ClubService } from "@/services/club.service";
+import { createClient } from "@/lib/supabase/server";
 import {
   confirmBookingAction,
   createMatchFromBookingAction,
@@ -10,10 +11,15 @@ import {
   clubCancelBookingAction,
   clubCreateBookingAndMatchAction,
 } from "@/lib/actions/booking.actions";
+import {
+  assignFixedSlotAction,
+  releaseFixedSlotAction,
+} from "@/lib/actions/fixed-slot.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
 import { AgendaGrid } from "@/components/club/agenda/AgendaGrid";
 import { BookingsViewToggle } from "@/components/bookings/BookingsViewToggle";
+import { FixedSlotsTab, type FixedSlotRow } from "@/components/club/fixed-slots/FixedSlotsTab";
 
 type WeekDayBucket = {
   date: string;
@@ -81,7 +87,12 @@ export default async function MiClubBookingsPage({
   };
 }) {
   const params = searchParams || {};
-  const viewMode = params.view_mode === "lista" ? "lista" : "agenda";
+  const viewMode =
+    params.view_mode === "lista"
+      ? "lista"
+      : params.view_mode === "turnos"
+      ? "turnos"
+      : "agenda";
   const { club } = await requireClubOwner();
   const bookingService = new BookingService();
 
@@ -136,9 +147,78 @@ export default async function MiClubBookingsPage({
           rejectAction={rejectBookingAction}
           cancelAction={clubCancelBookingAction}
           createAction={clubCreateBookingAndMatchAction}
+          releaseFixedSlotAction={releaseFixedSlotAction}
           clubId={club.id}
           players={playerOptions}
           baseHref={BASE}
+        />
+      </div>
+    );
+  }
+
+  // ── Vista Turnos fijos ────────────────────────────────────────────────────
+  if (viewMode === "turnos") {
+    const supabase = await createClient();
+    const playerService = new PlayerService();
+    const [courts, allPlayers, fixedSlotsResult] = await Promise.all([
+      bookingService.listActiveClubCourts(club.id),
+      playerService.searchPlayersWeighted("", 200),
+      supabase
+        .from("court_fixed_slots")
+        .select("*, club_courts(name), players(display_name)")
+        .eq("club_id", club.id)
+        .eq("status", "active")
+        .order("day_of_week")
+        .order("start_time"),
+    ]);
+
+    const fixedSlots: FixedSlotRow[] = (fixedSlotsResult.data || []).map((row: any) => ({
+      id: row.id,
+      club_id: row.club_id,
+      court_id: row.court_id,
+      player_id: row.player_id,
+      day_of_week: row.day_of_week,
+      start_time: row.start_time,
+      end_time: row.end_time,
+      status: row.status,
+      note: row.note,
+      court_name: row.club_courts?.name ?? "",
+      player_display_name: row.players?.display_name ?? null,
+    }));
+
+    const courtOptions = courts.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      opening_time: String(c.opening_time || "09:00").slice(0, 5),
+      closing_time: String(c.closing_time || "23:00").slice(0, 5),
+      slot_interval_minutes: c.slot_interval_minutes,
+    }));
+
+    const playerOptions = (allPlayers || []).map((p: any) => ({
+      id: p.id,
+      label: `${p.first_name || ""} ${p.last_name || ""}`.trim() || p.display_name || "Jugador",
+    }));
+
+    return (
+      <div className="w-full space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Vista unificada de reservas, ligas y torneos por cancha.
+            </p>
+          </div>
+          <BookingsViewToggle current="turnos" />
+        </div>
+
+        <FixedSlotsTab
+          clubId={club.id}
+          clubName={club.name}
+          courts={courtOptions}
+          players={playerOptions}
+          initialFixedSlots={fixedSlots}
+          assignAction={assignFixedSlotAction}
+          releaseAction={releaseFixedSlotAction}
         />
       </div>
     );

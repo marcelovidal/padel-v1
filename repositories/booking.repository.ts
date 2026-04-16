@@ -6,7 +6,8 @@ export type AgendaSlotType =
   | "booking_requested"
   | "booking_confirmed"
   | "league_match"
-  | "tournament_match";
+  | "tournament_match"
+  | "fixed_slot";
 
 export type AgendaSlot = {
   slot_id: string;
