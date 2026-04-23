@@ -1,7 +1,4 @@
 import type { Metadata } from "next";
-import { PublicHeader } from "@/components/public/PublicHeader";
-import { PublicFooter } from "@/components/public/PublicFooter";
-import { getPublicCtaContext } from "@/lib/auth/public-cta";
 
 const siteBase =
   process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.trim() !== ""
@@ -24,9 +21,6 @@ export const metadata: Metadata = {
   },
   description:
     "Resultados, estadisticas y perfil de padel para grupos reales. Carga partidos, comparti por WhatsApp y deja que cada jugador reclame su perfil.",
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: "es_AR",
@@ -53,18 +47,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function PublicLayout({
+export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const ctaContext = await getPublicCtaContext();
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <PublicHeader ctaContext={ctaContext} />
-      <main>{children}</main>
-      <PublicFooter />
-    </div>
-  );
+  return <>{children}</>;
 }
