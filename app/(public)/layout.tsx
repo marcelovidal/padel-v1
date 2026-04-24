@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
+import { Playfair_Display } from "next/font/google";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
 import { getPublicCtaContext } from "@/lib/auth/public-cta";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 const siteBase =
   process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.trim() !== ""
@@ -61,7 +68,7 @@ export default async function PublicLayout({
   const ctaContext = await getPublicCtaContext();
 
   return (
-    <div className="min-h-screen" style={{ background: "#F0EDE6", color: "#080808" }}>
+    <div className={`${playfair.variable} min-h-screen`} style={{ background: "#F0EDE6", color: "#080808" }}>
       <PublicHeader ctaContext={ctaContext} />
       <main>{children}</main>
       <PublicFooter />
