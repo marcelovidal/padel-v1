@@ -1,20 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
-import {
-  ArrowRight,
-  BarChart3,
-  Building2,
-  CheckCircle2,
-  MessageCircle,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { PublicContainer } from "@/components/public/PublicContainer";
-import { PublicSection } from "@/components/public/PublicSection";
-import { FeatureCard } from "@/components/public/FeatureCard";
 import { FAQAccordion } from "@/components/public/FAQAccordion";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { PasalaIndex } from "@/components/player/PasalaIndex";
@@ -25,9 +12,9 @@ import { ClubDemoPanel } from "@/components/public/ClubDemoPanel";
 import { PlayerEventsDemoPanel } from "@/components/public/PlayerEventsDemoPanel";
 
 export const metadata: Metadata = {
-  title: "PASALA | Padel amateur con historial, ligas y torneos",
+  title: "PASALA | Padel para jugadores y clubes de la Patagonia",
   description:
-    "Registra tus partidos de padel, participá en ligas y torneos, reservá canchas y construí tu historial deportivo.",
+    "Registrá tus partidos, medí tu progreso con el Índice PASALA y conectá con la comunidad de pádel de la Patagonia argentina.",
 };
 
 const samplePlayersByTeam = {
@@ -41,295 +28,658 @@ const samplePlayersByTeam = {
   ],
 };
 
-function HeroCourtVisual() {
+// ─── Acto I — La apertura ────────────────────────────────────────────────────
+
+function ActoI({ primaryHref, clubHref }: { primaryHref: string; clubHref: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-950 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.45)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(59,130,246,0.4),transparent_35%),radial-gradient(circle_at_80%_15%,rgba(16,185,129,0.28),transparent_35%),linear-gradient(180deg,#05111f_0%,#07172d_55%,#07162a_100%)]" />
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:26px_26px]" />
-      <div className="absolute inset-4 rounded-[20px] border border-cyan-200/20" />
-      <div className="absolute left-[8%] right-[8%] top-1/2 h-px bg-white/60" />
-      <div className="absolute left-[50%] top-[18%] h-[64%] w-px -translate-x-1/2 bg-white/20" />
+    <section style={{ background: "#F0EDE6" }} className="relative overflow-hidden">
+      {/* Línea decorativa de cancha — fondo sutil */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(8,8,8,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(8,8,8,0.04) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-      <div className="relative grid gap-4">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-          <div className="flex items-center justify-between">
-            <p className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/80">
-              Padel indoor · tu juego
+      <PublicContainer className="relative py-20 sm:py-28">
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_420px]">
+          {/* Texto */}
+          <div className="space-y-8">
+            {/* Geografía */}
+            <p
+              className="text-[11px] font-black uppercase tracking-[0.22em]"
+              style={{ color: "rgba(8,8,8,0.4)" }}
+            >
+              Patagonia argentina · General Roca · San Martín de los Andes · El Calafate
             </p>
-            <span className="rounded-full bg-emerald-300/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">
-              Match point
-            </span>
+
+            {/* Claim principal — serif editorial */}
+            <h1
+              className="font-serif text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+              style={{ color: "#080808" }}
+            >
+              El pádel no termina
+              <br />
+              cuando termina
+              <br />
+              <span style={{ color: "#1565C0" }}>el partido.</span>
+            </h1>
+
+            {/* Bajada */}
+            <p
+              className="max-w-lg text-lg leading-relaxed"
+              style={{ color: "rgba(8,8,8,0.6)" }}
+            >
+              Registrá tu juego, medí tu progreso y construí tu historia deportiva.
+              Pensado para grupos reales, WhatsApp y clubes de la Patagonia.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={primaryHref}
+                className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-wide text-white transition hover:opacity-90"
+                style={{ background: "#1565C0" }}
+              >
+                Crear mi perfil
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href={clubHref}
+                className="inline-flex items-center gap-2 rounded-xl border px-6 py-3.5 text-sm font-black uppercase tracking-wide transition"
+                style={{
+                  borderColor: "rgba(8,8,8,0.2)",
+                  color: "#080808",
+                  background: "transparent",
+                }}
+              >
+                Registrar mi club
+              </Link>
+            </div>
+
+            {/* Stats sociales */}
+            <div
+              className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t pt-6"
+              style={{ borderColor: "rgba(8,8,8,0.1)" }}
+            >
+              {[
+                ["76+", "jugadores activos"],
+                ["200+", "partidos registrados"],
+                ["5", "clubes en el sistema"],
+              ].map(([num, label]) => (
+                <div key={label} className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-black" style={{ color: "#080808" }}>
+                    {num}
+                  </span>
+                  <span
+                    className="text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "rgba(8,8,8,0.45)" }}
+                  >
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-3">
-            <MatchScore
-              variant="result"
-              results={{
-                sets: [
-                  { a: 6, b: 4 },
-                  { a: 4, b: 6 },
-                  { a: 7, b: 6 },
-                ],
-                winnerTeam: "A",
-              }}
-              playersByTeam={samplePlayersByTeam}
-              showPlayers
-            />
-          </div>
-        </div>
+          {/* Visual — partido demo */}
+          <div
+            className="overflow-hidden rounded-3xl p-5 shadow-[0_32px_80px_rgba(8,8,8,0.18)]"
+            style={{ background: "#080808" }}
+          >
+            <div
+              className="mb-3 flex items-center justify-between rounded-xl px-3 py-2"
+              style={{ background: "rgba(240,237,230,0.06)" }}
+            >
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.18em]"
+                style={{ color: "rgba(240,237,230,0.5)" }}
+              >
+                Club Roca Pádel · en vivo
+              </p>
+              <span
+                className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider"
+                style={{ background: "rgba(21,101,192,0.3)", color: "#90caf9" }}
+              >
+                Match point
+              </span>
+            </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Compartir por WhatsApp</p>
-          <div className="mt-3 rounded-2xl bg-[#111B21] p-3">
-            <div className="max-w-[340px] rounded-2xl rounded-tl-md bg-[#005C4B] p-3 text-sm leading-relaxed text-white">
-              Partido cargado en PASALA 👇<br />
-              Perez/Gonzalez vs Martinez/Vidal<br />
-              Resultado: 6-4 4-6 7-6<br />
-              pasla.com.ar/match
+            <div
+              className="rounded-2xl p-3"
+              style={{ background: "rgba(240,237,230,0.04)", border: "1px solid rgba(240,237,230,0.08)" }}
+            >
+              <MatchScore
+                variant="result"
+                results={{
+                  sets: [
+                    { a: 6, b: 4 },
+                    { a: 4, b: 6 },
+                    { a: 7, b: 6 },
+                  ],
+                  winnerTeam: "A",
+                }}
+                playersByTeam={samplePlayersByTeam}
+                showPlayers
+              />
+            </div>
+
+            <div
+              className="mt-3 rounded-2xl p-3"
+              style={{ background: "rgba(240,237,230,0.04)", border: "1px solid rgba(240,237,230,0.08)" }}
+            >
+              <p
+                className="mb-2 text-[10px] font-black uppercase tracking-[0.18em]"
+                style={{ color: "rgba(240,237,230,0.4)" }}
+              >
+                Compartido por WhatsApp
+              </p>
+              <div
+                className="rounded-xl rounded-tl-sm p-3 text-sm leading-relaxed text-white"
+                style={{ background: "#005C4B" }}
+              >
+                Partido cargado en PASALA 👇
+                <br />
+                Perez/Gonzalez vs Martinez/Vidal
+                <br />
+                Resultado: 6-4 4-6 7-6
+                <br />
+                <span style={{ color: "rgba(255,255,255,0.6)" }}>pasala.com.ar/m/…</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </PublicContainer>
+    </section>
   );
 }
+
+// ─── Acto II — El ritual ─────────────────────────────────────────────────────
+
+function ActoII() {
+  return (
+    <section style={{ background: "#080808" }} className="py-20 sm:py-28">
+      <PublicContainer>
+        <div className="grid gap-16 lg:grid-cols-[1fr_1fr]">
+          {/* Claim */}
+          <div className="space-y-6">
+            <p
+              className="text-[11px] font-black uppercase tracking-[0.22em]"
+              style={{ color: "rgba(240,237,230,0.3)" }}
+            >
+              Por qué PASALA
+            </p>
+            <h2
+              className="font-serif text-4xl font-bold leading-[1.1] sm:text-5xl"
+              style={{ color: "#F0EDE6" }}
+            >
+              No es el partido.
+              <br />
+              Es lo que queda
+              <br />
+              <span style={{ color: "#1565C0" }}>después.</span>
+            </h2>
+            <p
+              className="max-w-md text-base leading-relaxed"
+              style={{ color: "rgba(240,237,230,0.5)" }}
+            >
+              En la Patagonia el pádel es un ritual social. El after, el grupo,
+              la pertenencia al club. PASALA es la capa digital que lo ordena
+              sin reemplazarlo.
+            </p>
+          </div>
+
+          {/* Tres pilares */}
+          <div className="grid gap-4 sm:grid-cols-1">
+            {[
+              {
+                num: "01",
+                title: "El resultado",
+                body: "Antes era un mensaje de WhatsApp que se perdía. Ahora es historial, estadísticas y progreso medible.",
+              },
+              {
+                num: "02",
+                title: "El grupo",
+                body: "WhatsApp ya conecta. PASALA ordena lo que pasa adentro de la cancha — quién ganó, cómo evolucionó.",
+              },
+              {
+                num: "03",
+                title: "La comunidad",
+                body: "Torneos, ligas, rankings. El club como eje de pertenencia, no solo como proveedor de cancha.",
+              },
+            ].map((item) => (
+              <div
+                key={item.num}
+                className="rounded-2xl p-5"
+                style={{
+                  background: "rgba(240,237,230,0.04)",
+                  border: "1px solid rgba(240,237,230,0.08)",
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <span
+                    className="mt-0.5 font-mono text-xs font-black"
+                    style={{ color: "#1565C0" }}
+                  >
+                    {item.num}
+                  </span>
+                  <div>
+                    <h3
+                      className="font-serif text-lg font-bold"
+                      style={{ color: "#F0EDE6" }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      className="mt-1 text-sm leading-relaxed"
+                      style={{ color: "rgba(240,237,230,0.5)" }}
+                    >
+                      {item.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Diferenciadores */}
+        <div
+          className="mt-16 grid gap-px rounded-3xl overflow-hidden"
+          style={{ background: "rgba(240,237,230,0.06)" }}
+        >
+          {[
+            ["WhatsApp-first", "Onboarding sin cuenta — el grupo invita y cada jugador reclama su perfil cuando quiere."],
+            ["Índice PASALA", "Algoritmo propio de rating específico para pádel amateur: efectividad, nivel de rivales, forma reciente."],
+            ["Diseño local", "No es una adaptación global. Es una app construida para los clubes y jugadores de la Patagonia."],
+            ["Dual audience", "El mismo ecosistema sirve al jugador y al club — conectados, no separados."],
+          ].map(([title, body]) => (
+            <div
+              key={title}
+              className="flex flex-col gap-1 px-6 py-5 sm:flex-row sm:items-center sm:gap-8"
+              style={{ background: "#080808" }}
+            >
+              <p
+                className="w-48 shrink-0 text-sm font-black"
+                style={{ color: "#F0EDE6" }}
+              >
+                {title}
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(240,237,230,0.45)" }}>
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── Acto III — El jugador ────────────────────────────────────────────────────
+
+function ActoIII({ primaryHref }: { primaryHref: string }) {
+  return (
+    <section style={{ background: "#F0EDE6" }} className="py-20 sm:py-28">
+      <PublicContainer>
+        <div className="mb-12 max-w-2xl">
+          <p
+            className="mb-3 text-[11px] font-black uppercase tracking-[0.22em]"
+            style={{ color: "rgba(8,8,8,0.4)" }}
+          >
+            Para jugadores
+          </p>
+          <h2
+            className="font-serif text-4xl font-bold leading-[1.1] sm:text-5xl"
+            style={{ color: "#080808" }}
+          >
+            Tu juego,
+            <br />
+            en números.
+          </h2>
+          <p className="mt-4 text-base leading-relaxed" style={{ color: "rgba(8,8,8,0.55)" }}>
+            El Índice PASALA mide lo que importa: no solo cuánto ganás, sino
+            contra quién, cómo y qué tan seguido mejorás.
+          </p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          {/* Demo PASALA Index */}
+          <div
+            className="rounded-3xl p-6 shadow-[0_14px_40px_rgba(8,8,8,0.07)]"
+            style={{ background: "white", border: "1px solid rgba(8,8,8,0.08)" }}
+          >
+            <PasalaIndex value={78} winScore={62} perfScore={74} />
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                ["Partidos", "128", "Historial consolidado"],
+                ["Win rate", "62%", "Últimos 90 días"],
+                ["Racha", "+4", "Partidos seguidos ganados"],
+                ["Índice PASALA", "78 / 100", "Tu rating actual"],
+              ].map(([label, value, hint]) => (
+                <div
+                  key={label}
+                  className="rounded-2xl p-4"
+                  style={{ background: "#F0EDE6" }}
+                >
+                  <p
+                    className="text-[10px] font-black uppercase tracking-[0.18em]"
+                    style={{ color: "rgba(8,8,8,0.35)" }}
+                  >
+                    {label}
+                  </p>
+                  <p className="mt-2 text-2xl font-black" style={{ color: "#080808" }}>
+                    {value}
+                  </p>
+                  <p className="mt-1 text-xs" style={{ color: "rgba(8,8,8,0.45)" }}>
+                    {hint}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Features para jugadores */}
+          <div className="flex flex-col gap-4">
+            {[
+              {
+                title: "Reserva de canchas",
+                body: "Seleccioná club, cancha y horario con confirmación inmediata.",
+              },
+              {
+                title: "Calendario unificado",
+                body: "Todos tus eventos en una sola vista: partidos, reservas, torneos y clases.",
+              },
+              {
+                title: "Reclamo de perfil",
+                body: "Te cargaron como invitado en un partido — reclamá tu historial con un clic.",
+              },
+              {
+                title: "Social share",
+                body: "Cards para compartir partidos y logros en Instagram y WhatsApp.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl p-5"
+                style={{ background: "white", border: "1px solid rgba(8,8,8,0.08)" }}
+              >
+                <h3 className="font-semibold" style={{ color: "#080808" }}>
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed" style={{ color: "rgba(8,8,8,0.5)" }}>
+                  {item.body}
+                </p>
+              </div>
+            ))}
+
+            <Link
+              href={primaryHref}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-wide text-white transition hover:opacity-90"
+              style={{ background: "#1565C0" }}
+            >
+              Crear mi perfil — es gratis
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── Acto IV — Los eventos ────────────────────────────────────────────────────
+
+function ActoIV({ primaryHref }: { primaryHref: string }) {
+  return (
+    <section style={{ background: "white", borderTop: "1px solid rgba(8,8,8,0.06)" }} className="py-20 sm:py-28">
+      <PublicContainer>
+        <div className="mb-10 max-w-2xl">
+          <p
+            className="mb-3 text-[11px] font-black uppercase tracking-[0.22em]"
+            style={{ color: "rgba(8,8,8,0.35)" }}
+          >
+            Liga, torneo, reserva
+          </p>
+          <h2
+            className="font-serif text-4xl font-bold leading-[1.1] sm:text-5xl"
+            style={{ color: "#080808" }}
+          >
+            Inscribite en dos pasos.
+            <br />
+            Seguí todo
+            <br />
+            desde un lugar.
+          </h2>
+          <p className="mt-4 text-base leading-relaxed" style={{ color: "rgba(8,8,8,0.55)" }}>
+            Buscás tu compañero, mandás la solicitud y seguís el estado desde
+            tu perfil. Nada de grupos de WhatsApp perdidos.
+          </p>
+        </div>
+
+        <PlayerEventsDemoPanel />
+
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <Link
+            href={primaryHref}
+            className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:opacity-90"
+            style={{ background: "#1565C0" }}
+          >
+            Crear mi perfil
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/players"
+            className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-black uppercase tracking-wide transition"
+            style={{ borderColor: "rgba(8,8,8,0.15)", color: "#080808" }}
+          >
+            Ver jugadores activos
+          </Link>
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── Acto V — El club ─────────────────────────────────────────────────────────
+
+function ActoV({ clubHref }: { clubHref: string }) {
+  return (
+    <section style={{ background: "#080808" }} className="py-20 sm:py-28">
+      <PublicContainer>
+        <div className="grid gap-16 lg:grid-cols-[1fr_1fr]">
+          {/* Claim */}
+          <div className="space-y-6">
+            <p
+              className="text-[11px] font-black uppercase tracking-[0.22em]"
+              style={{ color: "rgba(240,237,230,0.3)" }}
+            >
+              Para clubes
+            </p>
+            <h2
+              className="font-serif text-4xl font-bold leading-[1.1] sm:text-5xl"
+              style={{ color: "#F0EDE6" }}
+            >
+              El partido
+              <br />
+              empieza antes
+              <br />
+              de llegar a la{" "}
+              <span style={{ color: "#1565C0" }}>cancha.</span>
+            </h2>
+            <p
+              className="max-w-md text-base leading-relaxed"
+              style={{ color: "rgba(240,237,230,0.5)" }}
+            >
+              Un panel completo para gestionar reservas, ligas, torneos y el
+              ranking interno de tu club. Sin planillas. Sin grupos de WhatsApp
+              perdidos.
+            </p>
+
+            <div className="space-y-3">
+              {[
+                "Ranking interno basado en partidos reales",
+                "Ligas con fixture, grupos y playoffs",
+                "Torneos con inscripción en duo y bracket",
+                "Reservas de canchas integradas al flujo",
+                "Turnos fijos — reservas recurrentes semanales",
+                "Métricas del club — hora pico, jugadores frecuentes",
+              ].map((line) => (
+                <div key={line} className="flex items-start gap-3">
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0"
+                    style={{ color: "#1565C0" }}
+                  />
+                  <span className="text-sm" style={{ color: "rgba(240,237,230,0.65)" }}>
+                    {line}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Link
+                href={clubHref}
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:opacity-90"
+                style={{ background: "#1565C0" }}
+              >
+                Registrar mi club
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/clubs"
+                className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-black uppercase tracking-wide transition"
+                style={{ borderColor: "rgba(240,237,230,0.15)", color: "rgba(240,237,230,0.7)" }}
+              >
+                Ver clubes activos
+              </Link>
+            </div>
+          </div>
+
+          {/* Demo panel */}
+          <div>
+            <ClubDemoPanel />
+          </div>
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── Acto VI — El llamado ─────────────────────────────────────────────────────
+
+function ActoVI({ primaryHref, clubHref }: { primaryHref: string; clubHref: string }) {
+  return (
+    <section style={{ background: "#1565C0" }} className="py-20 sm:py-28">
+      <PublicContainer>
+        <div className="mx-auto max-w-3xl text-center space-y-8">
+          <div className="space-y-4">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-white/60">
+              Piloto activo en la Patagonia
+            </p>
+            <h2 className="font-serif text-4xl font-bold leading-[1.1] text-white sm:text-5xl">
+              Ya hay 76 jugadores
+              <br />
+              construyendo su historia
+              <br />
+              en General Roca.
+            </h2>
+            <p className="mx-auto max-w-lg text-base leading-relaxed text-white/65">
+              PASALA está en lanzamiento piloto. Es el momento de entrar,
+              construir tu historial desde cero y ser parte de la primera
+              comunidad de pádel digital de la Patagonia.
+            </p>
+          </div>
+
+          {/* Stats */}
+          <div className="flex flex-wrap items-center justify-center gap-8 py-4">
+            {[
+              ["76+", "jugadores activos"],
+              ["200+", "partidos registrados"],
+              ["5", "clubes en el sistema"],
+            ].map(([num, label]) => (
+              <div key={label} className="text-center">
+                <p className="text-3xl font-black text-white">{num}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/50">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href={primaryHref}
+              className="inline-flex items-center gap-2 rounded-xl px-8 py-4 text-sm font-black uppercase tracking-wide transition hover:bg-white/90"
+              style={{ background: "#F0EDE6", color: "#080808" }}
+            >
+              Crear mi perfil — gratis
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href={clubHref}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-8 py-4 text-sm font-black uppercase tracking-wide text-white transition hover:border-white/50 hover:bg-white/10"
+            >
+              Registrar mi club
+            </Link>
+          </div>
+
+          <p className="text-xs text-white/35">
+            Gratis para jugadores. Gratis para clubes durante el lanzamiento.
+          </p>
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+
+function SectionFaq() {
+  return (
+    <section
+      style={{ background: "#F0EDE6", borderTop: "1px solid rgba(8,8,8,0.06)" }}
+      className="py-20 sm:py-24"
+    >
+      <PublicContainer>
+        <div className="mb-10">
+          <p
+            className="mb-3 text-[11px] font-black uppercase tracking-[0.22em]"
+            style={{ color: "rgba(8,8,8,0.35)" }}
+          >
+            FAQ
+          </p>
+          <h2
+            className="font-serif text-3xl font-bold"
+            style={{ color: "#080808" }}
+          >
+            Preguntas frecuentes
+          </h2>
+        </div>
+        <div className="max-w-2xl">
+          <FAQAccordion items={publicFaqItems} />
+        </div>
+      </PublicContainer>
+    </section>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function PublicHomePage() {
   const primaryHref = await getPrimaryCtaHref("/");
   const clubHref = getRegisterClubHref();
 
   return (
-    <div className="bg-white">
-      <section className="relative overflow-hidden border-b border-slate-200 bg-[radial-gradient(circle_at_12%_8%,rgba(59,130,246,0.16),transparent_34%),radial-gradient(circle_at_85%_12%,rgba(16,185,129,0.14),transparent_34%),linear-gradient(180deg,#f8fbff_0%,#eef5ff_38%,#f6f8fc_100%)] py-12 sm:py-16">
-        <PublicContainer>
-          <div className="grid items-start gap-8 lg:grid-cols-[1.02fr_0.98fr]">
-            <div className="space-y-6 pt-2 sm:pt-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-blue-700 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" />
-                Lo importante es tu juego
-              </div>
-
-              <h1 className="text-4xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-                El padel no termina
-                <br />
-                cuando termina
-                <span className="block text-blue-600">el partido.</span>
-              </h1>
-
-              <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Registrá tus partidos de padel. Medí tu progreso. Construí tu historia deportiva.
-                Pensado para dobles, grupos de WhatsApp y clubes reales.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <Link href={primaryHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
-                  Crear mi perfil
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href={clubHref} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
-                  Registrar mi club
-                </Link>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Historial", "Registrá todos tus partidos y analizá tus resultados"],
-                  ["Eventos", "Inscribite a ligas y torneos del club desde tu perfil"],
-                  ["WhatsApp", "Compartí el resultado e invitá a tus compañeros gratis"],
-                ].map(([k, v]) => (
-                  <div key={k} className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-[0_8px_24px_rgba(2,6,23,0.05)]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{k}</p>
-                    <p className="mt-2 text-sm font-bold text-slate-900">{v}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <HeroCourtVisual />
-          </div>
-        </PublicContainer>
-      </section>
-
-      <PublicSection className="pt-10 sm:pt-14">
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          <FeatureCard title="Historial automático" description="Cada partido queda registrado con contexto de club y equipos." icon={<BarChart3 className="h-5 w-5" />} />
-          <FeatureCard title="Índice PASALA" description="Seguimiento de rendimiento y evolución con lectura clara." icon={<Zap className="h-5 w-5" />} />
-          <FeatureCard title="Reclamo de perfil" description="Te cargan como invitado y reclamás después desde el link." icon={<ShieldCheck className="h-5 w-5" />} />
-          <FeatureCard title="Ligas y torneos" description="Inscribite como dupla, seguí el fixture y los playoffs desde la app." icon={<Trophy className="h-5 w-5" />} />
-          <FeatureCard title="Reservas de canchas" description="Reservá turnos directamente desde el flujo del partido." icon={<Users className="h-5 w-5" />} />
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Cómo funciona" title="Se adapta al flujo real del grupo" description="PASALA ordena el juego sin romper el hábito de organizar por WhatsApp." className="bg-slate-50/70">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 1</p>
-            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Cargás tu juego</h3>
-            <p className="mt-2 text-sm text-slate-600">Armás parejas, club y datos base en segundos.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 2</p>
-            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Registrás resultado</h3>
-            <p className="mt-2 text-sm text-slate-600">Impacta historial, métricas y progreso automáticamente.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 3</p>
-            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Te inscribís a eventos</h3>
-            <p className="mt-2 text-sm text-slate-600">Buscás liga o torneo abierto, elegís companero y mandás la solicitud.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">Paso 4</p>
-            <h3 className="mt-2 text-lg font-black tracking-tight text-slate-900">Compartís por WhatsApp</h3>
-            <p className="mt-2 text-sm text-slate-600">El grupo entra por link y reclama perfil cuando quiere.</p>
-          </div>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Para jugadores" title="Tu progreso, sin planillas sueltas">
-        <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
-            <PasalaIndex value={78} winScore={62} perfScore={74} />
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {[
-                ["Partidos", "128", "Historial consolidado"],
-                ["Win rate", "62%", "Últimos 90 días"],
-                ["Racha", "+4", "Lectura rápida"],
-                ["Índice PASALA", "78/100", "Progreso personal"],
-              ].map(([label, value, hint]) => (
-                <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-                  <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
-                  <p className="mt-1 text-xs text-slate-500">{hint}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Evolución competitiva</p>
-              <div className="mt-3 space-y-3">
-                <div className="h-2 rounded-full bg-slate-100"><div className="h-2 w-[65%] rounded-full bg-blue-600" /></div>
-                <div className="h-2 rounded-full bg-slate-100"><div className="h-2 w-[52%] rounded-full bg-emerald-500" /></div>
-                <div className="h-2 rounded-full bg-slate-100"><div className="h-2 w-[74%] rounded-full bg-indigo-500" /></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <FeatureCard title="Historial de juego real" description="Pensado para la recurrencia amateur: dobles, clubes y grupos." icon={<Trophy className="h-5 w-5" />} />
-            <FeatureCard title="Invitados + reclamo" description="Podés sumar jugadores sin cuenta y consolidar la red con el tiempo." icon={<ShieldCheck className="h-5 w-5" />} />
-            <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-blue-600 to-blue-700 p-6 text-white shadow-[0_16px_48px_rgba(37,99,235,0.25)]">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-100">Jugador amateur</p>
-              <p className="mt-3 text-xl font-black leading-tight">Es una app exclusiva para jugadores de padel, pensada para jugadores, no es una app generica.</p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link href="/players" className="rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">Ver jugadores</Link>
-                <Link href={primaryHref} className="rounded-xl border border-white/25 px-4 py-2 text-xs font-black uppercase tracking-wide text-white">Crear perfil</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Inscripción a eventos" title="Así se inscribe un jugador a una liga o torneo" description="Buscá tu companero, mandá la solicitud y seguí el estado desde tu perfil. Todo en un solo lugar." className="bg-slate-50/70">
-        <PlayerEventsDemoPanel />
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-          <Link href={primaryHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
-            Crear mi perfil
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link href="/players" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
-            Ver jugadores
-          </Link>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Clubes de padel" title="Digitaliza la comunidad del club" description="Ranking, ligas, torneos, reservas y actividad real desde un solo lugar." className="bg-slate-50/70">
-        <div className="grid gap-5 lg:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(2,6,23,0.04)]">
-            <div className="mb-4 flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-blue-600" />
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Club / comunidad</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <FeatureCard title="Ranking interno" description="Posiciones reales basadas en partidos registrados en el club." className="p-4" />
-              <FeatureCard title="Ligas y torneos" description="Crea ligas con fixture, grupos y playoffs. Gestión completa." className="p-4" />
-              <FeatureCard title="Reservas de canchas" description="Turnos de cancha integrados al flujo de partidos y grupos." className="p-4" />
-              <FeatureCard title="Ficha pública" description="Presencia digital de tu club, canchas y eventos activos." className="p-4" />
-            </div>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_16px_48px_rgba(2,6,23,0.24)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Organizador de club</p>
-            <h3 className="mt-3 text-2xl font-black leading-tight">Una capa digital para la comunidad que ya existe</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/75">PASALA no reemplaza el vínculo social. Lo ordena, lo registra y lo vuelve medible.</p>
-            <div className="mt-5 space-y-3">
-              {[
-                "Ranking interno basado en partidos reales",
-                "Ligas con fixture, grupos y playoffs",
-                "Torneos con inscripción en duo y bracket",
-                "Reservas de canchas integradas al flujo",
-              ].map((line) => (
-                <div key={line} className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
-                  <span className="text-sm text-white/90">{line}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/clubs" className="rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-slate-900">Ver clubes</Link>
-              <Link href={clubHref} className="rounded-xl border border-white/20 px-4 py-2 text-xs font-black uppercase tracking-wide text-white">Registrar club</Link>
-            </div>
-          </div>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Panel de administración" title="Así se ve el panel de tu club" description="Navegá entre las secciones para explorar ranking, ligas, torneos y reservas con datos de ejemplo.">
-        <ClubDemoPanel />
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-          <Link href={clubHref} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white hover:bg-blue-700">
-            Registrar mi club
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link href="/clubs" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-700 hover:bg-slate-50">
-            Ver clubes activos
-          </Link>
-        </div>
-      </PublicSection>
-
-      <PublicSection id="demo-share" eyebrow="Compartí el resultado" title="WhatsApp sigue siendo el centro. PASALA ordena el juego." description="No vende, informa. Por eso se adapta al uso real.">
-        <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-          <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-[0_18px_50px_rgba(2,6,23,0.24)]">
-            <div className="mb-3 flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 text-emerald-300" />
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Mensaje compartido</p>
-            </div>
-            <pre className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-sm leading-relaxed text-white/95">{shareDemoMessage}</pre>
-          </div>
-          <div className="space-y-4">
-            <FeatureCard title="Es una app de padel para jugadores de padel" description="El lenguaje visual y funcional esta centrado en padel amateur." icon={<Trophy className="h-5 w-5" />} />
-            <FeatureCard title="No depende de que todos tengan cuenta" description="Podés invitar y crecer la red de forma orgánica desde partidos reales." icon={<Users className="h-5 w-5" />} />
-            <FeatureCard title="Se entiende en segundos" description="Marcador, dobles, clubes y WhatsApp como parte del producto." icon={<ShieldCheck className="h-5 w-5" />} />
-          </div>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="Pricing inicial" title="Modelo simple para activar adopción" className="bg-slate-50/70">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_10px_30px_rgba(2,6,23,0.04)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Jugadores</p>
-            <p className="mt-2 text-3xl font-black text-slate-900">Free</p>
-            <p className="mt-2 text-sm text-slate-600">Historial, resultados, métricas y reclamo de perfil sin costo.</p>
-            <div className="mt-5"><Link href={primaryHref} className="inline-flex rounded-xl bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-blue-700">Crear mi perfil</Link></div>
-          </div>
-          <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-[0_10px_30px_rgba(59,130,246,0.08)]">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">Clubes</p>
-            <p className="mt-2 text-3xl font-black text-slate-900">Gratis por lanzamiento</p>
-            <p className="mt-2 text-sm text-slate-600">Ranking + ligas + torneos + reservas + ficha pública.</p>
-            <div className="mt-5"><Link href={clubHref} className="inline-flex rounded-xl bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-slate-800">Registrar club</Link></div>
-          </div>
-        </div>
-      </PublicSection>
-
-      <PublicSection eyebrow="FAQ" title="Preguntas frecuentes">
-        <FAQAccordion items={publicFaqItems} />
-      </PublicSection>
+    <div>
+      <ActoI primaryHref={primaryHref} clubHref={clubHref} />
+      <ActoII />
+      <ActoIII primaryHref={primaryHref} />
+      <ActoIV primaryHref={primaryHref} />
+      <ActoV clubHref={clubHref} />
+      <ActoVI primaryHref={primaryHref} clubHref={clubHref} />
+      <SectionFaq />
     </div>
   );
 }

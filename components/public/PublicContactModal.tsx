@@ -5,9 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 
 export function PublicContactModal({
   buttonClassName,
+  buttonStyle,
   onTriggerClick,
 }: {
   buttonClassName?: string;
+  buttonStyle?: { [key: string]: string | number | undefined };
   onTriggerClick?: () => void;
 } = {}) {
   const { toast } = useToast();
@@ -72,6 +74,7 @@ export function PublicContactModal({
           setOpen(true);
         }}
         className={buttonClassName || "hover:text-blue-700"}
+        style={buttonStyle}
       >
         Contacto
       </button>
