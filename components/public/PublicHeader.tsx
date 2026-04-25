@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LogOut } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
@@ -51,12 +52,23 @@ export function PublicHeader({ ctaContext }: { ctaContext: PublicCtaContext }) {
                 {ctaContext.displayName || ctaContext.email || "Usuario"}
               </p>
             </div>
-            <Link
-              href={primaryHref}
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-xs font-black uppercase tracking-wide text-white transition hover:bg-blue-700"
-            >
-              Ir a mi seccion
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={primaryHref}
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-xs font-black uppercase tracking-wide text-white transition hover:bg-blue-700"
+              >
+                Ir a mi seccion
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-blue-700 transition hover:bg-blue-50"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Salir
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -95,12 +107,14 @@ export function PublicHeader({ ctaContext }: { ctaContext: PublicCtaContext }) {
             >
               Registrar club
             </Link>
-            <Link
-              href={primaryHref}
-              className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-white transition hover:bg-blue-700"
-            >
-              {isGuest ? "Empezar" : "Ir a mi seccion"}
-            </Link>
+            {isGuest && (
+              <Link
+                href={primaryHref}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-white transition hover:bg-blue-700"
+              >
+                Empezar
+              </Link>
+            )}
           </div>
 
           <button
@@ -132,7 +146,7 @@ export function PublicHeader({ ctaContext }: { ctaContext: PublicCtaContext }) {
               buttonClassName="rounded-lg px-2 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
             />
 
-            <div className={`mt-2 grid gap-2 ${isGuest ? "grid-cols-3" : "grid-cols-2"}`}>
+            <div className="mt-2 grid grid-cols-3 gap-2">
               {isGuest && (
                 <Link
                   href={loginHref}
@@ -156,6 +170,17 @@ export function PublicHeader({ ctaContext }: { ctaContext: PublicCtaContext }) {
               >
                 {isGuest ? "Empezar" : "Mi seccion"}
               </Link>
+              {!isGuest && (
+                <form action="/auth/signout" method="post">
+                  <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-700"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Salir
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
