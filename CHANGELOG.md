@@ -1,291 +1,84 @@
-# Changelog
+# CHANGELOG
 
-All notable changes to this project will be documented in this file.
+## [v1.15.0-landing] - 2025-04-27
 
-## [v1.13.0-stage-q3-bookings-mvp] - 2026-03-03
+### Landing page — rediseño completo
 
-### Agregado
-- **Stage Q3 (Reservas MVP Club-First)**:
-  - Nueva migracion `supabase/migrations/20260303_q3_reservas_mvp.sql`.
-  - Tablas `club_courts`, `club_booking_settings`, `court_bookings` con indices y constraints.
-  - RLS para owner de club, player solicitante y admin.
-  - RPCs SECURITY DEFINER:
-    - `club_upsert_booking_settings`
-    - `club_create_court`
-    - `club_update_court`
-    - `player_request_booking`
-    - `club_confirm_booking`
-    - `club_reject_booking`
-    - `player_cancel_booking`
-    - `booking_create_match` (idempotente si `match_id` ya existe)
-- **Nuevas pantallas**:
-  - Club: `/club/dashboard/courts`, `/club/dashboard/settings`, `/club/dashboard/bookings`
-  - Player: `/player/bookings`, `/player/bookings/[id]`
-  - Booking flow por club: `/clubs/[id]`, `/clubs/[id]/book`
-- **Arquitectura backend Q3**:
-  - `repositories/booking.repository.ts`
-  - `services/booking.service.ts`
-  - `lib/actions/booking.actions.ts`
-  - `schemas/booking.schema.ts`
+#### Identidad visual
+- Migración completa de dark mode a light mode
+- Paleta: fondo blanco #FFFFFF, acento azul cancha #1565C0,
+  tipografía Georgia serif italic para claims
+- Navbar: transparente sobre hero → blanca al scroll,
+  dos botones (Registrate → /welcome, Ingresá → /player/login),
+  avatar de sesión activa + sub-barra de acciones rápidas
+- Menú: JUGADORES · CLUBES · ENTRENADORES · CONTACTO
+  con scroll suave a cada sección
 
-### Seguridad / Consistencia
-- Confirmacion de reserva con anti solapamiento en DB por cancha y rango horario.
-- Escrituras de reservas via RPC y Server Actions.
-- Update de tipos en `types/database.ts` para entidades de reservas.
+#### Hero
+- Video de fondo (video.mp4) con poster hero-jugadora2.png
+- Claim tipográfico superpuesto con doble overlay
+- Card glassmorphism del Índice PASALA con animación
+  fadeSlideUp (cubic-bezier expo-out)
+- Badge "EN VIVO" en emerald
 
-## [v1.12.1-stage-q2-stabilization] - 2026-03-03 (Draft)
+#### Sección Jugadores
+- Claim: "El partido terminó. Tu juego recién empieza."
+- Foto jugador-movil.png con efecto scale al scroll
+  via IntersectionObserver
+- Carrusel auto-rotante 5 segundos con 5 pantallas:
+  resultado de partido, ranking del club, próximo rival
+  (buscador simulado), atributos técnicos (radar SVG +
+  forma reciente), stats de rendimiento
+- Barra de progreso temporal como indicador de rotación
+- CTA: "Creá tu perfil gratis" → /welcome
 
-### Corregido
-- Compatibilidad de `player_create_club_candidate` con columnas nuevas de Q2 (`display_name`, `alias_text`).
-- Compatibilidad de RPCs Q2 cuando `public.matches` no tiene `deleted_at`.
-- Sincronizacion de consistencia `claimed` / `claim_status` / `claimed_by` / `claimed_at` en `clubs`.
+#### Sección Clubes
+- Fondo navy #0a1628 con círculos decorativos blur
+- Claim: "Tu comunidad ya utiliza Pasala. ¿Tu club está listo?"
+- Carrusel auto-rotante 5 segundos con 6 pantallas:
+  resumen ejecutivo (browser mockup), agenda semanal
+  (grid cancha×hora con badges SOLICITUD/CONFIRMADA/
+  LIGA/TORNEO/FIJO/LIBRE), turnos fijos recurrentes,
+  torneos y ligas (lista de eventos), bracket automático
+  (3 rondas con sets, colores por etapa: slate→azul→ámbar),
+  ranking del club con Índice PASALA
+- Texto explicativo por item con animación cardFade
+- Pills de features + CTA WhatsApp
 
-## [v1.11.4-stage-c1-club-dashboard] - 2026-02-24 (Draft)
+#### Sección Entrenadores
+- Imagen entrenador.png (cancha nocturna, AUP El Calafate)
+- Card glassmorphism flotante con perfil "Carlos Romero"
+- Layout split: foto izquierda, features derecha
+- 3 cards: perfil público (avatares alumnos en overlap),
+  agenda de clases, evolución de alumnos con desafío activo
+- CTA: "Crear mi perfil de entrenador" → /welcome
 
-### Agregado
-- **Stage C1 (Club Analytics Dashboard)**: nueva ruta `app/club/(app)/dashboard/page.tsx` con métricas operativas para clubes.
-- **RPC `club_get_dashboard_stats(p_club_id uuid)`** con validación de ownership (club reclamado por `auth.uid()`).
-- Métricas incluidas (solo partidos con resultado):
-  - `matches_last_7_days`
-  - `matches_last_30_days`
-  - `unique_players_last_30_days`
-  - `matches_by_weekday`
-  - `matches_by_hour`
-  - `top_players` (top 10)
-  - `matches_by_category` (distribución por categoría de jugadores)
-- Navegación Club actualizada con acceso a `Dashboard`.
+#### Sección Contacto
+- Fondo navy #0a1628 (mismo que clubes)
+- Formulario integrado con /api/support/public-contact (Resend)
+- Campos: nombre, email, mensaje + selector de rol
+  (Jugador / Dueño de club / Entrenador)
+- Estado enviado con CTA a WhatsApp
+- Datos: WhatsApp +54 298 431-5287, Instagram @pasala_app,
+  General Roca · Patagonia · Argentina
 
-### Seguridad / Consistencia
-- La RPC filtra por `club_id` + `claim_status='claimed'` + `claimed_by=auth.uid()`.
-- Las métricas consideran partidos completados por existencia de `match_results` (fuente de verdad de resultados cargados).
+#### CTA Final
+- Collage fotográfico patagónico de fondo
+- Dos botones: "Registrate gratis" → /welcome,
+  "Ya tengo cuenta · Ingresá" → /player/login
 
-### C1.1 Insights (Operativo)
-- Bloque de **insights accionables** en `/club/dashboard` derivado de métricas existentes (sin cambiar RPC):
-  - día/hora pico
-  - ritmo semanal vs promedio mensual
-  - concentración de jugadores frecuentes (top 3 share estimado)
-  - categoría con mayor participación
+#### Técnico
+- Todos los componentes en components/landing/
+- Carruseles: useRef para closure-safe intervals
+- Animaciones: cardFade (opacity + scale 0.98→1),
+  cubic-bezier(0.16, 1, 0.3, 1) en todas las transiciones
+- IntersectionObserver para efectos de entrada al scroll
+- scroll-behavior: smooth en globals.css
+- noindex no aplicado (landing es pública)
+- Vercel deploy automático desde main
 
-## [v1.11.3-ntf1r-in-app-notifications] - 2026-02-24 (Draft)
-
-### Agregado
-- **NTF-1R (retention-first)**: sistema de notificaciones in-app para Player y Club.
-- **UI de campana** con badge de no leidas + dropdown (ultimas 10) en `PlayerTopNav` y `ClubTopNav`.
-- **RPCs de notificaciones**:
-  - `notification_create`
-  - `notification_list`
-  - `notification_unread_count`
-  - `notification_mark_read`
-- **Tracking GA4 de interaccion** en campana y clicks de notificaciones.
-
-### Eventos iniciales (retencion)
-- `player_match_result_ready` al guardar resultado (incluye flujo FME).
-- `player_claim_success` al completar reclamo de perfil.
-- `club_claim_requested` (notificacion a admins para revisar reclamo).
-- `club_match_created` al crear partido desde portal Club.
-
-### Seguridad / Solidez
-- Tabla `public.notifications` con target exclusivo (`user_id` xor `club_id`).
-- RLS para lectura/actualizacion de notificaciones propias (player y club owner).
-- Deduplicacion por `dedupe_key` (indices parciales por destinatario).
-- `notification_create` endurecida con validaciones por tipo para evitar uso indebido.
-
-### Incremental (NTF-1R follow-up)
-- RPC `notification_mark_all_read` para marcar todas como leidas por target.
-- Soporte de target `admin` (alias user-based) en `notification_list` / `notification_unread_count`.
-- Campana de notificaciones integrada en `app/admin/layout.tsx`.
-- CTA `Marcar todo` en dropdown de notificaciones.
-
-## [v1.11.2-ga4-tracking] - 2026-02-23 (Draft)
-
-### Agregado
-- **GA4 global (App Router)**: integracion de Google Analytics 4 en `app/layout.tsx` usando `next/script`.
-- **Pageviews consistentes en SPA**: tracker client con `usePathname` + `useSearchParams` para registrar `page_view` en navegaciones internas.
-- **Helper reutilizable de analytics**: `lib/analytics/gtag.ts` con `pageview()` y `trackEvent()`.
-- **Evento de negocio `match_shared`**: tracking en `ShareButtons` con parametros `channel`, `match_id` y `surface_variant`.
-
-### Solidez / Implementacion
-- Configuracion GA4 con `send_page_view: false` para evitar doble conteo y enviar `page_view` manualmente.
-- Activacion por entorno via `NEXT_PUBLIC_GA_MEASUREMENT_ID` (sin hardcode obligatorio en produccion).
-- Tracker envuelto en `Suspense` para compatibilidad con `useSearchParams` en build de Next.js App Router.
-
-## [v1.11.1-public-polish] - 2026-02-22 (Draft)
-
-### Corregido / Ajustado (Produccion)
-- **Home publica (copy + navegacion)**
-  - Se agrego `Inicio` al menu principal.
-  - Ajustes de copy comercial y unificacion de lenguaje (`padel` sin tilde).
-  - Reemplazo de nombres de ejemplo por nombres neutros/no sensibles.
-  - Mensaje demo de WhatsApp actualizado con contenido realista y URL simplificada (`pasla.com.ar/match`).
-- **Flujo auth desde home publica**
-  - OAuth callback robustecido: si `next` llega vacio o `/`, redirige a `/player` por defecto.
-  - Evita volver a la home publica tras login con Google en flujos iniciados desde marketing.
-- **Detalle de partido (jugador)**
-  - CTA renombrado a `Editar partido`.
-  - Aviso explicito cuando el partido esta programado pero el usuario no es el creador (solo el creador puede editar).
-- **UX de soporte / testing**
-  - Boton flotante renombrado de `Reportar` a `Sugerencias`.
-- **Privacidad / UI jugador**
-  - Se oculta el identificador (ID) visible en el dashboard del jugador.
-
-### Visual / Familiaridad del producto
-- La home publica reutiliza componentes reales del producto para familiarizar al usuario:
-  - `MatchScore` (marcador de partido)
-  - `PasalaIndex` (indice y performance)
-
-## [v1.11.0-stage-public-web] - 2026-02-21 (Draft)
-
-### Agregado
-- **Stage Public Web**: nuevo sitio publico integrado en App Router con layout dedicado y rutas:
-  - `/` (home de conversion)
-  - `/players`
-  - `/clubs`
-  - `/pricing`
-  - `/faq`
-  - `/privacy`
-  - `/terms`
-- **Header/Footer publicos** reutilizables con navegacion principal y CTAs.
-- **Componentes publicos** base (`PublicContainer`, `PublicSection`, `FeatureCard`, `StatCard`, `FAQAccordion`).
-
-### Auth / Conversion
-- Helper server-side para CTAs inteligentes segun sesion/estado:
-  - guest -> `/welcome?next=...`
-  - onboarding pendiente -> `/welcome/onboarding?next=...`
-  - jugador onboarded -> `/player`
-  - club reclamado -> `/club`
-- CTA de registro de club alineada al flujo vigente:
-  - `/welcome?portal=club&mode=signup&next=/club`
-
-### SEO
-- Metadata y OpenGraph basicos para la capa publica.
-- Asset OG estatico (`/og.svg`) para previews sociales.
-
-## [v1.10.1-stage-p-club-claims-admin] - 2026-02-26 (Draft)
-
-### Agregado
-- **Stage P (manual review)**: panel admin `/admin/club-claims` para revisar reclamos pendientes.
-- **Acciones admin**: resolver reclamo con aprobar/rechazar via `club_resolve_claim`.
-- **Datos de solicitante** en reclamos: nombre, apellido, celular y email para validacion manual.
-
-### Seguridad / Solidez
-- Migracion incremental idempotente para reforzar reclamos:
-  - una sola solicitud `pending` por club.
-  - endurecimiento de `club_request_claim` con validacion de datos del solicitante.
-- Mantiene validacion manual (sin auto-claim).
-
-## [v1.10.0-stage-club-claims] - 2026-02-19 (Draft)
-
-### Agregado
-- **Stage Club (MVP)**: modelo de clubes reutilizable para partidos con `matches.club_id`.
-- **Busqueda y alta de clubes**: RPCs `club_search` y `club_create` integradas en `/player/matches/new`.
-- **Solicitud de reclamo de club**: nueva ruta `/welcome/claim/club` y RPC `club_request_claim`.
-- **CTA publica de club** en `/m/[id]` cuando el club es reclamable.
-- **Accesos en welcome**: separacion visual de acceso/registro para jugadores y clubes.
-
-### Seguridad / Solidez
-- RLS en `clubs` y `club_claim_requests`.
-- Claim de club por solicitud `pending` (sin auto-asignacion de ownership).
-- Idempotencia para solicitudes repetidas al mismo club.
-
-### Compatibilidad
-- Se mantiene `matches.club_name` como fallback legado.
-- Los nuevos partidos priorizan `club_id`.
-## [v1.9.0-stage-p2-directory-public-profile] - 2026-02-19 (Draft)
-
-### Agregado
-- **Stage P2 Directorio**: `/player/players` con cards enriquecidas (avatar, ciudad/provincia, categoria, posicion).
-- **Perfil publico de jugador**: nueva ruta `/p/[playerId]` con allowlist segura.
-- **Invitaciones por WhatsApp**: boton en directorio/perfil para perfiles no reclamados.
-- **Share context**: migracion para registrar `share_events.context` con valores `match | directory | profile`.
-- **Mensajeria unificada**: `buildPublicPlayerUrl` + `buildPlayerInviteMessage`.
-
-### Seguridad / Datos publicos
-- `getPublicPlayerData` expone solo: `display_name`, `avatar`, `city/region`, `category`, `position`.
-- No se exponen `email`, `phone` ni `user_id` en `/p/[playerId]`.
-
-### Compatibilidad
-- `player_get_share_stats` mantiene foco en shares de partidos (`context='match'`) para no contaminar metricas existentes.
-
-## [v1.7.0-claim] - 2026-02-19 (Draft)
-
-### Agregado
-- **Stage P1 - Claim real**: nueva RPC `player_claim_profile_v2(p_target_player_id, p_match_id)` con reglas anti-abuso.
-- **Flujo pÃƒÂºblico de claim**: nueva ruta `app/welcome/claim/page.tsx` para reclamar perfil desde link compartido.
-- **Server Action dedicada**: `lib/actions/claim.actions.ts` con mapeo explÃƒÂ­cito de errores (`CLAIM_NOT_ALLOWED`, `PROFILE_ALREADY_CLAIMED`, etc.).
-- **Persistencia de retorno en auth**: login Google y email ahora conservan `next` para volver al claim tras autenticarse.
-
-### Seguridad / Reglas
-- Se bloquea claim de perfiles ya reclamados o eliminados lÃƒÂ³gicamente (`deleted_at`).
-- Se bloquea claim si el usuario autenticado ya tiene perfil en `players`.
-- El claim exige validaciÃƒÂ³n de contexto: el target debe pertenecer al `claim_match` (o co-participaciÃƒÂ³n para compatibilidad futura).
-
-### UX
-- MensajerÃƒÂ­a humana en espaÃƒÂ±ol para estados de claim exitoso/error.
-- VisualizaciÃƒÂ³n del partido compartido y resaltado del jugador objetivo antes de confirmar.
-
-## [v1.6.0-onboarding-lock-avatars] - 2026-02-17
-
-### Agregado
-- **Sistema de Onboarding**: Flujo inicial "one-shot" bloqueado por estado (`onboarding_completed`).
-- **GestiÃƒÂ³n de Avatares**: Bucket privado en Supabase Storage, signed URLs temporales, y fallback robusto (Foto Google -> Iniciales).
-- **Capa Competitiva (Stage M2)**: MÃƒÂ©tricas de "Mejor CompaÃƒÂ±ero" (mÃƒÂ­n. 2 partidos) y rendimiento vs categorÃƒÂ­a superior (basado en el equipo rival).
-- **Dashboard**: IntegraciÃƒÂ³n del contexto competitivo y radar tÃƒÂ©cnico en el panel principal.
-
-### Corregido
-- Flujo de login: redirecciÃƒÂ³n automÃƒÂ¡tica al dashboard (`/player`) en lugar de listado de partidos.
-- Consistencia del avatar del jugador a travÃƒÂ©s de toda la aplicaciÃƒÂ³n.
-
-### Nota de Base de Datos
-- Tabla `players`: Se agregaron campos `onboarding_completed` (bool), `onboarding_completed_at` (timestamptz) y `onboarding_version` (text).
-- Campo `avatar_url`: Ahora almacena el path interno del bucket. Permisos RLS configurados para bucket privado `avatars`.
-
-## [Stage M2] - 2026-02-13
-### Agregado
-- RPC `player_get_competitive_stats` para cÃƒÂ¡lculo de mÃƒÂ©tricas competitivas avanzadas.
-- Dashboard: Bloque de "Contexto Competitivo".
-
-## [Stage M1 / v1.5.0] - 2026-02-12
-
-### Corregido
-- Desacople entre la tabla `players` y la RPC `player_create_guest_player`.
-- Error de columna `city` inexistente en producciÃƒÂ³n.
-- Firma de funciÃƒÂ³n RPC para creaciÃƒÂ³n de invitados desalineada con el frontend.
-
-### Agregado
-- Campos geogrÃƒÂ¡ficos en `players`: `country_code`, `region_code`, `city`, `city_normalized`.
-- Campo `created_by` y `is_guest` en `players` para mejor trazabilidad.
-- ÃƒÂndices para bÃƒÂºsqueda ponderada por ubicaciÃƒÂ³n (`idx_players_location`).
-- Parche seguro de migraciÃƒÂ³n idempotente.
-- LÃƒÂ³gica de "Zero-Safety" para el telÃƒÂ©fono de invitados (default '00000000').
-
-## [Stage K2] - 2026-02-10
-### Agregado
-- BÃƒÂºsqueda de jugadores ponderada por ubicaciÃƒÂ³n (Ciudad/Provincia).
-- Nueva RPC `player_search_players` con sistema de scoring.
-- Etiquetas enriquecidas en la selecciÃƒÂ³n de jugadores: "Inicial.Apellido Ã¢â‚¬â€ Ciudad (RegiÃƒÂ³n)".
-- Soporte para ubicaciÃƒÂ³n en la creaciÃƒÂ³n de jugadores invitados.
-
-## [Stage K1] - 2026-02-09
-### Agregado
-- Sistema de jugadores invitados.
-- Proceso de "Claim Profile" para vincular cuentas de usuario a perfiles de jugadores pre-existentes.
-- Restricciones de co-participaciÃƒÂ³n en partidos.
-## [Unreleased]
-
-### Agregado
-- Admin Club Preview read-only: nueva ruta `app/admin/clubs/[id]/preview/page.tsx` para soporte/QA de perfiles de club.
-- Links "Ver preview del club" en `/admin/club-claims` (pendientes, aprobados y sin reclamo).
-- Stage A1 Admin Overview: dashboard estrategico en `/admin` con KPIs de usuarios/partidos/clubes/claims/shares y bloque de insights automáticos.
-- Nueva migracion `admin_get_overview_stats()` para agregados admin-only con validacion de rol.
-
- - Stage Q5 Ranking (MVP):
-  - Nueva migracion `supabase/migrations/20260305_stage_q5_club_ranking.sql`.
-  - Tabla materializada `player_club_stats` para lectura rapida por club/jugador.
-  - RPCs nuevas: `club_recalculate_rankings`, `club_get_ranking`, `player_get_my_club_rankings`.
-  - Nueva vista club `/club/dashboard/ranking` y nueva seccion "Ranking por clubes" en `/player/profile`.
-
-### Mejorado
-- UI/UX de dashboards de Admin y Club: mayor jerarquia visual de metricas, cards con acentos, bloques de insights mas legibles y mejor lectura estrategica.
-
-### Corregido
-- Normalizacion de texto/encoding en la nueva vista admin preview de club.
+#### Feature pendiente documentada
+- /demo/[token] — tour interactivo para prospectos de club
+  con sesión demo precargada (is_club_owner + is_coach),
+  datos ficticios patagónicos, noindex, CTA WhatsApp fijo.
+  Ver documentación en backlog.
