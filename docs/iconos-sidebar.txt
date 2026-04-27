@@ -1,0 +1,82 @@
+Quiero que todos los ítems del sidebar del club 
+y del player tengan ícono visible — tanto L1 
+como L2. Coherencia visual en toda la app.
+
+Antes de modificar leer:
+- components/club/ClubSidebar.tsx
+- components/player/PlayerSidebar.tsx
+
+---
+
+## REGLA GENERAL
+
+Todo ítem del sidebar debe tener un ícono 
+a la izquierda del texto — L1 y L2.
+
+L1: ícono 18px (ya tienen)
+L2: ícono 15px, mismo color que el texto
+
+---
+
+## CLUB SIDEBAR — íconos L2 a agregar
+
+Gestión:
+- Reservas → CalendarDays
+- Canchas → Building2
+- Agenda → CalendarRange
+
+Competencia:
+- Ligas → Trophy
+- Torneos → Medal
+
+Comunidad:
+- Jugadores → Users
+- Entrenadores → GraduationCap (ya tiene)
+- Partidos → Swords (o Activity)
+- Ranking → BarChart2
+
+Perfil y Ajustes ya son L1 con ícono.
+
+---
+
+## PLAYER SIDEBAR — íconos L2 a agregar
+
+Calendario:
+- Mis reservas → CalendarDays
+- Reservar clase → GraduationCap
+
+Actividad:
+- Partidos → Swords (o Activity)
+- Eventos → Star
+
+Comunidad:
+- Jugadores → Users
+- Entrenadores → GraduationCap
+
+---
+
+## IMPLEMENTACIÓN
+
+Para cada sub-ítem L2, agregar el ícono 
+antes del texto:
+
+<a className={l2Cls(...)}>
+  <IconName className="w-[15px] h-[15px] shrink-0" />
+  Texto del ítem
+</a>
+
+El ícono usa el mismo color que el texto 
+del sub-ítem — no hardcodear color, 
+heredar del className del padre.
+
+---
+
+## CONSIDERACIONES
+
+- Verificar que todos los íconos están 
+  importados desde lucide-react
+- Los íconos L2 son 15px — más pequeños 
+  que los L1 (18px) para mantener jerarquía
+- No cambiar ninguna funcionalidad ni ruta
+- Hacer un solo commit para ambos sidebars:
+  "feat: íconos L2 en sidebar player y club"

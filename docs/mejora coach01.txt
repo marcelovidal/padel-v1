@@ -1,0 +1,127 @@
+Quiero mejorar el tab "Mis jugadores" en /player/coach.
+
+El campo de texto "ID del jugador" debe ser reemplazado 
+por un buscador completo de jugadores igual al directorio 
+existente en /player/players, pero adaptado al contexto 
+del entrenador.
+
+Antes de escribir código, leer:
+- El componente actual de /player/coach (tab Mis jugadores)
+- El componente completo de /player/players (directorio)
+- El RPC get_players_list y sus filtros disponibles
+- El RPC coach_invite_player existente
+- La tabla coach_players para verificar estados
+
+---
+
+## CONCEPTO
+
+El entrenador es un emprendedor buscando alumnos.
+Necesita ver la misma información que el directorio 
+para tomar decisiones: quién es el jugador, qué nivel 
+tiene, qué tan activo es, cómo viene jugando.
+
+La diferencia con /player/players es solo la acción 
+final — en lugar de "Ver perfil", el botón es 
+"Invitar a mi equipo".
+
+---
+
+## ESTRUCTURA DE LA PANTALLA
+
+La sección "Mis jugadores" queda dividida en dos bloques:
+
+### Bloque 1 — Mis alumnos actuales
+(solo visible si hay alumnos activos)
+Lista compacta de alumnos con estado (ya implementado).
+Mantener exactamente como está.
+
+### Bloque 2 — Buscador de jugadores
+Título: "Encontrá tu próximo alumno"
+Subtítulo: "Buscá jugadores por nombre, nivel o ciudad 
+y enviáles una invitación para entrenar juntos."
+
+Reutilizar el componente de directorio existente 
+con estos ajustes:
+
+**Mismas columnas que /player/players:**
+- Jugador (avatar + nombre + ciudad)
+- Categoría
+- Índice PASALA con barra
+- Nivel (badge)
+- WR %
+- PJ
+- Racha
+- Actividad (badge Muy activo / Activo / Ocasional / 
+  Inactivo / Nuevo)
+
+**Mismos filtros:**
+- Buscar por nombre
+- Filtrar por categoría
+- Filtrar por ciudad
+- Filtrar por actividad
+- Ordenar por índice PASALA / WR / PJ
+
+**Columna ACCIÓN reemplazada:**
+En lugar de "Ver perfil", mostrar uno de estos 
+según el estado en coach_players:
+
+- Sin relación → botón "Invitar" (azul primario)
+- Invitación pendiente → badge "Invitación enviada" 
+  (gris, no clickeable)
+- Alumno activo → badge "Ya es tu alumno" 
+  (verde, no clickeable)
+- Inactivo → botón "Reinvitar" (secundario)
+
+El estado se determina cruzando el resultado del RPC 
+get_players_list con los registros de coach_players 
+del entrenador actual.
+
+**Al hacer click en "Invitar":**
+- Llamar a coach_invite_player(coach_id, player_id)
+- El botón cambia inmediatamente a "Invitación enviada"
+  sin recargar la página (optimistic update)
+- Generar notificación al jugador
+
+**Ocultar al entrenador de su propio listado:**
+Filtrar el player_id del entrenador para que 
+no aparezca en sus propios resultados de búsqueda.
+
+---
+
+## DATOS ADICIONALES EN EL HOVER / EXPANSIÓN
+
+Al hacer click en una fila o en el nombre del jugador,
+expandir una mini card con:
+- Radar de habilidades técnicas (si tiene evaluaciones)
+  usando los datos de player_match_assessments
+- Últimos 3 partidos (resultado + rival)
+- Botón "Ver perfil completo" que abre /player/[id] 
+  en nueva pestaña
+- Botón "Invitar" si todavía no es alumno
+
+Esto permite al entrenador evaluar en profundidad 
+antes de invitar, sin salir de la pantalla.
+
+---
+
+## CONSIDERACIONES TÉCNICAS
+
+- Reutilizar el RPC get_players_list existente 
+  con sus filtros — no duplicar la query
+- Agregar al RPC o en el service una forma de cruzar 
+  con coach_players para determinar el estado 
+  de cada jugador respecto al entrenador actual
+- El buscador debe tener paginación o infinite scroll
+  igual que el directorio existente
+- Skeleton loading mientras carga
+- Stack: Next.js 14, Supabase, Tailwind CSS, 
+  server actions, RPCs SECURITY DEFINER
+- No modificar el componente original de /player/players
+  — crear componente nuevo CoachPlayerSearch que 
+  reutilice la lógica pero con la acción de invitar
+- Mobile first: en mobile las columnas menos 
+  importantes (PJ, WR) se ocultan, 
+  quedan nombre + índice + nivel + acción
+- Empezar leyendo el código existente de ambas 
+  pantallas antes de crear archivos nuevos

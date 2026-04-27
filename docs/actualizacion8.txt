@@ -1,0 +1,11 @@
+Leer app/player/(app)/mi-club/page.tsx completo
+y mostrar qué RPCs o queries ejecuta al cargar.
+
+El CLUB_NOT_FOUND no viene de requireClubOwner()
+— eso ya funciona. Viene de algún RPC que se 
+llama dentro de la página.
+
+También verificar:
+app/player/(app)/mi-club/layout.tsx si existe.
+
+Mostrar el código antes de modificar nada.

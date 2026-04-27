@@ -1,0 +1,27 @@
+CLUB_NOT_FOUND persiste en requireClubOwner().
+
+El UPDATE confirma que clubs.owner_player_id 
+= '64a3fec8-9f50-4c71-b123-304fb35eb081' ✅
+
+Pero requireClubOwner() no encuentra el club.
+
+Mostrar el código exacto de requireClubOwner() 
+en lib/auth.ts — específicamente la query 
+que busca el club por owner_player_id.
+
+El problema probable es que usa el cliente 
+normal (con RLS) en lugar de createAdminClient(),
+igual que el bug anterior del UPDATE.
+
+Fix esperado:
+Usar createAdminClient() para la query 
+que busca el club en requireClubOwner():
+
+const supabaseAdmin = createAdminClient()
+const { data: club } = await supabaseAdmin
+  .from('clubs')
+  .select('*')
+  .eq('owner_player_id', player.id)
+  .single()
+
+Mostrar el código antes de modificar.

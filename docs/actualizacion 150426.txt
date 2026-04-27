@@ -1,0 +1,71 @@
+Bug crítico a resolver antes de continuar.
+
+El player queda con is_club_owner = true pero 
+sin club asociado después de la aprobación.
+clubs.owner_player_id sigue en NULL.
+
+---
+
+## PASO 1 — LIMPIAR ESTADO INCONSISTENTE EN DB
+
+Ejecutar este SQL en Supabase ahora:
+
+UPDATE players 
+SET is_club_owner = false,
+    club_owner_enabled_at = NULL
+WHERE is_club_owner = true
+AND id NOT IN (
+  SELECT owner_player_id FROM clubs 
+  WHERE owner_player_id IS NOT NULL
+);
+
+Confirmar que se ejecutó antes de continuar.
+
+---
+
+## PASO 2 — DIAGNOSTICAR Y FIXEAR
+
+Leer lib/actions/club-owner.actions.ts completo.
+
+Buscar la función approveRequestWithClub() 
+o approveClubOwnerRequestAction() y verificar 
+que ejecuta este UPDATE:
+
+await supabase
+  .from('clubs')
+  .update({ 
+    owner_player_id: playerId,
+    claim_status: 'claimed',
+    claimed_by: userId
+  })
+  .eq('id', clubId)
+
+Si no existe → agregarlo.
+Si existe → verificar que clubId tiene valor 
+correcto en el momento de ejecutarse.
+
+---
+
+## PASO 3 — VERIFICAR FLUJO COMPLETO
+
+Después del fix probar end-to-end:
+1. Jugador solicita acceso con club existente
+2. Admin aprueba desde /admin/club-owner-requests
+3. Verificar en Supabase:
+   SELECT p.is_club_owner, c.owner_player_id, c.name
+   FROM players p
+   LEFT JOIN clubs c ON c.owner_player_id = p.id
+   WHERE p.is_club_owner = true;
+4. Jugador navega a /player/mi-club sin error
+5. Ve el panel de su club correctamente
+
+---
+
+## PASO 4 — COMMIT Y PUSH
+
+npm run build
+
+git add -A
+git commit -m "fix: approveRequestWithClub 
+vincula owner_player_id en clubs correctamente"
+git push origin main

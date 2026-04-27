@@ -1,0 +1,52 @@
+Crear archivos de migración para todos los SQLs 
+que se aplicaron manualmente en Supabase.
+
+Los archivos van en supabase/migrations/ con 
+timestamp 20260415_*.sql
+
+El contenido exacto de cada migración es:
+
+1. 20260415_001_club_owner_schema.sql
+   — ALTER TABLE players ADD COLUMN is_club_owner
+   — ALTER TABLE players ADD COLUMN club_owner_enabled_at
+   — ALTER TABLE clubs ADD COLUMN owner_player_id
+   — CREATE TABLE club_owner_requests con RLS
+
+2. 20260415_002_club_owner_requests_rls_admin.sql
+   — Policy SELECT admin_ve_solicitudes_club_owner
+   — Policy UPDATE admin_actualiza_solicitudes_club_owner
+
+3. 20260415_003_notifications_club_owner_types.sql
+   — DROP CONSTRAINT chk_notifications_type
+   — DROP CONSTRAINT notifications_type_check
+   — ADD CONSTRAINT notifications_type_check 
+     con lista completa de 22 tipos
+
+4. 20260415_004_notification_create_rpc_update.sql
+   — CREATE OR REPLACE FUNCTION notification_create
+     con lista completa de 22 tipos
+
+5. 20260415_005_fix_club_owner_requests_custom_name.sql
+   — ALTER TABLE club_owner_requests 
+     ADD COLUMN IF NOT EXISTS club_name_requested text
+
+6. 20260415_006_fix_club_list_my_matches_club_id.sql
+   — DROP + CREATE club_list_my_matches con p_club_id
+
+7. 20260415_007_fix_club_rpcs_owner_player_id.sql
+   — Los 11 RPCs actualizados con owner_player_id check
+
+8. 20260415_008_fix_club_get_dashboard_stats.sql
+   — DROP + CREATE club_get_dashboard_stats 
+     sin m.deleted_at
+
+Importante: estos archivos son solo documentación
+— ya están aplicados en producción.
+Agregar un comentario al inicio de cada archivo:
+-- Already applied in Supabase on 2026-04-15
+-- Documentation only
+
+git add supabase/migrations/
+git commit -m "chore: documentar migraciones SQL 
+aplicadas manualmente — feature club-owner-role"
+git push origin main

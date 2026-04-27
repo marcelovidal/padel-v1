@@ -1,0 +1,25 @@
+Error NOT_ALLOWED en /player/mi-club/dashboard/bookings.
+
+El RPC que carga las reservas del club verifica 
+autorización por claimed_by pero no acepta 
+owner_player_id — mismo patrón que ya resolvimos.
+
+1. Leer app/player/(app)/mi-club/reservas/page.tsx
+   (o dashboard/bookings/page.tsx) y ver qué 
+   RPC o query ejecuta
+
+2. Buscar ese RPC en supabase/migrations/ o 
+   en Supabase directamente:
+   SELECT prosrc FROM pg_proc 
+   WHERE proname = 'nombre_del_rpc';
+
+3. Verificar si tiene AND c.claimed_by = v_uid
+   sin el check de owner_player_id
+
+4. Si es así, aplicar el mismo fix:
+   AND (c.claimed_by = v_uid OR c.owner_player_id IN (
+     SELECT p.id FROM public.players p 
+     WHERE p.user_id = v_uid
+   ))
+
+Mostrar el RPC afectado antes de modificar.

@@ -1,0 +1,52 @@
+CREATE OR REPLACE FUNCTION public.notification_list(p_limit integer DEFAULT 10, p_target text DEFAULT 'auto'::text)
+ RETURNS TABLE(id uuid, type text, entity_id uuid, payload jsonb, priority smallint, read_at timestamp with time zone, created_at timestamp with time zone)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
+  v_uid uuid;
+  v_target text;
+  v_limit int;
+BEGIN
+  v_uid := auth.uid();
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'NOT_AUTHENTICATED';
+  END IF;
+
+  v_limit := LEAST(GREATEST(COALESCE(p_limit, 10), 1), 50);
+  v_target := COALESCE(NULLIF(TRIM(p_target), ''), 'auto');
+
+  IF v_target = 'auto' THEN
+    v_target := 'player';
+  END IF;
+
+  IF v_target = 'club' THEN
+    RETURN QUERY
+    SELECT n.id, n.type, n.entity_id, n.payload, n.priority, n.read_at, n.created_at
+    FROM public.notifications n
+    WHERE n.club_id IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.clubs c
+        WHERE c.id = n.club_id
+          AND c.deleted_at IS NULL
+          AND public.q6_can_manage_club(c.id, v_uid)
+      )
+    ORDER BY n.priority DESC, n.created_at DESC
+    LIMIT v_limit;
+    RETURN;
+  END IF;
+
+  IF v_target NOT IN ('player', 'admin') THEN
+    RAISE EXCEPTION 'INVALID_TARGET';
+  END IF;
+
+  RETURN QUERY
+  SELECT n.id, n.type, n.entity_id, n.payload, n.priority, n.read_at, n.created_at
+  FROM public.notifications n
+  WHERE n.user_id = v_uid
+  ORDER BY n.priority DESC, n.created_at DESC
+  LIMIT v_limit;
+END;
+$function$

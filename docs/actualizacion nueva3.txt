@@ -1,0 +1,25 @@
+El fix del UPDATE a clubs no está funcionando.
+El flujo de aprobación sigue dejando 
+owner_player_id = NULL después de aprobar.
+
+Agregar logs de diagnóstico en 
+approveClubOwnerRequestAction:
+
+1. Loggear el clubId antes del UPDATE
+2. Loggear el resultado del UPDATE
+3. Loggear si entra al bloque de rollback
+
+console.log('clubId:', clubId)
+console.log('playerId:', playerId)
+console.log('userId:', userId)
+
+const { data, error: clubError } = await sb
+  .from("clubs")
+  .update({...})
+  .eq("id", clubId)
+  .select()
+
+console.log('clubs UPDATE result:', data, clubError)
+
+Después probar el flujo y mostrarme 
+los logs de la consola del servidor.

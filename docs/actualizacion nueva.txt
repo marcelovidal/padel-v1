@@ -1,0 +1,4 @@
+Arrancar con PASO 2 ahora en paralelo.
+Leer lib/actions/club-owner.actions.ts completo
+y mostrarme el código exacto de la función 
+que aprueba la solicitud antes de modificar nada.

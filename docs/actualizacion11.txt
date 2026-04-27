@@ -1,0 +1,21 @@
+Sí, aplicar el fix en club_get_dashboard_stats.
+
+El mismo patrón que club_list_my_matches:
+reemplazar la condición:
+  AND c.claimed_by = v_uid
+por:
+  AND (c.claimed_by = v_uid OR c.owner_player_id IN (
+    SELECT p.id FROM public.players p WHERE p.user_id = v_uid
+  ))
+
+Después buscar si hay otros RPCs con el mismo 
+patrón antes de cerrar:
+
+grep -r "claimed_by = v_uid" 
+supabase/ --include="*.sql"
+
+Mostrar todos los que aparezcan — puede haber 
+más RPCs con el mismo problema.
+
+Generar todas las migraciones necesarias 
+y mostrármelas antes de aplicar en Supabase.

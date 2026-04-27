@@ -1,0 +1,16 @@
+CLUB_NOT_FOUND persiste en /player/mi-club
+pero ya no viene de club_list_my_matches.
+
+Buscar todos los RPCs que lanzan CLUB_NOT_FOUND:
+
+grep -r "CLUB_NOT_FOUND" 
+supabase/ --include="*.sql"
+
+Y buscar qué RPCs se llaman en las páginas 
+del dashboard de mi-club:
+
+grep -r "rpc\|supabase.from" 
+app/player/\(app\)/mi-club/ --include="*.tsx" |
+grep -v "node_modules"
+
+Mostrar todos los resultados antes de modificar.

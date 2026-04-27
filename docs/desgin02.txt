@@ -1,0 +1,84 @@
+Estamos en el branch feature/landing-narrativa.
+
+## Tarea
+Corregir el Hero (primer scroll de la landing) y el Navbar.
+Leer el componente del hero y el navbar antes de editar.
+
+## HERO — lo que debe cambiar
+
+### Problema actual
+La foto solo ocupa el lado derecho. El lado izquierdo es blanco.
+Eso hay que eliminarlo completamente.
+
+### Cómo debe quedar
+La foto hero-jugadora2.png ocupa el 100% del ancho y alto 
+de la pantalla (100vw × 100vh), object-cover, object-position center.
+
+El texto se posiciona SOBRE la foto con position absolute.
+
+Estructura del contenedor:
+- position: relative, width: 100%, height: 100vh
+- overflow: hidden
+
+La foto:
+- <Image> con fill, object-cover, object-position="center top"
+- Sin ningún div blanco al costado
+
+Overlay sobre la foto:
+- Gradiente de izquierda a derecha:
+  from-black/70 via-black/30 to-transparent
+- Más un gradiente de abajo hacia arriba:
+  from-black/60 via-transparent to-transparent
+- Ambos como divs absolute inset-0 apilados, z-10
+
+El texto (z-20, position absolute):
+- Ubicación: bottom-16 left-8 (desktop), bottom-10 left-6 (mobile)
+- "Patagonia · Argentina" 
+  text-xs tracking-widest uppercase text-white/60 mb-4
+- "El pádel no termina"
+  font: Georgia serif, text-5xl md:text-7xl, text-white, font-normal
+- "cuando termina"  
+  font: Georgia serif italic, mismo tamaño, color #1565C0
+- "el partido."
+  font: Georgia serif, mismo tamaño, text-white
+- "SCROLLEA" debajo: text-xs tracking-widest text-white/40 mt-6
+  con una línea horizontal de 32px antes (border-t border-white/30)
+
+Estilo del texto: referencia editorial deportiva — 
+el tipo vive DENTRO de la foto, no al lado.
+Agregar text-shadow sutil via style inline en el wrapper del texto:
+{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }
+
+## NAVBAR — dos cambios
+
+### 1. Fondo
+Empezar transparente (sobre la foto del hero) con texto blanco.
+Al hacer scroll más de 80px: bg-white con border-b border-stone-200
+y texto #080808.
+Usar useEffect + useState para detectar scroll.
+En rutas que NO son la landing (cualquier path !== '/'):
+siempre bg-white con borde desde el inicio.
+
+### 2. Estado de sesión
+Usar useSession() de NextAuth.
+
+Si NO hay sesión:
+- Mostrar botón "INGRESÁ" → bg-[#080808] text-white
+  (cuando navbar transparente: border border-white text-white bg-transparent)
+
+Si HAY sesión activa:
+- Ocultar el botón "INGRESÁ"
+- Mostrar en su lugar un avatar circular pequeño (w-8 h-8):
+  - Si el player tiene foto: <Image> con su avatar
+  - Si no tiene foto: iniciales del nombre en bg-blue-600 text-white text-xs
+  - El avatar es un <Link href="/player/dashboard"> 
+    (o la ruta principal del panel del jugador)
+  - Al lado del avatar: nombre corto del usuario en text-sm text-current
+
+## Convenciones del proyecto
+- useSession de next-auth/react para el estado de login
+- lucide-react solo dentro de <Link>, nunca en <div>
+- Sin max-w en wrappers, solo px-8
+- El navbar ya existe — modificar el componente existente,
+  no crear uno nuevo
+- No tocar otras secciones debajo del hero

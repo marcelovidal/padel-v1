@@ -1,0 +1,82 @@
+Dos bugs identificados en los logs:
+
+---
+
+## BUG 1 — RLS bloquea UPDATE a clubs
+
+El log muestra:
+clubs UPDATE result: [] null
+
+El UPDATE tiene clubId válido pero devuelve 
+array vacío — RLS está bloqueando la escritura.
+
+El admin (userId: e2573f7a) no tiene política 
+RLS que le permita hacer UPDATE en clubs.
+
+Verificar en Supabase ejecutando:
+SELECT policyname, cmd, qual 
+FROM pg_policies 
+WHERE tablename = 'clubs';
+
+El fix es usar el cliente de Supabase con 
+service_role key en lugar del cliente normal 
+para este UPDATE específico, o crear una 
+política RLS que permita al admin actualizar clubs.
+
+En lib/actions/club-owner.actions.ts:
+Importar el cliente admin/service de Supabase:
+import { createClient } from '@supabase/supabase-js'
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+Usar supabaseAdmin para el UPDATE a clubs:
+const { data, error: clubError } = await supabaseAdmin
+  .from('clubs')
+  .update({...})
+  .eq('id', clubId)
+
+---
+
+## BUG 2 — INVALID_NOTIFICATION_TYPE
+
+El constraint de notifications no incluye 
+club_owner_request_approved.
+
+Ejecutar en Supabase:
+ALTER TABLE notifications 
+  DROP CONSTRAINT IF EXISTS notifications_type_check;
+
+ALTER TABLE notifications
+  ADD CONSTRAINT notifications_type_check 
+  CHECK (type = ANY (ARRAY[
+    'player_match_result_ready',
+    'player_claim_success',
+    'club_claim_requested',
+    'club_match_created',
+    'tournament_open_for_registration',
+    'league_open_for_registration',
+    'tournament_registration_requested',
+    'league_registration_requested',
+    'tournament_registration_confirmed',
+    'league_registration_confirmed',
+    'coach_invitation',
+    'coach_invitation_accepted',
+    'coach_challenge_assigned',
+    'coach_booking_request',
+    'coach_booking_confirmed',
+    'booking_confirmed',
+    'booking_cancelled',
+    'booking_requested',
+    'training_session_scheduled',
+    'coach_booking_cancelled',
+    'club_owner_request_approved',
+    'club_owner_request_rejected'
+  ])) NOT VALID;
+
+---
+
+Aplicar primero el SQL del BUG 2 en Supabase.
+Después fixear el BUG 1 en el código.
+Commit y push cuando ambos estén resueltos.

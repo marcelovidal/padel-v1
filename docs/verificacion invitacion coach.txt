@@ -1,0 +1,102 @@
+Hay un bug crítico: las notificaciones del módulo coach 
+no llegan a los jugadores. La invitación se envía 
+(coach_players se crea correctamente) pero el jugador 
+no recibe notificación.
+
+Antes de escribir código, leer:
+- El RPC notification_create en Supabase
+- El RPC coach_invite_player
+- La tabla notifications y su CHECK constraint en type
+- lib/actions/coach.actions.ts — la acción de invitar
+
+---
+
+## DIAGNÓSTICO
+
+El problema es uno de estos dos (verificar cuál):
+
+1. El CHECK constraint de notifications.type fue 
+   actualizado con los 5 tipos coach_* pero el 
+   body del RPC notification_create tiene un 
+   IF/CASE hardcodeado con los tipos válidos 
+   y no incluye los nuevos — falla silenciosamente
+
+2. El RPC coach_invite_player no llama a 
+   notification_create después de crear el registro 
+   en coach_players
+
+Verificar cuál es el caso antes de corregir.
+
+---
+
+## FIX
+
+### Si el problema es el RPC notification_create:
+
+Actualizar el RPC para que acepte y procese 
+los 5 tipos nuevos:
+- coach_invitation
+- coach_invitation_accepted  
+- coach_challenge_assigned
+- coach_booking_request
+- coach_booking_confirmed
+
+Para cada tipo, definir el título y body 
+por defecto en el fallback del RPC:
+
+coach_invitation:
+  título: "Invitación de entrenador"
+  body: "{coach_name} te invitó a entrenar juntos"
+
+coach_invitation_accepted:
+  título: "Invitación aceptada"
+  body: "{player_name} aceptó tu invitación"
+
+coach_challenge_assigned:
+  título: "Nuevo desafío"
+  body: "Tu entrenador te asignó un desafío: {title}"
+
+coach_booking_request:
+  título: "Nueva reserva de clase"
+  body: "{player_name} quiere reservar una clase"
+
+coach_booking_confirmed:
+  título: "Clase confirmada"
+  body: "Tu clase del {date} fue confirmada"
+
+### Si el problema es coach_invite_player:
+
+Agregar al final del RPC la llamada a 
+notification_create con:
+- user_id: el player_id invitado
+- type: 'coach_invitation'
+- entity_id: el coach_id
+- payload: { coach_name, coach_pasala_index, 
+             coach_level, message }
+
+---
+
+## VERIFICACIÓN
+
+Después del fix, probar el flujo completo:
+
+1. Entrenador invita a jugador desde /player/coach
+2. Jugador recibe notificación con campana en rojo
+3. Al abrir notificaciones aparece "Invitación de 
+   entrenador" con nombre del entrenador
+4. El jugador puede aceptar desde la notificación
+   (si hay acción CTA en la notificación) o desde 
+   donde corresponda
+5. Al aceptar, el entrenador recibe notificación 
+   "Invitación aceptada"
+
+---
+
+## CONSIDERACIONES
+
+- Stack: Next.js 14, Supabase RPCs con SECURITY DEFINER
+- No romper las notificaciones existentes de otros 
+  módulos — el fix es aditivo, no reemplaza nada
+- Verificar que el RPC use SECURITY DEFINER para 
+  poder insertar en notifications desde otro contexto
+- Empezar leyendo el RPC actual antes de modificarlo

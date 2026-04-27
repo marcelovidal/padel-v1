@@ -1,0 +1,31 @@
+Informe de trabajo — Sesión actual
+1. Sincronización del repositorio
+* Detecté conflicto entre cambios locales (rediseño tabla directorio) y 30+ commits del remoto
+* Resolví el conflicto preservando la versión del remoto, que ya incluía la tabla completa con más columnas (level, streak, city filter, avatar)
+* Eliminé PlayerDirectoryTable.tsx huérfano
+2. Feature: Perfil Entrenador (Q5) — completo
+SQL — 20260407_q5_coach_profiles.sql
+ElementoDetalleColumnas en playersis_coach boolean, coach_enabled_at timestamptzTablas nuevascoach_profiles, coach_players, coach_availability, coach_bookings, training_sessions, player_challenges, player_coach_notesRPCscoach_enable_profile, coach_update_profile, coach_set_availability, coach_invite_player, coach_accept_invitation, coach_get_my_players, coach_get_public_profile, get_available_coachesRLSCompleto — notas del legajo nunca visibles para el jugadorNotificaciones5 tipos nuevos: coach_invitation, coach_invitation_accepted, coach_challenge_assigned, coach_booking_request, coach_booking_confirmed
+Capa de datos
+* repositories/coach.repository.ts — acceso a todas las tablas y RPCs nuevas
+* services/coach.service.ts — capa de servicio con nombres en camelCase
+* lib/actions/coach.actions.ts — 10 server actions: habilitar, setup, actualizar perfil, disponibilidad, invitar, aceptar, agregar nota, desafío, actualizar estado desafío, registrar sesión
+Tipos
+* types/database.ts — agregados is_coach, coach_enabled_at, pasala_index al tipo players
+UI — Navegación
+* PlayerTopNav — link "Mi equipo" con ícono GraduationCap, condicional según is_coach
+* PlayerLayout — pasa isCoach al nav
+UI — Páginas
+RutaDescripción/player/coachSi no es coach: card de activación. Si es coach: dashboard 4 tabs/player/coach/setupFormulario: club principal, especialidad, bio, tarifa + toggle público, disponibilidad semanal con franjas horarias/entrenadores/[coachId]Perfil público sin login — métricas reales del jugador como credencial, disponibilidad, CTA reserva
+UI — Componentes
+ComponenteDescripciónCoachDashboardShell con tabs URL-based (?tab=)CoachMyPlayersTabla de alumnos con estado calculado (En forma / Estable / Bajando / Inactivo / En racha), delta PASALA 30d, desafíos activos, link al legajoCoachAgendaLista de reservas próximas e historial con badges de estadoCoachChallengesLista activos/completados + modal para crear desafío con jugador, título, descripción, fecha límiteCoachLegajoVista individual: header del jugador, desafíos, historial de sesiones, notas privadas por tipo (observacion/objetivo/alerta/logro)CoachSetupFormFormulario cliente con selector de disponibilidad semanal dinámico (agregar/quitar franjas)
+3. Estado del repositorio
+* Rama activa: feature/coach-profiles
+* Base: main (commit 10cf8a2)
+* Commit: 423154e — 16 archivos, +3167 líneas
+* Push: hecho a origin/feature/coach-profiles
+Pendiente para continuar
+1. Mejorar el buscador de invitación de jugadores (hoy requiere ID — reemplazar con búsqueda por nombre)
+2. Integrar buscador de entrenadores en el panel del jugador (/player/players o sección nueva)
+3. Actualizar el body de notification_create RPC para incluir los tipos coach (hoy solo se actualizó el constraint)
+4. Pruebas del flujo completo end-to-end

@@ -1,0 +1,268 @@
+Quiero implementar el Flujo B del módulo entrenador — 
+Reserva de clase. Es el flujo central de la relación 
+entrenador-jugador: agendar una sesión con fecha y hora 
+concreta que aparece en el calendario de ambos.
+
+Antes de escribir código, leer:
+- Las tablas coach_bookings, coach_availability, 
+  coach_profiles y coach_players
+- El RPC get_player_calendar y cómo consume 
+  coach_bookings
+- El componente /player/coach (dashboard entrenador)
+- La página /entrenadores/[coachId] (perfil público)
+- El sistema de notificaciones y los tipos 
+  coach_booking_request y coach_booking_confirmed
+- Los server actions existentes en coach.actions.ts
+
+---
+
+## CONCEPTO
+
+Una reserva de clase funciona igual que una reserva 
+de cancha pero con el entrenador como parte central.
+No es obligatorio asignar cancha.
+El entrenador confirma manualmente cada solicitud.
+Ambos lados pueden iniciar.
+
+---
+
+## FLUJO A — EL JUGADOR INICIA
+
+### Paso 1 — El jugador busca entrenador
+
+En /player/entrenadores (nueva ruta) o desde 
+el directorio de jugadores con filtro "Entrenadores":
+
+Cards de entrenadores con:
+- Avatar + nombre
+- Índice PASALA + nivel (su credencial como jugador)
+- Club principal + ciudad
+- Especialidad
+- Tarifa si es pública
+- Próximo horario disponible esta semana
+- Botón "Ver perfil y reservar"
+
+Filtros:
+- Por ciudad
+- Por especialidad
+- Por disponibilidad (esta semana / próxima semana)
+
+### Paso 2 — Perfil público del entrenador
+
+La página /entrenadores/[coachId] ya existe.
+Agregar sección "Reservar clase":
+
+Calendario de disponibilidad semanal:
+- Muestra los slots disponibles según 
+  coach_availability del entrenador
+- Excluye slots ya ocupados por coach_bookings 
+  confirmados o pending
+- El jugador selecciona un slot
+
+Al seleccionar un slot:
+- Modal de confirmación con:
+  - Entrenador, fecha, hora, duración
+  - Campo de notas opcional para el jugador
+  - Botón "Solicitar clase"
+
+### Paso 3 — Solicitud enviada
+
+Al confirmar:
+- Crear coach_booking con status = 'pending'
+- Notificación al entrenador: coach_booking_request
+- El jugador ve el evento en su calendario (🔴)
+  con estado "Pendiente confirmación"
+
+---
+
+## FLUJO B — EL ENTRENADOR INICIA
+
+### Desde /player/coach → tab Agenda
+
+Botón "Nueva sesión" abre modal con:
+
+- Selector de jugador:
+  - Primero muestra sus alumnos activos (coach_players)
+  - También permite buscar cualquier jugador de PASALA
+- Fecha y hora
+- Duración (30 / 45 / 60 minutos)
+- Club (por defecto primary_club_id del entrenador)
+- Cancha (opcional — selector de canchas del club)
+- Notas para el jugador (opcional)
+- Botón "Agendar sesión"
+
+Al confirmar:
+- Crear coach_booking con status = 'pending'
+- Notificación al jugador: coach_booking_request
+  con título "Tu entrenador agendó una sesión"
+- El evento aparece en el calendario del jugador (🔴)
+  con estado "Pendiente confirmación"
+
+---
+
+## CONFIRMACIÓN POR EL ENTRENADOR
+
+### Desde notificaciones (campana)
+
+Cuando el jugador solicita una clase, el entrenador 
+recibe notificación coach_booking_request en la campana.
+
+CTA inline en la notificación:
+- Mostrar: nombre del jugador + fecha/hora solicitada
+- Botones: "Confirmar" / "Rechazar"
+- Optimistic update al hacer click
+
+### Desde /player/coach → tab Agenda
+
+Sección "Solicitudes pendientes" arriba de la agenda:
+- Lista de coach_bookings con status = 'pending'
+- Por cada solicitud: jugador, fecha/hora, duración, notas
+- Botones: "Confirmar" / "Rechazar"
+
+Al confirmar:
+- coach_booking.status → 'confirmed'
+- Notificación al jugador: coach_booking_confirmed
+- El evento en el calendario del jugador 
+  cambia a estado "Confirmado"
+- Si hay cancha asignada: crear court_booking 
+  asociado para bloquear la cancha
+
+Al rechazar:
+- coach_booking.status → 'cancelled'
+- Notificación al jugador con mensaje de rechazo
+- El evento desaparece del calendario del jugador
+
+---
+
+## VISTA DEL JUGADOR — "MI ENTRENADOR"
+
+Cuando el jugador tiene al menos un coach_booking
+o es alumno activo de un entrenador, mostrar 
+sección en /player/coach o en su perfil:
+
+"Mi entrenador" — visible si:
+- Tiene coach_players activo, O
+- Tiene coach_bookings (aunque no sea alumno formal)
+
+Contenido:
+- Card del entrenador: avatar, nombre, índice PASALA
+- Próxima sesión: fecha, hora, estado
+- Historial de sesiones pasadas
+- Botón "Reservar nueva clase" → abre el flujo A
+  en el perfil del entrenador
+
+El ítem "Mi equipo" en el nav aparece si:
+- is_coach = true → abre dashboard entrenador
+- Tiene entrenador asignado o sesiones → 
+  abre vista "Mi entrenador"
+- Si ambos: tabs dentro de /player/coach
+
+---
+
+## CALENDARIO — INTEGRACIÓN
+
+Los coach_bookings ya están en el RPC 
+get_player_calendar como tipo 'training'.
+
+Actualizar el metadata del evento para incluir:
+- coach_name
+- coach_pasala_index  
+- is_confirmed (true/false)
+- notes
+
+El modal de detalle del calendario para 
+eventos de tipo 'training' debe mostrar:
+- Nombre del entrenador + índice PASALA
+- Estado: Pendiente / Confirmado
+- Notas si las hay
+- Botón "Cancelar" si es futuro y está confirmado
+- Si está pendiente: texto "Esperando confirmación 
+  del entrenador"
+
+---
+
+## DISPONIBILIDAD DEL ENTRENADOR
+
+RPC nuevo:
+get_coach_available_slots(p_coach_id uuid, 
+  p_date_from date, p_date_to date)
+
+Devuelve slots disponibles cruzando:
+- coach_availability (plantilla semanal)
+- coach_bookings confirmados y pending (ocupados)
+
+Formato de respuesta:
+{
+  date: date,
+  start_time: time,
+  end_time: time,
+  duration_minutes: int,
+  available: boolean
+}
+
+---
+
+## ACCIONES NUEVAS EN coach.actions.ts
+
+player_request_coach_booking(
+  p_coach_id, p_date, p_start_time, 
+  p_duration_minutes, p_notes)
+  → Crea booking desde el lado del jugador
+
+coach_create_booking(
+  p_player_id, p_date, p_start_time,
+  p_duration_minutes, p_club_id, 
+  p_court_id nullable, p_notes)
+  → Crea booking desde el lado del entrenador
+
+coach_confirm_booking(p_booking_id)
+  → Confirma, notifica jugador, 
+    crea court_booking si hay cancha
+
+coach_reject_booking(p_booking_id, p_reason nullable)
+  → Cancela, notifica jugador
+
+coach_cancel_booking(p_booking_id)
+  → Cancela desde cualquier lado si es futuro
+
+---
+
+## NOTIFICACIONES
+
+Actualizar SECTION_MAP en usePlayerNotifications:
+- coach_booking_request → 'calendario' 
+  (para el jugador cuando el entrenador agenda)
+- coach_booking_confirmed → 'calendario'
+  (para el jugador cuando confirman su solicitud)
+
+La campana sigue mostrando coach_booking_request 
+para el ENTRENADOR (cuando un jugador solicita clase)
+porque requiere acción inmediata.
+
+Verificar que el RPC notification_create 
+distingue el destinatario correctamente:
+- Solicitud del jugador → notifica al entrenador 
+  (campana, requiere acción)
+- Confirmación del entrenador → notifica al jugador
+  (badge calendario)
+
+---
+
+## CONSIDERACIONES TÉCNICAS
+
+- Stack: Next.js 14, Supabase, Tailwind CSS,
+  server actions, RPCs SECURITY DEFINER
+- No romper el flujo A (invitaciones coach_players)
+  que ya está implementado
+- El calendar view ya consume coach_bookings —
+  solo hay que enriquecer el metadata
+- Mobile first — el selector de slots disponibles
+  debe funcionar bien en celular
+- La vista de disponibilidad semanal puede ser
+  una versión simplificada en primera iteración:
+  lista de slots disponibles por día sin grid visual
+- Empezar leyendo coach.actions.ts, coach_bookings
+  y el RPC get_player_calendar antes de crear 
+  archivos nuevos
+- Hacer commit al final con mensaje:
+  "feat: Q5 Fase 2 — reserva de clase entrenador-jugador"
