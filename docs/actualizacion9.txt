@@ -1,0 +1,39 @@
+Aplicar el fix — opción 1 es la más limpia.
+
+Pasar club.id explícitamente desde la página 
+al service y al repository.
+
+Cambios necesarios:
+
+1. En app/player/(app)/mi-club/page.tsx:
+   Cambiar:
+   clubService.listMyClubMatches(60)
+   Por:
+   clubService.listMyClubMatches(club.id, 60)
+
+2. En ClubService:
+   Actualizar la firma de listMyClubMatches 
+   para aceptar clubId como primer parámetro
+   y pasarlo al repository
+
+3. En ClubRepository:
+   Actualizar listMyClubMatches para pasar 
+   p_club_id al RPC club_list_my_matches
+
+4. Verificar si hay otras llamadas similares 
+   en /player/mi-club/* que también usen 
+   claimed_by internamente en lugar de club_id
+   — buscar otros RPCs con el mismo patrón:
+   
+   grep -r "listMyClub\|club_list" 
+   lib/ --include="*.ts"
+
+5. Quitar los console.log de diagnóstico 
+   de requireClubOwner()
+
+6. npm run build
+   git add -A
+   git commit -m "fix: pasar club.id explícito 
+   a listMyClubMatches y otros RPCs que usaban 
+   claimed_by internamente"
+   git push origin main

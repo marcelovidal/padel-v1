@@ -1,0 +1,48 @@
+Dos bugs finales a resolver.
+
+---
+
+## BUG 1 — INVALID_NOTIFICATION_TYPE
+
+El constraint fue actualizado en Supabase pero 
+el código sigue fallando. El tipo que se intenta 
+insertar no coincide exactamente con el del constraint.
+
+En club-owner.actions.ts verificar el string exacto 
+que se pasa como type en la notificación:
+- Debe ser exactamente 'club_owner_request_approved'
+- Verificar que no tiene espacios ni typos
+
+---
+
+## BUG 2 — CLUB_NOT_FOUND (crítico)
+
+En lib/auth.ts, requireClubOwner() busca el club 
+con owner_player_id pero probablemente usa 
+auth.uid() (user_id) en lugar del player.id.
+
+Leer requireClubOwner() completo y verificar 
+la query que busca el club.
+
+Debe ser:
+.eq('owner_player_id', player.id)
+
+Donde player.id es el ID de la tabla players,
+NO el auth.uid() que es el ID de auth.users.
+
+El log confirma:
+- owner_player_id en clubs: 64a3fec8 (player.id) ✅
+- requireClubOwner() no lo encuentra → busca 
+  con el valor equivocado
+
+Fix: asegurarse que la query usa player.id 
+de la tabla players, no auth.uid().
+
+---
+
+Después de los dos fixes:
+npm run build
+git add -A
+git commit -m "fix: requireClubOwner usa player.id 
+correctamente + fix tipo notificación club owner"
+git push origin main

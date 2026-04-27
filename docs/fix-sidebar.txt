@@ -1,0 +1,30 @@
+Fix puntual y definitivo para los íconos del sidebar.
+
+Mirando el DOM confirmamos:
+- /club/entrenadores → tiene SVG (lucide-graduation-cap) ✅
+- /club/players (Jugadores) → NO tiene SVG ❌
+
+Los sub-ítems L2 NO deben tener ícono 
+(igual que el player) — EXCEPTO Entrenadores 
+que tiene GraduationCap.
+
+El problema real son los ítems L1 que agrupan:
+Gestión, Competencia y Comunidad.
+
+Mostrar el HTML exacto que genera cada uno 
+de estos tres ítems en el DOM — copiar 
+directamente del DevTools o del render.
+
+Si Gestión y Competencia son <div> sin SVG
+y Comunidad es <a> con SVG (como Users),
+entonces el fix es:
+
+Cambiar Gestión y Competencia de <div> a <Link>
+apuntando a la primera sub-ruta de cada sección:
+- Gestión → href="/club/dashboard/bookings"
+- Competencia → href="/club/dashboard/leagues"
+
+Igual que hizo con Comunidad que ya funciona.
+
+Fix quirúrgico — solo esos dos elementos.
+Commit y push.

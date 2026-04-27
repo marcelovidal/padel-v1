@@ -1,0 +1,222 @@
+Quiero reemplazar el nav horizontal del panel del club
+por un sidebar fijo en desktop y bottom nav en mobile,
+siguiendo exactamente el mismo modelo implementado 
+en el panel del player (Q8).
+
+Antes de escribir código, leer:
+- ClubTopNav.tsx completo
+- El layout actual del club app/club/(app)/layout.tsx
+- PlayerSidebar.tsx — usarlo como referencia 
+  exacta de implementación
+- PlayerBottomNav.tsx — ídem
+- PlayerMobileHeader.tsx — ídem
+- coach_profiles y coach_players para entender 
+  cómo se vinculan entrenadores a un club
+
+---
+
+## CONCEPTO
+
+Replicar exactamente el modelo del player:
+- Desktop: sidebar fijo 240px colapsable a 56px
+- Mobile: bottom nav 5 ítems + header con logo y campana
+- Mismo estilo visual, mismas clases Tailwind
+- Mismo comportamiento de colapso con localStorage
+  (clave: padel:club:sidebar:collapsed)
+
+---
+
+## SIDEBAR DESKTOP — ESTRUCTURA
+
+### Header
+- Logo PASALA
+- Avatar del club + nombre del club
+- Ciudad del club
+
+### Ítems de navegación
+
+NIVEL 1: Resumen
+- Ícono: Home
+- Ruta: /club
+
+── separador ──
+
+NIVEL 1: Gestión
+- Ícono: CalendarDays
+- Expande sub-ítems (sin ruta propia)
+- Sub-ítems:
+  → Reservas (/club/dashboard/bookings) con badge
+  → Canchas (/club/dashboard/courts)
+  → Agenda (/club/dashboard/agenda)
+
+NIVEL 1: Competencia
+- Ícono: Trophy
+- Expande sub-ítems (sin ruta propia)
+- Sub-ítems:
+  → Ligas (/club/dashboard/leagues)
+  → Torneos (/club/dashboard/tournaments)
+
+NIVEL 1: Comunidad
+- Ícono: Users
+- Expande sub-ítems (sin ruta propia)
+- Sub-ítems:
+  → Jugadores (/club/players)
+  → Entrenadores (/club/entrenadores) ← nuevo
+  → Partidos (/club/matches)
+  → Ranking (/club/dashboard/ranking)
+
+── separador ──
+
+NIVEL 1: Perfil
+- Ícono: UserCircle
+- Ruta: /club/profile
+
+NIVEL 1: Ajustes
+- Ícono: Settings
+- Ruta: /club/dashboard/settings
+
+── separador ──
+
+### Footer del sidebar
+- Botón de acción contextual según sección activa:
+  Gestión → "+ Nueva reserva"
+  Competencia → "+ Crear torneo"
+  Comunidad → "+ Agregar jugador"
+  Default → "Panel general" → /club
+- Botón logout discreto
+
+---
+
+## BOTTOM NAV MOBILE — 5 ÍTEMS
+
+| # | Label | Ícono | Ruta |
+|---|---|---|---|
+| 1 | Resumen | Home | /club |
+| 2 | Gestión | CalendarDays | /club/dashboard/bookings |
+| 3 | Competencia | Trophy | /club/dashboard/leagues |
+| 4 | Comunidad | Users | /club/players |
+| 5 | Club | Settings | /club/dashboard/settings |
+
+Mismo diseño que PlayerBottomNav:
+- Fondo blanco, borde superior #E2E8F0
+- Activo: azul #2563EB
+- Inactivo: gris #94A3B8
+- Altura: 64px
+- Safe area iOS
+
+---
+
+## PÁGINA DE ENTRENADORES DEL CLUB
+
+Crear página nueva /club/entrenadores:
+
+Muestra los entrenadores vinculados al club:
+- coach_profiles donde primary_club_id = club_id 
+  del admin logueado
+- Por cada entrenador mostrar:
+  - Avatar + nombre
+  - Especialidad
+  - Índice PASALA (su credencial como jugador)
+  - Cantidad de alumnos activos 
+    (coach_players con status = 'active')
+  - Disponibilidad configurada (días de la semana)
+- Vista de solo lectura para el club
+- Si no hay entrenadores: empty state con texto
+  "Ningún entrenador ha registrado este club 
+  como su club principal"
+
+RLS: el club puede ver coach_profiles donde
+primary_club_id = su club_id — verificar si 
+ya existe política o crear una de lectura.
+
+---
+
+## LAYOUT
+
+Mismo modelo que el player:
+
+Desktop:
+┌──────────┬──────────────────────────┐
+│ SIDEBAR  │   CONTENIDO PRINCIPAL    │
+│  240px   │   calc(100% - 240px)     │
+│colapsable│   sin max-w, px-6/px-8   │
+└──────────┴──────────────────────────┘
+
+Mobile:
+┌──────────────────────────┐
+│   HEADER (logo+campana)  │
+│   CONTENIDO PRINCIPAL    │
+├──────────────────────────┤
+│   BOTTOM NAV (64px)      │
+└──────────────────────────┘
+
+---
+
+## ANCHO DEL CONTENIDO
+
+Eliminar max-w-* en los wrappers principales
+de todas las páginas bajo /club/*:
+
+grep -r "max-w-\|container\|mx-auto" 
+  app/club --include="*.tsx" -l
+
+Reemplazar por w-full con px-6/px-8.
+
+---
+
+## PÁGINAS HUÉRFANAS A INCORPORAR
+
+Páginas que existen sin nav item — 
+solo linkearlas en el sidebar:
+- /club/dashboard/agenda → sub-ítem de Gestión
+- /club/dashboard/ranking → sub-ítem de Comunidad
+
+---
+
+## BADGES
+
+Badge de Reservas: court_bookings con 
+status = 'requested' del club.
+
+Si el club tiene sistema de notificaciones,
+conectarlo. Si no, dejar badge preparado 
+como prop opcional.
+
+---
+
+## ARCHIVOS A CREAR
+
+- components/club/ClubSidebar.tsx
+- components/club/ClubBottomNav.tsx
+- components/club/ClubMobileHeader.tsx
+- app/club/(app)/entrenadores/page.tsx
+
+Seguir exactamente la misma estructura que:
+- components/player/PlayerSidebar.tsx
+- components/player/PlayerBottomNav.tsx
+- components/player/PlayerMobileHeader.tsx
+
+---
+
+## ARCHIVOS A MODIFICAR
+
+- app/club/(app)/layout.tsx
+  Reemplazar ClubTopNav por el nuevo shell.
+  ClubTopNav queda comentado como fallback.
+
+---
+
+## CONSIDERACIONES TÉCNICAS
+
+- Stack: Next.js 14, Tailwind CSS, Supabase
+- Mismo breakpoint: md (768px)
+- Colapsado persiste en localStorage:
+  padel:club:sidebar:collapsed
+- Hydration: useState(stable_default) + useEffect
+  para cualquier valor basado en new Date()
+- No romper ninguna funcionalidad existente
+- Solo cambiar el shell de navegación y el layout
+- Probar en local antes de commitear
+- Commit al final:
+  "feat: Q9 — sidebar desktop + bottom nav 
+  mobile panel club + página entrenadores del club"

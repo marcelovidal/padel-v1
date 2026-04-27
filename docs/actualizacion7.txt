@@ -1,0 +1,18 @@
+Agregar un log de diagnóstico en 
+requireClubOwner() en lib/auth.ts para 
+confirmar qué valores tiene cuando se ejecuta.
+
+Agregar justo antes de la query del club:
+
+console.log('[requireClubOwner] player.id:', player.id)
+console.log('[requireClubOwner] player.is_club_owner:', player.is_club_owner)
+
+Y después de la query:
+
+console.log('[requireClubOwner] club encontrado:', club)
+console.log('[requireClubOwner] error:', error)
+
+No modificar nada más — solo agregar los logs.
+Reiniciar el servidor después:
+Remove-Item -Recurse -Force .next
+npm run dev

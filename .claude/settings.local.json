@@ -45,7 +45,10 @@
       "Bash(grep -o '.\\\\{0,30\\\\}IMPORTED_MODULE_10__\\\\[\"default\"\\\\].\\\\{0,120\\\\}' .next/static/chunks/app/club/\\\\\\(app\\\\\\)/layout.js)",
       "Bash(git tag:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(wait)",
+      "Bash(ls docs/actualizacion6*)",
+      "Bash(git checkout *)"
     ]
   }
 }

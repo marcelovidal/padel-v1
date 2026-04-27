@@ -1,0 +1,117 @@
+Estamos en el branch feature/landing-narrativa.
+
+## Tarea
+Rediseñar toda la landing page cambiando el esquema de color
+de dark a light. Leer TODOS los archivos involucrados antes
+de editar: page.tsx y todos los componentes en components/landing/.
+
+## Nuevo esquema de color global
+
+ANTES → AHORA:
+- bg-[#080808] / bg-black / bg-slate-900 (fondos) → bg-white #FFFFFF
+- text-[#F0EDE6] / text-white (texto sobre negro) → text-[#080808]
+- Secciones alternas oscuras → bg-white o bg-stone-50 para respirar
+- El azul cancha #1565C0 se mantiene como único acento fuerte
+- El crema #F0EDE6 pasa a ser un acento cálido secundario,
+  no el fondo principal
+
+## Reglas por sección
+
+### HERO (sección 1)
+Layout: foto de fondo ocupa el lado derecho (ya existe así).
+Cambio: el lado izquierdo que era negro pasa a blanco.
+- Fondo izquierdo: bg-white
+- Claim principal: texto #080808 (antes blanco/crema)
+  "El pádel no termina" → color #080808
+  "cuando termina" → color #1565C0 (acento itálica)
+  "el partido." → color #080808
+- "Patagonia · Argentina" en text-xs: color slate-400
+- "SCROLLEA" label: color slate-400
+- La foto derecha se mantiene, sin overlay oscuro encima
+  (o reducir overlay a solo 10-15% para no apagar la foto)
+
+### SECCIÓN NARRATIVA (sección 2 — "Hay algo que pasa después...")
+Actualmente bg crema con foto.
+Cambio: bg-white, texto #080808.
+- "Eso también es pádel." mantiene color #1565C0
+- Caption de foto: text-slate-500
+
+### SECCIÓN STATS (sección 3 — "LA COMUNIDAD EN NÚMEROS")
+Actualmente fondo oscuro con números grandes azules.
+Cambio: bg-stone-50 (gris muy tenue, da contraste sin ser blanco puro).
+- Label "LA COMUNIDAD EN NÚMEROS": text-slate-400 uppercase tracking-widest
+- Números grandes (76+, 200+, 5): color #1565C0 — se mantienen azules,
+  ahora sobre fondo claro
+- Descripciones debajo: text-slate-600
+
+### SECCIÓN JUGADORES (sección 4)
+Cambio completo según diseño con grid de fotos + tipo superpuesto:
+
+ZONA 1 — Grid fotográfico con tipo superpuesto:
+- 3 módulos de fotos en fila (cancha-accion.png, jugadores.png,
+  jugador-movil.png), altura ~420px, overflow-hidden
+- Overlay sobre las fotos: gradient-to-t from-black/60 to-transparent
+  (el overlay SE MANTIENE sobre las fotos — es necesario para
+  que el texto blanco sea legible. El cambio a blanco es del
+  FONDO DE LA PÁGINA, no de las fotos mismas)
+- Texto superpuesto sobre las fotos:
+  "PARA EL JUGADOR" uppercase text-7xl font-bold text-white
+  "que quiere más." Georgia italic text-5xl text-[#F0EDE6]
+  Posición: bottom-8 left-8 z-10
+
+ZONA 2 — Features + mockup:
+- bg-white (antes bg crema)
+- Texto features: #080808
+- Separadores: border-stone-200
+- Mockup celular: se mantiene bg-slate-900 internamente
+  (es una pantalla de app, no cambia)
+
+### SECCIÓN CLUBES (sección 5)
+Actualmente fondo oscuro con foto a la derecha.
+Cambio: bg-white, lado izquierdo blanco.
+- "PARA CLUBES" label: text-slate-400
+- "El partido empieza" → text-[#080808]
+- "antes de llegar" → text-[#1565C0] italic Georgia
+- "a la cancha." → text-[#080808]
+- Descripción: text-slate-600
+- Features list: texto #080808, separadores border-stone-200
+- Botón WhatsApp: se mantiene verde (bg-green-500)
+- La foto derecha (cancha-accion.png o jugadores.png): sin overlay
+
+### CTA FINAL (sección 6 — "Tu pádel empieza acá.")
+Actualmente usa collage de fotos como fondo.
+Cambio: mantener las fotos como fondo (el collage es el atractivo),
+pero el texto sobre el collage usa overlay blanco en lugar de oscuro:
+- Overlay: bg-white/80 (blanco semitransparente) sobre las fotos
+- Título "Tu pádel empieza acá." → text-[#080808]
+- Subtítulo: text-slate-600
+- Botón primario "Registrarme gratis": bg-[#1565C0] text-white
+- Botón secundario "Soy dueño de un club": 
+  border border-[#080808] text-[#080808] bg-transparent
+
+### NAVBAR
+- Fondo: bg-white con border-b border-stone-200
+- Logo "Pasala": color #1565C0 (se mantiene)
+- Links "JUGADORES" / "CLUBES": text-slate-700
+- Botón "INGRESÁ": bg-[#080808] text-white 
+  (se invierte — el negro pasa al botón, no al fondo)
+
+### FOOTER
+- bg-white, border-t border-stone-200
+- Texto: text-slate-500
+
+## Lo que NO cambia
+- Tipografía: Georgia serif italic para claims, sans para interfaz
+- Azul #1565C0 como único color de acento fuerte
+- El mockup del celular internamente (bg-slate-900 adentro)
+- Las fotos — ninguna foto cambia
+- Los overlays DENTRO de las fotos (no son "fondos negros",
+  son gradientes necesarios para legibilidad del texto superpuesto)
+- Copy de todas las secciones
+
+## Convenciones del proyecto
+- Sin max-w en wrappers principales, solo px-8
+- Tailwind CSS puro
+- No crear archivos nuevos innecesarios — editar los existentes
+- Revisar que no queden clases bg-[#080808], bg-black, bg-slate-900
+  en contenedores de sección (solo permitido dentro del mockup)

@@ -1,0 +1,26 @@
+Confirmar y generar todas las migraciones.
+
+Proceder con los dos patrones:
+
+PATRÓN A — 9 RPCs con p_club_id:
+Agregar la condición owner_player_id en 
+el check de autorización de cada uno.
+
+PATRÓN B — 2 RPCs sin p_club_id:
+Agregar p_club_id como parámetro y actualizar
+los repositories y páginas correspondientes.
+
+Generar UNA sola migración con todos los fixes:
+supabase/migrations/20260415_fix_club_rpcs_owner_player_id.sql
+
+Mostrar el SQL completo antes de que yo 
+lo aplique en Supabase.
+
+Para los cambios de código (Patrón B):
+Actualizar también:
+- Los repositories que llaman a esos RPCs
+- Las páginas de /player/mi-club/partidos/nuevo
+
+npm run build al final para verificar.
+Commit: "fix: club RPCs soportan owner_player_id 
+además de claimed_by"

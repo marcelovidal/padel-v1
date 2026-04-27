@@ -1,0 +1,52 @@
+Confirmado — la tabla clubs tiene estos campos:
+- owner_player_id ✅
+- claim_status ✅  
+- claimed_by ✅
+
+Arrancar con el fix ahora.
+
+El UPDATE debe:
+1. Incluir los tres campos
+2. Capturar el error y lanzarlo si falla
+3. Si el UPDATE falla, hacer rollback de 
+   is_club_owner en el player
+
+Código correcto:
+
+const { error: clubError } = await sb
+  .from("clubs")
+  .update({ 
+    owner_player_id: playerId,
+    claim_status: 'claimed',
+    claimed_by: userId
+  })
+  .eq("id", clubId)
+
+if (clubError) {
+  // Rollback: revertir is_club_owner
+  await sb
+    .from("players")
+    .update({ 
+      is_club_owner: false,
+      club_owner_enabled_at: null 
+    })
+    .eq("id", playerId)
+    
+  throw new Error("No se pudo vincular el club: " + clubError.message)
+}
+
+Aplicar este mismo patrón en:
+- approveClubOwnerRequestAction (solicitudes con club_id existente)
+- createClubAndApproveAction (crear club nuevo)
+- linkClubAndApproveAction (vincular existente)
+
+Los tres flujos deben tener el mismo manejo 
+de error con rollback.
+
+Después del fix:
+npm run build
+git add -A
+git commit -m "fix: approveRequestWithClub — 
+captura error y rollback si clubs UPDATE falla,
+agrega claim_status y claimed_by"
+git push origin main

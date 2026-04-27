@@ -1,0 +1,19 @@
+El panel /player/mi-club funciona completamente.
+Cerrar el feature:
+
+1. Agregar migración de documentación:
+   supabase/migrations/20260415_009_fix_booking_rpcs_owner_player_id.sql
+   ya fue creada — verificar que está commiteada.
+
+2. Quitar todos los console.log de diagnóstico
+   de requireClubOwner() en lib/auth.ts
+
+3. npm run build
+
+4. git add -A
+   git commit -m "fix: limpiar logs diagnóstico 
+   requireClubOwner — feature club-owner-role completo"
+
+5. git tag v0.10.1
+   git push origin main
+   git push origin --tags
