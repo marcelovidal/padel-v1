@@ -6,6 +6,8 @@ import { resolvePublicCtaHref } from "@/lib/auth/public-cta.shared";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingJugador } from "@/components/landing/LandingJugador";
 import { LandingClubes } from "@/components/landing/LandingClubes";
+import { LandingEntrenador } from "@/components/landing/LandingEntrenador";
+import { LandingContacto } from "@/components/landing/LandingContacto";
 
 export const dynamic = "force-dynamic";
 
@@ -220,6 +222,12 @@ export default async function LandingPage() {
       {/* ─── ACTO 2 — PARA EL CLUB ─────────────────────────────────── */}
       <LandingClubes />
 
+      {/* ─── ACTO 4 — PARA ENTRENADORES ────────────────────────────── */}
+      <LandingEntrenador />
+
+      {/* ─── ACTO 5 — CONTACTO ─────────────────────────────────────── */}
+      <LandingContacto />
+
       {/* ─── ACTO 6 — CIERRE ───────────────────────────────────────── */}
       <section className="relative flex h-[400px] items-center justify-center overflow-hidden md:h-[480px]">
         <Image
@@ -252,31 +260,16 @@ export default async function LandingPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href={primaryHref}
-              className="text-white"
-              style={{
-                background: "#1565C0",
-                padding: "14px 28px",
-                fontSize: "13px",
-                fontWeight: "500",
-              }}
+              href="/welcome"
+              className="rounded-full bg-[#1565C0] px-8 py-4 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#1244a0]"
             >
-              Registrarme gratis
+              Registrate gratis
             </Link>
-            <a
-              href="https://wa.me/542984315287"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                border: "1px solid #080808",
-                padding: "14px 28px",
-                fontSize: "13px",
-                fontWeight: "500",
-                color: "#080808",
-              }}
-            >
-              Soy dueño de un club
-            </a>
+            <Link href="/player/login">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white bg-white/90 px-8 py-4 text-sm font-semibold text-[#1565C0] shadow-sm transition-colors hover:bg-white">
+                Ya tengo cuenta · Ingresá
+              </span>
+            </Link>
           </div>
         </div>
       </section>

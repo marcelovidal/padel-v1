@@ -344,21 +344,41 @@ const SLIDES = [
         <div className="flex shrink-0 flex-col">
           <p className="mb-2 inline-block rounded bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">RONDA 1</p>
           {([
-            { a: "F. Castro", sa: 6, b: "D. Morales", sb: 3 },
-            { a: "M. Castro", sa: 6, b: "A. Burgos",  sb: 2 },
-            { a: "P. Ríos",   sa: 6, b: "R. Soria",   sb: 4 },
-            { a: "Lucas T.",  sa: 6, b: "M. Andrade",  sb: 1 },
-          ] as { a: string; sa: number; b: string; sb: number }[]).map(({ a, sa, b, sb }) => (
-            <div key={a} className="mb-2 w-40 rounded-lg border border-slate-200 bg-slate-50 p-2">
-              <div className="flex items-center gap-2 border-b border-slate-100 py-1">
+            { a: "F. Castro", sA: [6, 6],    b: "D. Morales", sB: [3, 2]    },
+            { a: "M. Castro", sA: [6, 6],    b: "A. Burgos",  sB: [2, 1]    },
+            { a: "P. Ríos",   sA: [6, 6],    b: "R. Soria",   sB: [4, 2]    },
+            { a: "Lucas T.",  sA: [6, 4, 6], b: "M. Andrade", sB: [1, 6, 2] },
+          ] as { a: string; sA: number[]; b: string; sB: number[] }[]).map(({ a, sA, b, sB }) => (
+            <div key={a} className="mb-2 w-44 rounded-lg border border-slate-200 bg-white p-2">
+              {/* Set header */}
+              <div className="flex items-center gap-1.5 pb-0.5">
+                <div className="h-5 w-5 shrink-0" />
+                <span className="flex-1" />
+                <div className="flex gap-1">
+                  {sA.map((_, si) => (
+                    <span key={si} className="w-5 text-center text-[9px] text-slate-400">S{si + 1}</span>
+                  ))}
+                </div>
+              </div>
+              {/* Winner row */}
+              <div className="flex items-center gap-1.5 border-b border-slate-100 py-1">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[8px] font-bold text-white">{a[0]}</div>
                 <span className="flex-1 truncate text-[10px] font-medium text-slate-800">{a}</span>
-                <span className="ml-auto rounded bg-blue-50 px-1.5 text-[10px] font-bold text-[#1565C0]">{sa}</span>
+                <div className="flex gap-1">
+                  {sA.map((s, si) => (
+                    <span key={si} className="w-5 text-center text-xs font-bold text-[#1565C0] bg-blue-50 rounded">{s}</span>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2 py-1">
+              {/* Loser row */}
+              <div className="flex items-center gap-1.5 py-1">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-300 text-[8px] font-bold text-slate-600">{b[0]}</div>
                 <span className="flex-1 truncate text-[10px] font-medium text-slate-800">{b}</span>
-                <span className="ml-auto text-[10px] text-slate-400">{sb}</span>
+                <div className="flex gap-1">
+                  {sB.map((s, si) => (
+                    <span key={si} className="w-5 text-center text-xs text-slate-400 bg-slate-50 rounded">{s}</span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
@@ -369,23 +389,47 @@ const SLIDES = [
         </div>
         {/* Semifinal */}
         <div className="flex shrink-0 flex-col justify-around">
-          <p className="mb-2 inline-block rounded bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">SEMIFINAL</p>
+          <p className="mb-2 inline-block rounded bg-blue-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-blue-600">SEMIFINAL</p>
           {([
-            { a: "F. Castro", sa: 7,    b: "M. Castro", sb: 5,    done: true  },
-            { a: "P. Ríos",   sa: null, b: "Lucas T.",  sb: null, done: false },
-          ] as { a: string; sa: number | null; b: string; sb: number | null; done: boolean }[]).map(({ a, sa, b, sb, done }) => (
-            <div key={a} className={`mb-2 w-40 rounded-lg border p-2 ${done ? "border-slate-200 bg-slate-50" : "border-2 border-blue-400 bg-blue-50/50"}`}>
-              <div className="flex items-center gap-2 border-b border-slate-100 py-1">
+            { a: "F. Castro", sA: [7, 6] as (number | null)[],      b: "M. Castro", sB: [5, 4] as (number | null)[],      done: true  },
+            { a: "P. Ríos",   sA: [null, null] as (number | null)[], b: "Lucas T.", sB: [null, null] as (number | null)[], done: false },
+          ] as { a: string; sA: (number | null)[]; b: string; sB: (number | null)[]; done: boolean }[]).map(({ a, sA, b, sB, done }) => (
+            <div key={a} className={`mb-2 w-44 rounded-lg border p-2 ${done ? "border-blue-200 bg-blue-50" : "border-2 border-blue-400 bg-blue-100/50"}`}>
+              {/* Set header */}
+              <div className="flex items-center gap-1.5 pb-0.5">
+                <div className="h-5 w-5 shrink-0" />
+                <span className="flex-1" />
+                <div className="flex gap-1">
+                  {sA.map((_, si) => (
+                    <span key={si} className="w-5 text-center text-[9px] text-slate-400">S{si + 1}</span>
+                  ))}
+                </div>
+              </div>
+              {/* Player A */}
+              <div className="flex items-center gap-1.5 border-b border-blue-100 py-1">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[8px] font-bold text-white">{a[0]}</div>
-                <span className="flex-1 truncate text-[10px] font-medium text-slate-800">{a}</span>
-                {sa !== null && <span className="ml-auto rounded bg-blue-50 px-1.5 text-[10px] font-bold text-[#1565C0]">{sa}</span>}
+                <span className={`flex-1 truncate text-[10px] ${done ? "font-semibold text-blue-900" : "font-medium text-slate-800"}`}>{a}</span>
+                <div className="flex gap-1">
+                  {sA.map((s, si) => (
+                    <span key={si} className={`w-5 text-center text-xs rounded ${done ? "font-bold text-white bg-blue-600" : "text-slate-300 bg-blue-100"}`}>
+                      {s !== null ? s : "-"}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2 py-1">
+              {/* Player B */}
+              <div className="flex items-center gap-1.5 py-1">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-300 text-[8px] font-bold text-slate-600">{b[0]}</div>
-                <span className="flex-1 truncate text-[10px] font-medium text-slate-800">{b}</span>
-                {sb !== null && <span className="ml-auto text-[10px] text-slate-400">{sb}</span>}
-                {!done && <span className="ml-auto shrink-0 text-[8px] font-semibold text-amber-500">EN CURSO</span>}
+                <span className="flex-1 truncate text-[10px] font-medium text-slate-600">{b}</span>
+                <div className="flex gap-1">
+                  {sB.map((s, si) => (
+                    <span key={si} className="w-5 text-center text-xs rounded text-blue-300 bg-blue-100">
+                      {s !== null ? s : "-"}
+                    </span>
+                  ))}
+                </div>
               </div>
+              {!done && <div className="mt-1 text-right"><span className="rounded px-1 py-0.5 text-[8px] font-semibold bg-blue-600 text-white">EN CURSO</span></div>}
             </div>
           ))}
         </div>
@@ -395,15 +439,15 @@ const SLIDES = [
         </div>
         {/* Final */}
         <div className="flex shrink-0 flex-col justify-center">
-          <p className="mb-2 inline-block rounded bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">FINAL</p>
-          <div className="w-40 rounded-lg border border-slate-200 bg-amber-50 p-2">
-            <div className="flex items-center gap-2 border-b border-slate-100 py-1">
+          <p className="mb-2 inline-block rounded bg-amber-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-700">FINAL</p>
+          <div className="w-44 rounded-lg border border-amber-300 bg-amber-50 p-2 shadow-md shadow-amber-100">
+            <div className="flex items-center gap-1.5 border-b border-amber-100 py-1">
               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[8px] font-bold text-white">F</div>
-              <span className="flex-1 truncate text-[10px] font-medium text-slate-800">F. Castro</span>
+              <span className="flex-1 truncate text-[10px] font-bold text-amber-900">F. Castro</span>
             </div>
-            <div className="flex items-center gap-2 py-1">
+            <div className="flex items-center gap-1.5 py-1">
               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[8px] font-bold text-slate-500">?</div>
-              <span className="flex-1 text-[10px] text-slate-400">Por definir</span>
+              <span className="flex-1 text-[10px] italic text-amber-600">Por definir</span>
             </div>
           </div>
         </div>
@@ -597,6 +641,7 @@ export function LandingClubes() {
 
   return (
     <section
+      id="clubes"
       className="relative overflow-hidden px-8 py-24"
       style={{ background: "#0a1628" }}
     >

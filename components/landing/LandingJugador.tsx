@@ -380,6 +380,7 @@ export function LandingJugador() {
 
   return (
     <section
+      id="jugadores"
       className="relative px-8 pb-24 pt-36"
       style={{
         marginTop: "-120px",
@@ -510,11 +511,14 @@ export function LandingJugador() {
 
           {/* CTA */}
           <div className="mt-8">
-            <Link href="/player">
+            <Link href="/welcome">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#1565C0] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[#1244a0] hover:shadow-lg">
                 Creá tu perfil gratis
                 <span className="text-base">→</span>
               </span>
+            </Link>
+            <Link href="/player/login" className="mt-2 inline-block text-xs text-slate-500 underline underline-offset-2 transition-colors hover:text-[#1565C0]">
+              ¿Ya tenés cuenta? Ingresá →
             </Link>
           </div>
 

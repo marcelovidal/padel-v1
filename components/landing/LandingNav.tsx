@@ -92,28 +92,25 @@ export function LandingNav({
 
             {/* Nav links */}
             <nav className="hidden items-center gap-8 md:flex">
-              <Link
-                href="/players"
-                className={`uppercase tracking-widest transition-colors ${
-                  transparent
-                    ? "text-white/80 hover:text-white"
-                    : "text-slate-700 hover:text-[#1565C0]"
-                }`}
-                style={{ fontSize: "11px" }}
-              >
-                Jugadores
-              </Link>
-              <Link
-                href="/clubs"
-                className={`uppercase tracking-widest transition-colors ${
-                  transparent
-                    ? "text-white/80 hover:text-white"
-                    : "text-slate-700 hover:text-[#1565C0]"
-                }`}
-                style={{ fontSize: "11px" }}
-              >
-                Clubes
-              </Link>
+              {[
+                { href: "/#jugadores",    label: "Jugadores"    },
+                { href: "/#clubes",       label: "Clubes"       },
+                { href: "/#entrenadores", label: "Entrenadores" },
+                { href: "/#contacto",     label: "Contacto"     },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`uppercase tracking-widest transition-colors duration-200 ${
+                    transparent
+                      ? "text-white/80 hover:text-white"
+                      : "text-slate-700 hover:text-[#1565C0]"
+                  }`}
+                  style={{ fontSize: "11px" }}
+                >
+                  {label}
+                </Link>
+              ))}
             </nav>
 
             {/* CTA / Avatar */}
@@ -133,23 +130,28 @@ export function LandingNav({
                 </span>
               </Link>
             ) : (
-              <Link
-                href={primaryHref}
-                className="uppercase tracking-widest transition-opacity hover:opacity-80"
-                style={{
-                  fontSize: "11px",
-                  padding: "8px 18px",
-                  ...(transparent
-                    ? {
-                        border: "1px solid rgba(255,255,255,0.4)",
-                        color: "#ffffff",
-                        background: "transparent",
-                      }
-                    : { background: "#080808", color: "#ffffff" }),
-                }}
-              >
-                Ingresá
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/welcome"
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+                    transparent
+                      ? "bg-white text-[#1565C0] hover:bg-white/90"
+                      : "bg-[#1565C0] text-white hover:bg-[#1244a0]"
+                  }`}
+                >
+                  Registrate
+                </Link>
+                <Link
+                  href="/player/login"
+                  className={`rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                    transparent
+                      ? "border-white/50 text-white hover:border-white"
+                      : "border-slate-300 text-slate-700 hover:border-[#1565C0] hover:text-[#1565C0]"
+                  }`}
+                >
+                  Ingresá
+                </Link>
+              </div>
             )}
           </div>
         </header>
