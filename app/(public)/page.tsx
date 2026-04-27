@@ -70,14 +70,14 @@ export default async function LandingPage() {
           >
             <span
               className="block text-white"
-              style={{ fontSize: "clamp(36px, 5vw, 72px)" }}
+              style={{ fontSize: "clamp(44px, 6vw, 80px)" }}
             >
               El pádel no termina
             </span>
             <span
               className="block"
               style={{
-                fontSize: "clamp(36px, 5vw, 72px)",
+                fontSize: "clamp(44px, 6vw, 80px)",
                 color: "#1565C0",
                 fontStyle: "italic",
               }}
@@ -86,7 +86,7 @@ export default async function LandingPage() {
             </span>
             <span
               className="block text-white"
-              style={{ fontSize: "clamp(36px, 5vw, 72px)" }}
+              style={{ fontSize: "clamp(44px, 6vw, 80px)" }}
             >
               el partido.
             </span>
@@ -129,7 +129,7 @@ export default async function LandingPage() {
 
             {/* Card — glass */}
             <div
-              className="w-60 overflow-hidden rounded-2xl"
+              className="w-[360px] overflow-hidden rounded-2xl"
               style={{
                 background: "rgba(255, 255, 255, 0.78)",
                 backdropFilter: "blur(16px) saturate(180%)",
@@ -139,36 +139,36 @@ export default async function LandingPage() {
               }}
             >
               {/* Header */}
-              <div className="px-5 pb-3 pt-4">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-slate-400">Índice PASALA</p>
+              <div className="px-6 pb-4 pt-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Índice PASALA</p>
                 <p
-                  className="text-sm font-medium text-slate-900"
+                  className="text-base font-semibold text-slate-900"
                   style={{ textShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
                 >
                   Sofía R.
                 </p>
-                <p className="text-[10px] text-slate-500">Avanzada · 5ª CAT</p>
+                <p className="text-xs text-slate-500">Avanzada · 5ª CAT</p>
               </div>
 
               {/* Bloque del número */}
-              <div className="px-5 py-4">
+              <div className="px-6 py-5">
                 <div className="flex items-start gap-1">
                   <span
-                    className="text-6xl font-bold leading-none text-[#1565C0]"
+                    className="text-7xl font-bold leading-none text-[#1565C0]"
                     style={{ textShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
                   >
                     73
                   </span>
-                  <span className="mt-1 text-sm text-slate-300">/100</span>
+                  <span className="mt-1 text-base text-slate-300">/100</span>
                 </div>
-                <p className="mt-1 text-[10px] text-[#1565C0]">Top 12% en la Patagonia</p>
+                <p className="mt-1 text-sm text-[#1565C0]">Top 12% en la Patagonia</p>
               </div>
 
               {/* Separador */}
-              <div className="mx-5" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }} />
+              <div className="mx-6" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }} />
 
               {/* Barras de métricas */}
-              <div className="px-5 pb-4 pt-3">
+              <div className="px-6 pb-5 pt-4">
                 {[
                   { label: "Efectividad",    value: "68%",   width: "68%", color: "bg-blue-400",    glow: true  },
                   { label: "Forma reciente", value: "↑ 82%", width: "82%", color: "bg-emerald-400", glow: false },
@@ -176,10 +176,10 @@ export default async function LandingPage() {
                 ].map((bar) => (
                   <div key={bar.label} className="mb-2.5 last:mb-0">
                     <div className="mb-1 flex justify-between">
-                      <span className="text-[9px] text-slate-500">{bar.label}</span>
-                      <span className="text-[9px] text-slate-700">{bar.value}</span>
+                      <span className="text-xs text-slate-500">{bar.label}</span>
+                      <span className="text-xs font-semibold text-slate-700">{bar.value}</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-stone-100">
+                    <div className="h-2 overflow-hidden rounded-full bg-stone-100">
                       <div
                         className={`h-full rounded-full ${bar.color}`}
                         style={{
@@ -201,12 +201,12 @@ export default async function LandingPage() {
                 }}
               >
                 <div>
-                  <p className="text-xs font-medium text-slate-900">4 PJ</p>
-                  <p className="text-[9px] text-slate-400">partidos</p>
+                  <p className="text-sm font-medium text-slate-900">4 PJ</p>
+                  <p className="text-xs text-slate-400">partidos</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-medium text-[#1565C0]"># 5 de 77</p>
-                  <p className="text-[9px] text-slate-400">ranking</p>
+                  <p className="text-sm font-semibold text-[#1565C0]"># 5 de 77</p>
+                  <p className="text-xs text-slate-400">ranking</p>
                 </div>
               </div>
             </div>

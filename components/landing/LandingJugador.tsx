@@ -22,53 +22,53 @@ const CARDS: CardData[] = [
       <>
         <div className="mt-2 flex items-start justify-between gap-2">
           <div>
-            <p className="text-sm font-semibold text-slate-800">Club Andino · Gral. Roca</p>
-            <p className="text-xs text-slate-400">Sáb. 19 abr. · 20:00hs</p>
+            <p className="text-base font-semibold text-slate-800">Club Andino · Gral. Roca</p>
+            <p className="text-sm text-slate-400">Sáb. 19 abr. · 20:00hs</p>
           </div>
-          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600">
             FINALIZADO
           </span>
         </div>
 
         <div className="mt-4">
           <div className="mb-2 flex items-center gap-3 border-b border-stone-100 pb-1">
-            <span className="flex-1 text-[10px] uppercase tracking-wider text-slate-400">
+            <span className="flex-1 text-xs uppercase tracking-wider text-slate-400">
               Equipos
             </span>
-            <span className="w-5 text-center text-[10px] uppercase tracking-wider text-slate-400">
+            <span className="w-5 text-center text-xs uppercase tracking-wider text-slate-400">
               S1
             </span>
-            <span className="w-5 text-center text-[10px] uppercase tracking-wider text-slate-400">
+            <span className="w-5 text-center text-xs uppercase tracking-wider text-slate-400">
               S2
             </span>
             <span className="w-16" />
           </div>
 
           <div className="mb-2 flex items-center gap-3">
-            <span className="flex-1 text-sm font-semibold text-slate-800">
+            <span className="flex-1 text-base font-semibold text-slate-800">
               M. Castro / R. Peña
             </span>
-            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">6</span>
-            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">6</span>
-            <span className="w-16 rounded-full bg-[#1565C0] px-2 py-0.5 text-center text-[9px] text-white">
+            <span className="w-5 text-center text-base font-bold text-[#1565C0]">6</span>
+            <span className="w-5 text-center text-base font-bold text-[#1565C0]">6</span>
+            <span className="w-16 rounded-full bg-[#1565C0] px-2 py-0.5 text-center text-xs text-white">
               GANADOR
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="flex-1 text-sm text-slate-500">Lucas T. / Diego M.</span>
-            <span className="w-5 text-center text-sm text-slate-400">3</span>
-            <span className="w-5 text-center text-sm text-slate-400">4</span>
+            <span className="flex-1 text-base text-slate-500">Lucas T. / Diego M.</span>
+            <span className="w-5 text-center text-base text-slate-400">3</span>
+            <span className="w-5 text-center text-base text-slate-400">4</span>
             <span className="w-16" />
           </div>
         </div>
 
         <div className="mt-4 flex items-start justify-between border-t border-stone-100 pt-3">
           <div>
-            <p className="text-[10px] text-slate-400">Autoevaluación</p>
-            <p className="text-xs font-medium text-emerald-600">Completa ✓</p>
+            <p className="text-xs text-slate-400">Autoevaluación</p>
+            <p className="text-sm font-medium text-emerald-600">Completa ✓</p>
           </div>
-          <p className="text-xs text-slate-400">3 sets jugados</p>
+          <p className="text-sm text-slate-400">3 sets jugados</p>
         </div>
       </>
     ),
@@ -80,80 +80,80 @@ const CARDS: CardData[] = [
     custom: (
       <>
         <div className="mt-2 mb-4 flex items-center justify-between">
-          <p className="text-xs text-slate-500">Club Andino · General Roca</p>
-          <span className="rounded-full bg-[#1565C0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#1565C0]">
+          <p className="text-sm text-slate-500">Club Andino · General Roca</p>
+          <span className="rounded-full bg-[#1565C0]/10 px-2 py-0.5 text-xs font-semibold text-[#1565C0]">
             4ª CAT
           </span>
         </div>
 
         <div className="space-y-1">
           <div className="mb-2 flex items-center gap-2 border-b border-stone-100 pb-1">
-            <span className="w-5 text-[9px] uppercase tracking-wider text-slate-300">#</span>
-            <span className="flex-1 text-[9px] uppercase tracking-wider text-slate-300">Jugador</span>
-            <span className="w-8 text-center text-[9px] uppercase tracking-wider text-slate-300">PTS</span>
-            <span className="w-10 text-center text-[9px] uppercase tracking-wider text-slate-300">IDX</span>
-            <span className="w-8 text-center text-[9px] uppercase tracking-wider text-slate-300">WR</span>
+            <span className="w-5 text-xs uppercase tracking-wider text-slate-300">#</span>
+            <span className="flex-1 text-xs uppercase tracking-wider text-slate-300">Jugador</span>
+            <span className="w-8 text-center text-xs uppercase tracking-wider text-slate-300">PTS</span>
+            <span className="w-10 text-center text-xs uppercase tracking-wider text-slate-300">IDX</span>
+            <span className="w-8 text-center text-xs uppercase tracking-wider text-slate-300">WR</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-xs font-bold text-[#1565C0]">1</span>
+            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">1</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-600">MC</span>
-              <span className="text-xs text-slate-600">M. Castro</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">MC</span>
+              <span className="text-sm text-slate-600">M. Castro</span>
             </div>
-            <span className="w-8 text-center text-xs text-slate-500">24</span>
-            <span className="w-10 text-center text-xs font-semibold text-slate-700">81</span>
-            <span className="w-8 text-center text-xs text-slate-500">79%</span>
+            <span className="w-8 text-center text-sm text-slate-500">24</span>
+            <span className="w-10 text-center text-sm font-semibold text-slate-700">81</span>
+            <span className="w-8 text-center text-sm text-slate-500">79%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-xs font-bold text-[#1565C0]">2</span>
+            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">2</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-600">PR</span>
-              <span className="text-xs text-slate-600">P. Ríos</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">PR</span>
+              <span className="text-sm text-slate-600">P. Ríos</span>
             </div>
-            <span className="w-8 text-center text-xs text-slate-500">21</span>
-            <span className="w-10 text-center text-xs font-semibold text-slate-700">77</span>
-            <span className="w-8 text-center text-xs text-slate-500">74%</span>
+            <span className="w-8 text-center text-sm text-slate-500">21</span>
+            <span className="w-10 text-center text-sm font-semibold text-slate-700">77</span>
+            <span className="w-8 text-center text-sm text-slate-500">74%</span>
           </div>
 
           <div className="flex items-center gap-2 rounded-lg bg-[#1565C0]/8 px-1.5 py-1">
-            <span className="w-5 text-center text-xs font-bold text-[#1565C0]">3</span>
+            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">3</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1565C0] text-[9px] font-bold text-white">FV</span>
-              <span className="text-xs font-semibold text-[#1565C0]">F. Vidal</span>
-              <span className="rounded-full bg-[#1565C0]/15 px-1.5 text-[9px] font-bold text-[#1565C0]">vos</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1565C0] text-xs font-bold text-white">FV</span>
+              <span className="text-sm font-semibold text-[#1565C0]">F. Vidal</span>
+              <span className="rounded-full bg-[#1565C0]/15 px-1.5 text-xs font-bold text-[#1565C0]">vos</span>
             </div>
-            <span className="w-8 text-center text-xs font-medium text-[#1565C0]">18</span>
-            <span className="w-10 text-center text-xs font-bold text-[#1565C0]">73</span>
-            <span className="w-8 text-center text-xs font-medium text-[#1565C0]">68%</span>
+            <span className="w-8 text-center text-sm font-medium text-[#1565C0]">18</span>
+            <span className="w-10 text-center text-sm font-bold text-[#1565C0]">73</span>
+            <span className="w-8 text-center text-sm font-medium text-[#1565C0]">68%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-xs text-slate-400">4</span>
+            <span className="w-5 text-center text-sm text-slate-400">4</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-600">LT</span>
-              <span className="text-xs text-slate-500">Lucas T.</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">LT</span>
+              <span className="text-sm text-slate-500">Lucas T.</span>
             </div>
-            <span className="w-8 text-center text-xs text-slate-400">15</span>
-            <span className="w-10 text-center text-xs text-slate-600">69</span>
-            <span className="w-8 text-center text-xs text-slate-400">61%</span>
+            <span className="w-8 text-center text-sm text-slate-400">15</span>
+            <span className="w-10 text-center text-sm text-slate-600">69</span>
+            <span className="w-8 text-center text-sm text-slate-400">61%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-xs text-slate-400">5</span>
+            <span className="w-5 text-center text-sm text-slate-400">5</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-600">DM</span>
-              <span className="text-xs text-slate-500">D. Morales</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">DM</span>
+              <span className="text-sm text-slate-500">D. Morales</span>
             </div>
-            <span className="w-8 text-center text-xs text-slate-400">12</span>
-            <span className="w-10 text-center text-xs text-slate-600">65</span>
-            <span className="w-8 text-center text-xs text-slate-400">55%</span>
+            <span className="w-8 text-center text-sm text-slate-400">12</span>
+            <span className="w-10 text-center text-sm text-slate-600">65</span>
+            <span className="w-8 text-center text-sm text-slate-400">55%</span>
           </div>
         </div>
 
         <div className="mt-4 border-t border-stone-100 pt-3">
-          <p className="text-right text-[10px] font-semibold text-[#1565C0]">
+          <p className="text-right text-xs font-semibold text-[#1565C0]">
             Ver ranking completo →
           </p>
         </div>
@@ -171,24 +171,24 @@ const CARDS: CardData[] = [
             <svg className="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="text-xs text-slate-400">Buscá por nombre o club…</span>
+            <span className="text-sm text-slate-400">Buscá por nombre o club…</span>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-[#1565C0] bg-[#1565C0] px-2.5 py-0.5 text-[10px] font-semibold text-white">
+            <span className="rounded-full border border-[#1565C0] bg-[#1565C0] px-2.5 py-0.5 text-xs font-semibold text-white">
               4ª categoría
             </span>
-            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[10px] text-slate-500">
+            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-slate-500">
               Club Andino
             </span>
-            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[10px] text-slate-500">
+            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-slate-500">
               Gral. Roca
             </span>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="mb-2 text-[10px] uppercase tracking-wider text-slate-400">
+          <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
             Resultado más relevante
           </p>
           <div className="flex items-center gap-3 rounded-xl border border-stone-100 bg-white p-3 shadow-sm">
@@ -196,17 +196,17 @@ const CARDS: CardData[] = [
               LT
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800">Lucas T.</p>
-              <p className="text-[11px] text-slate-400">Club Andino · 4ª cat · índice 69</p>
+              <p className="text-base font-semibold text-slate-800">Lucas T.</p>
+              <p className="text-xs text-slate-400">Club Andino · 4ª cat · índice 69</p>
             </div>
-            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600">
               86% WR juntos
             </span>
           </div>
         </div>
 
         <div className="mt-4 border-t border-stone-100 pt-3">
-          <p className="text-right text-[10px] font-semibold text-[#1565C0]">
+          <p className="text-right text-xs font-semibold text-[#1565C0]">
             Buscar rivales en la app →
           </p>
         </div>
@@ -252,14 +252,14 @@ const CARDS: CardData[] = [
         </svg>
 
         <div className="mt-3">
-          <p className="text-[9px] tracking-wider text-slate-400 uppercase mb-2">
+          <p className="text-xs tracking-wider text-slate-400 uppercase mb-2">
             FORMA RECIENTE (ÚLTIMOS 10)
           </p>
           <div className="flex gap-1">
             {(["L","W","W","W","L","W","W","W","W","W"] as const).map((r, i) => (
               <div
                 key={i}
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold ${
                   r === "W" ? "bg-emerald-500 text-white" : "bg-red-400 text-white"
                 }`}
               >
@@ -283,26 +283,26 @@ const CARDS: CardData[] = [
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400">JUGADOS</p>
-            <p className="text-3xl font-bold text-slate-800 leading-none mt-1">18</p>
+            <p className="text-xs uppercase tracking-wider text-slate-400">JUGADOS</p>
+            <p className="text-4xl font-bold text-slate-800 leading-none mt-1">18</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400">GANADOS</p>
-            <p className="text-3xl font-bold text-[#1565C0] leading-none mt-1">11</p>
+            <p className="text-xs uppercase tracking-wider text-slate-400">GANADOS</p>
+            <p className="text-4xl font-bold text-[#1565C0] leading-none mt-1">11</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400">EFECTIVIDAD</p>
-            <p className="text-2xl font-bold text-slate-800 leading-none mt-1">61.1%</p>
+            <p className="text-xs uppercase tracking-wider text-slate-400">EFECTIVIDAD</p>
+            <p className="text-4xl font-bold text-slate-800 leading-none mt-1">61.1%</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400">RACHA</p>
-            <p className="text-3xl font-bold text-red-400 leading-none mt-1">L1</p>
-            <p className="text-[9px] text-slate-400">última: derrota</p>
+            <p className="text-xs uppercase tracking-wider text-slate-400">RACHA</p>
+            <p className="text-4xl font-bold text-red-400 leading-none mt-1">L1</p>
+            <p className="text-xs text-slate-400">última: derrota</p>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="text-[9px] tracking-wider text-slate-400 uppercase mb-2">
+          <p className="text-xs tracking-wider text-slate-400 uppercase mb-2">
             COMPONENTES ÍNDICE PASALA
           </p>
           {[
@@ -313,11 +313,11 @@ const CARDS: CardData[] = [
             { label: "Experiencia (8%)",     width: "75%", color: "bg-amber-400",   val: "75" },
           ].map(({ label, width, color, val }) => (
             <div key={label} className="flex items-center gap-2 mb-1.5">
-              <span className="text-[9px] text-slate-500 w-24 shrink-0">{label}</span>
-              <div className="flex-1 h-1 bg-stone-100 rounded-full overflow-hidden">
+              <span className="text-xs text-slate-500 w-24 shrink-0">{label}</span>
+              <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${color}`} style={{ width }} />
               </div>
-              <span className="text-[9px] text-slate-400 w-5 text-right">{val}</span>
+              <span className="text-xs text-slate-400 w-5 text-right">{val}</span>
             </div>
           ))}
         </div>
@@ -388,9 +388,9 @@ export function LandingJugador() {
       }}
     >
       <style>{`
-        @keyframes cardEnter {
-          from { opacity: 0; transform: translateX(-24px); }
-          to   { opacity: 1; transform: translateX(0); }
+        @keyframes cardFade {
+          from { opacity: 0; transform: scale(0.98); }
+          to   { opacity: 1; transform: scale(1); }
         }
       `}</style>
 
@@ -442,11 +442,11 @@ export function LandingJugador() {
           <div className="relative min-h-[260px] overflow-hidden">
             <div
               key={active}
-              style={{ animation: "cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both" }}
+              style={{ animation: "cardFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both" }}
             >
               <div className="rounded-2xl border-2 border-[#1565C0] bg-white p-7 shadow-lg">
                 <div className="flex flex-col">
-                  <p className="mb-3 text-[10px] uppercase tracking-widest text-slate-400">
+                  <p className="mb-3 text-xs uppercase tracking-widest text-slate-400">
                     {card.label}
                   </p>
                   {card.custom ? (
