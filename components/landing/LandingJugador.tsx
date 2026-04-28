@@ -284,19 +284,19 @@ const CARDS: CardData[] = [
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="bg-stone-50 rounded-xl p-3">
             <p className="text-xs uppercase tracking-wider text-slate-400">JUGADOS</p>
-            <p className="text-4xl font-bold text-slate-800 leading-none mt-1">18</p>
+            <p className="text-3xl sm:text-4xl font-bold text-slate-800 leading-none mt-1">18</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
             <p className="text-xs uppercase tracking-wider text-slate-400">GANADOS</p>
-            <p className="text-4xl font-bold text-[#1565C0] leading-none mt-1">11</p>
+            <p className="text-3xl sm:text-4xl font-bold text-[#1565C0] leading-none mt-1">11</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
             <p className="text-xs uppercase tracking-wider text-slate-400">EFECTIVIDAD</p>
-            <p className="text-4xl font-bold text-slate-800 leading-none mt-1">61.1%</p>
+            <p className="text-3xl sm:text-4xl font-bold text-slate-800 leading-none mt-1">61.1%</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
             <p className="text-xs uppercase tracking-wider text-slate-400">RACHA</p>
-            <p className="text-4xl font-bold text-red-400 leading-none mt-1">L1</p>
+            <p className="text-3xl sm:text-4xl font-bold text-red-400 leading-none mt-1">L1</p>
             <p className="text-xs text-slate-400">última: derrota</p>
           </div>
         </div>
@@ -445,7 +445,7 @@ export function LandingJugador() {
               key={active}
               style={{ animation: "cardFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both" }}
             >
-              <div className="rounded-2xl border-2 border-[#1565C0] bg-white p-7 shadow-lg">
+              <div className="rounded-2xl border-2 border-[#1565C0] bg-white p-4 sm:p-7 shadow-lg">
                 <div className="flex flex-col">
                   <p className="mb-3 text-xs uppercase tracking-widest text-slate-400">
                     {card.label}

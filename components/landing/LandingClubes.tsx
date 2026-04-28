@@ -66,7 +66,7 @@ const SLIDES = [
         <button type="button" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs text-slate-600">Gestionar torneos</button>
       </div>
     </div>
-    <div className="grid grid-cols-4 gap-0 border-b border-slate-200">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 border-b border-slate-200">
       {[
         { label: "Reservas confirmadas (7d)", value: "7",     cls: "text-slate-900" },
         { label: "Llenado próx. 7d",          value: "68%",   cls: "text-[#1565C0]" },
@@ -101,7 +101,7 @@ const SLIDES = [
             { h: "22", bg: "bg-blue-100",   text: "text-blue-500",  bold: false },
             { h: "23", bg: "bg-slate-100",  text: "text-slate-400", bold: false },
           ].map(({ h, bg, text, bold }) => (
-            <div key={h} className={`rounded py-1.5 text-center text-xs ${bold ? "font-bold" : "font-medium"} ${bg} ${text}`}>{h}</div>
+            <div key={h} className={`rounded py-1.5 text-center text-xs ${bold ? "font-bold" : "font-medium"} ${bg} ${text}${parseInt(h) < 16 ? " hidden sm:block" : ""}`}>{h}</div>
           ))}
         </div>
         <p className="mb-2 mt-4 text-xs uppercase tracking-wider text-slate-500">ÚLTIMOS PARTIDOS</p>
@@ -127,7 +127,7 @@ const SLIDES = [
           <div key={pos} className="flex items-center gap-2 border-b border-slate-100 py-1.5 last:border-0">
             <span className="w-4 text-xs text-slate-400">{pos}</span>
             <span className="flex-1 text-sm text-slate-900">{name}</span>
-            <span className={`text-sm font-semibold ${cls}`}>{pts}</span>
+            <span className={`hidden sm:inline-block text-sm font-semibold ${cls}`}>{pts}</span>
           </div>
         ))}
       </div>
@@ -161,7 +161,25 @@ const SLIDES = [
       <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">FIJO</span>
       <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">LIBRE</span>
     </div>
-    <div className="overflow-x-auto px-6 py-3">
+    {/* Mobile: lista de reservas */}
+    <div className="sm:hidden px-3 py-3 space-y-2">
+      {([
+        { fecha: "Lun 21 · 14:00", cancha: "Cancha 1", jugador: "M. Castro",       badge: "FIJO",   bc: "bg-indigo-50 text-indigo-700" },
+        { fecha: "Mié 23 · 20:00", cancha: "Cancha 2", jugador: "P. Ríos",         badge: "FIJO",   bc: "bg-indigo-50 text-indigo-700" },
+        { fecha: "Jue 24 · 19:00", cancha: "Cancha 3", jugador: "Liga Otoño",      badge: "LIGA",   bc: "bg-purple-50 text-purple-700" },
+        { fecha: "Sáb 26 · 10:00", cancha: "Cancha 1", jugador: "Torneo Apertura", badge: "TORNEO", bc: "bg-green-50 text-green-700"  },
+      ] as { fecha: string; cancha: string; jugador: string; badge: string; bc: string }[]).map(({ fecha, cancha, jugador, badge, bc }) => (
+        <div key={fecha} className="flex items-center justify-between rounded-lg border border-slate-100 bg-white px-3 py-2">
+          <div>
+            <p className="text-xs font-medium text-slate-800">{jugador}</p>
+            <p className="text-[10px] text-slate-400">{fecha} · {cancha}</p>
+          </div>
+          <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${bc}`}>{badge}</span>
+        </div>
+      ))}
+    </div>
+    {/* Desktop: tabla completa */}
+    <div className="hidden sm:block overflow-x-auto px-6 py-3">
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b-2 border-slate-200 bg-slate-100">
@@ -238,7 +256,7 @@ const SLIDES = [
           <thead>
             <tr className="border-b-2 border-slate-200 bg-slate-100">
               {["JUGADOR", "CANCHA", "DÍA", "HORARIO", "ESTADO"].map((h) => (
-                <th key={h} className="py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{h}</th>
+                <th key={h} className={`py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600${h === "DÍA" || h === "HORARIO" ? " hidden sm:table-cell" : ""}`}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -259,8 +277,8 @@ const SLIDES = [
                   </div>
                 </td>
                 <td className="py-2.5 pr-4 text-sm text-slate-700">{cancha}</td>
-                <td className="py-2.5 pr-4 text-sm text-slate-700">{dia}</td>
-                <td className="py-2.5 pr-4 text-sm text-slate-700">{hora}</td>
+                <td className="hidden sm:table-cell py-2.5 pr-4 text-sm text-slate-700">{dia}</td>
+                <td className="hidden sm:table-cell py-2.5 pr-4 text-sm text-slate-700">{hora}</td>
                 <td className="py-2.5"><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${sc}`}>{st}</span></td>
               </tr>
             ))}
@@ -349,7 +367,7 @@ const SLIDES = [
             { a: "P. Ríos",   sA: [6, 6],    b: "R. Soria",   sB: [4, 2]    },
             { a: "Lucas T.",  sA: [6, 4, 6], b: "M. Andrade", sB: [1, 6, 2] },
           ] as { a: string; sA: number[]; b: string; sB: number[] }[]).map(({ a, sA, b, sB }) => (
-            <div key={a} className="mb-2 w-44 rounded-lg border border-slate-200 bg-white p-2">
+            <div key={a} className="mb-2 w-28 sm:w-44 rounded-lg border border-slate-200 bg-white p-2">
               {/* Set header */}
               <div className="flex items-center gap-1.5 pb-0.5">
                 <div className="h-5 w-5 shrink-0" />
@@ -394,7 +412,7 @@ const SLIDES = [
             { a: "F. Castro", sA: [7, 6] as (number | null)[],      b: "M. Castro", sB: [5, 4] as (number | null)[],      done: true  },
             { a: "P. Ríos",   sA: [null, null] as (number | null)[], b: "Lucas T.", sB: [null, null] as (number | null)[], done: false },
           ] as { a: string; sA: (number | null)[]; b: string; sB: (number | null)[]; done: boolean }[]).map(({ a, sA, b, sB, done }) => (
-            <div key={a} className={`mb-2 w-44 rounded-lg border p-2 ${done ? "border-blue-200 bg-blue-50" : "border-2 border-blue-400 bg-blue-100/50"}`}>
+            <div key={a} className={`mb-2 w-28 sm:w-44 rounded-lg border p-2 ${done ? "border-blue-200 bg-blue-50" : "border-2 border-blue-400 bg-blue-100/50"}`}>
               {/* Set header */}
               <div className="flex items-center gap-1.5 pb-0.5">
                 <div className="h-5 w-5 shrink-0" />
@@ -440,7 +458,7 @@ const SLIDES = [
         {/* Final */}
         <div className="flex shrink-0 flex-col justify-center">
           <p className="mb-2 inline-block rounded bg-amber-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-700">FINAL</p>
-          <div className="w-44 rounded-lg border border-amber-300 bg-amber-50 p-2 shadow-md shadow-amber-100">
+          <div className="w-28 sm:w-44 rounded-lg border border-amber-300 bg-amber-50 p-2 shadow-md shadow-amber-100">
             <div className="flex items-center gap-1.5 border-b border-amber-100 py-1">
               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[8px] font-bold text-white">F</div>
               <span className="flex-1 truncate text-[10px] font-bold text-amber-900">F. Castro</span>
@@ -479,7 +497,7 @@ const SLIDES = [
         <thead>
           <tr className="border-b-2 border-slate-200 bg-slate-100">
             {["JUGADOR", "UBICACIÓN", "CAT", "ÍNDICE PASALA", "NIVEL", "WR", "PJ", "RACHA"].map((h) => (
-              <th key={h} className="whitespace-nowrap py-2 pr-3 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-600">{h}</th>
+              <th key={h} className={`whitespace-nowrap py-2 pr-3 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-600${h === "UBICACIÓN" || h === "PJ" ? " hidden sm:table-cell" : ""}`}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -496,7 +514,7 @@ const SLIDES = [
           ].map(({ name, ubi, cat, idx, iw, nv, nc, wr, pj, r, rc, even }) => (
             <tr key={name} className={`border-b border-slate-100 last:border-0 ${even ? "bg-slate-50" : "bg-white"}`}>
               <td className="whitespace-nowrap py-2 pr-3 text-xs font-semibold text-slate-900">{name}</td>
-              <td className="whitespace-nowrap py-2 pr-3 text-xs text-slate-600">{ubi}</td>
+              <td className="hidden sm:table-cell whitespace-nowrap py-2 pr-3 text-xs text-slate-600">{ubi}</td>
               <td className="py-2 pr-3 text-xs text-slate-600">{cat}</td>
               <td className="py-2 pr-3">
                 <div className="flex items-center gap-1.5">
@@ -510,7 +528,7 @@ const SLIDES = [
                 <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${nc}`}>{nv}</span>
               </td>
               <td className="py-2 pr-3 text-xs font-medium text-slate-700">{wr}</td>
-              <td className="py-2 pr-3 text-xs text-slate-600">{pj}</td>
+              <td className="hidden sm:table-cell py-2 pr-3 text-xs text-slate-600">{pj}</td>
               <td className={`py-2 text-xs font-bold ${rc}`}>{r}</td>
             </tr>
           ))}
@@ -533,7 +551,7 @@ const SLIDES = [
         <p className="text-sm font-bold text-slate-900">Entrenadores vinculados</p>
         <button type="button" className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-[10px] text-white">+ Vincular entrenador</button>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {([
           {
             av: "CR", name: "C. Romero",  esp: "Técnico federado",  alumnos: 12, clases: 8,

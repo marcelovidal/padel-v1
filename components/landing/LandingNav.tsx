@@ -31,6 +31,12 @@ export function LandingNav({
   const isLanding = pathname === "/";
 
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!isLanding) return;
@@ -57,6 +63,14 @@ export function LandingNav({
         @keyframes fadeSlideDown {
           from { opacity: 0; transform: translateY(-8px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
 
@@ -113,11 +127,11 @@ export function LandingNav({
               ))}
             </nav>
 
-            {/* CTA / Avatar */}
+            {/* CTA / Avatar — desktop only */}
             {isAuthenticated ? (
               <Link
                 href={primaryHref}
-                className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                className="hidden md:flex items-center gap-2 transition-opacity hover:opacity-80"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                   {getInitials(displayName)}
@@ -130,7 +144,7 @@ export function LandingNav({
                 </span>
               </Link>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 <Link
                   href="/welcome"
                   className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
@@ -153,6 +167,23 @@ export function LandingNav({
                 </Link>
               </div>
             )}
+
+            {/* Hamburguesa — mobile only */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className={`md:hidden flex items-center p-2 ${transparent ? "text-white" : "text-slate-800"}`}
+              aria-label="Menú"
+            >
+              {menuOpen ? (
+                <svg viewBox="0 0 24 24" className="w-6 h-6" stroke="currentColor" strokeWidth="2" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="w-6 h-6" stroke="currentColor" strokeWidth="2" fill="none">
+                  <path d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+              )}
+            </button>
           </div>
         </header>
 
@@ -219,6 +250,55 @@ export function LandingNav({
           </div>
         )}
       </div>
+
+      {/* Menú fullscreen — mobile */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col md:hidden"
+          style={{ background: "#0a1628", animation: "fadeIn 0.3s ease both" }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+            <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "20px", color: "#ffffff" }}>
+              Pasala
+            </span>
+            <button onClick={() => setMenuOpen(false)} className="p-2 text-white">
+              <svg viewBox="0 0 24 24" className="w-6 h-6" stroke="currentColor" strokeWidth="2" fill="none">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Links */}
+          <nav className="flex flex-col px-6 py-8 gap-2 flex-1">
+            {(["JUGADORES", "CLUBES", "ENTRENADORES", "CONTACTO"] as const).map((item, i) => (
+              <a
+                key={item}
+                href={`/#${item.toLowerCase()}`}
+                onClick={() => setMenuOpen(false)}
+                className="text-3xl font-normal text-white/80 hover:text-white py-3 border-b border-white/10 transition-colors"
+                style={{ animation: `slideIn 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 0.06}s both` }}
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
+
+          {/* Botones de acción al pie */}
+          <div className="px-6 py-8 flex flex-col gap-3 border-t border-white/10">
+            <Link href="/welcome" onClick={() => setMenuOpen(false)}>
+              <span className="block w-full text-center bg-[#1565C0] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1244a0] transition-colors">
+                Registrate gratis
+              </span>
+            </Link>
+            <Link href="/player/login" onClick={() => setMenuOpen(false)}>
+              <span className="block w-full text-center border border-white/30 text-white font-medium py-4 rounded-full text-sm hover:border-white/60 transition-colors">
+                Ya tengo cuenta · Ingresá
+              </span>
+            </Link>
+          </div>
+        </div>
+      )}
     </>
   );
 }
