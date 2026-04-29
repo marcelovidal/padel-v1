@@ -22,8 +22,8 @@ const CARDS: CardData[] = [
       <>
         <div className="mt-2 flex items-start justify-between gap-2">
           <div>
-            <p className="text-base font-semibold text-slate-800">Club Andino · Gral. Roca</p>
-            <p className="text-sm text-slate-400">Sáb. 19 abr. · 20:00hs</p>
+            <p className="text-base font-semibold text-[#0C0C0C]">Club Andino · Gral. Roca</p>
+            <p className="text-sm text-[#6B6965]">Sáb. 19 abr. · 20:00hs</p>
           </div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600">
             FINALIZADO
@@ -32,43 +32,43 @@ const CARDS: CardData[] = [
 
         <div className="mt-4">
           <div className="mb-2 flex items-center gap-3 border-b border-stone-100 pb-1">
-            <span className="flex-1 text-xs uppercase tracking-wider text-slate-400">
+            <span className="flex-1 text-xs uppercase tracking-wider text-[#6B6965]">
               Equipos
             </span>
-            <span className="w-5 text-center text-xs uppercase tracking-wider text-slate-400">
+            <span className="w-5 text-center text-xs uppercase tracking-wider text-[#6B6965]">
               S1
             </span>
-            <span className="w-5 text-center text-xs uppercase tracking-wider text-slate-400">
+            <span className="w-5 text-center text-xs uppercase tracking-wider text-[#6B6965]">
               S2
             </span>
             <span className="w-16" />
           </div>
 
           <div className="mb-2 flex items-center gap-3">
-            <span className="flex-1 text-base font-semibold text-slate-800">
+            <span className="flex-1 text-base font-semibold text-[#0C0C0C]">
               M. Castro / R. Peña
             </span>
-            <span className="w-5 text-center text-base font-bold text-[#1565C0]">6</span>
-            <span className="w-5 text-center text-base font-bold text-[#1565C0]">6</span>
-            <span className="w-16 rounded-full bg-[#1565C0] px-2 py-0.5 text-center text-xs text-white">
+            <span className="w-5 text-center text-base font-bold text-[#E5352A]">6</span>
+            <span className="w-5 text-center text-base font-bold text-[#E5352A]">6</span>
+            <span className="w-16 rounded-full bg-[#E5352A] px-2 py-0.5 text-center text-xs text-white">
               GANADOR
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="flex-1 text-base text-slate-500">Lucas T. / Diego M.</span>
-            <span className="w-5 text-center text-base text-slate-400">3</span>
-            <span className="w-5 text-center text-base text-slate-400">4</span>
+            <span className="flex-1 text-base text-[#6B6965]">Lucas T. / Diego M.</span>
+            <span className="w-5 text-center text-base text-[#6B6965]">3</span>
+            <span className="w-5 text-center text-base text-[#6B6965]">4</span>
             <span className="w-16" />
           </div>
         </div>
 
         <div className="mt-4 flex items-start justify-between border-t border-stone-100 pt-3">
           <div>
-            <p className="text-xs text-slate-400">Autoevaluación</p>
+            <p className="text-xs text-[#6B6965]">Autoevaluación</p>
             <p className="text-sm font-medium text-emerald-600">Completa ✓</p>
           </div>
-          <p className="text-sm text-slate-400">3 sets jugados</p>
+          <p className="text-sm text-[#6B6965]">3 sets jugados</p>
         </div>
       </>
     ),
@@ -80,8 +80,8 @@ const CARDS: CardData[] = [
     custom: (
       <>
         <div className="mt-2 mb-4 flex items-center justify-between">
-          <p className="text-sm text-slate-500">Club Andino · General Roca</p>
-          <span className="rounded-full bg-[#1565C0]/10 px-2 py-0.5 text-xs font-semibold text-[#1565C0]">
+          <p className="text-sm text-[#6B6965]">Club Andino · General Roca</p>
+          <span className="rounded-full bg-[#F5F2EE] border border-[#E5352A]/30 px-2 py-0.5 text-xs font-semibold text-[#E5352A]">
             4ª CAT
           </span>
         </div>
@@ -96,64 +96,64 @@ const CARDS: CardData[] = [
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">1</span>
+            <span className="w-5 text-center text-sm font-bold text-[#E5352A]">1</span>
             <div className="flex flex-1 items-center gap-1.5">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">MC</span>
               <span className="text-sm text-slate-600">M. Castro</span>
             </div>
-            <span className="w-8 text-center text-sm text-slate-500">24</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">24</span>
             <span className="w-10 text-center text-sm font-semibold text-slate-700">81</span>
-            <span className="w-8 text-center text-sm text-slate-500">79%</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">79%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">2</span>
+            <span className="w-5 text-center text-sm font-bold text-[#E5352A]">2</span>
             <div className="flex flex-1 items-center gap-1.5">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">PR</span>
               <span className="text-sm text-slate-600">P. Ríos</span>
             </div>
-            <span className="w-8 text-center text-sm text-slate-500">21</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">21</span>
             <span className="w-10 text-center text-sm font-semibold text-slate-700">77</span>
-            <span className="w-8 text-center text-sm text-slate-500">74%</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">74%</span>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg bg-[#1565C0]/8 px-1.5 py-1">
-            <span className="w-5 text-center text-sm font-bold text-[#1565C0]">3</span>
+          <div className="flex items-center gap-2 rounded-lg bg-[#E5352A]/8 px-1.5 py-1">
+            <span className="w-5 text-center text-sm font-bold text-[#E5352A]">3</span>
             <div className="flex flex-1 items-center gap-1.5">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1565C0] text-xs font-bold text-white">FV</span>
-              <span className="text-sm font-semibold text-[#1565C0]">F. Vidal</span>
-              <span className="rounded-full bg-[#1565C0]/15 px-1.5 text-xs font-bold text-[#1565C0]">vos</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E5352A] text-xs font-bold text-white">FV</span>
+              <span className="text-sm font-semibold text-[#E5352A]">F. Vidal</span>
+              <span className="rounded-full bg-[#E5352A]/15 px-1.5 text-xs font-bold text-[#E5352A]">vos</span>
             </div>
-            <span className="w-8 text-center text-sm font-medium text-[#1565C0]">18</span>
-            <span className="w-10 text-center text-sm font-bold text-[#1565C0]">73</span>
-            <span className="w-8 text-center text-sm font-medium text-[#1565C0]">68%</span>
+            <span className="w-8 text-center text-sm font-medium text-[#E5352A]">18</span>
+            <span className="w-10 text-center text-sm font-bold text-[#E5352A]">73</span>
+            <span className="w-8 text-center text-sm font-medium text-[#E5352A]">68%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-sm text-slate-400">4</span>
+            <span className="w-5 text-center text-sm text-[#6B6965]">4</span>
             <div className="flex flex-1 items-center gap-1.5">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">LT</span>
-              <span className="text-sm text-slate-500">Lucas T.</span>
+              <span className="text-sm text-[#6B6965]">Lucas T.</span>
             </div>
-            <span className="w-8 text-center text-sm text-slate-400">15</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">15</span>
             <span className="w-10 text-center text-sm text-slate-600">69</span>
-            <span className="w-8 text-center text-sm text-slate-400">61%</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">61%</span>
           </div>
 
           <div className="flex items-center gap-2 py-0.5">
-            <span className="w-5 text-center text-sm text-slate-400">5</span>
+            <span className="w-5 text-center text-sm text-[#6B6965]">5</span>
             <div className="flex flex-1 items-center gap-1.5">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">DM</span>
-              <span className="text-sm text-slate-500">D. Morales</span>
+              <span className="text-sm text-[#6B6965]">D. Morales</span>
             </div>
-            <span className="w-8 text-center text-sm text-slate-400">12</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">12</span>
             <span className="w-10 text-center text-sm text-slate-600">65</span>
-            <span className="w-8 text-center text-sm text-slate-400">55%</span>
+            <span className="w-8 text-center text-sm text-[#6B6965]">55%</span>
           </div>
         </div>
 
         <div className="mt-4 border-t border-stone-100 pt-3">
-          <p className="text-right text-xs font-semibold text-[#1565C0]">
+          <p className="text-right text-xs font-semibold text-[#E5352A]">
             Ver ranking completo →
           </p>
         </div>
@@ -168,27 +168,27 @@ const CARDS: CardData[] = [
       <>
         <div className="mt-2">
           <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5">
-            <svg className="h-3.5 w-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className="h-3.5 w-3.5 shrink-0 text-[#6B6965]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="text-sm text-slate-400">Buscá por nombre o club…</span>
+            <span className="text-sm text-[#6B6965]">Buscá por nombre o club…</span>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-[#1565C0] bg-[#1565C0] px-2.5 py-0.5 text-xs font-semibold text-white">
+            <span className="rounded-full border border-[#E5352A] bg-[#E5352A] px-2.5 py-0.5 text-xs font-semibold text-white">
               4ª categoría
             </span>
-            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-slate-500">
+            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-[#6B6965]">
               Club Andino
             </span>
-            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-slate-500">
+            <span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-xs text-[#6B6965]">
               Gral. Roca
             </span>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="mb-2 text-xs uppercase tracking-wider text-slate-400">
+          <p className="mb-2 text-xs uppercase tracking-wider text-[#6B6965]">
             Resultado más relevante
           </p>
           <div className="flex items-center gap-3 rounded-xl border border-stone-100 bg-white p-3 shadow-sm">
@@ -196,8 +196,8 @@ const CARDS: CardData[] = [
               LT
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-base font-semibold text-slate-800">Lucas T.</p>
-              <p className="text-xs text-slate-400">Club Andino · 4ª cat · índice 69</p>
+              <p className="text-base font-semibold text-[#0C0C0C]">Lucas T.</p>
+              <p className="text-xs text-[#6B6965]">Club Andino · 4ª cat · índice 69</p>
             </div>
             <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600">
               86% WR juntos
@@ -206,7 +206,7 @@ const CARDS: CardData[] = [
         </div>
 
         <div className="mt-4 border-t border-stone-100 pt-3">
-          <p className="text-right text-xs font-semibold text-[#1565C0]">
+          <p className="text-right text-xs font-semibold text-[#E5352A]">
             Buscar rivales en la app →
           </p>
         </div>
@@ -219,7 +219,7 @@ const CARDS: CardData[] = [
     label: "ATRIBUTOS TÉCNICOS",
     custom: (
       <>
-        <p className="text-xs text-slate-400 mt-0.5 mb-3">
+        <p className="text-xs text-[#6B6965] mt-0.5 mb-3">
           Promedio basado en tus evaluaciones
         </p>
 
@@ -252,7 +252,7 @@ const CARDS: CardData[] = [
         </svg>
 
         <div className="mt-3">
-          <p className="text-xs tracking-wider text-slate-400 uppercase mb-2">
+          <p className="text-xs tracking-wider text-[#6B6965] uppercase mb-2">
             FORMA RECIENTE (ÚLTIMOS 10)
           </p>
           <div className="flex gap-1">
@@ -277,32 +277,32 @@ const CARDS: CardData[] = [
     label: "TU RENDIMIENTO",
     custom: (
       <>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-[#6B6965] mt-0.5">
           Basado en tus 18 partidos registrados
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-xs uppercase tracking-wider text-slate-400">JUGADOS</p>
-            <p className="text-3xl sm:text-4xl font-bold text-slate-800 leading-none mt-1">18</p>
+            <p className="text-xs uppercase tracking-wider text-[#6B6965]">JUGADOS</p>
+            <p className="text-3xl sm:text-4xl font-bold text-[#0C0C0C] leading-none mt-1">18</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-xs uppercase tracking-wider text-slate-400">GANADOS</p>
-            <p className="text-3xl sm:text-4xl font-bold text-[#1565C0] leading-none mt-1">11</p>
+            <p className="text-xs uppercase tracking-wider text-[#6B6965]">GANADOS</p>
+            <p className="text-3xl sm:text-4xl font-bold text-[#E5352A] leading-none mt-1">11</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-xs uppercase tracking-wider text-slate-400">EFECTIVIDAD</p>
-            <p className="text-3xl sm:text-4xl font-bold text-slate-800 leading-none mt-1">61.1%</p>
+            <p className="text-xs uppercase tracking-wider text-[#6B6965]">EFECTIVIDAD</p>
+            <p className="text-3xl sm:text-4xl font-bold text-[#0C0C0C] leading-none mt-1">61.1%</p>
           </div>
           <div className="bg-stone-50 rounded-xl p-3">
-            <p className="text-xs uppercase tracking-wider text-slate-400">RACHA</p>
+            <p className="text-xs uppercase tracking-wider text-[#6B6965]">RACHA</p>
             <p className="text-3xl sm:text-4xl font-bold text-red-400 leading-none mt-1">L1</p>
-            <p className="text-xs text-slate-400">última: derrota</p>
+            <p className="text-xs text-[#6B6965]">última: derrota</p>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="text-xs tracking-wider text-slate-400 uppercase mb-2">
+          <p className="text-xs tracking-wider text-[#6B6965] uppercase mb-2">
             COMPONENTES ÍNDICE PASALA
           </p>
           {[
@@ -313,11 +313,11 @@ const CARDS: CardData[] = [
             { label: "Experiencia (8%)",     width: "75%", color: "bg-amber-400",   val: "75" },
           ].map(({ label, width, color, val }) => (
             <div key={label} className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs text-slate-500 w-24 shrink-0">{label}</span>
+              <span className="text-xs text-[#6B6965] w-24 shrink-0">{label}</span>
               <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${color}`} style={{ width }} />
               </div>
-              <span className="text-xs text-slate-400 w-5 text-right">{val}</span>
+              <span className="text-xs text-[#6B6965] w-5 text-right">{val}</span>
             </div>
           ))}
         </div>
@@ -445,9 +445,9 @@ export function LandingJugador() {
               key={active}
               style={{ animation: "cardFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both" }}
             >
-              <div className="rounded-2xl border-2 border-[#1565C0] bg-white p-4 sm:p-7 shadow-lg">
+              <div className="rounded-2xl border-2 border-[#E5352A] bg-[#F5F2EE] p-4 sm:p-7 shadow-md">
                 <div className="flex flex-col">
-                  <p className="mb-3 text-xs uppercase tracking-widest text-slate-400">
+                  <p className="mb-3 text-[10px] uppercase tracking-widest text-[#E5352A]">
                     {card.label}
                   </p>
                   {card.custom ? (
@@ -455,7 +455,7 @@ export function LandingJugador() {
                   ) : (
                     <>
                       <p
-                        className={`font-bold leading-none text-[#1565C0] ${
+                        className={`font-bold leading-none text-[#E5352A] ${
                           card.statClass ?? "text-6xl"
                         }`}
                       >
@@ -477,7 +477,7 @@ export function LandingJugador() {
                         </div>
                       )}
                       {card.detail && (
-                        <p className="mt-1 text-xs text-slate-400">{card.detail}</p>
+                        <p className="mt-1 text-xs text-[#6B6965]">{card.detail}</p>
                       )}
                     </>
                   )}
@@ -486,8 +486,26 @@ export function LandingJugador() {
             </div>
           </div>
 
-          {/* Barra de progreso temporal por tarjeta */}
-          <div className="mt-6 flex items-center gap-2">
+          {/* Tabs de navegación */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {(["PARTIDO", "RANKING", "RIVAL", "ATRIBUTOS", "RENDIMIENTO"] as const).map((tab, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                aria-label={tab}
+                className={`rounded-full px-3 py-1.5 text-[10px] font-bold tracking-widest transition-colors ${
+                  i === active
+                    ? "bg-[#0C0C0C] text-white"
+                    : "border border-[#0C0C0C]/20 bg-transparent text-[#6B6965] hover:border-[#0C0C0C]/40"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Barra de progreso */}
+          <div className="mt-3 flex items-center gap-1.5">
             {CARDS.map((_, i) => (
               <button
                 key={i}
@@ -496,14 +514,14 @@ export function LandingJugador() {
                 className="flex-1"
               >
                 {i === active ? (
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-stone-100">
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-[#0C0C0C]/15">
                     <div
-                      className="h-full rounded-full bg-[#1565C0]"
+                      className="h-full rounded-full bg-[#E5352A]"
                       style={{ width: `${progress}%`, transition: "width 0.1s linear" }}
                     />
                   </div>
                 ) : (
-                  <div className="h-1 w-full rounded-full bg-stone-200" />
+                  <div className="h-1 w-full rounded-full bg-[#0C0C0C]/15" />
                 )}
               </button>
             ))}
@@ -517,7 +535,7 @@ export function LandingJugador() {
                 <span className="text-base">→</span>
               </span>
             </Link>
-            <Link href="/player/login" className="mt-2 inline-block text-xs text-slate-500 underline underline-offset-2 transition-colors hover:text-[#1565C0]">
+            <Link href="/player/login" className="mt-2 inline-block text-xs text-[#6B6965] underline underline-offset-2 transition-colors hover:text-[#E5352A]">
               ¿Ya tenés cuenta? Ingresá →
             </Link>
           </div>
