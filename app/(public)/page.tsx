@@ -65,7 +65,7 @@ export default async function LandingPage() {
 
           <h1
             style={{
-              fontFamily: "Georgia, serif",
+              fontFamily: "var(--font-serif)",
               fontWeight: "400",
               lineHeight: "1.05",
             }}
@@ -243,7 +243,7 @@ export default async function LandingPage() {
         <div className="relative z-10 px-6 text-center">
           <h2
             style={{
-              fontFamily: "Georgia, serif",
+              fontFamily: "var(--font-serif)",
               fontSize: "clamp(32px, 4vw, 44px)",
               fontWeight: "400",
               color: "#080808",
@@ -279,7 +279,7 @@ export default async function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <span
             style={{
-              fontFamily: "Georgia, serif",
+              fontFamily: "var(--font-serif)",
               fontStyle: "italic",
               fontSize: "15px",
               color: "#1565C0",

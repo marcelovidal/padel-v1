@@ -432,7 +432,7 @@ export function LandingJugador() {
           </p>
           <h2
             className="mb-10 text-4xl font-normal leading-tight text-[#080808] lg:text-5xl"
-            style={{ fontFamily: "Georgia, serif" }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             El partido terminó.
             <br />

@@ -114,7 +114,7 @@ export function LandingEntrenador() {
           </p>
           <h2
             className="mb-4 text-4xl font-normal leading-tight text-[#080808] lg:text-5xl"
-            style={{ fontFamily: "Georgia, serif" }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             Tu método.<br />
             Sus resultados.<br />

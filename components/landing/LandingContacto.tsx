@@ -77,7 +77,7 @@ export function LandingContacto() {
           </p>
           <h2
             className="mb-4 text-4xl font-normal leading-tight text-white lg:text-5xl"
-            style={{ fontFamily: "Georgia, serif" }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             ¿Querés saber más?
           </h2>

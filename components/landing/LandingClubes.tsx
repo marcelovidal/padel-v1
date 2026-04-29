@@ -691,7 +691,7 @@ export function LandingClubes() {
           </p>
           <h2
             className="text-5xl font-normal leading-tight lg:text-6xl"
-            style={{ fontFamily: "Georgia, serif" }}
+            style={{ fontFamily: "var(--font-serif)" }}
           >
             <span className="text-white">Tu comunidad ya utiliza Pasala.</span>
             <br />

@@ -111,7 +111,7 @@ export function LandingNav({
                       ? "text-white/80 hover:text-white"
                       : "text-slate-700 hover:text-[#1565C0]"
                   }`}
-                  style={{ fontSize: "11px" }}
+                  style={{ fontSize: "13px", fontWeight: "600" }}
                 >
                   {label}
                 </Link>
@@ -138,7 +138,7 @@ export function LandingNav({
               <div className="hidden md:flex items-center gap-2">
                 <Link
                   href="/welcome"
-                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
                     transparent
                       ? "bg-white text-[#1565C0] hover:bg-white/90"
                       : "bg-[#1565C0] text-white hover:bg-[#1244a0]"
@@ -148,7 +148,7 @@ export function LandingNav({
                 </Link>
                 <Link
                   href="/player/login"
-                  className={`rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                  className={`rounded-full border px-4 py-2 text-xs font-bold transition-colors ${
                     transparent
                       ? "border-white/50 text-white hover:border-white"
                       : "border-slate-300 text-slate-700 hover:border-[#1565C0] hover:text-[#1565C0]"
