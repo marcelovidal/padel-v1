@@ -69,7 +69,7 @@ export function PasalaIndex({
 
                 {/* Score */}
                 <div className="flex items-baseline gap-2">
-                    <span className="text-7xl font-black tracking-tighter tabular-nums">
+                    <span className="font-display text-7xl font-black tracking-tighter tabular-nums">
                         {isNeutral ? "—" : value!.toFixed(0)}
                     </span>
                     <span className="text-2xl font-bold text-blue-400">/100</span>

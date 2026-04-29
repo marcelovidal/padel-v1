@@ -184,7 +184,7 @@ export function PlayerHeroCard({
             </svg>
             {/* Inner text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-black tabular-nums leading-none">
+              <span className="font-display text-4xl font-black tabular-nums leading-none">
                 {metrics.pasala_index !== null ? displayIndex : "—"}
               </span>
               <span className="text-xs font-bold text-blue-400">/100</span>
