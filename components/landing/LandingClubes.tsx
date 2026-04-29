@@ -686,7 +686,7 @@ export function LandingClubes() {
 
         {/* ── ZONA 1 — Header centrado ─────────────────────────────── */}
         <div className="mb-12 text-center">
-          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-blue-400/60">
+          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-[#E5352A]">
             PARA CLUBES
           </p>
           <h2

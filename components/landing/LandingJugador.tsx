@@ -427,7 +427,7 @@ export function LandingJugador() {
         <div className="order-2 lg:order-1">
 
           {/* Encabezado fijo */}
-          <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[#1565C0]">
+          <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[#E5352A]">
             PARA JUGADORES
           </p>
           <h2
@@ -512,7 +512,7 @@ export function LandingJugador() {
           {/* CTA */}
           <div className="mt-8">
             <Link href="/welcome">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#1565C0] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[#1244a0] hover:shadow-lg">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#E5352A] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[#B82820] hover:shadow-lg">
                 Creá tu perfil gratis
                 <span className="text-base">→</span>
               </span>

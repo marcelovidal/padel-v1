@@ -109,7 +109,7 @@ export function LandingEntrenador() {
         <div className="flex flex-col justify-center bg-white px-6 py-10 lg:px-10 lg:py-16">
 
           {/* Label + Claim */}
-          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-[#1565C0]">
+          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-[#E5352A]">
             PARA ENTRENADORES
           </p>
           <h2
@@ -245,7 +245,7 @@ export function LandingEntrenador() {
           {/* CTA */}
           <div className="mt-8">
             <Link href="/welcome">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#1565C0] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[#1244a0]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#E5352A] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[#B82820]">
                 Crear mi perfil de entrenador →
               </span>
             </Link>

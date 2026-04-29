@@ -262,7 +262,7 @@ export default async function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/welcome"
-              className="rounded-full bg-[#1565C0] px-8 py-4 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#1244a0]"
+              className="rounded-full bg-[#E5352A] px-8 py-4 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#B82820]"
             >
               Registrate gratis
             </Link>

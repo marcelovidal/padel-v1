@@ -140,8 +140,8 @@ export function LandingNav({
                   href="/welcome"
                   className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
                     transparent
-                      ? "bg-white text-[#1565C0] hover:bg-white/90"
-                      : "bg-[#1565C0] text-white hover:bg-[#1244a0]"
+                      ? "bg-white text-[#E5352A] hover:bg-white/90"
+                      : "bg-[#E5352A] text-white hover:bg-[#B82820]"
                   }`}
                 >
                   Registrate
@@ -276,7 +276,7 @@ export function LandingNav({
           {/* Botones de acción al pie */}
           <div className="px-6 py-8 flex flex-col gap-3 border-t border-white/10">
             <Link href="/welcome" onClick={() => setMenuOpen(false)}>
-              <span className="block w-full text-center bg-[#1565C0] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1244a0] transition-colors">
+              <span className="block w-full text-center bg-[#E5352A] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#B82820] transition-colors">
                 Registrate gratis
               </span>
             </Link>

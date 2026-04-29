@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasala — Sistema de Marca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-rojo:       #E5352A;
+      --color-rojo-dark:  #B82820;
+      --color-rojo-light: #FF6B5E;
+      --color-azul:       #1B3CC8;
+      --color-azul-dark:  #102690;
+      --color-azul-light: #5072E0;
+      --color-negro:      #0C0C0C;
+      --color-grafito:    #1E1E1E;
+      --color-gris-mid:   #6B6965;
+      --color-gris-light: #C8C5BE;
+      --color-crema:      #F5F2EE;
+      --color-blanco:     #FFFFFF;
+      --font-display: 'Barlow Condensed', sans-serif;
+      --font-sans:    'Plus Jakarta Sans', sans-serif;
+      --font-serif:   'Instrument Serif', serif;
+      --section-pad: 120px 80px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--color-negro); color: var(--color-crema); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    .brand-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(12,12,12,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .brand-nav__links {
+      display: flex; gap: 32px; list-style: none;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--color-gris-light);
+    }
+    .brand-nav__links a { color: inherit; text-decoration: none; transition: color .2s; }
+    .brand-nav__links a:hover { color: var(--color-crema); }
+    .brand-nav__tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--color-rojo); border: 1px solid var(--color-rojo); padding: 4px 10px; border-radius: 2px;
+    }
+
+    /* SECTIONS */
+    section { padding: var(--section-pad); max-width: 1280px; margin: 0 auto; }
+    section.full { max-width: none; padding: 0; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-rojo); margin-bottom: 16px; }
+    .section-title { font-family: var(--font-display); font-size: clamp(40px, 5vw, 64px); font-weight: 900; line-height: 1; letter-spacing: -0.01em; text-transform: uppercase; }
+    .section-desc { font-size: 16px; line-height: 1.7; color: var(--color-gris-light); max-width: 520px; margin-top: 16px; }
+    hr.divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0; }
+
+    /* PORTADA */
+    .portada {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; position: relative; overflow: hidden; padding: 120px 40px;
+    }
+    .portada__bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 60%, rgba(229,53,42,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 30%, rgba(27,60,200,0.12) 0%, transparent 70%);
+    }
+    .portada__grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+    .portada__content { position: relative; z-index: 1; }
+    .portada__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-gris-mid); margin-bottom: 56px; }
+    .portada__tagline { font-family: var(--font-display); font-size: clamp(16px, 2vw, 22px); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-gris-light); margin-top: 40px; }
+    .portada__meta { margin-top: 80px; display: flex; gap: 48px; justify-content: center; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-gris-mid); }
+    .portada__meta span { color: var(--color-crema); font-weight: 600; display: block; font-size: 13px; letter-spacing: 0.02em; margin-bottom: 4px; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .portada__content > * { animation: fadeUp .8s ease both; }
+    .portada__content > *:nth-child(1) { animation-delay: .1s; }
+    .portada__content > *:nth-child(2) { animation-delay: .3s; }
+    .portada__content > *:nth-child(3) { animation-delay: .5s; }
+    .portada__content > *:nth-child(4) { animation-delay: .7s; }
+
+    /* LOGO */
+    .logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 60px; }
+    .logo-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 48px; gap: 32px; }
+    .logo-card--dark { background: var(--color-grafito); }
+    .logo-card--light { background: var(--color-crema); }
+    .logo-card--red { background: var(--color-rojo); }
+    .logo-card__label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    .logo-card--dark .logo-card__label, .logo-card--red .logo-card__label { color: rgba(255,255,255,0.4); }
+    .logo-card--light .logo-card__label { color: rgba(0,0,0,0.3); }
+    .logo-usage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .logo-usage-item { background: var(--color-grafito); border: 1px solid rgba(255,255,255,0.06); padding: 32px 24px; border-radius: 4px; }
+    .logo-usage-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .logo-usage-item p { font-size: 13px; line-height: 1.6; color: var(--color-gris-mid); }
+    .logo-usage-item.do h4 { color: #4ade80; }
+    .logo-usage-item.dont h4 { color: var(--color-rojo-light); }
+    .logo-usage-item.do { border-color: rgba(74,222,128,0.15); }
+    .logo-usage-item.dont { border-color: rgba(229,53,42,0.15); }
+
+    /* COLORES */
+    .color-primary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+    .color-swatch { aspect-ratio: 1/0.7; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px 24px; transition: transform .2s; }
+    .color-swatch:hover { transform: scale(1.02); z-index: 2; }
+    .color-swatch__name { font-size: 14px; font-weight: 700; }
+    .color-swatch__hex { font-size: 12px; font-family: monospace; opacity: 0.7; margin-top: 2px; }
+    .color-swatch__token { font-size: 11px; font-family: monospace; opacity: 0.5; }
+    .color-swatch--light .color-swatch__name, .color-swatch--light .color-swatch__hex, .color-swatch--light .color-swatch__token { color: #0C0C0C; }
+    .color-swatch--dark .color-swatch__name, .color-swatch--dark .color-swatch__hex, .color-swatch--dark .color-swatch__token { color: #F5F2EE; }
+    .color-scale { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; margin-top: 8px; }
+    .color-scale-item { height: 64px; display: flex; align-items: flex-end; padding: 8px 12px; }
+    .color-scale-item span { font-size: 10px; font-family: monospace; font-weight: 600; opacity: 0.6; }
+    .color-tokens-table { margin-top: 48px; width: 100%; border-collapse: collapse; }
+    .color-tokens-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-gris-mid); padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .color-tokens-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+    .color-tokens-table code { font-family: monospace; font-size: 12px; color: var(--color-azul-light); background: rgba(27,60,200,0.12); padding: 2px 8px; border-radius: 3px; }
+    .token-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 10px; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* TIPOGRAFÍA */
+    .type-specimen { margin-top: 60px; }
+    .type-face { padding: 48px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .type-face:last-child { border-bottom: none; }
+    .type-face__meta { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; }
+    .type-face__info { padding-top: 8px; }
+    .type-face__role { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-rojo); margin-bottom: 8px; }
+    .type-face__name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .type-face__detail { font-size: 13px; color: var(--color-gris-mid); line-height: 1.6; }
+    .type-face__token { font-family: monospace; font-size: 11px; color: var(--color-azul-light); background: rgba(27,60,200,0.12); padding: 2px 8px; border-radius: 3px; display: inline-block; margin-top: 8px; }
+    .type-scale { margin-top: 48px; display: flex; flex-direction: column; gap: 24px; }
+    .type-scale-row { display: grid; grid-template-columns: 80px 1fr 120px; align-items: baseline; gap: 24px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .type-scale-row__size { font-size: 11px; font-family: monospace; color: var(--color-gris-mid); }
+    .type-scale-row__weight { font-size: 11px; color: var(--color-gris-mid); text-align: right; }
+
+    /* ELEMENTOS */
+    .elements-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 48px; }
+    .element-card { background: var(--color-grafito); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 40px 24px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; transition: border-color .2s; }
+    .element-card:hover { border-color: rgba(229,53,42,0.3); }
+    .element-card__name { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-gris-mid); }
+    .pattern-section { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .pattern-card { height: 200px; border-radius: 4px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+    .pattern-card__label { position: absolute; bottom: 16px; left: 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+    /* MOCKUP BUTTONS */
+    .btn { font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; padding: 10px 22px; border-radius: 3px; border: none; cursor: pointer; transition: all .2s; }
+    .btn--ghost { background: transparent; color: var(--color-crema); border: 1px solid rgba(255,255,255,0.2); }
+    .btn--ghost:hover { border-color: rgba(255,255,255,0.5); }
+    .btn--primary { background: var(--color-rojo); color: white; }
+    .btn--primary:hover { background: var(--color-rojo-dark); }
+
+    /* MOCKUP NAV DARK */
+    .mockup-nav {
+      background: rgba(12,12,12,0.9); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 48px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 10;
+    }
+    .mockup-nav__links { display: flex; gap: 36px; list-style: none; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(245,242,238,0.45); }
+    .mockup-nav__links li.active { color: var(--color-crema); }
+    .mockup-nav__actions { display: flex; gap: 12px; align-items: center; }
+
+    /* HERO C — Full bleed video, texto + card al pie */
+    .mockup-hero {
+      position: relative; overflow: hidden;
+      height: 580px;
+      display: block;
+    }
+    .mockup-hero__video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 20%;
+    }
+    .mockup-hero__overlay {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(12,12,12,0.5) 0%, rgba(12,12,12,0.2) 40%, rgba(12,12,12,0.78) 100%);
+    }
+    /* Contenido al pie: texto izq + card compacta der */
+    .mockup-hero__content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      z-index: 2;
+      padding: 0 48px 40px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .mockup-hero__text { max-width: 560px; }
+    .mockup-hero__eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245,242,238,0.55); margin-bottom: 12px; }
+    .mockup-hero__title { font-size: 48px; font-weight: 800; line-height: 1.06; font-family: var(--font-sans); color: white; }
+    .mockup-hero__title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--color-rojo); }
+    .mockup-hero__actions { display: flex; gap: 10px; margin-top: 20px; }
+    /* Card compacta al pie-derecha */
+    .mockup-hero__card-wrap {
+      flex-shrink: 0; margin-left: 32px;
+      width: 210px;
+      background: rgba(14,14,14,0.88);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 16px 20px;
+      backdrop-filter: blur(14px);
+    }
+    .mockup-hero__scroll {
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); display: flex; flex-direction: column; align-items: center; gap: 5px;
+      z-index: 2;
+    }
+
+    /* INDEX CARD */
+    .mockup-card {
+      background: rgba(20,20,20,0.92); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 24px; position: relative; z-index: 1;
+      backdrop-filter: blur(16px);
+    }
+    .mockup-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .mockup-card__label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-gris-mid); }
+    .badge-live { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #4ade80; }
+    .badge-live::before { content: ''; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .mockup-card__name { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+    .mockup-card__rank { font-size: 12px; color: var(--color-gris-mid); margin-bottom: 20px; }
+    .mockup-card__score { font-family: var(--font-display); font-size: 80px; font-weight: 900; line-height: 1; color: var(--color-rojo); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .mockup-card__sub { font-size: 12px; color: #4ade80; margin-bottom: 20px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-gris-mid); margin-bottom: 5px; }
+    .bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; background: var(--color-azul); }
+    .bar-fill.green { background: #4ade80; }
+    .bar-fill.red { background: var(--color-rojo); }
+    .mockup-card__bar { margin-bottom: 10px; }
+
+    /* JUGADORES SECTION */
+    .mockup-jugadores {
+      display: grid; grid-template-columns: 42% 1fr; gap: 0;
+      background: var(--color-crema); min-height: 520px;
+    }
+    .mockup-jugadores__img {
+      position: relative; overflow: hidden;
+    }
+    .mockup-jugadores__img img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    }
+    .mockup-jugadores__img::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 50%, var(--color-crema) 100%);
+    }
+    .mockup-jugadores__right {
+      padding: 40px 36px; display: flex; flex-direction: column; justify-content: center;
+    }
+    .jugadores-eyebrow { font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--color-rojo);margin-bottom:10px; }
+    .jugadores-title { font-family:var(--font-display);font-size:40px;font-weight:900;text-transform:uppercase;line-height:.95;color:var(--color-negro);margin-bottom:18px; }
+    .card-tabs { display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap; }
+    .card-tab { font-family:var(--font-sans);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:3px;border:none;cursor:pointer;background:rgba(0,0,0,0.07);color:#6B6965;transition:all .18s; }
+    .card-tab.active { background:var(--color-negro);color:var(--color-crema); }
+    .player-card { display:none;background:white;border-radius:8px;border:1px solid rgba(0,0,0,0.07);box-shadow:0 4px 24px rgba(0,0,0,0.07);padding:20px;font-family:var(--font-sans); }
+    .player-card.visible { display:block; }
+    .card-section-label { font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6B6965;margin-bottom:3px; }
+    .card-section-sub { font-size:11px;color:#9A9794;margin-bottom:14px; }
+    /* partido */
+    .partido-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px; }
+    .partido-club { font-size:14px;font-weight:700;color:var(--color-negro); }
+    .partido-date { font-size:11px;color:#9A9794;margin-top:2px; }
+    .badge-finalizado { font-size:10px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:3px;background:#F0FDF4;color:#166534; }
+    .partido-cols-header { display:grid;grid-template-columns:1fr 28px 28px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9A9794;padding-bottom:7px;border-bottom:1px solid rgba(0,0,0,0.06);margin-bottom:8px; }
+    .partido-row { display:grid;grid-template-columns:1fr 28px 28px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.04); }
+    .partido-row:last-child{border-bottom:none;}
+    .partido-score { font-size:15px;font-weight:800;color:var(--color-azul);text-align:center; }
+    .partido-score.muted { color:#C8C5BE; }
+    .badge-winner { font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:99px;background:var(--color-rojo);color:white;margin-left:6px;white-space:nowrap; }
+    .partido-meta { display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:#9A9794; }
+    .partido-meta .verde { color:#166534;font-weight:600; }
+    /* ranking */
+    .ranking-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+    .ranking-club { font-size:13px;color:var(--color-negro); }
+    .badge-cat { font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(27,60,200,0.1);color:var(--color-azul); }
+    .ranking-cols { display:grid;grid-template-columns:18px 26px 1fr 32px 32px 32px;gap:6px;align-items:center;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9A9794;padding-bottom:7px;border-bottom:1px solid rgba(0,0,0,0.06);margin-bottom:6px; }
+    .ranking-row { display:grid;grid-template-columns:18px 26px 1fr 32px 32px 32px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.04); }
+    .ranking-row:last-child{border-bottom:none;}
+    .ranking-row.me { background:rgba(229,53,42,0.04);border-radius:4px;padding:6px 4px;margin:0 -4px; }
+    .avatar-sm { width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700; }
+    .ranking-pos { font-size:12px;font-weight:700; }
+    .ranking-pos.top { color:var(--color-rojo); }
+    .ranking-name { font-size:12px;font-weight:600;color:var(--color-negro); }
+    .ranking-pts { font-size:12px;color:#6B6965;text-align:right; }
+    .ranking-idx { font-size:12px;font-weight:700;color:var(--color-azul);text-align:right; }
+    .ranking-wr { font-size:12px;color:#6B6965;text-align:right; }
+    .badge-vos { font-size:9px;font-weight:700;padding:2px 5px;border-radius:99px;background:#DCFCE7;color:#166534;margin-left:4px;vertical-align:middle; }
+    /* rival */
+    .search-input { display:flex;align-items:center;gap:8px;background:#F5F4F2;border-radius:6px;padding:9px 12px;font-size:13px;color:#9A9794;margin-bottom:10px;border:1px solid rgba(0,0,0,0.07); }
+    .filter-chips { display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap; }
+    .chip { font-size:10px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid rgba(0,0,0,0.12);color:#3A3A3A;background:white; }
+    .chip.active { background:var(--color-azul);color:white;border-color:var(--color-azul); }
+    .rival-result { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(0,0,0,0.06); }
+    .rival-info { display:flex;align-items:center;gap:8px; }
+    .rival-name { font-size:13px;font-weight:700;color:var(--color-negro); }
+    .rival-sub { font-size:11px;color:#9A9794; }
+    .rival-wr { font-size:12px;font-weight:700;color:#166534; }
+    /* atributos */
+    .forma-dots { display:flex;gap:4px;flex-wrap:wrap;margin-top:10px; }
+    .forma-dot { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700; }
+    .forma-dot.w { background:#DCFCE7;color:#166534; }
+    .forma-dot.l { background:#FEE2E2;color:#B91C1C; }
+    /* rendimiento */
+    .stats-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px; }
+    .stat-box { background:#F5F4F2;border-radius:6px;padding:12px 14px; }
+    .stat-box__label { font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9A9794;margin-bottom:3px; }
+    .stat-box__value { font-family:var(--font-display);font-size:34px;font-weight:900;line-height:1;color:var(--color-negro); }
+    .stat-box__value.azul { color:var(--color-azul); }
+    .stat-box__value.rojo { color:var(--color-rojo);font-size:28px; }
+    .stat-box__sub { font-size:10px;color:#9A9794;margin-top:2px; }
+    .indice-bars { display:flex;flex-direction:column;gap:7px; }
+    .indice-bar-row { display:grid;grid-template-columns:90px 1fr 22px;gap:6px;align-items:center; }
+    .indice-bar-label { font-size:11px;color:#6B6965; }
+    .indice-bar-track { height:5px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden; }
+    .indice-bar-fill { height:100%;border-radius:3px; }
+    .indice-bar-val { font-size:11px;font-weight:700;color:var(--color-negro);text-align:right; }
+    .jugadores-cta { display:flex;gap:10px;margin-top:18px;align-items:center; }
+    .jugadores-link { font-size:12px;color:var(--color-azul);font-weight:600;text-decoration:none;cursor:pointer; }
+
+    /* COMMUNITY STRIP */
+    .mockup-community {
+      position: relative; overflow: hidden;
+      min-height: 340px;
+      display: flex; align-items: center;
+      padding: 64px 48px;
+    }
+    .mockup-community__img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: 0.35;
+    }
+    .mockup-community__overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--color-azul-dark) 0%, var(--color-negro) 100%);
+      opacity: 0.88;
+    }
+    .mockup-community__content { position: relative; z-index: 1; max-width: 600px; }
+
+    /* CLUBES SECTION */
+    .mockup-clubes {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      background: var(--color-negro);
+    }
+    .mockup-clubes__content {
+      padding: 64px 48px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .mockup-clubes__img {
+      position: relative; overflow: hidden; min-height: 440px;
+    }
+    .mockup-clubes__img img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center;
+      display: block;
+    }
+    .mockup-clubes__img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(12,12,12,0.4) 0%, transparent 50%);
+    }
+
+    /* NAV LIGHT */
+    .mockup-nav--light {
+      background: var(--color-crema); border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 0 48px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 10;
+    }
+
+    /* MOCKUP WRAPPER */
+    .mockup-wrapper { border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+
+    /* FOOTER */
+    .brand-footer { max-width: 1280px; margin: 0 auto; padding: 48px 80px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .brand-footer p { font-size: 12px; color: var(--color-gris-mid); letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="brand-nav">
+    <svg width="90" height="24" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+      <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#F5F2EE" letter-spacing="-2">pasala</text>
+    </svg>
+    <ul class="brand-nav__links">
+      <li><a href="#logo">Logo</a></li>
+      <li><a href="#colores">Colores</a></li>
+      <li><a href="#tipo">Tipografía</a></li>
+      <li><a href="#elementos">Elementos</a></li>
+      <li><a href="#aplicacion">Aplicación</a></li>
+    </ul>
+    <span class="brand-nav__tag">Sistema de Marca v2</span>
+  </nav>
+
+
+  <!-- ══ PORTADA ══ -->
+  <div class="portada full">
+    <div class="portada__bg"></div>
+    <div class="portada__grid"></div>
+    <div class="portada__content">
+      <p class="portada__eyebrow">Sistema de Marca — 2025</p>
+      <svg width="360" height="88" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+        <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+        <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#F5F2EE" letter-spacing="-2">pasala</text>
+      </svg>
+      <p class="portada__tagline">El pádel vive en la comunidad</p>
+      <div class="portada__meta">
+        <div><span>Versión</span>2.0 — Abril 2025</div>
+        <div><span>Mercado</span>Argentina · Latinoamérica</div>
+        <div><span>Plataforma</span>Web App</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ LOGOTIPO ══ -->
+  <section id="logo">
+    <p class="section-label">01 — Logotipo</p>
+    <h2 class="section-title">La marca</h2>
+    <p class="section-desc">El wordmark combina una tipografía humanista bold con un arco de pelota: el gesto universal del pádel. Simple, escalable, memorable.</p>
+    <div class="logo-grid">
+      <div class="logo-card logo-card--dark">
+        <svg width="280" height="70" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+          <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#F5F2EE" letter-spacing="-2">pasala</text>
+        </svg>
+        <span class="logo-card__label">Primario — sobre oscuro</span>
+      </div>
+      <div class="logo-card logo-card--light">
+        <svg width="280" height="70" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+          <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#0C0C0C" letter-spacing="-2">pasala</text>
+        </svg>
+        <span class="logo-card__label">Sobre claro</span>
+      </div>
+      <div class="logo-card logo-card--red">
+        <svg width="280" height="70" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 58 Q38 4 68 58" stroke="rgba(255,255,255,0.85)" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <circle cx="68" cy="58" r="6" fill="rgba(255,255,255,0.85)"/>
+          <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="white" letter-spacing="-2">pasala</text>
+        </svg>
+        <span class="logo-card__label">Sobre rojo</span>
+      </div>
+      <div class="logo-card logo-card--dark">
+        <div style="display:flex;gap:48px;align-items:center;">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="#E5352A"/><path d="M16 50 Q28 14 46 50" stroke="white" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="46" cy="50" r="5.5" fill="white"/></svg>
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="36" fill="#1B3CC8"/><path d="M16 50 Q28 14 46 50" stroke="white" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="46" cy="50" r="5.5" fill="white"/></svg>
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none"><rect width="72" height="72" rx="14" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/><path d="M16 50 Q28 14 46 50" stroke="#E5352A" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="46" cy="50" r="5.5" fill="#E5352A"/></svg>
+        </div>
+        <span class="logo-card__label">Símbolo — variantes</span>
+      </div>
+    </div>
+    <div class="logo-usage">
+      <div class="logo-usage-item do"><h4>✓ Hacé</h4><p>Usá el wordmark completo sobre fondos oscuros, claros o de marca. Mantenné la proporción marca–wordmark.</p></div>
+      <div class="logo-usage-item do"><h4>✓ Hacé</h4><p>El símbolo solo funciona para ícono de app, favicon, avatar y usos donde el espacio es reducido.</p></div>
+      <div class="logo-usage-item dont"><h4>✗ No hacés</h4><p>No cambies el color del arco. No usés el wordmark sin el símbolo. No deformes ni rotés el logotipo.</p></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══ COLORES ══ -->
+  <section id="colores">
+    <p class="section-label">02 — Paleta de Color</p>
+    <h2 class="section-title">Colores</h2>
+    <p class="section-desc">Rojo para la acción y la energía. Azul para la precisión y la comunidad. Negro y crema como base editorial.</p>
+    <div class="color-primary">
+      <div class="color-swatch color-swatch--dark" style="background:#E5352A;"><div class="color-swatch__name">Rojo Pasala</div><div class="color-swatch__hex">#E5352A</div><div class="color-swatch__token">--color-rojo</div></div>
+      <div class="color-swatch color-swatch--dark" style="background:#1B3CC8;"><div class="color-swatch__name">Azul Comunidad</div><div class="color-swatch__hex">#1B3CC8</div><div class="color-swatch__token">--color-azul</div></div>
+      <div class="color-swatch color-swatch--dark" style="background:#0C0C0C;border:1px solid rgba(255,255,255,0.06);"><div class="color-swatch__name">Negro Pasala</div><div class="color-swatch__hex">#0C0C0C</div><div class="color-swatch__token">--color-negro</div></div>
+    </div>
+    <p style="font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-gris-mid);margin-top:32px;margin-bottom:8px;">Escala Rojo</p>
+    <div class="color-scale">
+      <div class="color-scale-item" style="background:#FFECEB;"><span style="color:#0C0C0C;">50</span></div>
+      <div class="color-scale-item" style="background:#FFB8B4;"><span style="color:#0C0C0C;">200</span></div>
+      <div class="color-scale-item" style="background:#FF6B5E;"><span style="color:white;">400</span></div>
+      <div class="color-scale-item" style="background:#E5352A;"><span style="color:white;">600</span></div>
+      <div class="color-scale-item" style="background:#B82820;"><span style="color:white;">800</span></div>
+      <div class="color-scale-item" style="background:#6B1510;"><span style="color:white;">950</span></div>
+    </div>
+    <p style="font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-gris-mid);margin-top:20px;margin-bottom:8px;">Escala Azul</p>
+    <div class="color-scale">
+      <div class="color-scale-item" style="background:#EEF2FF;"><span style="color:#0C0C0C;">50</span></div>
+      <div class="color-scale-item" style="background:#A5B4FC;"><span style="color:#0C0C0C;">200</span></div>
+      <div class="color-scale-item" style="background:#5072E0;"><span style="color:white;">400</span></div>
+      <div class="color-scale-item" style="background:#1B3CC8;"><span style="color:white;">600</span></div>
+      <div class="color-scale-item" style="background:#102690;"><span style="color:white;">800</span></div>
+      <div class="color-scale-item" style="background:#081558;"><span style="color:white;">950</span></div>
+    </div>
+    <p style="font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-gris-mid);margin-top:20px;margin-bottom:8px;">Neutros</p>
+    <div class="color-scale">
+      <div class="color-scale-item" style="background:#F5F2EE;"><span style="color:#0C0C0C;">crema</span></div>
+      <div class="color-scale-item" style="background:#C8C5BE;"><span style="color:#0C0C0C;">gris-l</span></div>
+      <div class="color-scale-item" style="background:#8A8781;"><span style="color:white;">gris-m</span></div>
+      <div class="color-scale-item" style="background:#3A3A3A;"><span style="color:white;">grafito</span></div>
+      <div class="color-scale-item" style="background:#1E1E1E;"><span style="color:white;">oscuro</span></div>
+      <div class="color-scale-item" style="background:#0C0C0C;border:1px solid rgba(255,255,255,0.08);"><span style="color:white;">negro</span></div>
+    </div>
+    <table class="color-tokens-table">
+      <thead><tr><th>Token</th><th>Variable CSS</th><th>Valor</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><span class="token-dot" style="background:#E5352A;"></span>Rojo Pasala</td><td><code>--color-rojo</code></td><td style="font-family:monospace;font-size:13px;">#E5352A</td><td style="color:var(--color-gris-mid);font-size:13px;">CTAs primarios, énfasis, elementos activos</td></tr>
+        <tr><td><span class="token-dot" style="background:#1B3CC8;"></span>Azul Comunidad</td><td><code>--color-azul</code></td><td style="font-family:monospace;font-size:13px;">#1B3CC8</td><td style="color:var(--color-gris-mid);font-size:13px;">Links, acciones secundarias, datos</td></tr>
+        <tr><td><span class="token-dot" style="background:#5072E0;"></span>Azul Claro</td><td><code>--color-azul-light</code></td><td style="font-family:monospace;font-size:13px;">#5072E0</td><td style="color:var(--color-gris-mid);font-size:13px;">Barras de datos, íconos informativos</td></tr>
+        <tr><td><span class="token-dot" style="background:#0C0C0C;border:1px solid rgba(255,255,255,0.2);"></span>Negro Pasala</td><td><code>--color-negro</code></td><td style="font-family:monospace;font-size:13px;">#0C0C0C</td><td style="color:var(--color-gris-mid);font-size:13px;">Fondo principal, nav dark</td></tr>
+        <tr><td><span class="token-dot" style="background:#F5F2EE;"></span>Crema</td><td><code>--color-crema</code></td><td style="font-family:monospace;font-size:13px;">#F5F2EE</td><td style="color:var(--color-gris-mid);font-size:13px;">Texto principal sobre oscuro, fondos light</td></tr>
+        <tr><td><span class="token-dot" style="background:#6B6965;"></span>Gris Medio</td><td><code>--color-gris-mid</code></td><td style="font-family:monospace;font-size:13px;">#6B6965</td><td style="color:var(--color-gris-mid);font-size:13px;">Texto secundario, labels, placeholders</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══ TIPOGRAFÍA ══ -->
+  <section id="tipo">
+    <p class="section-label">03 — Tipografía</p>
+    <h2 class="section-title">Sistema tipográfico</h2>
+    <p class="section-desc">Tres familias con roles claros: display para impacto, sans para claridad, serif itálica para emoción.</p>
+    <div class="type-specimen">
+      <div class="type-face">
+        <div class="type-face__meta">
+          <div class="type-face__info">
+            <p class="type-face__role">Display</p>
+            <p class="type-face__name">Barlow Condensed</p>
+            <p class="type-face__detail">Bold 700 · Black 900<br>Titulares hero, secciones, números grandes</p>
+            <span class="type-face__token">--font-display</span>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(52px,8vw,100px);font-weight:900;line-height:0.92;letter-spacing:-0.01em;text-transform:uppercase;">
+            El <span style="color:var(--color-rojo);">juego</span><br>es hoy.
+          </div>
+        </div>
+      </div>
+      <div class="type-face">
+        <div class="type-face__meta">
+          <div class="type-face__info">
+            <p class="type-face__role">Body / UI</p>
+            <p class="type-face__name">Plus Jakarta Sans</p>
+            <p class="type-face__detail">400 · 600 · 700 · 800<br>Navegación, cards, body, botones, labels</p>
+            <span class="type-face__token">--font-sans</span>
+          </div>
+          <div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(28px,4vw,48px);font-weight:700;line-height:1.1;">Conectá con tu<br>comunidad de pádel.</div>
+            <p style="margin-top:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.7;color:var(--color-gris-light);max-width:480px;">Registrá tus partidos, seguí tu ranking y encontrá rivales del mismo nivel. Pasala es donde la comunidad padel se encuentra.</p>
+          </div>
+        </div>
+      </div>
+      <div class="type-face">
+        <div class="type-face__meta">
+          <div class="type-face__info">
+            <p class="type-face__role">Acento / Énfasis</p>
+            <p class="type-face__name">Instrument Serif</p>
+            <p class="type-face__detail">Italic 400<br>Frases de impacto, citas, énfasis emocional en heroes</p>
+            <span class="type-face__token">--font-serif</span>
+          </div>
+          <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(28px,4vw,48px);line-height:1.2;">
+            "El partido terminó.<br><em>Tu juego recién empieza.</em>"
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-rojo);margin-top:64px;margin-bottom:16px;">Escala · Plus Jakarta Sans</p>
+    <div class="type-scale">
+      <div class="type-scale-row"><span class="type-scale-row__size">10px</span><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gris-mid);">LABEL PEQUEÑO · CATEGORÍA</span><span class="type-scale-row__weight">600 · caps</span></div>
+      <div class="type-scale-row"><span class="type-scale-row__size">13px</span><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:400;color:var(--color-gris-light);">Texto de interfaz, labels, navegación, descripción breve de sección</span><span class="type-scale-row__weight">400 / 600</span></div>
+      <div class="type-scale-row"><span class="type-scale-row__size">16px</span><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:400;">Párrafo y cuerpo de texto principal</span><span class="type-scale-row__weight">400</span></div>
+      <div class="type-scale-row"><span class="type-scale-row__size">22px</span><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;">Card headline, subtítulo de sección</span><span class="type-scale-row__weight">700</span></div>
+      <div class="type-scale-row"><span class="type-scale-row__size">36px</span><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;line-height:1;">Título de sección</span><span class="type-scale-row__weight">800</span></div>
+      <div class="type-scale-row"><span class="type-scale-row__size">64px+</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:64px;font-weight:900;line-height:1;text-transform:uppercase;letter-spacing:-0.01em;">HERO / DISPLAY</span><span class="type-scale-row__weight">Barlow Black</span></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══ ELEMENTOS ══ -->
+  <section id="elementos">
+    <p class="section-label">04 — Elementos Gráficos</p>
+    <h2 class="section-title">Íconos & elementos</h2>
+    <p class="section-desc">Sistema de íconos de trazo fino (1.5px), basado en el lenguaje visual del pádel.</p>
+    <div class="elements-grid">
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M10 40 Q22 8 42 40" stroke="#E5352A" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="42" cy="40" r="5" stroke="#E5352A" stroke-width="2" fill="none"/><circle cx="42" cy="40" r="1.5" fill="#E5352A"/></svg></div><span class="element-card__name">El arco</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="16" y="10" width="24" height="28" rx="12" stroke="#F5F2EE" stroke-width="1.8" fill="none"/><line x1="28" y1="38" x2="28" y2="48" stroke="#F5F2EE" stroke-width="1.8" stroke-linecap="round"/><line x1="22" y1="20" x2="34" y2="20" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><line x1="22" y1="25" x2="34" y2="25" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><line x1="22" y1="30" x2="34" y2="30" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><line x1="24" y1="17" x2="24" y2="36" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><line x1="28" y1="14" x2="28" y2="38" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><line x1="32" y1="17" x2="32" y2="36" stroke="#F5F2EE" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/></svg></div><span class="element-card__name">Pala</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="28" width="10" height="20" rx="2" stroke="#5072E0" stroke-width="1.8" fill="none"/><rect x="23" y="18" width="10" height="30" rx="2" stroke="#1B3CC8" stroke-width="1.8" fill="none"/><rect x="38" y="10" width="10" height="38" rx="2" stroke="#E5352A" stroke-width="1.8" fill="none"/><text x="41" y="8" font-family="'Plus Jakarta Sans',sans-serif" font-size="8" font-weight="700" fill="#E5352A">#1</text></svg></div><span class="element-card__name">Ranking</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="12" width="40" height="32" rx="2" stroke="#F5F2EE" stroke-width="1.8" fill="none"/><line x1="28" y1="12" x2="28" y2="44" stroke="#F5F2EE" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.5"/><line x1="8" y1="28" x2="48" y2="28" stroke="#F5F2EE" stroke-width="1.2" opacity="0.5"/><circle cx="28" cy="28" r="5" stroke="#E5352A" stroke-width="1.5" fill="none"/></svg></div><span class="element-card__name">Cancha</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="18" r="7" stroke="#F5F2EE" stroke-width="1.8" fill="none"/><path d="M14 42c0-7.732 6.268-14 14-14s14 6.268 14 14" stroke="#F5F2EE" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="12" cy="20" r="5" stroke="#5072E0" stroke-width="1.5" fill="none" opacity="0.7"/><path d="M4 40c0-4.418 3.582-8 8-8" stroke="#5072E0" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/><circle cx="44" cy="20" r="5" stroke="#5072E0" stroke-width="1.5" fill="none" opacity="0.7"/><path d="M52 40c0-4.418-3.582-8-8-8" stroke="#5072E0" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/></svg></div><span class="element-card__name">Comunidad</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><polyline points="8,42 18,28 26,34 36,16 48,22" stroke="#E5352A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="8" cy="42" r="2.5" fill="#E5352A"/><circle cx="18" cy="28" r="2.5" fill="#E5352A"/><circle cx="26" cy="34" r="2.5" fill="#E5352A"/><circle cx="36" cy="16" r="2.5" fill="#E5352A"/><circle cx="48" cy="22" r="2.5" fill="#E5352A"/></svg></div><span class="element-card__name">Estadísticas</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M28 8 L44 18 L44 44 L12 44 L12 18 Z" stroke="#F5F2EE" stroke-width="1.8" stroke-linejoin="round" fill="none"/><rect x="22" y="30" width="12" height="14" rx="1" stroke="#5072E0" stroke-width="1.5" fill="none"/><rect x="18" y="20" width="7" height="7" rx="1" stroke="#F5F2EE" stroke-width="1.2" fill="none" opacity="0.5"/><rect x="31" y="20" width="7" height="7" rx="1" stroke="#F5F2EE" stroke-width="1.2" fill="none" opacity="0.5"/></svg></div><span class="element-card__name">Club</span></div>
+      <div class="element-card"><div><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M20 10 L36 10 L36 26 Q36 36 28 40 Q20 36 20 26 Z" stroke="#E5352A" stroke-width="1.8" stroke-linejoin="round" fill="none"/><line x1="16" y1="10" x2="20" y2="10" stroke="#F5F2EE" stroke-width="1.8" stroke-linecap="round"/><line x1="36" y1="10" x2="40" y2="10" stroke="#F5F2EE" stroke-width="1.8" stroke-linecap="round"/><line x1="28" y1="40" x2="28" y2="46" stroke="#F5F2EE" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="46" x2="34" y2="46" stroke="#F5F2EE" stroke-width="1.5" stroke-linecap="round"/><path d="M25 22 L27 25 L31 19" stroke="#E5352A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="element-card__name">Torneo</span></div>
+    </div>
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-rojo);margin-top:64px;margin-bottom:16px;">Patrones de fondo</p>
+    <div class="pattern-section">
+      <div class="pattern-card" style="background:var(--color-grafito);">
+        <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:0.15;"><defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#F5F2EE" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        <span class="pattern-card__label">Grilla · uso en fondos oscuros</span>
+      </div>
+      <div class="pattern-card" style="background:var(--color-negro);">
+        <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:0.2;"><path d="M-20 140 Q40 20 100 140" stroke="#E5352A" stroke-width="2" fill="none"/><path d="M60 140 Q120 20 180 140" stroke="#E5352A" stroke-width="2" fill="none"/><path d="M140 140 Q200 20 260 140" stroke="#E5352A" stroke-width="2" fill="none"/><path d="M220 140 Q280 20 340 140" stroke="#E5352A" stroke-width="2" fill="none"/><path d="M-60 220 Q40 60 140 220" stroke="#1B3CC8" stroke-width="1.5" fill="none" opacity="0.6"/><path d="M80 220 Q180 60 280 220" stroke="#1B3CC8" stroke-width="1.5" fill="none" opacity="0.6"/></svg>
+        <span class="pattern-card__label">Arcos · motivo de marca</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══ APLICACIÓN ══ -->
+  <section id="aplicacion">
+    <p class="section-label">05 — Aplicación</p>
+    <h2 class="section-title">Mockup web</h2>
+    <p class="section-desc">El nuevo sistema aplicado con fotografía real — jugadores, comunidad y clubes. Versión dark con video en hero, secciones con imagen.</p>
+  </section>
+
+  <!-- MOCKUP COMPLETO -->
+  <div class="mockup-wrapper" style="max-width:1280px;margin:0 auto 80px;margin-left:80px;margin-right:80px;">
+
+    <!-- NAV DARK -->
+    <div class="mockup-nav">
+      <svg width="110" height="28" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+        <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#F5F2EE" letter-spacing="-2">pasala</text>
+      </svg>
+      <ul class="mockup-nav__links">
+        <li class="active">Jugadores</li>
+        <li>Clubes</li>
+        <li>Entrenadores</li>
+        <li>Contacto</li>
+      </ul>
+      <div class="mockup-nav__actions">
+        <button class="btn btn--ghost">Ingresá</button>
+        <button class="btn btn--primary">Registrate</button>
+      </div>
+    </div>
+
+    <!-- HERO C — Full bleed video, texto + card compacta al pie -->
+    <div class="mockup-hero">
+      <video class="mockup-hero__video" autoplay muted loop playsinline>
+        <source src="assets/video.mp4" type="video/mp4">
+      </video>
+      <div class="mockup-hero__overlay"></div>
+
+      <!-- Contenido al pie -->
+      <div class="mockup-hero__content">
+        <!-- Texto izquierda -->
+        <div class="mockup-hero__text">
+          <p class="mockup-hero__eyebrow">Patagonia · Argentina</p>
+          <h1 class="mockup-hero__title">
+            El pádel no termina<br>
+            <em>cuando termina</em> el partido.
+          </h1>
+          <div class="mockup-hero__actions">
+            <button class="btn btn--primary" style="font-size:14px;padding:12px 24px;">Creá tu perfil gratis →</button>
+            <button class="btn btn--ghost" style="font-size:13px;padding:12px 20px;">Ingresá</button>
+          </div>
+        </div>
+
+        <!-- Card compacta derecha -->
+        <div class="mockup-hero__card-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-gris-mid);">Índice Pasala</span>
+            <span class="badge-live">En vivo</span>
+          </div>
+          <div style="font-weight:700;font-size:15px;color:var(--color-crema);">Sofía R.</div>
+          <div style="font-size:11px;color:var(--color-gris-mid);margin-bottom:10px;">Avanzada · 5ª CAT</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:60px;line-height:1;color:var(--color-rojo);letter-spacing:-0.02em;">73</div>
+          <div style="font-size:11px;color:#4ade80;margin-bottom:12px;">↑ Top 12% en la Patagonia</div>
+          <div class="mockup-card__bar"><div class="bar-label"><span>Efectividad</span><span style="color:var(--color-crema);">68%</span></div><div class="bar-track"><div class="bar-fill" style="width:68%;"></div></div></div>
+          <div class="mockup-card__bar"><div class="bar-label"><span>Forma reciente</span><span style="color:#4ade80;">↑ 82%</span></div><div class="bar-track"><div class="bar-fill green" style="width:82%;"></div></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+            <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--color-crema);">4 PJ</div><div style="font-size:9px;color:var(--color-gris-mid);">partidos</div></div>
+            <div style="text-align:right;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--color-azul-light);">#5 de 77</div><div style="font-size:9px;color:var(--color-gris-mid);">ranking</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="mockup-hero__scroll">
+        <span>Scrolleá</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 2v10M3 8l4 4 4-4" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SECCIÓN JUGADORES — 5 cards en tabs -->
+    <div class="mockup-jugadores">
+      <div class="mockup-jugadores__img">
+        <img src="assets/jugador-movil.png" alt="Jugador con celular en cancha">
+      </div>
+      <div class="mockup-jugadores__right">
+        <p class="jugadores-eyebrow">Para Jugadores</p>
+        <h2 class="jugadores-title">El partido terminó.<br>Tu juego recién<br>empieza.</h2>
+
+        <!-- Tabs -->
+        <div class="card-tabs">
+          <button class="card-tab active" onclick="showCard('partido',this)">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Partido
+          </button>
+          <button class="card-tab" onclick="showCard('ranking',this)">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><rect x="2" y="7" width="3" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="5.5" y="4" width="3" height="8" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="2" width="3" height="10" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>Ranking
+          </button>
+          <button class="card-tab" onclick="showCard('rival',this)">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M9 9l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Rival
+          </button>
+          <button class="card-tab" onclick="showCard('atributos',this)">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><polygon points="7,1 13,5 13,9 7,13 1,9 1,5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Atributos
+          </button>
+          <button class="card-tab" onclick="showCard('rendimiento',this)">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><polyline points="1,11 4,7 7,9 10,4 13,6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rendimiento
+          </button>
+        </div>
+
+        <!-- CARD 1: Último Partido -->
+        <div class="player-card visible" id="card-partido">
+          <p class="card-section-label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:5px"><circle cx="7" cy="7" r="5.5" stroke="#6B6965" stroke-width="1.5"/><path d="M4 7h6M7 4v6" stroke="#6B6965" stroke-width="1.5" stroke-linecap="round"/></svg>Último Partido</p>
+          <div class="partido-header">
+            <div>
+              <div class="partido-club">Club Andino · Gral. Roca</div>
+              <div class="partido-date">Sáb. 19 abr. · 20:00hs</div>
+            </div>
+            <span class="badge-finalizado">FINALIZADO</span>
+          </div>
+          <div class="partido-cols-header">
+            <span>EQUIPOS</span><span style="text-align:center">S1</span><span style="text-align:center">S2</span>
+          </div>
+          <div class="partido-row">
+            <span style="font-size:13px;font-weight:700;color:var(--color-negro);">M. Castro / R. Peña <span class="badge-winner">GANADOR</span></span>
+            <span class="partido-score">6</span>
+            <span class="partido-score">6</span>
+          </div>
+          <div class="partido-row">
+            <span style="font-size:13px;color:#6B6965;">Lucas T. / Diego M.</span>
+            <span class="partido-score muted">3</span>
+            <span class="partido-score muted">4</span>
+          </div>
+          <div class="partido-meta">
+            <span>Autoevaluación: <span class="verde">Completa ✓</span></span>
+            <span>3 sets jugados</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: Ranking -->
+        <div class="player-card" id="card-ranking">
+          <p class="card-section-label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:5px"><rect x="2" y="7" width="3" height="5" rx="1" stroke="#6B6965" stroke-width="1.4"/><rect x="5.5" y="4" width="3" height="8" rx="1" stroke="#6B6965" stroke-width="1.4"/><rect x="9" y="2" width="3" height="10" rx="1" stroke="#6B6965" stroke-width="1.4"/></svg>Ranking del Club</p>
+          <div class="ranking-header">
+            <span class="ranking-club">Club Andino · General Roca</span>
+            <span class="badge-cat">4ª CAT</span>
+          </div>
+          <div class="ranking-cols">
+            <span>#</span><span></span><span>JUGADOR</span><span style="text-align:right">PTS</span><span style="text-align:right">IDX</span><span style="text-align:right">WR</span>
+          </div>
+          <div class="ranking-row">
+            <span class="ranking-pos top">1</span>
+            <span class="avatar-sm" style="background:#FECDD3;color:#B91C1C;">MC</span>
+            <span class="ranking-name">M. Castro</span>
+            <span class="ranking-pts">24</span><span class="ranking-idx">81</span><span class="ranking-wr">79%</span>
+          </div>
+          <div class="ranking-row">
+            <span class="ranking-pos" style="color:#6B6965">2</span>
+            <span class="avatar-sm" style="background:#DBEAFE;color:#1e40af;">PR</span>
+            <span class="ranking-name">P. Ríos</span>
+            <span class="ranking-pts">21</span><span class="ranking-idx">77</span><span class="ranking-wr">74%</span>
+          </div>
+          <div class="ranking-row me">
+            <span class="ranking-pos" style="color:var(--color-azul)">3</span>
+            <span class="avatar-sm" style="background:var(--color-azul);color:white;">FV</span>
+            <span class="ranking-name">F. Vidal <span class="badge-vos">vos</span></span>
+            <span class="ranking-pts">18</span><span class="ranking-idx" style="color:var(--color-azul)">73</span><span class="ranking-wr" style="color:var(--color-azul)">68%</span>
+          </div>
+          <div class="ranking-row">
+            <span class="ranking-pos" style="color:#6B6965">4</span>
+            <span class="avatar-sm" style="background:#F3F4F6;color:#6B6965;">LT</span>
+            <span class="ranking-name">Lucas T.</span>
+            <span class="ranking-pts">15</span><span class="ranking-idx">69</span><span class="ranking-wr">61%</span>
+          </div>
+          <div class="ranking-row">
+            <span class="ranking-pos" style="color:#6B6965">5</span>
+            <span class="avatar-sm" style="background:#F3F4F6;color:#6B6965;">DM</span>
+            <span class="ranking-name">D. Morales</span>
+            <span class="ranking-pts">12</span><span class="ranking-idx">65</span><span class="ranking-wr">55%</span>
+          </div>
+          <a href="#" style="display:block;margin-top:12px;font-size:12px;font-weight:700;color:var(--color-azul);text-decoration:none;">Ver ranking completo →</a>
+        </div>
+
+        <!-- CARD 3: Buscar Rival -->
+        <div class="player-card" id="card-rival">
+          <p class="card-section-label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:5px"><circle cx="5.5" cy="5.5" r="4" stroke="#6B6965" stroke-width="1.4"/><path d="M9 9l3 3" stroke="#6B6965" stroke-width="1.4" stroke-linecap="round"/></svg>Encontrá tu próximo rival</p>
+          <div class="search-input">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#9A9794" stroke-width="1.4"/><path d="M10 10l2 2" stroke="#9A9794" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Buscá por nombre o club...</span>
+          </div>
+          <div class="filter-chips">
+            <span class="chip active">4ª categoría</span>
+            <span class="chip">Club Andino</span>
+            <span class="chip">Gral. Roca</span>
+          </div>
+          <p class="card-section-label" style="margin-bottom:0">Resultado más relevante</p>
+          <div class="rival-result">
+            <div class="rival-info">
+              <span class="avatar-sm" style="background:#F3F4F6;color:#3A3A3A;width:32px;height:32px;font-size:11px;">LT</span>
+              <div>
+                <div class="rival-name">Lucas T.</div>
+                <div class="rival-sub">Club Andino · 4ª cat · Índice 69</div>
+              </div>
+            </div>
+            <span class="rival-wr">86% WR juntos</span>
+          </div>
+          <a href="#" style="display:block;margin-top:12px;font-size:12px;font-weight:700;color:var(--color-azul);text-decoration:none;">Buscar rivales en la app →</a>
+        </div>
+
+        <!-- CARD 4: Atributos Técnicos -->
+        <div class="player-card" id="card-atributos">
+          <p class="card-section-label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:5px"><polygon points="7,1 13,5 13,9 7,13 1,9 1,5" stroke="#6B6965" stroke-width="1.4" fill="none"/></svg>Atributos Técnicos</p>
+          <p class="card-section-sub">Promedio basado en tus evaluaciones</p>
+          <!-- Spider chart SVG -->
+          <div style="display:flex;justify-content:center;margin-bottom:14px;">
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Octagon guides -->
+              <polygon points="80,10 127,30 150,80 127,130 80,150 33,130 10,80 33,30" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <polygon points="80,30 113,45 130,80 113,115 80,130 47,115 30,80 47,45" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <polygon points="80,50 100,60 110,80 100,100 80,110 60,100 50,80 60,60" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <!-- Axis lines -->
+              <line x1="80" y1="10" x2="80" y2="150" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <line x1="10" y1="80" x2="150" y2="80" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <line x1="33" y1="30" x2="127" y2="130" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <line x1="127" y1="30" x2="33" y2="130" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+              <!-- Data polygon (70% of each axis) -->
+              <polygon points="80,24 118,42 136,80 118,118 80,136 42,118 24,80 42,42" fill="rgba(27,60,200,0.15)" stroke="#1B3CC8" stroke-width="1.8"/>
+              <!-- Labels -->
+              <text x="80" y="7" text-anchor="middle" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Volea</text>
+              <text x="132" y="28" text-anchor="start" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Globo</text>
+              <text x="154" y="83" text-anchor="start" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Remate</text>
+              <text x="132" y="136" text-anchor="start" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Bandeja</text>
+              <text x="80" y="157" text-anchor="middle" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Víbora</text>
+              <text x="28" y="136" text-anchor="end" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Dejada</text>
+              <text x="6" y="83" text-anchor="end" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Saque</text>
+              <text x="28" y="28" text-anchor="end" font-size="8" fill="#6B6965" font-family="'Plus Jakarta Sans',sans-serif">Recep.</text>
+            </svg>
+          </div>
+          <p class="card-section-label" style="margin-bottom:6px">Forma reciente (últimos 10)</p>
+          <div class="forma-dots">
+            <span class="forma-dot l">L</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span><span class="forma-dot l">L</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span><span class="forma-dot w">W</span>
+          </div>
+        </div>
+
+        <!-- CARD 5: Rendimiento -->
+        <div class="player-card" id="card-rendimiento">
+          <p class="card-section-label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:5px"><polyline points="1,11 4,7 7,9 10,4 13,6" stroke="#6B6965" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Tu Rendimiento</p>
+          <p class="card-section-sub">Basado en tus 18 partidos registrados</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-box__label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><rect x="2" y="3" width="10" height="9" rx="1.5" stroke="#9A9794" stroke-width="1.3"/><path d="M5 3V2M9 3V2" stroke="#9A9794" stroke-width="1.3" stroke-linecap="round"/><path d="M2 6h10" stroke="#9A9794" stroke-width="1.3"/></svg>Jugados</div>
+              <div class="stat-box__value">18</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box__label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><path d="M4 8l2.5 2.5L10 5" stroke="#9A9794" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="5.5" stroke="#9A9794" stroke-width="1.3"/></svg>Ganados</div>
+              <div class="stat-box__value azul">11</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box__label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><path d="M2 10L6 5l3 3 3-5" stroke="#9A9794" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Efectividad</div>
+              <div class="stat-box__value">61.1%</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box__label"><svg width="10" height="10" viewBox="0 0 14 14" fill="none" style="vertical-align:-1px;margin-right:4px"><path d="M7 2v5l3 2" stroke="#9A9794" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="5.5" stroke="#9A9794" stroke-width="1.3"/></svg>Racha</div>
+              <div class="stat-box__value rojo">L1</div>
+              <div class="stat-box__sub">última: derrota</div>
+            </div>
+          </div>
+          <p class="card-section-label" style="margin-bottom:10px">Componentes Índice Pasala</p>
+          <div class="indice-bars">
+            <div class="indice-bar-row">
+              <span class="indice-bar-label">Efectividad (35%)</span>
+              <div class="indice-bar-track"><div class="indice-bar-fill" style="width:61%;background:#5072E0;"></div></div>
+              <span class="indice-bar-val">61</span>
+            </div>
+            <div class="indice-bar-row">
+              <span class="indice-bar-label">Nivel rivales (25%)</span>
+              <div class="indice-bar-track"><div class="indice-bar-fill" style="width:40%;background:#A78BFA;"></div></div>
+              <span class="indice-bar-val">40</span>
+            </div>
+            <div class="indice-bar-row">
+              <span class="indice-bar-label">Técnica (26%)</span>
+              <div class="indice-bar-track"><div class="indice-bar-fill" style="width:22%;background:#60A5FA;"></div></div>
+              <span class="indice-bar-val">22</span>
+            </div>
+            <div class="indice-bar-row">
+              <span class="indice-bar-label">Forma reciente (12%)</span>
+              <div class="indice-bar-track"><div class="indice-bar-fill" style="width:80%;background:#4ade80;"></div></div>
+              <span class="indice-bar-val">80</span>
+            </div>
+            <div class="indice-bar-row">
+              <span class="indice-bar-label">Experiencia (8%)</span>
+              <div class="indice-bar-track"><div class="indice-bar-fill" style="width:75%;background:#FBBF24;"></div></div>
+              <span class="indice-bar-val">75</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="jugadores-cta">
+          <button class="btn btn--primary" style="font-size:13px;padding:11px 22px;">Creá tu perfil gratis →</button>
+          <a class="jugadores-link">¿Ya tenés cuenta? Ingresá →</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    function showCard(id, btn) {
+      document.querySelectorAll('.player-card').forEach(c => c.classList.remove('visible'));
+      document.querySelectorAll('.card-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('card-' + id).classList.add('visible');
+      btn.classList.add('active');
+    }
+    </script>
+
+    <!-- COMMUNITY STRIP (foto fondo) -->
+    <div class="mockup-community">
+      <img src="assets/jugadores.png" alt="Jugadores de pádel" class="mockup-community__img">
+      <div class="mockup-community__overlay"></div>
+      <div class="mockup-community__content">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;">La comunidad</p>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;line-height:1;color:white;margin-bottom:16px;">+12.000 jugadores<br>ya están adentro.</h2>
+        <p style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;color:rgba(255,255,255,0.7);margin-bottom:24px;">¿Cuándo te sumás vos?</p>
+        <button class="btn btn--primary" style="font-size:14px;padding:12px 24px;">Empezar gratis</button>
+      </div>
+    </div>
+
+    <!-- CLUBES SECTION (foto cancha noche) -->
+    <div class="mockup-clubes">
+      <div class="mockup-clubes__content">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--color-rojo);margin-bottom:16px;">Para Clubes</p>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;line-height:1;color:var(--color-crema);margin-bottom:12px;">Tu comunidad<br>ya utiliza<br>pasala.</h2>
+        <p style="font-family:'Instrument Serif',serif;font-style:italic;font-size:24px;color:var(--color-rojo);margin-bottom:24px;">¿Tu club está listo?</p>
+        <p style="font-size:15px;line-height:1.6;color:var(--color-gris-light);margin-bottom:28px;">Administrá tus turnos, confirmá reservas y gestioná ligas y torneos desde un solo lugar.</p>
+        <button class="btn btn--primary" style="font-size:14px;padding:12px 24px;">Sumá tu club →</button>
+      </div>
+      <div class="mockup-clubes__img">
+        <img src="assets/bar-cancha-noche.png" alt="Cancha de pádel de noche">
+      </div>
+    </div>
+
+    <!-- FAMILY / HUMANA STRIP -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:280px;">
+      <div style="position:relative;overflow:hidden;">
+        <img src="assets/padel-familia.png" alt="Familia jugando pádel" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(12,12,12,0.7) 0%, transparent 60%);"></div>
+        <div style="position:absolute;bottom:24px;left:24px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px;">Para todos</p>
+          <p style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;color:white;line-height:1;">El pádel<br>es de todos.</p>
+        </div>
+      </div>
+      <div style="position:relative;overflow:hidden;">
+        <img src="assets/hero-jugadora2.png" alt="Jugadora de pádel" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(12,12,12,0.7) 0%, transparent 60%);"></div>
+        <div style="position:absolute;bottom:24px;left:24px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px;">Competencia</p>
+          <p style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;color:white;line-height:1;">Conocé tu<br>nivel real.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV LIGHT -->
+    <div class="mockup-nav--light" style="margin-top:2px;">
+      <svg width="110" height="28" viewBox="0 0 360 88" fill="none">
+        <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+        <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#0C0C0C" letter-spacing="-2">pasala</text>
+      </svg>
+      <ul style="display:flex;gap:36px;list-style:none;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:rgba(12,12,12,0.4);">
+        <li>Jugadores</li>
+        <li style="color:#0C0C0C;">Clubes</li>
+        <li>Entrenadores</li>
+        <li>Contacto</li>
+      </ul>
+      <div style="display:flex;gap:12px;">
+        <button style="background:transparent;color:#0C0C0C;border:1px solid rgba(12,12,12,0.2);font-family:var(--font-sans);font-size:13px;font-weight:700;padding:10px 22px;border-radius:3px;cursor:pointer;">Ingresá</button>
+        <button class="btn btn--primary">Registrate</button>
+      </div>
+    </div>
+
+  </div><!-- /mockup-wrapper -->
+
+  <!-- FOOTER -->
+  <div class="brand-footer">
+    <svg width="80" height="20" viewBox="0 0 360 88" fill="none">
+      <path d="M12 58 Q38 4 68 58" stroke="#E5352A" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <circle cx="68" cy="58" r="6" fill="#E5352A"/>
+      <text x="88" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="64" fill="#F5F2EE" letter-spacing="-2">pasala</text>
+    </svg>
+    <p>Sistema de Marca v2 · Uso interno · 2025</p>
+    <p>Fuentes: Barlow Condensed · Plus Jakarta Sans · Instrument Serif</p>
+  </div>
+
+</body>
+</html>

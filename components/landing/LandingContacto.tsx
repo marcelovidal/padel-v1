@@ -72,7 +72,7 @@ export function LandingContacto() {
 
         {/* ── COLUMNA IZQUIERDA — Copy ───────────────────────────────── */}
         <div className="flex flex-col justify-center">
-          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-blue-400/60">
+          <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-[#E5352A]">
             CONTACTO
           </p>
           <h2
@@ -207,7 +207,7 @@ export function LandingContacto() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={enviando || !nombre || !email || !mensaje}
-                className="mt-2 w-full rounded-xl bg-[#1565C0] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1244a0] disabled:cursor-not-allowed disabled:opacity-40"
+                className="mt-2 w-full rounded-xl bg-[#E5352A] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#B82820] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {enviando ? "Enviando..." : "Enviar mensaje"}
               </button>

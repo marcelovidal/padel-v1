@@ -87,7 +87,7 @@ function OtpInput({
           disabled={disabled}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="w-12 h-14 text-center text-2xl font-black rounded-xl border-2 border-[#E2E8F0] focus:border-[#2563EB] focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50"
+          className="w-12 h-14 text-center text-2xl font-black rounded-xl border-2 border-[#E2E8F0] focus:border-[#E5352A] focus:outline-none transition-colors disabled:opacity-50 disabled:bg-gray-50"
         />
       ))}
     </div>
@@ -314,7 +314,7 @@ export default function WelcomePortalAuth({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none transition-colors text-sm"
+                className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#E5352A] focus:outline-none transition-colors text-sm"
               />
 
               {error && (
@@ -328,7 +328,7 @@ export default function WelcomePortalAuth({
                 type="button"
                 disabled={pending}
                 onClick={sendMagicLink}
-                className="w-full min-h-[48px] rounded-xl bg-[#2563EB] text-white font-semibold text-sm hover:bg-[#1D4ED8] disabled:opacity-60 transition-colors"
+                className="w-full min-h-[48px] rounded-xl bg-[#E5352A] text-white font-semibold text-sm hover:bg-[#B82820] disabled:opacity-60 transition-colors"
               >
                 {pending ? "Enviando..." : "Enviar link de acceso"}
               </button>
@@ -354,7 +354,7 @@ export default function WelcomePortalAuth({
                     placeholder="Contraseña"
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
-                    className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none transition-colors text-sm"
+                    className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#E5352A] focus:outline-none transition-colors text-sm"
                   />
                   <div className="flex items-center justify-between">
                     <button
@@ -387,7 +387,7 @@ export default function WelcomePortalAuth({
                 <button
                   type="button"
                   onClick={() => { setMode("signup"); setError(null); setInfo(null); }}
-                  className="font-semibold text-[#2563EB] hover:underline"
+                  className="font-semibold text-[#E5352A] hover:underline"
                 >
                   Registrate
                 </button>
