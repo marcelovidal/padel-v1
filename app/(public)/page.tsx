@@ -8,6 +8,7 @@ import { LandingJugador } from "@/components/landing/LandingJugador";
 import { LandingClubes } from "@/components/landing/LandingClubes";
 import { LandingEntrenador } from "@/components/landing/LandingEntrenador";
 import { LandingContacto } from "@/components/landing/LandingContacto";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -277,16 +278,7 @@ export default async function LandingPage() {
       {/* ─── FOOTER ────────────────────────────────────────────────── */}
       <footer className="border-t border-stone-200 bg-white px-6 py-6 md:px-10">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <span
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontStyle: "italic",
-              fontSize: "15px",
-              color: "#1565C0",
-            }}
-          >
-            Pasala
-          </span>
+          <PasalaLogo variant="light" size="sm" />
           <span className="tracking-wide text-slate-500" style={{ fontSize: "11px" }}>
             General Roca · Patagonia · Argentina
           </span>

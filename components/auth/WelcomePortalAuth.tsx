@@ -289,8 +289,8 @@ export default function WelcomePortalAuth({
         <>
           {/* Header */}
           {loginStep === "default" && (
-            <div className="text-center mb-8">
-              <PasalaLogo variant="light" size="lg" />
+            <div className="flex justify-center mb-6">
+              <PasalaLogo variant="light" size="md" />
               <p className="text-sm text-[#64748B] mt-2 font-medium">Ingresá a tu cuenta</p>
             </div>
           )}
