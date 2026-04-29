@@ -24,6 +24,7 @@ import {
   BarChart2,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 
 interface ClubSidebarProps {
   clubName: string;
@@ -221,22 +222,15 @@ export function ClubSidebar({
       {/* ── Header ── */}
       {collapsed ? (
         <div className="flex flex-col items-center gap-2.5 py-3 px-1 border-b border-slate-200">
-          <Link
-            href="/club"
-            title="PASALA — Club"
-            className="font-black text-xl text-blue-600 tracking-tighter italic leading-none"
-          >
-            P
+          <Link href="/club" title="PASALA — Club">
+            <PasalaLogo iconOnly size="sm" />
           </Link>
         </div>
       ) : (
         <div className="p-4 border-b border-slate-200">
           <div className="mb-3">
-            <Link
-              href="/club"
-              className="font-black text-2xl text-blue-600 tracking-tighter italic leading-none"
-            >
-              PASALA
+            <Link href="/club">
+              <PasalaLogo variant="dark" size="md" />
             </Link>
           </div>
           <div className="flex items-center gap-3">

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 import { SignOutButton } from "@/components/sign-out-button";
 import type { Database } from "@/types/database";
 
@@ -39,7 +40,7 @@ export default async function AdminLayout({
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-black uppercase tracking-tighter text-blue-600">PASALA</h1>
+                <PasalaLogo variant="light" size="md" />
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <Link

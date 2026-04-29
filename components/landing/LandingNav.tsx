@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createBrowserSupabase } from "@/lib/supabase/client";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 
 type LandingNavProps = {
   primaryHref: string;
@@ -90,18 +91,8 @@ export function LandingNav({
         >
           <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 md:px-10 md:py-5">
             {/* Logo */}
-            <Link
-              href="/"
-              className="transition-colors duration-300"
-              style={{
-                fontFamily: "Georgia, serif",
-                fontStyle: "italic",
-                fontSize: "22px",
-                color: transparent ? "#ffffff" : "#1565C0",
-                textDecoration: "none",
-              }}
-            >
-              Pasala
+            <Link href="/">
+              <PasalaLogo variant={transparent ? "dark" : "light"} size="md" />
             </Link>
 
             {/* Nav links */}
@@ -259,9 +250,7 @@ export function LandingNav({
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-            <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "20px", color: "#ffffff" }}>
-              Pasala
-            </span>
+            <PasalaLogo variant="dark" size="md" />
             <button onClick={() => setMenuOpen(false)} className="p-2 text-white">
               <svg viewBox="0 0 24 24" className="w-6 h-6" stroke="currentColor" strokeWidth="2" fill="none">
                 <path d="M18 6L6 18M6 6l12 12"/>

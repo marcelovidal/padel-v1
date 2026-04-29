@@ -24,6 +24,22 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+
+    --color-rojo:       #E5352A;
+    --color-rojo-dark:  #B82820;
+    --color-rojo-light: #FF6B5E;
+    --color-azul:       #1B3CC8;
+    --color-azul-dark:  #102690;
+    --color-azul-light: #5072E0;
+    --color-negro:      #0C0C0C;
+    --color-grafito:    #1E1E1E;
+    --color-gris-mid:   #6B6965;
+    --color-gris-light: #C8C5BE;
+    --color-crema:      #F5F2EE;
+    --color-blanco:     #FFFFFF;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-sans:    'Plus Jakarta Sans', sans-serif;
+    --font-serif:   'Instrument Serif', serif;
   }
 
   .dark {
@@ -58,6 +74,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
 }
 

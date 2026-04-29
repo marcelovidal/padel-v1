@@ -26,6 +26,7 @@ import {
   Settings,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ProximoEvento } from "@/components/player/ProximoEvento";
 import { UltimoPartido } from "@/components/player/UltimoPartido";
@@ -235,12 +236,8 @@ export function PlayerSidebar({
       {/* ── Header ── */}
       {collapsed ? (
         <div className="flex flex-col items-center gap-2.5 py-3 px-1 border-b border-slate-200">
-          <Link
-            href="/player"
-            title="PASALA — Inicio"
-            className="font-black text-xl text-blue-600 tracking-tighter italic leading-none"
-          >
-            P
+          <Link href="/player" title="PASALA — Inicio">
+            <PasalaLogo iconOnly size="sm" />
           </Link>
           <NotificationBell
             items={bellItems}
@@ -255,11 +252,8 @@ export function PlayerSidebar({
       ) : (
         <div className="p-4 border-b border-slate-200">
           <div className="flex items-center justify-between mb-3">
-            <Link
-              href="/player"
-              className="font-black text-2xl text-blue-600 tracking-tighter italic leading-none"
-            >
-              PASALA
+            <Link href="/player">
+              <PasalaLogo variant="dark" size="md" />
             </Link>
             <NotificationBell
               items={bellItems}

@@ -5,6 +5,7 @@ import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
+import { PasalaLogo } from "@/components/ui/PasalaLogo";
 import PlayerSignupWizard from "@/components/auth/PlayerSignupWizard";
 import ClubSignupWizard from "@/components/auth/ClubSignupWizard";
 
@@ -289,9 +290,7 @@ export default function WelcomePortalAuth({
           {/* Header */}
           {loginStep === "default" && (
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-black text-[#2563EB] tracking-tighter italic -skew-x-3 inline-block">
-                PASALA
-              </h1>
+              <PasalaLogo variant="light" size="lg" />
               <p className="text-sm text-[#64748B] mt-2 font-medium">Ingresá a tu cuenta</p>
             </div>
           )}
