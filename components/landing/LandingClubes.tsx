@@ -689,13 +689,16 @@ export function LandingClubes() {
           <p className="mb-4 text-[11px] uppercase tracking-[0.25em] text-[#E5352A]">
             PARA CLUBES
           </p>
-          <h2
-            className="text-5xl font-normal leading-tight lg:text-6xl"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
-            <span className="text-white">Tu comunidad ya utiliza Pasala.</span>
-            <br />
-            <span className="italic text-[#1565C0]">¿Tu club está listo?</span>
+          <h2 className="leading-tight">
+            <span className="block font-display font-black uppercase text-5xl lg:text-6xl text-[#F5F2EE] leading-none">
+              Tu comunidad ya utiliza Pasala.
+            </span>
+            <span
+              className="block text-3xl lg:text-4xl text-[#E5352A]"
+              style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
+            >
+              ¿Tu club está listo?
+            </span>
           </h2>
         </div>
 
@@ -723,7 +726,7 @@ export function LandingClubes() {
               {i === active ? (
                 <div className="h-1 overflow-hidden rounded-full bg-white/15">
                   <div
-                    className="h-full rounded-full bg-blue-400"
+                    className="h-full rounded-full bg-[#E5352A]"
                     style={{ width: `${progress}%`, transition: "width 0.1s linear" }}
                   />
                 </div>
@@ -740,8 +743,8 @@ export function LandingClubes() {
             key={active}
             style={{ animation: "cardFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both" }}
           >
-            <p className="text-lg font-semibold text-white">{SLIDE_TEXT[active].title}</p>
-            <p className="mx-auto mt-1 max-w-xl text-sm text-slate-400">{SLIDE_TEXT[active].desc}</p>
+            <p className="font-sans text-lg font-bold text-[#F5F2EE]">{SLIDE_TEXT[active].title}</p>
+            <p className="mx-auto mt-1 max-w-xl font-sans text-sm text-[#C8C5BE]">{SLIDE_TEXT[active].desc}</p>
           </div>
         </div>
 
@@ -788,10 +791,10 @@ export function LandingClubes() {
           ].map(({ label, icon }) => (
             <div
               key={label}
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5"
+              className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 transition-colors hover:border-[#E5352A]/30"
             >
               {icon}
-              <span className="text-sm text-white/70">{label}</span>
+              <span className="text-sm text-[#C8C5BE] transition-colors group-hover:text-[#F5F2EE]">{label}</span>
             </div>
           ))}
         </div>
