@@ -230,7 +230,7 @@ export function ClubSidebar({
         <div className="p-4 border-b border-slate-200">
           <div className="mb-3">
             <Link href="/club">
-              <PasalaLogo variant="dark" size="md" />
+              <PasalaLogo variant="light" size="md" />
             </Link>
           </div>
           <div className="flex items-center gap-3">
