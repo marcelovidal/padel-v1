@@ -31,7 +31,6 @@ export function LandingNav({
   const router = useRouter();
   const isLanding = pathname === "/";
 
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -39,15 +38,6 @@ export function LandingNav({
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
-  useEffect(() => {
-    if (!isLanding) return;
-    const handler = () => setScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", handler, { passive: true });
-    handler();
-    return () => window.removeEventListener("scroll", handler);
-  }, [isLanding]);
-
-  const transparent = isLanding && !scrolled;
   const showSubBar = isAuthenticated && isLanding;
   const firstName = displayName?.split(" ")[0] ?? "";
 
@@ -77,22 +67,11 @@ export function LandingNav({
 
       {/* Wrapper fixed — apila header + sub-barra sin calcular alturas */}
       <div className="fixed left-0 right-0 top-0 z-50">
-        <header
-          className="transition-colors duration-300"
-          style={{
-            backgroundColor: transparent ? "transparent" : "#ffffff",
-            borderBottom:
-              showSubBar
-                ? "none"
-                : transparent
-                ? "none"
-                : "1px solid #e7e5e4",
-          }}
-        >
+        <header className="bg-[#0C0C0C] border-b border-white/10">
           <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-4 md:px-10 md:py-5">
             {/* Logo */}
             <Link href="/">
-              <PasalaLogo variant={transparent ? "dark" : "light"} size="md" />
+              <PasalaLogo variant="dark" size="md" />
             </Link>
 
             {/* Nav links */}
@@ -106,11 +85,7 @@ export function LandingNav({
                 <Link
                   key={href}
                   href={href}
-                  className={`uppercase tracking-widest transition-colors duration-200 ${
-                    transparent
-                      ? "text-white/80 hover:text-white"
-                      : "text-slate-700 hover:text-[#1565C0]"
-                  }`}
+                  className="uppercase tracking-widest transition-colors duration-200 text-white/70 hover:text-white"
                   style={{ fontSize: "13px", fontWeight: "600" }}
                 >
                   {label}
@@ -129,7 +104,7 @@ export function LandingNav({
                 </span>
                 <span
                   className="hidden text-sm font-medium md:block"
-                  style={{ color: transparent ? "rgba(255,255,255,0.85)" : "#080808" }}
+                  style={{ color: "rgba(255,255,255,0.85)" }}
                 >
                   {displayName?.split(" ")[0] ?? "Mi cuenta"}
                 </span>
@@ -138,21 +113,13 @@ export function LandingNav({
               <div className="hidden md:flex items-center gap-2">
                 <Link
                   href="/welcome"
-                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                    transparent
-                      ? "bg-white text-[#E5352A] hover:bg-white/90"
-                      : "bg-[#E5352A] text-white hover:bg-[#B82820]"
-                  }`}
+                  className="rounded-full px-4 py-2 text-xs font-bold transition-colors bg-[#E5352A] text-white hover:bg-[#B82820]"
                 >
                   Registrate
                 </Link>
                 <Link
                   href="/player/login"
-                  className={`rounded-full border px-4 py-2 text-xs font-bold transition-colors ${
-                    transparent
-                      ? "border-white/50 text-white hover:border-white"
-                      : "border-slate-300 text-slate-700 hover:border-[#1565C0] hover:text-[#1565C0]"
-                  }`}
+                  className="rounded-full border px-4 py-2 text-xs font-bold transition-colors border-white/30 text-white hover:border-white/60"
                 >
                   Ingresá
                 </Link>
@@ -162,7 +129,7 @@ export function LandingNav({
             {/* Hamburguesa — mobile only */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className={`md:hidden flex items-center p-2 ${transparent ? "text-white" : "text-slate-800"}`}
+              className="md:hidden flex items-center p-2 text-white"
               aria-label="Menú"
             >
               {menuOpen ? (
