@@ -41,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${plusJakarta.variable} ${barlowCondensed.variable} ${instrumentSerif.variable}`}>
+      <body className={`${plusJakarta.variable} ${barlowCondensed.variable} ${instrumentSerif.variable} antialiased`}>
         {GA_MEASUREMENT_ID ? (
           <>
             <Script
