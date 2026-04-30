@@ -41,35 +41,35 @@ const SLIDES = [
 
   // ── 0: Panel del Club — resumen ejecutivo ─────────────────────────────────
   <>
-    <div className="flex items-center gap-3 bg-[#1a2942] px-4 py-3">
+    <div className="flex items-center gap-3 bg-[#0C0C0C] px-4 py-3">
       <div className="flex items-center gap-1.5">
         <div className="h-3 w-3 rounded-full bg-red-400" />
         <div className="h-3 w-3 rounded-full bg-amber-400" />
         <div className="h-3 w-3 rounded-full bg-emerald-400" />
       </div>
-      <div className="mx-4 flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#0f1e35] px-3 py-1.5">
-        <svg viewBox="0 0 12 14" className="h-3 w-2.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <div className="mx-4 flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1E1E1E] px-3 py-1.5">
+        <svg viewBox="0 0 12 14" className="h-3 w-2.5 shrink-0 text-[#6B6965]" fill="none" stroke="currentColor" strokeWidth="1.5">
           <rect x="1" y="5" width="10" height="8" rx="1.5" />
           <path d="M4 5V3.5a2 2 0 014 0V5" />
         </svg>
-        <span className="text-xs text-slate-500">pasala.com.ar/mi-club/dashboard</span>
+        <span className="text-xs text-[#6B6965]">pasala.com.ar/mi-club/dashboard</span>
       </div>
     </div>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-4">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-4">
       <div>
-        <p className="text-xs uppercase tracking-widest text-slate-400">RESUMEN EJECUTIVO</p>
-        <p className="text-xl font-bold text-slate-900">Panel del Club</p>
-        <p className="text-sm text-slate-400">Club Andino · General Roca</p>
+        <p className="text-xs uppercase tracking-widest text-[#6B6965]">RESUMEN EJECUTIVO</p>
+        <p className="text-xl font-bold text-[#0C0C0C]">Panel del Club</p>
+        <p className="text-sm text-[#6B6965]">Club Andino · General Roca</p>
       </div>
       <div className="flex items-center gap-2">
-        <button type="button" className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-xs text-white">Gestionar reservas</button>
-        <button type="button" className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs text-slate-600">Gestionar torneos</button>
+        <button type="button" className="rounded-lg bg-[#E5352A] px-3 py-1.5 text-xs text-white">Gestionar reservas</button>
+        <button type="button" className="rounded-lg border border-[#0C0C0C]/20 px-3 py-1.5 text-xs text-[#0C0C0C]">Gestionar torneos</button>
       </div>
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 border-b border-slate-200">
       {[
         { label: "Reservas confirmadas (7d)", value: "7",     cls: "text-slate-900" },
-        { label: "Llenado próx. 7d",          value: "68%",   cls: "text-[#1565C0]" },
+        { label: "Llenado próx. 7d",          value: "68%",   cls: "text-[#E5352A]" },
         { label: "Jugadores únicos (30d)",    value: "24",    cls: "text-slate-900" },
         { label: "Hora pico",                 value: "18:00", cls: "text-emerald-600" },
       ].map((kpi) => (
@@ -94,7 +94,7 @@ const SLIDES = [
             { h: "15", bg: "bg-slate-100",  text: "text-slate-400", bold: false },
             { h: "16", bg: "bg-blue-200",   text: "text-blue-600",  bold: false },
             { h: "17", bg: "bg-blue-300",   text: "text-blue-700",  bold: false },
-            { h: "18", bg: "bg-[#1565C0]",  text: "text-white",     bold: true  },
+            { h: "18", bg: "bg-[#E5352A]",  text: "text-white",     bold: true  },
             { h: "19", bg: "bg-blue-400",   text: "text-white",     bold: false },
             { h: "20", bg: "bg-blue-300",   text: "text-blue-700",  bold: false },
             { h: "21", bg: "bg-blue-200",   text: "text-blue-600",  bold: false },
@@ -119,8 +119,8 @@ const SLIDES = [
         <p className="mb-2 text-xs text-slate-500">Ranking del club</p>
         {[
           { pos: 1, name: "F. Castro",  pts: 320, cls: "text-amber-500" },
-          { pos: 2, name: "P. Ríos",    pts: 298, cls: "text-[#1565C0]" },
-          { pos: 3, name: "M. Andrade", pts: 275, cls: "text-[#1565C0]" },
+          { pos: 2, name: "P. Ríos",    pts: 298, cls: "text-[#E5352A]" },
+          { pos: 3, name: "M. Andrade", pts: 275, cls: "text-[#E5352A]" },
           { pos: 4, name: "Lucas T.",   pts: 241, cls: "text-slate-500" },
           { pos: 5, name: "R. Soria",   pts: 198, cls: "text-slate-500" },
         ].map(({ pos, name, pts, cls }) => (
@@ -136,14 +136,14 @@ const SLIDES = [
 
   // ── 1: Agenda semanal ──────────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-xs uppercase tracking-widest text-slate-400">RESERVAS</p>
-        <p className="text-base font-bold text-slate-900">Agenda semanal</p>
-        <p className="text-sm text-slate-400">Mi club → Reservas</p>
+        <p className="text-xs uppercase tracking-widest text-[#6B6965]">RESERVAS</p>
+        <p className="text-base font-bold text-[#0C0C0C]">Agenda semanal</p>
+        <p className="text-sm text-[#6B6965]">Mi club → Reservas</p>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-xs text-white">Agenda</span>
+        <span className="rounded-lg bg-[#E5352A] px-3 py-1.5 text-xs text-white">Agenda</span>
         <span className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs text-slate-500">Turnos fijos</span>
         <span className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs text-slate-500">Lista</span>
       </div>
@@ -155,11 +155,11 @@ const SLIDES = [
     </div>
     <div className="flex flex-wrap gap-2 px-6 py-2">
       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">SOLICITUD</span>
-      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">CONFIRMADA</span>
+      <span className="rounded-full bg-[#1B3CC8]/10 px-2 py-0.5 text-xs font-semibold text-[#1B3CC8]">CONFIRMADA</span>
       <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">LIGA</span>
       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">TORNEO</span>
       <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">FIJO</span>
-      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">LIBRE</span>
+      <span className="rounded-full bg-[#0C0C0C]/5 px-2 py-0.5 text-xs font-semibold text-[#6B6965]">LIBRE</span>
     </div>
     {/* Mobile: lista de reservas */}
     <div className="sm:hidden px-3 py-3 space-y-2">
@@ -182,16 +182,16 @@ const SLIDES = [
     <div className="hidden sm:block overflow-x-auto px-6 py-3">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b-2 border-slate-200 bg-slate-100">
+          <tr className="border-b-2 border-slate-200 bg-[#0C0C0C]/5">
             {["CANCHA", "LUN 21", "MAR 22", "MIÉ 23", "JUE 24", "VIE 25", "SÁB 26", "DOM 27"].map((h) => (
-              <th key={h} className="whitespace-nowrap px-2 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">{h}</th>
+              <th key={h} className="whitespace-nowrap px-2 py-2 text-left text-xs font-semibold uppercase tracking-wider text-[#0C0C0C]">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr className="border-b border-slate-100 bg-white">
             <td className="whitespace-nowrap py-1 pr-2 pl-2 text-xs font-semibold text-slate-700">Cancha 1</td>
-            <td className="px-1 py-1"><div className="whitespace-nowrap rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">⟳ 14:00 M. Castro</div></td>
+            <td className="px-1 py-1"><div className="whitespace-nowrap rounded border border-[#1B3CC8]/20 bg-[#1B3CC8]/10 px-2 py-1 text-xs font-semibold text-[#1B3CC8]">⟳ 14:00 M. Castro</div></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
@@ -199,7 +199,7 @@ const SLIDES = [
             <td className="px-1 py-1"><div className="whitespace-nowrap rounded border border-green-200 bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">⚡ 10:00 Torneo Apertura</div></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
           </tr>
-          <tr className="border-b border-slate-100 bg-slate-50">
+          <tr className="border-b border-slate-100 bg-[#F5F2EE]/50">
             <td className="whitespace-nowrap py-1 pr-2 pl-2 text-xs font-semibold text-slate-700">Cancha 2</td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-white" /></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-white" /></td>
@@ -219,7 +219,7 @@ const SLIDES = [
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-slate-50" /></td>
           </tr>
-          <tr className="bg-slate-50">
+          <tr className="bg-[#F5F2EE]/50">
             <td className="whitespace-nowrap py-1 pr-2 pl-2 text-xs font-semibold text-slate-700">Cancha 4</td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-white" /></td>
             <td className="px-1 py-1"><div className="h-9 rounded border border-slate-100 bg-white" /></td>
@@ -236,11 +236,11 @@ const SLIDES = [
 
   // ── 2: Turnos fijos ────────────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-xs uppercase tracking-widest text-slate-400">TURNOS FIJOS</p>
-        <p className="text-base font-bold text-slate-900">Asignación semanal recurrente</p>
-        <p className="text-sm text-slate-400">Mi club → Reservas → Turnos fijos</p>
+        <p className="text-xs uppercase tracking-widest text-[#6B6965]">TURNOS FIJOS</p>
+        <p className="text-base font-bold text-[#0C0C0C]">Asignación semanal recurrente</p>
+        <p className="text-sm text-[#6B6965]">Mi club → Reservas → Turnos fijos</p>
       </div>
     </div>
     <div className="px-6 py-4">
@@ -249,14 +249,14 @@ const SLIDES = [
           <p className="text-sm font-bold text-slate-900">Turnos fijos activos</p>
           <p className="text-xs text-slate-400">Semana del 21/04</p>
         </div>
-        <button type="button" className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-xs text-white">+ Asignar turno</button>
+        <button type="button" className="rounded-lg bg-[#E5352A] px-3 py-1.5 text-xs text-white">+ Asignar turno</button>
       </div>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b-2 border-slate-200 bg-slate-100">
+            <tr className="border-b-2 border-slate-200 bg-[#0C0C0C]/5">
               {["JUGADOR", "CANCHA", "DÍA", "HORARIO", "ESTADO"].map((h) => (
-                <th key={h} className={`py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600${h === "DÍA" || h === "HORARIO" ? " hidden sm:table-cell" : ""}`}>{h}</th>
+                <th key={h} className={`py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-[#0C0C0C]${h === "DÍA" || h === "HORARIO" ? " hidden sm:table-cell" : ""}`}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -269,7 +269,7 @@ const SLIDES = [
               { av: "RS", name: "R. Soria",   cancha: "Cancha 4", dia: "Sábado",    hora: "10:00", st: "ACTIVO",    sc: "bg-emerald-50 text-emerald-600", even: false },
               { av: "MA", name: "M. Andrade", cancha: "Cancha 1", dia: "Martes",    hora: "18:00", st: "PENDIENTE", sc: "bg-amber-50 text-amber-600",     even: true  },
             ].map(({ av, name, cancha, dia, hora, st, sc, even }) => (
-              <tr key={name} className={`border-b border-slate-100 last:border-0 ${even ? "bg-slate-50" : "bg-white"}`}>
+              <tr key={name} className={`border-b border-slate-100 last:border-0 ${even ? "bg-[#F5F2EE]/50" : "bg-white"}`}>
                 <td className="py-2.5 pr-4">
                   <div className="flex items-center gap-2">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">{av}</div>
@@ -290,17 +290,17 @@ const SLIDES = [
 
   // ── 3: Torneos y ligas ─────────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-xs uppercase tracking-widest text-slate-400">TORNEOS</p>
-        <p className="text-base font-bold text-slate-900">Gestión de eventos</p>
-        <p className="text-sm text-slate-400">Mi club → Torneos</p>
+        <p className="text-xs uppercase tracking-widest text-[#6B6965]">TORNEOS</p>
+        <p className="text-base font-bold text-[#0C0C0C]">Gestión de eventos</p>
+        <p className="text-sm text-[#6B6965]">Mi club → Torneos</p>
       </div>
     </div>
     <div className="px-6 py-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-bold text-slate-900">Eventos activos</p>
-        <button type="button" className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-xs text-white">+ Crear evento</button>
+        <button type="button" className="rounded-lg bg-[#E5352A] px-3 py-1.5 text-xs text-white">+ Crear evento</button>
       </div>
       <p className="mb-2 mt-4 text-xs uppercase tracking-wider text-slate-500">TORNEOS</p>
       <div className="mb-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
@@ -311,8 +311,8 @@ const SLIDES = [
           <p className="text-xs text-slate-500">22/03 → 05/04/2026</p>
         </div>
         <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">TORNEO</span>
-        <span className="whitespace-nowrap text-xs font-medium text-[#1565C0]">4 lugares disponibles</span>
-        <button type="button" className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600">Ver</button>
+        <span className="whitespace-nowrap text-xs font-medium text-[#E5352A]">4 lugares disponibles</span>
+        <button type="button" className="rounded border border-[#0C0C0C]/20 px-2 py-1 text-xs text-[#0C0C0C]">Ver</button>
       </div>
       <div className="mb-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-xs font-bold text-white">TI</div>
@@ -322,8 +322,8 @@ const SLIDES = [
           <p className="text-xs text-slate-500">07/06 → 22/06/2026</p>
         </div>
         <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">TORNEO</span>
-        <span className="whitespace-nowrap text-xs font-medium text-[#1565C0]">8 lugares disponibles</span>
-        <button type="button" className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600">Ver</button>
+        <span className="whitespace-nowrap text-xs font-medium text-[#E5352A]">8 lugares disponibles</span>
+        <button type="button" className="rounded border border-[#0C0C0C]/20 px-2 py-1 text-xs text-[#0C0C0C]">Ver</button>
       </div>
       <p className="mb-2 mt-3 text-[9px] uppercase tracking-wider text-slate-500">LIGAS</p>
       <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
@@ -334,19 +334,19 @@ const SLIDES = [
           <p className="text-[10px] text-slate-500">15/03 → 30/06/2026</p>
         </div>
         <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[9px] font-semibold text-purple-700">LIGA</span>
-        <span className="whitespace-nowrap text-[10px] font-medium text-[#1565C0]">2 equipos más</span>
-        <button type="button" className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600">Ver</button>
+        <span className="whitespace-nowrap text-[10px] font-medium text-[#E5352A]">2 equipos más</span>
+        <button type="button" className="rounded border border-[#0C0C0C]/20 px-2 py-1 text-xs text-[#0C0C0C]">Ver</button>
       </div>
     </div>
   </>,
 
   // ── 4: Bracket del torneo ──────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-slate-400">TORNEOS</p>
-        <p className="text-sm font-bold text-slate-900">Bracket automático</p>
-        <p className="text-xs text-slate-400">Mi club → Torneos</p>
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6965]">TORNEOS</p>
+        <p className="text-sm font-bold text-[#0C0C0C]">Bracket automático</p>
+        <p className="text-xs text-[#6B6965]">Mi club → Torneos</p>
       </div>
     </div>
     <div className="px-6 py-4">
@@ -360,14 +360,14 @@ const SLIDES = [
       <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
         {/* Ronda 1 */}
         <div className="flex shrink-0 flex-col">
-          <p className="mb-2 inline-block rounded bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">RONDA 1</p>
+          <p className="mb-2 inline-block rounded bg-[#0C0C0C]/5 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#6B6965]">RONDA 1</p>
           {([
             { a: "F. Castro", sA: [6, 6],    b: "D. Morales", sB: [3, 2]    },
             { a: "M. Castro", sA: [6, 6],    b: "A. Burgos",  sB: [2, 1]    },
             { a: "P. Ríos",   sA: [6, 6],    b: "R. Soria",   sB: [4, 2]    },
             { a: "Lucas T.",  sA: [6, 4, 6], b: "M. Andrade", sB: [1, 6, 2] },
           ] as { a: string; sA: number[]; b: string; sB: number[] }[]).map(({ a, sA, b, sB }) => (
-            <div key={a} className="mb-2 w-28 sm:w-44 rounded-lg border border-slate-200 bg-white p-2">
+            <div key={a} className="mb-2 w-28 sm:w-44 rounded-lg border border-[#0C0C0C]/10 bg-[#F5F2EE] p-2">
               {/* Set header */}
               <div className="flex items-center gap-1.5 pb-0.5">
                 <div className="h-5 w-5 shrink-0" />
@@ -384,7 +384,7 @@ const SLIDES = [
                 <span className="flex-1 truncate text-[10px] font-medium text-slate-800">{a}</span>
                 <div className="flex gap-1">
                   {sA.map((s, si) => (
-                    <span key={si} className="w-5 text-center text-xs font-bold text-[#1565C0] bg-blue-50 rounded">{s}</span>
+                    <span key={si} className="w-5 text-center text-xs font-bold text-[#E5352A] bg-blue-50 rounded">{s}</span>
                   ))}
                 </div>
               </div>
@@ -407,12 +407,12 @@ const SLIDES = [
         </div>
         {/* Semifinal */}
         <div className="flex shrink-0 flex-col justify-around">
-          <p className="mb-2 inline-block rounded bg-blue-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-blue-600">SEMIFINAL</p>
+          <p className="mb-2 inline-block rounded bg-[#1B3CC8]/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#1B3CC8]">SEMIFINAL</p>
           {([
             { a: "F. Castro", sA: [7, 6] as (number | null)[],      b: "M. Castro", sB: [5, 4] as (number | null)[],      done: true  },
             { a: "P. Ríos",   sA: [null, null] as (number | null)[], b: "Lucas T.", sB: [null, null] as (number | null)[], done: false },
           ] as { a: string; sA: (number | null)[]; b: string; sB: (number | null)[]; done: boolean }[]).map(({ a, sA, b, sB, done }) => (
-            <div key={a} className={`mb-2 w-28 sm:w-44 rounded-lg border p-2 ${done ? "border-blue-200 bg-blue-50" : "border-2 border-blue-400 bg-blue-100/50"}`}>
+            <div key={a} className={`mb-2 w-28 sm:w-44 rounded-lg border p-2 ${done ? "border-[#1B3CC8]/20 bg-[#1B3CC8]/5" : "border-2 border-[#1B3CC8] bg-[#1B3CC8]/10"}`}>
               {/* Set header */}
               <div className="flex items-center gap-1.5 pb-0.5">
                 <div className="h-5 w-5 shrink-0" />
@@ -429,7 +429,7 @@ const SLIDES = [
                 <span className={`flex-1 truncate text-[10px] ${done ? "font-semibold text-blue-900" : "font-medium text-slate-800"}`}>{a}</span>
                 <div className="flex gap-1">
                   {sA.map((s, si) => (
-                    <span key={si} className={`w-5 text-center text-xs rounded ${done ? "font-bold text-white bg-blue-600" : "text-slate-300 bg-blue-100"}`}>
+                    <span key={si} className={`w-5 text-center text-xs rounded ${done ? "font-bold text-white bg-[#1B3CC8]" : "text-slate-300 bg-[#1B3CC8]/10"}`}>
                       {s !== null ? s : "-"}
                     </span>
                   ))}
@@ -447,7 +447,7 @@ const SLIDES = [
                   ))}
                 </div>
               </div>
-              {!done && <div className="mt-1 text-right"><span className="rounded px-1 py-0.5 text-[8px] font-semibold bg-blue-600 text-white">EN CURSO</span></div>}
+              {!done && <div className="mt-1 text-right"><span className="rounded px-1 py-0.5 text-[8px] font-semibold bg-[#1B3CC8] text-white">EN CURSO</span></div>}
             </div>
           ))}
         </div>
@@ -478,11 +478,11 @@ const SLIDES = [
 
   // ── 5: Ranking del club ────────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-slate-400">JUGADORES</p>
-        <p className="text-sm font-bold text-slate-900">Directorio y ranking</p>
-        <p className="text-xs text-slate-400">Mi club → Jugadores</p>
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6965]">JUGADORES</p>
+        <p className="text-sm font-bold text-[#0C0C0C]">Directorio y ranking</p>
+        <p className="text-xs text-[#6B6965]">Mi club → Jugadores</p>
       </div>
     </div>
     <div className="flex items-center gap-2 border-b border-slate-200 px-6 py-3">
@@ -495,9 +495,9 @@ const SLIDES = [
     <div className="overflow-x-auto px-6 py-2">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b-2 border-slate-200 bg-slate-100">
+          <tr className="border-b-2 border-slate-200 bg-[#0C0C0C]/5">
             {["JUGADOR", "UBICACIÓN", "CAT", "ÍNDICE PASALA", "NIVEL", "WR", "PJ", "RACHA"].map((h) => (
-              <th key={h} className={`whitespace-nowrap py-2 pr-3 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-600${h === "UBICACIÓN" || h === "PJ" ? " hidden sm:table-cell" : ""}`}>{h}</th>
+              <th key={h} className={`whitespace-nowrap py-2 pr-3 text-left text-[9px] font-semibold uppercase tracking-wider text-[#0C0C0C]${h === "UBICACIÓN" || h === "PJ" ? " hidden sm:table-cell" : ""}`}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -512,7 +512,7 @@ const SLIDES = [
             { name: "A. Burgos",  ubi: "Gral. Roca", cat: "5ta", idx: 48.3, iw: "48%", nv: "INICIAL",     nc: "bg-slate-100 text-slate-600", wr: "100%",  pj: 0, r: "W2", rc: "text-emerald-600", even: false },
             { name: "D. Morales", ubi: "Gral. Roca", cat: "5ta", idx: 35.7, iw: "36%", nv: "INICIAL",     nc: "bg-slate-100 text-slate-600", wr: "16.7%", pj: 1, r: "L3", rc: "text-red-500",     even: true  },
           ].map(({ name, ubi, cat, idx, iw, nv, nc, wr, pj, r, rc, even }) => (
-            <tr key={name} className={`border-b border-slate-100 last:border-0 ${even ? "bg-slate-50" : "bg-white"}`}>
+            <tr key={name} className={`border-b border-slate-100 last:border-0 ${even ? "bg-[#F5F2EE]/50" : "bg-white"}`}>
               <td className="whitespace-nowrap py-2 pr-3 text-xs font-semibold text-slate-900">{name}</td>
               <td className="hidden sm:table-cell whitespace-nowrap py-2 pr-3 text-xs text-slate-600">{ubi}</td>
               <td className="py-2 pr-3 text-xs text-slate-600">{cat}</td>
@@ -520,7 +520,7 @@ const SLIDES = [
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-medium text-slate-800">{idx}</span>
                   <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200">
-                    <div className="h-full rounded-full bg-[#1565C0]" style={{ width: iw }} />
+                    <div className="h-full rounded-full bg-[#E5352A]" style={{ width: iw }} />
                   </div>
                 </div>
               </td>
@@ -539,17 +539,17 @@ const SLIDES = [
 
   // ── 6: Entrenadores ────────────────────────────────────────────────────────
   <>
-    <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-3">
+    <div className="flex items-center justify-between border-b border-[#0C0C0C]/8 bg-[#F5F2EE] px-6 py-3">
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-slate-400">ENTRENADORES</p>
-        <p className="text-sm font-bold text-slate-900">Gestión de entrenadores del club</p>
-        <p className="text-xs text-slate-400">Mi club → Entrenadores</p>
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6965]">ENTRENADORES</p>
+        <p className="text-sm font-bold text-[#0C0C0C]">Gestión de entrenadores del club</p>
+        <p className="text-xs text-[#6B6965]">Mi club → Entrenadores</p>
       </div>
     </div>
     <div className="px-6 py-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-bold text-slate-900">Entrenadores vinculados</p>
-        <button type="button" className="rounded-lg bg-[#1565C0] px-3 py-1.5 text-[10px] text-white">+ Vincular entrenador</button>
+        <button type="button" className="rounded-lg bg-[#E5352A] px-3 py-1.5 text-[10px] text-white">+ Vincular entrenador</button>
       </div>
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {([
@@ -604,7 +604,7 @@ const SLIDES = [
         ))}
       </div>
       <div className="mt-4">
-        <p className="mb-3 inline-block rounded bg-slate-100 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-slate-600">PRÓXIMAS CLASES</p>
+        <p className="mb-3 inline-block rounded bg-[#0C0C0C]/5 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-[#0C0C0C]">PRÓXIMAS CLASES</p>
         {([
           { av: "CR", coach: "C. Romero",  clase: "Clase avanzada",    fecha: "Lun 21 · 18:00 · Cancha 1", ins: "4 inscriptos" },
           { av: "LA", coach: "L. Andrade", clase: "Preparación física", fecha: "Mar 22 · 07:00 · Cancha 3", ins: "3 inscriptos" },
@@ -708,7 +708,7 @@ export function LandingClubes() {
             key={`screen-${active}`}
             style={{ animation: "cardFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both" }}
           >
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#f8fafc] shadow-2xl">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#F5F2EE] shadow-2xl">
               {SLIDES[active]}
             </div>
           </div>
@@ -724,14 +724,14 @@ export function LandingClubes() {
               className="flex-1"
             >
               {i === active ? (
-                <div className="h-1 overflow-hidden rounded-full bg-white/15">
+                <div className="h-1 overflow-hidden rounded-full bg-white/20">
                   <div
                     className="h-full rounded-full bg-[#E5352A]"
                     style={{ width: `${progress}%`, transition: "width 0.1s linear" }}
                   />
                 </div>
               ) : (
-                <div className="h-1 rounded-full bg-white/15" />
+                <div className="h-1 rounded-full bg-white/20" />
               )}
             </button>
           ))}
@@ -791,7 +791,7 @@ export function LandingClubes() {
           ].map(({ label, icon }) => (
             <div
               key={label}
-              className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 transition-colors hover:border-[#E5352A]/30"
+              className="group flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 transition-colors hover:border-[#E5352A]/30"
             >
               {icon}
               <span className="text-sm text-[#C8C5BE] transition-colors group-hover:text-[#F5F2EE]">{label}</span>
