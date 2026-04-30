@@ -61,7 +61,10 @@ export function LandingContacto() {
     "w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#1565C0] focus:ring-2 focus:ring-blue-50 transition-colors mb-4";
 
   return (
-    <section id="contacto" className="relative overflow-hidden px-8 py-24" style={{ background: "#0a1628" }}>
+    <section id="contacto" className="relative overflow-hidden px-8 py-24">
+      <style>{`
+        #contacto { background: #0C0C0C; } /* --color-negro brand v2 */
+      `}</style>
       {/* Círculos decorativos de fondo */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" style={{ top: 0, left: "25%", transform: "translateX(-50%)" }} />

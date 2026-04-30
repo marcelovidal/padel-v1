@@ -130,7 +130,7 @@ export function LandingEntrenador() {
 
             {/* Card 1 — Perfil público */}
             <div
-              className="rounded-2xl border border-stone-100 bg-stone-50 p-5"
+              className="rounded-2xl border-2 border-[#E5352A] bg-stone-50 p-5"
               style={
                 cardsVisible
                   ? { animation: "entCardUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0s both" }
@@ -170,7 +170,7 @@ export function LandingEntrenador() {
 
             {/* Card 2 — Agenda de clases */}
             <div
-              className="rounded-2xl border border-stone-100 bg-stone-50 p-5"
+              className="rounded-2xl border-2 border-[#E5352A] bg-stone-50 p-5"
               style={
                 cardsVisible
                   ? { animation: "entCardUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both" }

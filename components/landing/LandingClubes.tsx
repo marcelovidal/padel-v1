@@ -661,14 +661,41 @@ export function LandingClubes() {
     <section
       id="clubes"
       className="relative overflow-hidden px-8 py-24"
-      style={{ background: "#0a1628" }}
     >
       <style>{`
+        #clubes { background: #0C0C0C; } /* --color-negro brand v2 */
         @keyframes cardFade {
           from { opacity: 0; transform: scale(0.98); }
           to   { opacity: 1; transform: scale(1); }
         }
       `}</style>
+
+      {/* Grilla decorativa brand v2 */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <svg
+          width="100%"
+          height="100%"
+          xmlns="http://www.w3.org/2000/svg"
+          className="opacity-[0.06]"
+        >
+          <defs>
+            <pattern
+              id="grid-clubes"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="white"
+                strokeWidth="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid-clubes)" />
+        </svg>
+      </div>
 
       {/* Círculos decorativos de fondo */}
       <div className="pointer-events-none absolute inset-0 z-0">
