@@ -4,6 +4,7 @@ import { PlayerLayoutShell } from "@/components/player/PlayerLayoutShell";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 import { PlayerNotificationsProvider } from "@/contexts/player-notifications.context";
 import { createClient } from "@/lib/supabase/server";
+import { getAppSetting } from "@/repositories/app-settings.repository";
 
 export default async function PlayerLayout({
     children,
@@ -17,12 +18,21 @@ export default async function PlayerLayout({
     const location = [player.city, player.region_code].filter(Boolean).join(", ") || null;
 
     const supabase = await createClient();
-    const { count: activeCourtsCount, error: courtsError } = await supabase
-        .from("club_courts")
-        .select("id", { count: "exact", head: true })
-        .eq("active", true);
-    
-    const hasClubsWithCourts = !courtsError && activeCourtsCount !== null && activeCourtsCount > 0;
+    const [bookingsFlag, courtsResult] = await Promise.all([
+        getAppSetting("bookings_enabled"),
+        supabase
+            .from("club_courts")
+            .select("id", { count: "exact", head: true })
+            .eq("active", true),
+    ]);
+
+    const bookingsEnabled = bookingsFlag === "true";
+    const { count: activeCourtsCount, error: courtsError } = courtsResult;
+    const hasClubsWithCourts =
+        bookingsEnabled &&
+        !courtsError &&
+        activeCourtsCount !== null &&
+        activeCourtsCount > 0;
 
     return (
         <PlayerNotificationsProvider>

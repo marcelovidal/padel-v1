@@ -4,6 +4,7 @@ import { requirePlayer } from "@/lib/auth";
 import { PlayerRepository } from "@/repositories/player.repository";
 import { CreateMatchForm } from "@/components/matches/CreateMatchForm";
 import { createClient } from "@/lib/supabase/server";
+import { getAppSetting } from "@/repositories/app-settings.repository";
 
 type NewMatchSearchParams = {
   mode?: "club" | "direct";
@@ -28,12 +29,21 @@ export default async function CreateMatchPage({
   const mode = searchParams?.mode === "club" ? "club" : searchParams?.mode === "direct" ? "direct" : null;
 
   const supabase = await createClient();
-  const { count: activeCourtsCount, error: courtsError } = await supabase
+  const [bookingsFlag, courtsResult] = await Promise.all([
+    getAppSetting("bookings_enabled"),
+    supabase
       .from("club_courts")
       .select("id", { count: "exact", head: true })
-      .eq("active", true);
+      .eq("active", true),
+  ]);
 
-  const hasClubsWithCourts = !courtsError && activeCourtsCount !== null && activeCourtsCount > 0;
+  const bookingsEnabled = bookingsFlag === "true";
+  const { count: activeCourtsCount, error: courtsError } = courtsResult;
+  const hasClubsWithCourts =
+    bookingsEnabled &&
+    !courtsError &&
+    activeCourtsCount !== null &&
+    activeCourtsCount > 0;
 
   if (!fromBooking && mode === "club") {
     redirect(searchParams?.date ? `/player/bookings/new?date=${searchParams.date}` : "/player/bookings/new");
