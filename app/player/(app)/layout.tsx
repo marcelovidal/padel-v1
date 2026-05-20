@@ -3,6 +3,7 @@ import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { PlayerLayoutShell } from "@/components/player/PlayerLayoutShell";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 import { PlayerNotificationsProvider } from "@/contexts/player-notifications.context";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PlayerLayout({
     children,
@@ -15,6 +16,14 @@ export default async function PlayerLayout({
     const isClubOwner = !!(player as any).is_club_owner;
     const location = [player.city, player.region_code].filter(Boolean).join(", ") || null;
 
+    const supabase = await createClient();
+    const { count: activeCourtsCount, error: courtsError } = await supabase
+        .from("club_courts")
+        .select("id", { count: "exact", head: true })
+        .eq("active", true);
+    
+    const hasClubsWithCourts = !courtsError && activeCourtsCount !== null && activeCourtsCount > 0;
+
     return (
         <PlayerNotificationsProvider>
             <PlayerLayoutShell
@@ -25,6 +34,7 @@ export default async function PlayerLayout({
                 avatarInitials={avatarData.initials ?? ""}
                 isCoach={isCoach}
                 isClubOwner={isClubOwner}
+                hasClubsWithCourts={hasClubsWithCourts}
             >
                 {children}
             </PlayerLayoutShell>
