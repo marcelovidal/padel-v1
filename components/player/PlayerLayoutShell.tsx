@@ -14,6 +14,7 @@ interface PlayerLayoutShellProps {
   avatarInitials: string;
   isCoach: boolean;
   isClubOwner: boolean;
+  hasClubsWithCourts?: boolean;
 }
 
 export function PlayerLayoutShell({
@@ -25,6 +26,7 @@ export function PlayerLayoutShell({
   avatarInitials,
   isCoach,
   isClubOwner,
+  hasClubsWithCourts = false,
 }: PlayerLayoutShellProps) {
   // SSR default: expanded (md:ml-60). useEffect ajusta según localStorage / viewport.
   const [collapsed, setCollapsed] = useState(false);
@@ -59,6 +61,7 @@ export function PlayerLayoutShell({
         isClubOwner={isClubOwner}
         collapsed={collapsed}
         onToggle={handleToggle}
+        hasClubsWithCourts={hasClubsWithCourts}
       />
 
       {/* Desktop: margin left dinámico según estado del sidebar */}

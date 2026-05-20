@@ -5,16 +5,22 @@ import { ClubAdminService } from "@/services/club-admin.service";
 import { AdminService } from "@/services/admin.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminClubClaimActions } from "@/components/clubs/AdminClubClaimActions";
+import {
+  approveClubOwnerRequestAction,
+  rejectClubOwnerRequestAction,
+} from "@/lib/actions/club-owner.actions";
+import { createClient } from "@/lib/supabase/server";
 
-type TabKey = "pending" | "approved" | "rejected" | "unclaimed" | "player-created" | "duplicates";
+type TabKey = "pending" | "owner-requests" | "approved" | "rejected" | "unclaimed" | "player-created" | "duplicates";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: "pending", label: "Solicitudes Pendientes" },
-  { key: "approved", label: "Clubes Aprobados" },
-  { key: "rejected", label: "Solicitudes Rechazadas" },
-  { key: "unclaimed", label: "Clubes Sin Reclamo" },
-  { key: "player-created", label: "Clubes Creados por Jugadores" },
-  { key: "duplicates", label: "Clubes Duplicados" },
+  { key: "pending",         label: "Claims pendientes" },
+  { key: "owner-requests",  label: "Dueños de club" },
+  { key: "approved",        label: "Aprobados" },
+  { key: "rejected",        label: "Rechazados" },
+  { key: "unclaimed",       label: "Sin reclamar" },
+  { key: "player-created",  label: "Propuestas jugadores" },
+  { key: "duplicates",      label: "Duplicados" },
 ];
 
 function tabFromSearch(value?: string): TabKey {
@@ -48,6 +54,9 @@ export default async function AdminClubClaimsPage({
   const clubAdminService = new ClubAdminService();
   const adminService = new AdminService();
 
+  const supabase = await createClient();
+  const sb = supabase as any;
+
   const [
     pendingClaims,
     approvedClaims,
@@ -56,6 +65,7 @@ export default async function AdminClubClaimsPage({
     playerCreatedLeads,
     duplicateClusters,
     overviewStats,
+    ownerRequestsRaw,
   ] = await Promise.all([
     clubService.listClaimRequestsByStatus("pending", 200),
     clubService.listClaimedClubs(200),
@@ -64,7 +74,38 @@ export default async function AdminClubClaimsPage({
     clubService.listClubLeads("pending", 200),
     clubAdminService.findDuplicates(duplicateQuery || null, 50),
     adminService.getOverviewStats(),
+    sb
+      .from("club_owner_requests")
+      .select(
+        `id, status, requested_at, resolved_at, club_name_requested,
+         club_id, clubs ( name ),
+         player_id, players ( display_name, first_name, last_name )`
+      )
+      .order("requested_at", { ascending: false })
+      .then((res: any) => res.data ?? []),
   ]);
+
+  const ownerRequests = ownerRequestsRaw as any[];
+  const pendingOwnerRequests = ownerRequests.filter((r: any) => r.status === "pending");
+
+  function fmtDate(iso: string) {
+    return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+  function playerName(r: any) {
+    const p = r.players;
+    if (!p) return r.player_id;
+    return `${p.first_name || ""} ${p.last_name || ""}`.trim() || p.display_name || r.player_id;
+  }
+  function ownerClubName(r: any) {
+    return r.clubs?.name || r.club_name_requested || "—";
+  }
+
+  const statusLabel: Record<string, string> = { pending: "Pendiente", approved: "Aprobado", rejected: "Rechazado" };
+  const statusColor: Record<string, string> = {
+    pending:  "bg-amber-100 text-amber-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
 
   return (
     <div className="space-y-6">
@@ -78,7 +119,11 @@ export default async function AdminClubClaimsPage({
           <p className="mt-1 text-2xl font-black text-gray-900">{pendingClaims.length}</p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Propuestas de jugadores</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Solicitudes dueño de club</p>
+          <p className="mt-1 text-2xl font-black text-gray-900">{pendingOwnerRequests.length}</p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Propuestas jugadores</p>
           <p className="mt-1 text-2xl font-black text-gray-900">{playerCreatedLeads.length}</p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-4">
@@ -165,6 +210,86 @@ export default async function AdminClubClaimsPage({
             )}
           </CardContent>
         </Card>
+      )}
+
+      {activeTab === "owner-requests" && (
+        <div className="space-y-6">
+          {/* Pendientes */}
+          <section className="space-y-3">
+            <h2 className="text-xs font-black uppercase tracking-widest text-gray-400">
+              Pendientes ({pendingOwnerRequests.length})
+            </h2>
+            {pendingOwnerRequests.length === 0 ? (
+              <p className="text-sm text-gray-500">No hay solicitudes pendientes.</p>
+            ) : (
+              <div className="space-y-3">
+                {pendingOwnerRequests.map((r: any) => (
+                  <div
+                    key={r.id}
+                    className="rounded-2xl border border-gray-200 bg-white p-5 flex flex-col md:flex-row md:items-center gap-4"
+                  >
+                    <div className="flex-1 space-y-1">
+                      <p className="font-bold text-gray-900">{playerName(r)}</p>
+                      <p className="text-sm text-gray-600">
+                        Club: <span className="font-semibold text-gray-900">{ownerClubName(r)}</span>
+                        {!r.club_id && (
+                          <span className="ml-2 text-xs text-amber-600 font-medium">(club no registrado)</span>
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-400">Solicitado el {fmtDate(r.requested_at)}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <form action={async (fd: FormData) => { "use server"; await approveClubOwnerRequestAction(fd); }}>
+                        <input type="hidden" name="request_id" value={r.id} />
+                        <input type="hidden" name="player_id" value={r.player_id} />
+                        <input type="hidden" name="club_id" value={r.club_id || ""} />
+                        <button type="submit" className="rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 transition-colors">
+                          Aprobar
+                        </button>
+                      </form>
+                      <form action={async (fd: FormData) => { "use server"; await rejectClubOwnerRequestAction(fd); }}>
+                        <input type="hidden" name="request_id" value={r.id} />
+                        <input type="hidden" name="player_id" value={r.player_id} />
+                        <button type="submit" className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50 transition-colors">
+                          Rechazar
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Historial */}
+          {ownerRequests.filter((r: any) => r.status !== "pending").length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-xs font-black uppercase tracking-widest text-gray-400">
+                Historial ({ownerRequests.filter((r: any) => r.status !== "pending").length})
+              </h2>
+              <div className="space-y-2">
+                {ownerRequests
+                  .filter((r: any) => r.status !== "pending")
+                  .map((r: any) => (
+                    <div key={r.id} className="rounded-xl border border-gray-100 bg-white px-4 py-3 flex items-center gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {playerName(r)} — {ownerClubName(r)}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Solicitado {fmtDate(r.requested_at)}
+                          {r.resolved_at && ` · Resuelto ${fmtDate(r.resolved_at)}`}
+                        </p>
+                      </div>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${statusColor[r.status] || "bg-gray-100 text-gray-600"}`}>
+                        {statusLabel[r.status] || r.status}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          )}
+        </div>
       )}
 
       {activeTab === "approved" && (

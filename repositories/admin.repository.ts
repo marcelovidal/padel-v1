@@ -82,9 +82,37 @@ function nullableNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+export type AdminCoachStats = {
+  total_coaches: number;
+  with_profile: number;
+  total_students: number;
+  sessions_30d: number;
+};
+
 export class AdminRepository {
   private async getClient() {
     return await createClient();
+  }
+
+  async getCoachStats(): Promise<AdminCoachStats> {
+    const supabase = await this.getClient();
+    const sb = supabase as any;
+
+    const [coaches, profiles, students, sessions] = await Promise.all([
+      sb.from("players").select("id", { count: "exact", head: true }).eq("is_coach", true),
+      sb.from("coach_profiles").select("id", { count: "exact", head: true }),
+      sb.from("coach_players").select("id", { count: "exact", head: true }).eq("status", "accepted"),
+      sb.from("training_sessions")
+        .select("id", { count: "exact", head: true })
+        .gte("session_date", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+    ]);
+
+    return {
+      total_coaches:   coaches.count  ?? 0,
+      with_profile:    profiles.count ?? 0,
+      total_students:  students.count ?? 0,
+      sessions_30d:    sessions.count ?? 0,
+    };
   }
 
   async getOverviewStats(): Promise<AdminOverviewStats> {

@@ -21,7 +21,6 @@ import {
   ChevronRight,
   Building2,
   LayoutDashboard,
-  BookOpen,
   Dumbbell,
   Settings,
 } from "lucide-react";
@@ -43,6 +42,7 @@ interface PlayerSidebarProps {
   isClubOwner: boolean;
   collapsed: boolean;
   onToggle: () => void;
+  hasClubsWithCourts?: boolean;
 }
 
 // ── Badge expandido (texto con número) ───────────────────────────────────────
@@ -70,15 +70,15 @@ function NavDot({ count }: { count: number }) {
 const L1_BASE =
   "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium w-full transition-colors";
 const L1_INACTIVE = "text-slate-900 hover:bg-slate-100";
-const L1_ACTIVE   = "bg-blue-50 text-blue-700 font-semibold";
+const L1_ACTIVE   = "bg-red-50 text-[#E5352A] font-semibold";
 function l1Cls(active: boolean) {
   return `${L1_BASE} ${active ? L1_ACTIVE : L1_INACTIVE}`;
 }
 
 const L2_BASE =
   "flex items-center pl-9 pr-3 py-1.5 rounded-lg text-[13px] font-normal w-full transition-colors";
-const L2_INACTIVE = "text-slate-600 hover:text-blue-600";
-const L2_ACTIVE   = "text-blue-600 font-medium";
+const L2_INACTIVE = "text-slate-600 hover:text-[#E5352A]";
+const L2_ACTIVE   = "text-[#E5352A] font-medium";
 function l2Cls(active: boolean) {
   return `${L2_BASE} ${active ? L2_ACTIVE : L2_INACTIVE}`;
 }
@@ -104,7 +104,7 @@ function CollapsedNavItem({
       title={label}
       className={`relative flex h-10 w-full items-center justify-center rounded-xl transition-colors ${
         active
-          ? "bg-blue-50 text-blue-700"
+          ? "bg-red-50 text-[#E5352A]"
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       }`}
     >
@@ -202,6 +202,7 @@ export function PlayerSidebar({
   isClubOwner,
   collapsed,
   onToggle,
+  hasClubsWithCourts = false,
 }: PlayerSidebarProps) {
   const pathname = usePathname();
 
@@ -510,9 +511,9 @@ export function PlayerSidebar({
           /* Modo colapsado: solo ícono + */
           <>
             <Link
-              href="/player/bookings/new"
-              title="Reservar y crear partido"
-              className="flex h-10 w-full items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              href={hasClubsWithCourts ? "/player/bookings/new" : "/player/matches/new?mode=direct"}
+              title={hasClubsWithCourts ? "Reservar y crear partido" : "Solo crear partido"}
+              className="flex h-10 w-full items-center justify-center rounded-xl bg-[#E5352A] text-white hover:bg-[#B82820] transition-colors"
             >
               <Plus className="w-4 h-4" />
             </Link>
@@ -530,34 +531,48 @@ export function PlayerSidebar({
           /* Modo expandido: botones completos */
           <>
             {accion.isDefault ? (
-              <>
-                <Link
-                  href="/player/bookings/new"
-                  className="flex w-full flex-col items-start rounded-lg bg-blue-600 px-3 py-2 hover:bg-blue-700 transition-colors"
-                >
-                  <span className="text-[10px] font-black uppercase tracking-widest text-blue-200 leading-none mb-0.5">
-                    En un club
-                  </span>
-                  <span className="text-[12px] font-semibold text-white leading-none">
-                    Reservar y crear partido
-                  </span>
-                </Link>
+              hasClubsWithCourts ? (
+                <>
+                  <Link
+                    href="/player/bookings/new"
+                    className="flex w-full flex-col items-start rounded-lg bg-[#E5352A] px-3 py-2 hover:bg-[#B82820] transition-colors"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-widest text-red-200 leading-none mb-0.5">
+                      En un club
+                    </span>
+                    <span className="text-[12px] font-semibold text-white leading-none">
+                      Reservar y crear partido
+                    </span>
+                  </Link>
+                  <Link
+                    href="/player/matches/new?mode=direct"
+                    className="flex w-full flex-col items-start rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-0.5">
+                      Sin club
+                    </span>
+                    <span className="text-[12px] font-semibold text-slate-900 leading-none">
+                      Solo crear partido
+                    </span>
+                  </Link>
+                </>
+              ) : (
                 <Link
                   href="/player/matches/new?mode=direct"
-                  className="flex w-full flex-col items-start rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 transition-colors"
+                  className="flex w-full flex-col items-start rounded-lg bg-[#E5352A] px-3 py-2 hover:bg-[#B82820] transition-colors"
                 >
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-red-200 leading-none mb-0.5">
                     Sin club
                   </span>
-                  <span className="text-[12px] font-semibold text-slate-900 leading-none">
+                  <span className="text-[12px] font-semibold text-white leading-none">
                     Solo crear partido
                   </span>
                 </Link>
-              </>
+              )
             ) : (
               <Link
                 href={accion.href}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#E5352A] px-4 py-2.5 text-sm font-black uppercase tracking-widest text-white hover:bg-[#B82820] transition-colors"
                 style={fadeStyle}
               >
                 <AccionIcon className="w-4 h-4 shrink-0" />

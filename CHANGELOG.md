@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## [v1.16.0] - 2026-05-20
+
+### Reservas condicionales + Admin reorganizado
+
+#### Feature flag de reservas (bookings_enabled)
+- Nueva tabla `app_settings` (key/value) con RLS: lectura pública,
+  escritura solo admin
+- El botón "Reservar y crear partido" y el flujo de selección en
+  `/player/matches/new` solo se activan cuando el super admin habilita
+  el flag desde `/admin/settings` Y hay canchas activas en la DB
+- Sin el flag, todos los jugadores ven únicamente "Solo crear partido"
+- Valor inicial: `bookings_enabled = false` (no rompe producción)
+- Página `/admin/settings` con toggle UI y feedback optimista
+
+#### Botones condicionales en sidebar del jugador
+- Sidebar expandido: 2 CTAs ("Reservar y crear partido" + "Solo crear
+  partido") cuando hay canchas y el flag está activo; 1 CTA cuando no
+- Sidebar colapsado: ícono "+" apunta a bookings/new o matches/new
+  según condición
+- `/player/matches/new` sin `?mode`: muestra selección o auto-redirige
+  a `?mode=direct` según disponibilidad
+
+#### Admin — sección Entrenadores en Dashboard
+- `getCoachStats()` en AdminRepository: total activados, con perfil
+  completo, alumnos activos, sesiones últimos 30d
+- Sección horizontal en `/admin` entre growth cards y salud operativa
+- Sin nueva migración SQL — queries directas a tablas existentes
+- Expone drop-off entre "activados" y "con perfil completo"
+
+#### Admin — reorganización de navegación
+- "Club owners" eliminado del nav como ítem independiente
+- Nuevo tab "Dueños de club" dentro de `/admin/club-claims` con
+  pendientes (aprobar/rechazar) e historial
+- KPIs del header de Clubes incluyen solicitudes de dueño pendientes
+- Nav resultante: Dashboard · Jugadores · Partidos · Clubes ·
+  Analytics · Configuración
+
+#### Migraciones SQL a aplicar
+- `20260520_app_settings.sql` — tabla app_settings + fila inicial
+
 ## [v1.15.0-landing] - 2025-04-27
 
 ### Landing page — rediseño completo

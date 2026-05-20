@@ -3,6 +3,8 @@ import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { PlayerLayoutShell } from "@/components/player/PlayerLayoutShell";
 import { ProfileIssueTooltip } from "@/components/feedback/ProfileIssueTooltip";
 import { PlayerNotificationsProvider } from "@/contexts/player-notifications.context";
+import { createClient } from "@/lib/supabase/server";
+import { getAppSetting } from "@/repositories/app-settings.repository";
 
 export default async function PlayerLayout({
     children,
@@ -15,6 +17,23 @@ export default async function PlayerLayout({
     const isClubOwner = !!(player as any).is_club_owner;
     const location = [player.city, player.region_code].filter(Boolean).join(", ") || null;
 
+    const supabase = await createClient();
+    const [bookingsFlag, courtsResult] = await Promise.all([
+        getAppSetting("bookings_enabled"),
+        supabase
+            .from("club_courts")
+            .select("id", { count: "exact", head: true })
+            .eq("active", true),
+    ]);
+
+    const bookingsEnabled = bookingsFlag === "true";
+    const { count: activeCourtsCount, error: courtsError } = courtsResult;
+    const hasClubsWithCourts =
+        bookingsEnabled &&
+        !courtsError &&
+        activeCourtsCount !== null &&
+        activeCourtsCount > 0;
+
     return (
         <PlayerNotificationsProvider>
             <PlayerLayoutShell
@@ -25,6 +44,7 @@ export default async function PlayerLayout({
                 avatarInitials={avatarData.initials ?? ""}
                 isCoach={isCoach}
                 isClubOwner={isClubOwner}
+                hasClubsWithCourts={hasClubsWithCourts}
             >
                 {children}
             </PlayerLayoutShell>
