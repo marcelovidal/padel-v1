@@ -74,12 +74,6 @@ export default async function AdminLayout({
                   Analytics
                 </Link>
                 <Link
-                  href="/admin/club-owner-requests"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Club owners
-                </Link>
-                <Link
                   href="/admin/settings"
                   className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                 >
@@ -123,12 +117,6 @@ export default async function AdminLayout({
                 className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
               >
                 Analytics
-              </Link>
-              <Link
-                href="/admin/club-owner-requests"
-                className="whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700"
-              >
-                Club owners
               </Link>
               <Link
                 href="/admin/settings"
