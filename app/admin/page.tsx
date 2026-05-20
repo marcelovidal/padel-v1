@@ -207,7 +207,10 @@ function GrowthCard({
 
 export default async function AdminDashboardPage() {
   const service = new AdminService();
-  const stats = await service.getOverviewStats();
+  const [stats, coachStats] = await Promise.all([
+    service.getOverviewStats(),
+    service.getCoachStats(),
+  ]);
   const insights = buildInsights(stats);
 
   const matchesGrowth = growthBadge(stats.growth.matches_30d_vs_prev_30d_pct);
@@ -333,6 +336,35 @@ export default async function AdminDashboardPage() {
           hint="Sirve para detectar concentracion de uso en pocos clubes."
           toneClassName={trendTone(stats.growth.active_clubs_30d_vs_prev_30d_pct)}
         />
+      </section>
+
+      <section className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="border-b border-gray-100 px-5 py-3 flex items-center justify-between">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400">Entrenadores</p>
+          <p className="text-xs text-gray-400">Autoservicio — sin aprobación admin</p>
+        </div>
+        <div className="grid grid-cols-2 divide-x divide-y divide-gray-100 sm:grid-cols-4 sm:divide-y-0">
+          <div className="px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">Activados</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{formatInt(coachStats.total_coaches)}</p>
+            <p className="mt-0.5 text-xs text-gray-500">players con is_coach = true</p>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">Con perfil completo</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{formatInt(coachStats.with_profile)}</p>
+            <p className="mt-0.5 text-xs text-gray-500">completaron setup de entrenador</p>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">Alumnos activos</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{formatInt(coachStats.total_students)}</p>
+            <p className="mt-0.5 text-xs text-gray-500">relaciones coach–alumno aceptadas</p>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">Sesiones (30d)</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{formatInt(coachStats.sessions_30d)}</p>
+            <p className="mt-0.5 text-xs text-gray-500">clases registradas en training_sessions</p>
+          </div>
+        </div>
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
