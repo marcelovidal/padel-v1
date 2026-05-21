@@ -113,8 +113,17 @@ export default async function PlayerDashboard() {
 
   const hasMatches = metrics.played > 0;
 
+  const dateLabel = new Date().toLocaleDateString("es-AR", {
+    weekday: "short", day: "numeric", month: "long", year: "numeric",
+  }).toUpperCase().replace(/\./g, "").replace(/,/g, " ·");
+
   return (
     <div className="space-y-6 py-4">
+      {/* Page title */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-sm font-black uppercase tracking-[0.2em] text-brand-negro">Resumen de actividad</h1>
+        <span className="text-[11px] font-medium text-brand-gris-mid">{dateLabel}</span>
+      </div>
       {recentMatches.length === 1 && (
         <div className="rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -218,45 +227,47 @@ export default async function PlayerDashboard() {
       </section>
 
       {/* Competitive context */}
-      <div className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm">
-        <h3 className="mb-6 text-xs font-black uppercase tracking-widest text-brand-gris-mid">Contexto Competitivo</h3>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-azul/10">
-              <Users className="h-6 w-6 text-brand-azul-light" />
+      <div className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-brand-gris-mid">Contexto Competitivo</h3>
+        <div className="space-y-4">
+          {/* Mejor compañero */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-azul/10">
+              <Users className="h-5 w-5 text-brand-azul-light" />
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mejor Compañero</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-brand-gris-mid">Mejor Compañero</p>
               {compStats?.best_teammate_name ? (
                 <>
-                  <p className="text-lg font-bold leading-tight text-gray-900">{compStats.best_teammate_name}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-azul">
+                  <p className="text-sm font-bold text-brand-negro truncate">{compStats.best_teammate_name}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-rojo">
                     {compStats.wins_together} victorias — {compStats.winrate_together}% WR
                   </p>
                 </>
               ) : (
-                <p className="text-sm italic text-gray-400">Mínimo 2 partidos juntos</p>
+                <p className="text-xs italic text-brand-gris-mid">Mínimo 2 partidos juntos</p>
               )}
             </div>
           </div>
-
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-orange-50">
-              <Zap className="h-6 w-6 text-orange-600" />
+          <div className="border-t border-gray-50" />
+          {/* Vs categoría superior */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-rojo/10">
+              <Zap className="h-5 w-5 text-brand-rojo" />
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Vs Categoría Superior</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-brand-gris-mid">Vs · Mejor Rival</p>
               {compStats?.matches_vs_higher > 0 ? (
                 <>
-                  <p className="text-lg font-bold leading-tight text-gray-900">
-                    {compStats.wins_vs_higher} victorias
+                  <p className="text-sm font-bold text-brand-negro">
+                    {compStats.wins_vs_higher} victorias en {compStats.matches_vs_higher} partidos
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-orange-600">
-                    en {compStats.matches_vs_higher} partidos ({compStats.winrate_vs_higher}% WR)
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-rojo">
+                    {compStats.winrate_vs_higher}% WR
                   </p>
                 </>
               ) : (
-                <p className="text-sm italic text-gray-400">Sin partidos contra categoría superior</p>
+                <p className="text-xs italic text-brand-gris-mid">Sin partidos contra categoría superior</p>
               )}
             </div>
           </div>

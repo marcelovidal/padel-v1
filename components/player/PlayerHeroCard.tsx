@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import Link from "next/link";
-import { PlusCircle, Star, Trophy, Target, Activity, Zap, MapPin } from "lucide-react";
+import { PlusCircle, Star, Trophy, Target, Activity, MapPin } from "lucide-react";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
 
 interface PlayerHeroCardProps {
@@ -138,9 +138,14 @@ export function PlayerHeroCard({
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-azul-light/80">
               {panelLabel}
             </p>
-            <h1 className="text-3xl font-black tracking-tight">
-              {title || `Hola, ${playerName}`}
-            </h1>
+            {title ? (
+              <h1 className="text-3xl font-black tracking-tight">{title}</h1>
+            ) : (
+              <h1 className="text-3xl font-black tracking-tight leading-none">
+                <span className="font-light text-white/70">Hola, </span>
+                <span className="text-brand-rojo uppercase">{playerName}</span>
+              </h1>
+            )}
             {locationLabel ? (
               <div className="flex items-center gap-1.5 text-blue-200/80">
                 <MapPin className="h-3.5 w-3.5 text-brand-crema/60" />
@@ -200,7 +205,7 @@ export function PlayerHeroCard({
               <Trophy className="h-3.5 w-3.5 text-amber-400" />
               <span className="text-xs font-black text-white">
                 #{globalRank.rank}
-                <span className="font-medium text-brand-crema/60"> de {globalRank.total}</span>
+                <span className="font-medium text-brand-crema/60"> de {globalRank.total} en tu club</span>
               </span>
             </div>
           )}
@@ -214,15 +219,17 @@ export function PlayerHeroCard({
               const val = factorValues[key] ?? 0;
               return (
                 <div key={key}>
-                  <div className="mb-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-brand-crema/50">
+                  <div className="mb-1 text-[9px] font-black uppercase tracking-wider text-brand-crema/50">
                     <span>{label} <span className="normal-case font-medium text-brand-crema/30">({pct}%)</span></span>
-                    <span>{val.toFixed(0)}</span>
                   </div>
-                  <div className="h-1 overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className={`h-full rounded-full ${color} transition-all duration-700 ease-out`}
-                      style={{ width: `${Math.min((val * pct) / 100, pct)}%` }}
-                    />
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full ${color} transition-all duration-700 ease-out`}
+                        style={{ width: `${Math.min((val * pct) / 100, pct)}%` }}
+                      />
+                    </div>
+                    <span className="w-5 text-right text-[9px] font-black tabular-nums text-brand-crema/70">{val.toFixed(0)}</span>
                   </div>
                 </div>
               );
@@ -230,12 +237,11 @@ export function PlayerHeroCard({
           </div>
 
           {/* Quick stats chips */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: Activity, value: String(metrics.played), label: "PJ" },
-              { icon: Trophy,   value: String(metrics.wins),   label: "G" },
-              { icon: Target,   value: `${metrics.win_rate}%`, label: "WR" },
-              { icon: Zap,      value: metrics.current_streak, label: "Racha" },
+              { icon: Activity, value: String(metrics.played),  label: "PJ" },
+              { icon: Trophy,   value: String(metrics.wins),    label: "GANADOS" },
+              { icon: Target,   value: `${metrics.win_rate}%`,  label: "WIN RATE" },
             ].map(({ icon: Icon, value, label }) => (
               <div key={label} className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 py-2.5">
                 <Icon className="mb-1 h-3 w-3 text-brand-crema/50" />

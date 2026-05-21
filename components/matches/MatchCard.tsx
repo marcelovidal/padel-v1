@@ -84,14 +84,18 @@ export default function MatchCard({
           </div>
           <div className="flex flex-col items-end gap-2">
             <div
-              className={`px-3 py-1 rounded-full text-xs font-semibold ${isCompleted
-                ? "bg-green-100 text-green-800"
+              className={`text-xs font-black uppercase tracking-widest ${isCompleted
+                ? model.results?.winnerTeam === model.playerTeam
+                  ? "text-emerald-600"
+                  : "text-brand-rojo"
                 : status === "cancelled"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  ? "text-brand-rojo"
+                  : "text-amber-600"
                 }`}
             >
-              {statusLabel}
+              {isCompleted
+                ? model.results?.winnerTeam === model.playerTeam ? "Ganado" : "Perdido"
+                : statusLabel}
             </div>
             {league ? (
               <div className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">
