@@ -62,7 +62,7 @@ export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottom
     },
     {
       href: "/player/calendario",
-      label: "Calendario",
+      label: "Mis Reservas",
       icon: Calendar,
       badge: (counts) => counts.calendario,
       activeFor: (p) => p.startsWith("/player/calendario") || p.startsWith("/player/bookings"),

@@ -355,7 +355,7 @@ export function PlayerSidebar({
             <CollapsedNavItem
               href="/player/calendario"
               icon={Calendar}
-              label="Calendario"
+              label="Mis Reservas"
               active={onCalendario}
               badgeCount={sectionCounts.calendario}
             />
@@ -407,10 +407,10 @@ export function PlayerSidebar({
 
             <Divider />
 
-            {/* Calendario — sin sub-ítems, badge directo */}
+            {/* Mis Reservas — sin sub-ítems, badge directo */}
             <Link href="/player/calendario" className={l1Cls(onCalendario)}>
               <Calendar className="w-[18px] h-[18px] shrink-0" />
-              <span className="flex-1">Calendario</span>
+              <span className="flex-1">Mis Reservas</span>
               <NavBadge count={sectionCounts.calendario} />
             </Link>
 
