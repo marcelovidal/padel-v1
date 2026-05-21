@@ -23,16 +23,17 @@ const ACTIVITY_COLORS: Record<string, string> = {
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; activity?: string };
+  searchParams: { q?: string; category?: string; activity?: string; rol?: string };
 }) {
   await requireAdmin();
 
   const query    = searchParams.q        ?? "";
   const category = searchParams.category ? parseInt(searchParams.category) : null;
   const activity = searchParams.activity ?? "";
+  const rol      = searchParams.rol      ?? "";
 
   const playerService = new PlayerService();
-  const { total, players } = await playerService.getPlayersDirectory({
+  const { total, players: allPlayers } = await playerService.getPlayersDirectory({
     query,
     category,
     activity: activity || undefined,
@@ -40,14 +41,20 @@ export default async function UsersPage({
     limit: 200,
   });
 
-  const hasFilters = query || category || activity;
+  const players = allPlayers.filter((p: any) => {
+    if (rol === "coach"      && !p.is_coach)      return false;
+    if (rol === "club_owner" && !p.is_club_owner) return false;
+    return true;
+  });
+
+  const hasFilters = query || category || activity || rol;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Jugadores</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{total} jugadores en el sistema</p>
+          <p className="text-gray-500 text-sm mt-0.5">{players.length} de {total} jugadores</p>
         </div>
         <Link href="/admin/users/new">
           <Button>Nuevo Jugador</Button>
@@ -85,6 +92,15 @@ export default async function UsersPage({
               <option value="occasional">Ocasionales</option>
               <option value="new">Nuevos</option>
               <option value="inactive">Inactivos</option>
+            </select>
+            <select
+              name="rol"
+              defaultValue={rol}
+              className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+            >
+              <option value="">Rol</option>
+              <option value="coach">Entrenador</option>
+              <option value="club_owner">Dueño de club</option>
             </select>
             <button type="submit" className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white">
               Buscar
@@ -124,10 +140,18 @@ export default async function UsersPage({
                   {players.map((player: any) => (
                     <tr key={player.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium text-gray-900">
-                        {player.display_name}
-                        {player.user_id === null && (
-                          <span className="ml-1.5 text-[10px] text-gray-400 font-normal">(sin cuenta)</span>
-                        )}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {player.display_name}
+                          {player.user_id === null && (
+                            <span className="text-[10px] text-gray-400 font-normal">(sin cuenta)</span>
+                          )}
+                          {player.is_coach && (
+                            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">Entrenador</span>
+                          )}
+                          {player.is_club_owner && (
+                            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">Club</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-gray-500">{player.city || "—"}</td>
                       <td className="px-4 py-3 text-center text-gray-500">{player.category ? `${player.category}ª` : "—"}</td>
