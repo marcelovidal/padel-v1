@@ -6,7 +6,7 @@ export async function getAppSetting(key: string): Promise<string | null> {
     .from("app_settings")
     .select("value")
     .eq("key", key)
-    .single();
+    .single<{ value: string }>();
   return data?.value ?? null;
 }
 
