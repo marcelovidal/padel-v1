@@ -43,7 +43,7 @@ export function PlayerTopRivals({ rivals }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
           </div>
-          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-gris-mid">Tus Rivales</h2>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--text-muted)]">Tus Rivales</h2>
         </div>
         <p className="text-sm text-brand-gris-mid">
           Juega al menos 2 partidos contra el mismo rival para verlos aquí.
@@ -53,7 +53,7 @@ export function PlayerTopRivals({ rivals }: Props) {
   }
 
   return (
-    <div className="rounded-[14px] border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.07)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-brand-rojo/10">
@@ -61,7 +61,7 @@ export function PlayerTopRivals({ rivals }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
           </div>
-          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-gris-mid">Tus Rivales</h2>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--text-muted)]">Tus Rivales</h2>
         </div>
         <Link href="/player/players" className="text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80">
           Ver todos →
