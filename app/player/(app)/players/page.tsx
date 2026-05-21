@@ -113,14 +113,14 @@ export default async function PlayersPage({
     <div className="py-4">
       <div className="mb-6 space-y-3">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900">Directorio</h1>
-          <p className="text-sm font-medium text-gray-500">Primero jugadores de tu ciudad, luego el resto</p>
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-[var(--text-primary)]">Directorio</h1>
+          <p className="text-sm font-medium text-[var(--text-muted)]">Primero jugadores de tu ciudad, luego el resto</p>
         </div>
 
         <form className="space-y-3">
           <div className="group relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-              <svg className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 text-[var(--text-faint)] transition-colors group-focus-within:text-brand-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -128,12 +128,12 @@ export default async function PlayersPage({
               name="q"
               defaultValue={query}
               placeholder="Buscar por nombre..."
-              className="h-12 rounded-2xl border-gray-200 bg-white pl-12 text-base shadow-sm transition-all focus:ring-4 focus:ring-blue-500/10"
+              className="h-12 rounded-2xl border-[var(--border-soft)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-faint)] pl-12 text-base shadow-sm transition-all focus:ring-4 focus:ring-brand-azul/10"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <select name="category" defaultValue={categoryFilter} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+            <select name="category" defaultValue={categoryFilter} className="h-10 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 text-sm font-semibold text-[var(--text-primary)]">
               <option value="all">Categoria</option>
               <option value="1">1ra</option>
               <option value="2">2da</option>
@@ -144,7 +144,7 @@ export default async function PlayersPage({
               <option value="7">7ma</option>
             </select>
 
-            <select name="city" defaultValue={cityFilter} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+            <select name="city" defaultValue={cityFilter} className="h-10 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 text-sm font-semibold text-[var(--text-primary)]">
               <option value="all">Ciudad</option>
               {cityOptions.map((city) => (
                 <option key={city.cityId || city.label} value={city.cityId}>
@@ -153,7 +153,7 @@ export default async function PlayersPage({
               ))}
             </select>
 
-            <select name="activity" defaultValue={activityFilter} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+            <select name="activity" defaultValue={activityFilter} className="h-10 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 text-sm font-semibold text-[var(--text-primary)]">
               <option value="all">Actividad</option>
               <option value="muy_activo">Muy activo</option>
               <option value="activo">Activo</option>
@@ -162,20 +162,20 @@ export default async function PlayersPage({
               <option value="nuevo">Nuevo</option>
             </select>
 
-            <select name="rol" defaultValue={rolFilter} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+            <select name="rol" defaultValue={rolFilter} className="h-10 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 text-sm font-semibold text-[var(--text-primary)]">
               <option value="all">Rol</option>
               <option value="coach">Entrenador</option>
               <option value="club_owner">Dueño de club</option>
             </select>
 
-            <select name="sort" defaultValue={sortBy} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+            <select name="sort" defaultValue={sortBy} className="h-10 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 text-sm font-semibold text-[var(--text-primary)]">
               <option value="pasala_desc">Indice PASALA</option>
               <option value="win_rate_desc">Win rate</option>
               <option value="played_desc">Partidos jugados</option>
               <option value="name_asc">Nombre alfabetico</option>
             </select>
 
-            <button type="submit" className="inline-flex h-10 items-center justify-center rounded-xl bg-blue-600 px-4 text-xs font-black uppercase tracking-wide text-white hover:bg-blue-700">
+            <button type="submit" className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-azul px-4 text-xs font-black uppercase tracking-wide text-white hover:bg-brand-azul/90">
               Filtrar
             </button>
           </div>

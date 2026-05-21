@@ -43,7 +43,7 @@ function levelClass(level: DirectoryRow["level"]) {
   if (level === "PRO")         return "bg-violet-50 text-violet-700 border border-violet-200";
   if (level === "COMPETITIVO") return "bg-blue-50 text-blue-700 border border-blue-200";
   if (level === "AMATEUR")     return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-  return "bg-slate-100 text-slate-700 border border-slate-200";
+  return "bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-soft)]";
 }
 
 function levelLabel(level: DirectoryRow["level"]) {
@@ -55,7 +55,7 @@ function activityMeta(activity: DirectoryRow["activity_level"]) {
   if (activity === "muy_activo") return { label: "Muy activo", className: "bg-rose-50 text-rose-700 border border-rose-200" };
   if (activity === "activo")     return { label: "Activo",     className: "bg-emerald-50 text-emerald-700 border border-emerald-200" };
   if (activity === "ocasional")  return { label: "Ocasional",  className: "bg-amber-50 text-amber-700 border border-amber-200" };
-  if (activity === "inactivo")   return { label: "Inactivo",   className: "bg-slate-100 text-slate-700 border border-slate-200" };
+  if (activity === "inactivo")   return { label: "Inactivo",   className: "bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-soft)]" };
   return { label: "Nuevo", className: "bg-cyan-50 text-cyan-700 border border-cyan-200" };
 }
 
@@ -83,21 +83,21 @@ export function PlayersDirectoryTable({ players, meId, coachProfile }: Props) {
 
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-[var(--border-soft)] bg-[var(--bg-card)] shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] table-fixed">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
               <tr className="text-left">
-                <th className="w-[19%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Jugador</th>
-                <th className="w-[13%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Ubicacion</th>
-                <th className="w-[8%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Categoria</th>
-                <th className="w-[15%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Indice PASALA</th>
-                <th className="w-[10%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Nivel</th>
-                <th className="w-[7%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">WR</th>
-                <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">PJ</th>
-                <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Racha</th>
-                <th className="w-[9%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-gray-500">Actividad</th>
-                <th className="w-[7%] px-3 py-2 text-right text-[11px] font-black uppercase tracking-wide text-gray-500">Accion</th>
+                <th className="w-[19%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Jugador</th>
+                <th className="w-[13%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Ubicacion</th>
+                <th className="w-[8%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Categoria</th>
+                <th className="w-[15%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Indice PASALA</th>
+                <th className="w-[10%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Nivel</th>
+                <th className="w-[7%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">WR</th>
+                <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">PJ</th>
+                <th className="w-[6%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Racha</th>
+                <th className="w-[9%] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Actividad</th>
+                <th className="w-[7%] px-3 py-2 text-right text-[11px] font-black uppercase tracking-wide text-[var(--text-muted)]">Accion</th>
               </tr>
             </thead>
             <tbody>
@@ -107,12 +107,12 @@ export function PlayersDirectoryTable({ players, meId, coachProfile }: Props) {
                   const pasala = pasalaProgress(p.pasala_index);
                   const isMe = p.id === meId;
                   return (
-                    <tr key={p.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/70">
+                    <tr key={p.id} className="border-b border-[var(--border-soft)] last:border-0 hover:bg-[var(--bg-elevated)]">
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2.5">
                           <UserAvatar src={p.avatarData?.src || null} initials={p.avatarData?.initials || p.display_name?.slice(0, 2)} size="sm" />
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-gray-900">{p.display_name}</p>
+                            <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{p.display_name}</p>
                             <div className="flex flex-wrap items-center gap-1.5">
                               {isMe && <Badge className="bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white">Tu perfil</Badge>}
                               {p.is_same_city && (
@@ -124,29 +124,29 @@ export function PlayersDirectoryTable({ players, meId, coachProfile }: Props) {
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-sm text-gray-700">
+                      <td className="px-3 py-2 text-sm text-[var(--text-muted)]">
                         <span className="line-clamp-2">{formatCityWithProvinceAbbr(p.city, p.region_code, p.region_name)}</span>
                       </td>
                       <td className="px-3 py-2">
-                        <Badge className="border border-gray-200 bg-gray-100 text-gray-700">Cat. {categoryLabel(p.category)}</Badge>
+                        <Badge className="border border-[var(--border-soft)] bg-[var(--bg-elevated)] text-[var(--text-muted)]">Cat. {categoryLabel(p.category)}</Badge>
                       </td>
                       <td className="px-3 py-2">
                         <div className="w-full max-w-[150px]">
-                          <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-gray-700">
+                          <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-[var(--text-primary)]">
                             <span>{p.pasala_index == null ? "-" : p.pasala_index.toFixed(1)}</span>
                             <span>/100</span>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                            <div className="h-full rounded-full bg-blue-600" style={{ width: `${pasala}%` }} />
+                          <div className="h-2 overflow-hidden rounded-full bg-[var(--bg-elevated)]">
+                            <div className="h-full rounded-full bg-brand-azul" style={{ width: `${pasala}%` }} />
                           </div>
                         </div>
                       </td>
                       <td className="px-3 py-2">
                         <Badge className={levelClass(p.level)}>{levelLabel(p.level)}</Badge>
                       </td>
-                      <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.win_rate.toFixed(1)}%</td>
-                      <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.played}</td>
-                      <td className="px-3 py-2 text-sm font-semibold text-gray-800">{p.current_streak || "-"}</td>
+                      <td className="px-3 py-2 text-sm font-semibold text-[var(--text-primary)]">{p.win_rate.toFixed(1)}%</td>
+                      <td className="px-3 py-2 text-sm font-semibold text-[var(--text-primary)]">{p.played}</td>
+                      <td className="px-3 py-2 text-sm font-semibold text-[var(--text-primary)]">{p.current_streak || "-"}</td>
                       <td className="px-3 py-2">
                         <Badge className={activity.className}>{activity.label}</Badge>
                       </td>
@@ -156,14 +156,14 @@ export function PlayersDirectoryTable({ players, meId, coachProfile }: Props) {
                             <button
                               onClick={() => setScheduleFor(p)}
                               title="Agendar sesión"
-                              className="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                              className="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-brand-azul/20 bg-[var(--pill-blue-bg)] text-brand-azul hover:bg-brand-azul/10 transition-colors"
                             >
                               <CalendarPlus className="h-3.5 w-3.5" />
                             </button>
                           )}
                           <Link
                             href={`/p/${p.id}`}
-                            className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:border-gray-300 transition-colors"
+                            className="inline-flex items-center justify-center rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] hover:border-[var(--text-faint)] transition-colors"
                           >
                             Ver perfil
                           </Link>
@@ -176,14 +176,14 @@ export function PlayersDirectoryTable({ players, meId, coachProfile }: Props) {
                 <tr>
                   <td colSpan={10} className="px-6 py-20 text-center">
                     <div className="space-y-3">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-50">
-                        <svg className="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[var(--bg-elevated)]">
+                        <svg className="h-8 w-8 text-[var(--text-faint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-bold text-gray-900">No se encontraron jugadores</p>
-                        <p className="text-sm text-gray-500">Proba con otro filtro o termino de busqueda</p>
+                        <p className="font-bold text-[var(--text-primary)]">No se encontraron jugadores</p>
+                        <p className="text-sm text-[var(--text-muted)]">Proba con otro filtro o termino de busqueda</p>
                       </div>
                     </div>
                   </td>
@@ -253,15 +253,15 @@ function QuickScheduleModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-md bg-[var(--bg-card)] rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[var(--border-soft)]">
           <div>
-            <p className="text-base font-black text-gray-900">Agendar sesión</p>
-            <p className="text-sm text-gray-500 mt-0.5">con {player.display_name}</p>
+            <p className="text-base font-black text-[var(--text-primary)]">Agendar sesión</p>
+            <p className="text-sm text-[var(--text-muted)] mt-0.5">con {player.display_name}</p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--bg-elevated)] text-[var(--text-faint)] transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -271,29 +271,29 @@ function QuickScheduleModal({
           {/* Date + Time */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Fecha</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Fecha</label>
               <input
                 type="date"
                 value={date}
                 min={today}
                 onChange={e => setDate(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Hora</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Hora</label>
               <input
                 type="time"
                 value={time}
                 onChange={e => setTime(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10"
               />
             </div>
           </div>
 
           {/* Duration */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Duración</label>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Duración</label>
             <div className="flex gap-2">
               {DURATIONS.map(d => (
                 <button
@@ -302,8 +302,8 @@ function QuickScheduleModal({
                   onClick={() => setDuration(d)}
                   className={`flex-1 py-2 rounded-xl border text-sm font-bold transition-colors ${
                     duration === d
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                      ? "border-brand-azul bg-brand-azul text-white"
+                      : "border-[var(--border-soft)] text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                   }`}
                 >
                   {d} min
@@ -314,15 +314,15 @@ function QuickScheduleModal({
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
-              Notas <span className="font-normal normal-case text-gray-400">(opcional)</span>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">
+              Notas <span className="font-normal normal-case text-[var(--text-faint)]">(opcional)</span>
             </label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
               rows={2}
               placeholder="Ej: Traé raqueta, trabajamos volea..."
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none"
+              className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10 resize-none"
             />
           </div>
 
@@ -334,7 +334,7 @@ function QuickScheduleModal({
           )}
 
           {error && (
-            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
+            <p className="text-xs text-brand-rojo bg-[var(--pill-red-bg)] border border-brand-rojo/20 rounded-xl px-3 py-2">{error}</p>
           )}
         </div>
 
@@ -342,14 +342,14 @@ function QuickScheduleModal({
         <div className="px-5 pb-5 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-[var(--border-soft)] text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || isPending}
-            className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-brand-azul hover:bg-brand-azul/90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-colors"
           >
             {isPending ? "Agendando..." : "Agendar sesión"}
           </button>
