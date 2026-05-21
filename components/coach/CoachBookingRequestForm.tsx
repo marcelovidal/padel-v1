@@ -147,8 +147,8 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
                 key={i}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
                   active
-                    ? "bg-blue-50 border border-blue-200 text-blue-700"
-                    : "bg-gray-50 border border-gray-100 text-gray-300"
+                    ? "bg-[var(--pill-blue-bg)] border border-brand-azul/20 text-brand-azul"
+                    : "bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-[var(--text-faint)]"
                 }`}
               >
                 {label.slice(0, 3)}
@@ -160,13 +160,13 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
 
       {/* Date */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Fecha</label>
+        <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Fecha</label>
         <input
           type="date"
           value={date}
           min={today}
           onChange={e => handleDateChange(e.target.value)}
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10"
         />
         {date && !dayIsAvailable && (
           <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 flex items-center gap-1.5">
@@ -179,7 +179,7 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
       {/* Time slots */}
       {date && dayIsAvailable && slotsForDate.length > 0 && (
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
+          <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">
             Horario disponible
           </label>
           <div className="flex flex-wrap gap-2">
@@ -196,12 +196,12 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
                   onClick={() => handleSlotSelect(time, duration)}
                   className={`px-3 py-2 rounded-xl border text-sm font-semibold transition-colors ${
                     isSelected
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50"
+                      ? "border-brand-azul bg-brand-azul text-white"
+                      : "border-[var(--border-soft)] text-[var(--text-primary)] hover:border-brand-azul/40 hover:bg-[var(--pill-blue-bg)]"
                   }`}
                 >
                   {time} – {endH}:{endM}
-                  <span className={`ml-1.5 text-[11px] ${isSelected ? "text-blue-100" : "text-gray-400"}`}>
+                  <span className={`ml-1.5 text-[11px] ${isSelected ? "text-white/60" : "text-[var(--text-faint)]"}`}>
                     {duration}min
                   </span>
                 </button>
@@ -214,20 +214,20 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
       {/* Fallback: sin disponibilidad configurada → inputs libres */}
       {!hasAvailability && (
         <div className="space-y-4">
-          <p className="text-xs text-gray-400 italic">
+          <p className="text-xs text-[var(--text-faint)] italic">
             Este entrenador no configuró horarios fijos. Proponé el horario que te convenga.
           </p>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Hora</label>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Hora</label>
             <input
               type="time"
               value={selectedTime ?? "10:00"}
               onChange={e => { setSelectedTime(e.target.value); setSelectedDuration(60); }}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Duración</label>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Duración</label>
             <div className="flex gap-2">
               {[30, 45, 60].map(d => (
                 <button
@@ -236,8 +236,8 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
                   onClick={() => setSelectedDuration(d)}
                   className={`flex-1 py-2 rounded-xl border text-sm font-bold transition-colors ${
                     selectedDuration === d
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                      ? "border-brand-azul bg-brand-azul text-white"
+                      : "border-[var(--border-soft)] text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                   }`}
                 >
                   {d} min
@@ -250,21 +250,21 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
 
       {/* Notes */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
+        <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">
           Notas para el entrenador{" "}
-          <span className="font-normal normal-case text-gray-400">(opcional)</span>
+          <span className="font-normal normal-case text-[var(--text-faint)]">(opcional)</span>
         </label>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
           rows={2}
           placeholder="Ej: Quiero trabajar volea, soy principiante..."
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none"
+          className="w-full rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-brand-azul/50 focus:outline-none focus:ring-2 focus:ring-brand-azul/10 resize-none"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+        <p className="text-sm text-brand-rojo bg-[var(--pill-red-bg)] border border-brand-rojo/20 rounded-xl px-3 py-2">
           {error}
         </p>
       )}
@@ -272,12 +272,12 @@ export function CoachBookingRequestForm({ coachId, coachName, availability }: Pr
       <button
         onClick={handleSubmit}
         disabled={!canSubmit || isPending}
-        className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-colors"
+        className="w-full py-3 rounded-xl bg-brand-azul hover:bg-brand-azul/90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-colors"
       >
         {isPending ? "Enviando solicitud..." : "Solicitar clase"}
       </button>
 
-      <p className="text-xs text-center text-gray-400">
+      <p className="text-xs text-center text-[var(--text-faint)]">
         El entrenador confirmará o rechazará tu solicitud.
       </p>
     </div>

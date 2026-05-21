@@ -19,12 +19,12 @@ const ESPECIALIDAD_LABELS: Record<string, string> = {
 const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 function pasalaLevel(index: number | null) {
-  if (!index) return { label: "INICIAL",      className: "bg-slate-100 text-slate-700 border border-slate-200" };
+  if (!index) return { label: "INICIAL",      className: "bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-soft)]" };
   if (index >= 80) return { label: "ELITE",    className: "bg-amber-50 text-amber-700 border border-amber-200" };
   if (index >= 65) return { label: "PRO",      className: "bg-violet-50 text-violet-700 border border-violet-200" };
   if (index >= 50) return { label: "COMPETITIVO", className: "bg-blue-50 text-blue-700 border border-blue-200" };
   if (index >= 30) return { label: "AMATEUR",  className: "bg-emerald-50 text-emerald-700 border border-emerald-200" };
-  return { label: "INICIAL", className: "bg-slate-100 text-slate-700 border border-slate-200" };
+  return { label: "INICIAL", className: "bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-soft)]" };
 }
 
 export default async function PlayerCoachProfilePage({
@@ -58,34 +58,34 @@ export default async function PlayerCoachProfilePage({
       {/* Back */}
       <Link
         href="/player/players"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
       >
         <ChevronLeft className="h-4 w-4" />
         Volver al directorio
       </Link>
 
       {/* Hero */}
-      <div className="rounded-[32px] border border-gray-100 bg-white p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+      <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <UserAvatar src={coach.avatar_url} initials={coach.display_name.slice(0, 2)} size="lg" />
         <div className="flex-1 text-center sm:text-left space-y-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest text-blue-600 flex items-center justify-center sm:justify-start gap-1.5">
+            <p className="text-xs font-black uppercase tracking-widest text-brand-azul flex items-center justify-center sm:justify-start gap-1.5">
               <GraduationCap className="h-3.5 w-3.5" />
               Entrenador certificado PASALA
             </p>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight mt-1">{coach.display_name}</h1>
+            <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight mt-1">{coach.display_name}</h1>
           </div>
 
           {(coach.city || coach.region_name) && (
-            <p className="flex items-center justify-center sm:justify-start gap-1.5 text-sm text-gray-500">
-              <MapPin className="h-4 w-4 text-gray-400" />
+            <p className="flex items-center justify-center sm:justify-start gap-1.5 text-sm text-[var(--text-muted)]">
+              <MapPin className="h-4 w-4 text-[var(--text-faint)]" />
               {formatCityWithProvinceAbbr(coach.city, coach.region_code, coach.region_name)}
             </p>
           )}
 
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-            <div className="rounded-xl border border-blue-100 bg-blue-50 px-3 py-1.5">
-              <span className="text-xs font-black text-blue-700">
+            <div className="rounded-xl border border-brand-azul/20 bg-[var(--pill-blue-bg)] px-3 py-1.5">
+              <span className="text-xs font-black text-brand-azul">
                 PASALA {coach.pasala_index != null ? coach.pasala_index.toFixed(1) : "—"}
               </span>
             </div>
@@ -98,8 +98,8 @@ export default async function PlayerCoachProfilePage({
           </div>
 
           {coach.tarifa_por_hora != null && (
-            <p className="flex items-center justify-center sm:justify-start gap-1.5 text-sm font-bold text-gray-700">
-              <DollarSign className="h-4 w-4 text-gray-400" />
+            <p className="flex items-center justify-center sm:justify-start gap-1.5 text-sm font-bold text-[var(--text-primary)]">
+              <DollarSign className="h-4 w-4 text-[var(--text-faint)]" />
               ${coach.tarifa_por_hora.toLocaleString("es-AR")} / hora
             </p>
           )}
@@ -108,16 +108,16 @@ export default async function PlayerCoachProfilePage({
 
       {/* Bio */}
       {coach.bio && (
-        <div className="rounded-[28px] border border-gray-100 bg-white p-6">
-          <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Sobre mí</h2>
-          <p className="text-sm text-gray-700 leading-relaxed">{coach.bio}</p>
+        <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6">
+          <h2 className="text-xs font-black uppercase tracking-widest text-[var(--text-faint)] mb-3">Sobre mí</h2>
+          <p className="text-sm text-[var(--text-muted)] leading-relaxed">{coach.bio}</p>
         </div>
       )}
 
       {/* Availability */}
       {coach.availability.length > 0 && (
-        <div className="rounded-[28px] border border-gray-100 bg-white p-6">
-          <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-1.5">
+        <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6">
+          <h2 className="text-xs font-black uppercase tracking-widest text-[var(--text-faint)] mb-4 flex items-center gap-1.5">
             <CalendarDays className="h-3.5 w-3.5" />
             Disponibilidad habitual
           </h2>
@@ -126,15 +126,15 @@ export default async function PlayerCoachProfilePage({
               .sort(([a], [b]) => Number(a) - Number(b))
               .map(([day, daySlots]) => (
                 <div key={day} className="flex items-start gap-3">
-                  <span className="w-20 shrink-0 text-xs font-bold text-gray-600">{DAYS_ES[Number(day)]}</span>
+                  <span className="w-20 shrink-0 text-xs font-bold text-[var(--text-muted)]">{DAYS_ES[Number(day)]}</span>
                   <div className="flex flex-wrap gap-1.5">
                     {daySlots.map((slot, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center rounded-lg bg-blue-50 border border-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700"
+                        className="inline-flex items-center rounded-lg bg-[var(--pill-blue-bg)] border border-brand-azul/20 px-2.5 py-1 text-xs font-semibold text-brand-azul"
                       >
                         {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
-                        <span className="ml-1 text-[10px] text-blue-400">· {slot.slot_duration_minutes}min</span>
+                        <span className="ml-1 text-[10px] text-brand-azul/60">· {slot.slot_duration_minutes}min</span>
                       </span>
                     ))}
                   </div>
@@ -145,13 +145,13 @@ export default async function PlayerCoachProfilePage({
       )}
 
       {/* Booking form */}
-      <div className="rounded-[28px] border border-blue-100 bg-white p-6 space-y-4">
+      <div className="rounded-[14px] border border-brand-azul/20 bg-[var(--bg-card)] p-6 space-y-4">
         <div>
-          <h2 className="text-xs font-black uppercase tracking-widest text-blue-600 flex items-center gap-1.5">
+          <h2 className="text-xs font-black uppercase tracking-widest text-brand-azul flex items-center gap-1.5">
             <CalendarDays className="h-3.5 w-3.5" />
             Solicitar clase
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             Elegí fecha y hora — {coach.display_name} confirmará a la brevedad.
           </p>
         </div>
