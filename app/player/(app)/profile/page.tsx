@@ -252,7 +252,11 @@ export default async function PlayerProfilePage({
                     )}
                 </div>
 
-                <PlayerRadarChart data={metrics.avg_by_skill} />
+                <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Atributos Técnicos</h3>
+                    <p className="text-[10px] text-gray-500 mb-4">Promedio basado en tus evaluaciones</p>
+                    <PlayerRadarChart data={metrics.avg_by_skill} />
+                </div>
 
                 {/* PENDING ASSESSMENTS */}
                 <div className="space-y-4">
