@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
   Link2,
   Copy,
@@ -15,6 +15,8 @@ import {
   createInviteLinkAction,
   deactivateInviteLinkAction,
   renewInviteLinkAction,
+  searchPlayersForInviteAction,
+  createUnclaimedPlayerAction,
 } from "@/lib/actions/invite-links.actions";
 import { useRouter } from "next/navigation";
 
@@ -33,6 +35,19 @@ type RawLink = {
   is_active: boolean;
   created_at: string;
   created_by_player: { first_name: string; last_name: string } | null;
+};
+
+type PlayerResult = {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  display_name: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  claimed: boolean;
+  is_coach: boolean | null;
+  is_club_owner: boolean | null;
 };
 
 interface Props {
@@ -105,6 +120,269 @@ function CopyButton({ token }: { token: string }) {
   );
 }
 
+// ── getIntentWarning ──────────────────────────────────────────────────────────
+
+function getIntentWarning(
+  intent: "new_player" | "coach" | "club_owner",
+  player: PlayerResult
+): { text: string; ok: boolean } | null {
+  if (intent === "new_player") {
+    if (!player.claimed)
+      return {
+        ok: true,
+        text: "Este jugador existe pero no completó su registro. La invitación lo guiará para activar su cuenta.",
+      };
+    return {
+      ok: false,
+      text: "Este jugador ya tiene cuenta activa. La invitación igualmente se enviará — puede usarse para actualizar sus datos.",
+    };
+  }
+  if (intent === "coach") {
+    if (player.is_coach)
+      return { ok: false, text: "Este jugador ya tiene perfil de entrenador. Podés enviarle la invitación igual." };
+    return { ok: true, text: "La invitación activará su perfil de entrenador." };
+  }
+  if (intent === "club_owner") {
+    if (player.is_club_owner)
+      return { ok: false, text: "Este jugador ya administra un club." };
+    return { ok: true, text: "La invitación lo invitará a registrar su club." };
+  }
+  return null;
+}
+
+// ── PlayerSearchField ─────────────────────────────────────────────────────────
+
+function PlayerSearchField({
+  selected,
+  onSelect,
+}: {
+  selected: PlayerResult | null;
+  onSelect: (p: PlayerResult | null) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PlayerResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [searching, setSearching] = useState(false);
+
+  // New player form state
+  const [nfFirst, setNfFirst] = useState("");
+  const [nfLast, setNfLast] = useState("");
+  const [nfEmail, setNfEmail] = useState("");
+  const [nfPhone, setNfPhone] = useState("");
+  const [nfCity, setNfCity] = useState("");
+  const [nfPending, nfStartTransition] = useTransition();
+  const [nfError, setNfError] = useState<string | null>(null);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node))
+        setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  // Debounced search
+  useEffect(() => {
+    if (query.length < 2) { setResults([]); setOpen(false); return; }
+    setSearching(true);
+    const t = setTimeout(async () => {
+      const data = await searchPlayersForInviteAction(query);
+      setResults(data as PlayerResult[]);
+      setOpen(true);
+      setShowNewForm(false);
+      setSearching(false);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  function initNewForm() {
+    // Pre-fill name from query if it looks like a name
+    const parts = query.trim().split(" ");
+    setNfFirst(parts[0] ?? "");
+    setNfLast(parts.slice(1).join(" ") ?? "");
+    setNfEmail("");
+    setNfPhone("");
+    setNfCity("");
+    setNfError(null);
+    setShowNewForm(true);
+  }
+
+  function handleCreateNew() {
+    if (!nfFirst.trim() || !nfLast.trim()) {
+      setNfError("Nombre y apellido son obligatorios.");
+      return;
+    }
+    setNfError(null);
+    nfStartTransition(async () => {
+      try {
+        const p = await createUnclaimedPlayerAction({
+          first_name: nfFirst.trim(),
+          last_name: nfLast.trim(),
+          email: nfEmail.trim() || undefined,
+          phone: nfPhone.trim() || undefined,
+          city: nfCity.trim() || undefined,
+        });
+        onSelect(p as PlayerResult);
+        setQuery("");
+        setOpen(false);
+        setShowNewForm(false);
+      } catch (e: unknown) {
+        setNfError(e instanceof Error ? e.message : "Error al crear jugador");
+      }
+    });
+  }
+
+  function playerFullName(p: PlayerResult) {
+    return p.display_name ||
+      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() ||
+      "(sin nombre)";
+  }
+
+  function playerInitials(p: PlayerResult) {
+    const name = playerFullName(p);
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  // ── Selected card ──────────────────────────────────────────────────────────
+  if (selected) {
+    return (
+      <div className="flex items-start gap-3 rounded-xl bg-stone-50 border border-stone-200 p-3">
+        <div className="w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+          {playerInitials(selected)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-gray-900">{playerFullName(selected)}</p>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {selected.city && <span className="text-xs text-gray-500">{selected.city}</span>}
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${selected.claimed ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+              {selected.claimed ? "Reclamado" : "Sin reclamar"}
+            </span>
+            {selected.is_coach && <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-700">Entrenador</span>}
+            {selected.is_club_owner && <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-purple-100 text-purple-700">Club owner</span>}
+          </div>
+          {selected.email && <p className="text-xs text-gray-400 mt-0.5">{selected.email}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={() => onSelect(null)}
+          className="text-gray-400 hover:text-gray-600 p-1 shrink-0"
+          title="Quitar destinatario"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  // ── Search input + dropdown ────────────────────────────────────────────────
+  return (
+    <div ref={wrapperRef} className="relative">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => results.length > 0 && setOpen(true)}
+        placeholder="Buscar jugador por nombre, email o teléfono..."
+        className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+      />
+      {searching && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+          Buscando...
+        </div>
+      )}
+
+      {open && (
+        <div className="absolute z-10 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+          {results.length > 0 ? (
+            <ul>
+              {results.map((p) => (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => { onSelect(p); setQuery(""); setOpen(false); }}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+                      {playerInitials(p)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{playerFullName(p)}</p>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {p.city && <span className="text-xs text-gray-400">{p.city}</span>}
+                        <span className={`rounded-full px-1.5 py-0 text-[10px] font-bold ${p.claimed ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                          {p.claimed ? "Reclamado" : "Sin reclamar"}
+                        </span>
+                        {p.is_coach && <span className="rounded-full px-1.5 py-0 text-[10px] font-bold bg-blue-100 text-blue-700">Entrenador</span>}
+                        {p.is_club_owner && <span className="rounded-full px-1.5 py-0 text-[10px] font-bold bg-purple-100 text-purple-700">Club owner</span>}
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="px-3 py-2 text-sm text-gray-400">Sin resultados.</p>
+          )}
+
+          {/* Create new */}
+          {!showNewForm ? (
+            <div className="border-t border-gray-100">
+              <button
+                type="button"
+                onClick={initNewForm}
+                className="w-full px-3 py-2.5 text-left text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
+              >
+                + Crear nuevo jugador con estos datos
+              </button>
+            </div>
+          ) : (
+            <div className="border-t border-gray-100 p-3 space-y-2">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Nuevo jugador</p>
+              <div className="grid grid-cols-2 gap-2">
+                <input value={nfFirst} onChange={(e) => setNfFirst(e.target.value)} placeholder="Nombre*"
+                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none" />
+                <input value={nfLast} onChange={(e) => setNfLast(e.target.value)} placeholder="Apellido*"
+                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none" />
+              </div>
+              <input value={nfEmail} onChange={(e) => setNfEmail(e.target.value)} placeholder="Email" type="email"
+                className="w-full rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none" />
+              <div className="grid grid-cols-2 gap-2">
+                <input value={nfPhone} onChange={(e) => setNfPhone(e.target.value)} placeholder="WhatsApp"
+                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none" />
+                <input value={nfCity} onChange={(e) => setNfCity(e.target.value)} placeholder="Ciudad"
+                  className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none" />
+              </div>
+              {nfError && <p className="text-xs text-red-600">{nfError}</p>}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewForm(false)}
+                  className="flex-1 rounded-lg border border-gray-200 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateNew}
+                  disabled={nfPending}
+                  className="flex-1 rounded-lg bg-blue-600 py-1.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {nfPending ? "Creando..." : "Crear y seleccionar"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── NewLinkModal ──────────────────────────────────────────────────────────────
 
 function NewLinkModal({
@@ -114,17 +392,15 @@ function NewLinkModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
-  const [intent, setIntent] = useState<"new_player" | "coach" | "club_owner">(
-    "new_player"
-  );
-  const [targetName, setTargetName] = useState("");
-  const [targetEmail, setTargetEmail] = useState("");
-  const [targetPhone, setTargetPhone] = useState("");
+  const [intent, setIntent] = useState<"new_player" | "coach" | "club_owner">("new_player");
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerResult | null>(null);
   const [customMessage, setCustomMessage] = useState("");
   const [expiresDays, setExpiresDays] = useState(7);
   const [maxUses, setMaxUses] = useState<number | null>(1);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const warning = selectedPlayer ? getIntentWarning(intent, selectedPlayer) : null;
 
   function handleSubmit() {
     setError(null);
@@ -132,13 +408,16 @@ function NewLinkModal({
       try {
         await createInviteLinkAction({
           intent,
-          target_name: targetName.trim() || undefined,
-          target_email: targetEmail.trim() || undefined,
-          target_phone: targetPhone.trim() || undefined,
+          target_player_id: selectedPlayer?.id,
+          target_name: selectedPlayer
+            ? `${selectedPlayer.first_name ?? ""} ${selectedPlayer.last_name ?? ""}`.trim() || undefined
+            : undefined,
+          target_email: selectedPlayer?.email ?? undefined,
+          target_phone: selectedPlayer?.phone ?? undefined,
           custom_message: customMessage.trim() || undefined,
           expires_days: expiresDays,
           max_uses: maxUses,
-          created_by: "", // filled server-side via auth when needed
+          created_by: "",
         });
         onCreated();
       } catch (e: unknown) {
@@ -195,31 +474,19 @@ function NewLinkModal({
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wide text-gray-500">
               Destinatario{" "}
-              <span className="font-normal normal-case text-gray-400">
-                (opcional)
-              </span>
+              <span className="font-normal normal-case text-gray-400">(opcional)</span>
             </label>
-            <input
-              type="text"
-              value={targetName}
-              onChange={(e) => setTargetName(e.target.value)}
-              placeholder="Nombre"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            />
-            <input
-              type="email"
-              value={targetEmail}
-              onChange={(e) => setTargetEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            />
-            <input
-              type="tel"
-              value={targetPhone}
-              onChange={(e) => setTargetPhone(e.target.value)}
-              placeholder="Teléfono (WhatsApp)"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            />
+            <PlayerSearchField selected={selectedPlayer} onSelect={setSelectedPlayer} />
+            {warning && (
+              <div className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-xs ${
+                warning.ok
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-amber-50 border-amber-200 text-amber-700"
+              }`}>
+                <span className="shrink-0 mt-0.5">{warning.ok ? "✅" : "⚠️"}</span>
+                <span>{warning.text}</span>
+              </div>
+            )}
           </div>
 
           {/* Mensaje personalizado */}

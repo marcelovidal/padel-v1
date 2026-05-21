@@ -7,6 +7,7 @@ import {
   extendInviteLink,
   validateInviteLink,
 } from '@/services/invite-links.service'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function createInviteLinkAction(formData: {
@@ -54,4 +55,36 @@ export async function renewInviteLinkAction(id: string, days: number) {
 
 export async function validateInviteLinkAction(token: string) {
   return validateInviteLink(token)
+}
+
+export async function searchPlayersForInviteAction(query: string) {
+  if (query.length < 2) return []
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('players')
+    .select('id, first_name, last_name, display_name, email, phone, city, user_id, is_coach, is_club_owner')
+    .or(
+      `first_name.ilike.%${query}%,last_name.ilike.%${query}%,display_name.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`
+    )
+    .is('deleted_at', null)
+    .limit(8)
+  return (data ?? []).map((p) => ({ ...p, claimed: !!p.user_id }))
+}
+
+export async function createUnclaimedPlayerAction(input: {
+  first_name: string
+  last_name: string
+  email?: string
+  phone?: string
+  city?: string
+}) {
+  const supabase = createAdminClient()
+  const display_name = `${input.first_name} ${input.last_name}`.trim()
+  const { data, error } = await supabase
+    .from('players')
+    .insert({ ...input, display_name, is_guest: false } as any)
+    .select('id, first_name, last_name, display_name, email, phone, city, user_id, is_coach, is_club_owner')
+    .single()
+  if (error) throw error
+  return { ...(data as any), claimed: false }
 }
