@@ -317,18 +317,18 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
     return (
       <div className="animate-pulse">
         <div className="flex items-center justify-between mb-4">
-          <div className="h-8 w-8 rounded-xl bg-slate-200" />
-          <div className="h-5 w-40 rounded bg-slate-200" />
-          <div className="h-8 w-8 rounded-xl bg-slate-200" />
+          <div className="h-8 w-8 rounded-xl bg-[var(--bg-pill-soft)]" />
+          <div className="h-5 w-40 rounded bg-[var(--bg-pill-soft)]" />
+          <div className="h-8 w-8 rounded-xl bg-[var(--bg-pill-soft)]" />
         </div>
         <div className="grid grid-cols-7 gap-1 mb-2">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="h-4 rounded bg-slate-100" />
+            <div key={i} className="h-4 rounded bg-[var(--bg-elevated)]" />
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: 35 }).map((_, i) => (
-            <div key={i} className="h-10 rounded-lg bg-slate-100" />
+            <div key={i} className="h-10 rounded-lg bg-[var(--bg-elevated)]" />
           ))}
         </div>
       </div>
@@ -342,28 +342,28 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={prevPeriod}
-            className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="p-2 rounded-xl border border-[var(--border-soft)] hover:bg-[var(--bg-elevated)] transition-colors"
             aria-label="Período anterior"
           >
-            <ChevronLeft className="w-4 h-4 text-gray-600" />
+            <ChevronLeft className="w-4 h-4 text-[var(--text-muted)]" />
           </button>
-          <span className="text-base font-bold text-gray-900 min-w-[200px] text-center select-none">
+          <span className="text-base font-bold text-[var(--text-primary)] min-w-[200px] text-center select-none">
             {periodLabel}
           </span>
           <button
             onClick={nextPeriod}
-            className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="p-2 rounded-xl border border-[var(--border-soft)] hover:bg-[var(--bg-elevated)] transition-colors"
             aria-label="Período siguiente"
           >
-            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
           </button>
         </div>
 
-        <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+        <div className="flex rounded-xl border border-[var(--border-soft)] overflow-hidden">
           <button
             onClick={() => toggleView("monthly")}
             className={`px-3 py-2 text-sm font-semibold flex items-center gap-1.5 transition-colors ${
-              view === "monthly" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-50"
+              view === "monthly" ? "bg-brand-azul text-white" : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)]"
             }`}
           >
             <CalendarDays className="w-4 h-4" />
@@ -371,8 +371,8 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
           </button>
           <button
             onClick={() => toggleView("weekly")}
-            className={`px-3 py-2 text-sm font-semibold flex items-center gap-1.5 transition-colors border-l border-gray-200 ${
-              view === "weekly" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-50"
+            className={`px-3 py-2 text-sm font-semibold flex items-center gap-1.5 transition-colors border-l border-[var(--border-soft)] ${
+              view === "weekly" ? "bg-brand-azul text-white" : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)]"
             }`}
           >
             <List className="w-4 h-4" />
@@ -392,8 +392,8 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
               onClick={() => setActiveFilter(f.key)}
               className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                 active
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+                  ? "bg-brand-azul text-white border-brand-azul"
+                  : "bg-[var(--bg-elevated)] text-[var(--text-muted)] border-[var(--border-soft)] hover:border-brand-azul/40 hover:text-brand-azul"
               }`}
             >
               {cfg && (
@@ -407,17 +407,17 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
 
       {/* ── Monthly view ── */}
       {view === "monthly" && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="grid grid-cols-7 border-b border-gray-100">
+        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-soft)] overflow-hidden">
+          <div className="grid grid-cols-7 border-b border-[var(--border-soft)]">
             {WEEKDAYS.map(d => (
-              <div key={d} className="py-2 text-center text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+              <div key={d} className="py-2 text-center text-[11px] font-bold text-[var(--text-faint)] uppercase tracking-wide">
                 {d}
               </div>
             ))}
           </div>
 
           {loading ? (
-            <div className="h-64 flex items-center justify-center text-sm text-gray-400">Cargando...</div>
+            <div className="h-64 flex items-center justify-center text-sm text-[var(--text-faint)]">Cargando...</div>
           ) : (
             <div className="grid grid-cols-7">
               {monthGrid.map((day, i) => {
@@ -425,7 +425,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                   return (
                     <div
                       key={`empty-${i}`}
-                      className="h-14 sm:h-16 bg-gray-50/50 border-b border-r border-gray-100"
+                      className="h-14 sm:h-16 bg-[var(--bg-elevated)]/50 border-b border-r border-[var(--border-soft)]"
                     />
                   );
                 }
@@ -442,19 +442,19 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                   <button
                     key={key}
                     onClick={() => handleDayClick(day)}
-                    className={`min-h-[3.5rem] sm:min-h-[4.5rem] w-full border-b border-r border-gray-100 p-1 text-left align-top transition-colors hover:bg-blue-50/40 ${
-                      isSelected ? "bg-blue-50" : ""
+                    className={`min-h-[3.5rem] sm:min-h-[4.5rem] w-full border-b border-r border-[var(--border-soft)] p-1 text-left align-top transition-colors hover:bg-[var(--pill-blue-bg)] ${
+                      isSelected ? "bg-[var(--pill-blue-bg)]" : ""
                     }`}
                   >
                     <span
                       className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                         isToday
-                          ? "bg-blue-600 text-white"
+                          ? "bg-brand-azul text-white"
                           : isSelected
-                          ? "text-blue-700 font-black"
+                          ? "text-brand-azul font-black"
                           : isPast
-                          ? "text-gray-300"
-                          : "text-gray-700"
+                          ? "text-[var(--text-faint)]"
+                          : "text-[var(--text-primary)]"
                       }`}
                     >
                       {day.getDate()}
@@ -478,7 +478,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                           );
                         })}
                         {extraCount > 0 && (
-                          <span className={`pl-1 text-[9px] leading-none text-gray-400 ${isPast ? "opacity-60" : ""}`}>
+                          <span className={`pl-1 text-[9px] leading-none text-[var(--text-faint)] ${isPast ? "opacity-60" : ""}`}>
                             +{extraCount} más
                           </span>
                         )}
@@ -494,9 +494,9 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
 
       {/* ── Weekly view ── */}
       {view === "weekly" && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-soft)] overflow-hidden">
           {loading ? (
-            <div className="h-64 flex items-center justify-center text-sm text-gray-400">Cargando...</div>
+            <div className="h-64 flex items-center justify-center text-sm text-[var(--text-faint)]">Cargando...</div>
           ) : (
             <div>
               {weekDays.map((day, i) => {
@@ -510,19 +510,19 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                 return (
                   <div
                     key={i}
-                    className={`border-b border-gray-100 last:border-b-0 ${isSelected ? "bg-blue-50/30" : ""}`}
+                    className={`border-b border-[var(--border-soft)] last:border-b-0 ${isSelected ? "bg-[var(--pill-blue-bg)]/30" : ""}`}
                   >
                     <div className="flex items-start gap-3 px-4 py-3">
                       <button
                         onClick={() => handleDayClick(day)}
                         className={`flex-shrink-0 w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-colors ${
                           isToday
-                            ? "bg-blue-600 text-white"
+                            ? "bg-brand-azul text-white"
                             : isSelected
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-[var(--pill-blue-bg)] text-brand-azul"
                             : isPast
-                            ? "bg-gray-50 text-gray-300"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-[var(--bg-elevated)] text-[var(--text-faint)]"
+                            : "bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:bg-[var(--bg-pill-soft)]"
                         }`}
                       >
                         <span className="text-xs font-black leading-tight">{day.getDate()}</span>
@@ -533,7 +533,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
 
                       <div className="flex-1 min-w-0">
                         {dayEvts.length === 0 ? (
-                          <span className="pt-2.5 block text-sm text-gray-400">Sin actividad</span>
+                          <span className="pt-2.5 block text-sm text-[var(--text-faint)]">Sin actividad</span>
                         ) : (
                           <div className={`flex flex-wrap gap-1.5 pt-1.5 ${isPast ? "opacity-60" : ""}`}>
                             {dayEvts.map(e => {
@@ -569,7 +569,7 @@ export function CalendarioView({ isCoach = false }: CalendarioViewProps) {
                       {!isPast && (
                         <button
                           onClick={() => handleDayClick(day)}
-                          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors mt-1.5"
+                          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-[var(--text-faint)] hover:text-brand-azul hover:bg-[var(--pill-blue-bg)] transition-colors mt-1.5"
                           aria-label={`Agregar al ${formatDayLabel(day)}`}
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -629,15 +629,15 @@ function DaySheet({
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-sm bg-[var(--bg-card)] rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100 flex-shrink-0">
-          <p className="text-sm font-bold text-gray-900">{formatDayLabel(day)}</p>
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-[var(--border-soft)] flex-shrink-0">
+          <p className="text-sm font-bold text-[var(--text-primary)]">{formatDayLabel(day)}</p>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+            className="p-1 rounded-lg hover:bg-[var(--bg-elevated)] text-[var(--text-faint)] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -647,10 +647,10 @@ function DaySheet({
           {/* Section 1: Events */}
           {hasEvents ? (
             <div>
-              <p className="px-4 pt-3 pb-1 text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+              <p className="px-4 pt-3 pb-1 text-[11px] font-bold text-[var(--text-faint)] uppercase tracking-wide">
                 Actividad
               </p>
-              <ul className="divide-y divide-gray-100">
+              <ul className="divide-y divide-[var(--border-soft)]">
                 {events.map(e => {
                   const cfg = EVENT_CONFIG[e.type];
                   const allDay = isAllDay(e.start_at);
@@ -684,27 +684,27 @@ function DaySheet({
                         <div className="min-w-0 flex-1 space-y-1">
                           {/* Título + hora */}
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-bold text-gray-900 leading-tight">{e.title}</p>
+                            <p className="text-sm font-bold text-[var(--text-primary)] leading-tight">{e.title}</p>
                             {!allDay && (
-                              <span className="text-xs font-bold text-gray-500 flex-shrink-0">
+                              <span className="text-xs font-bold text-[var(--text-muted)] flex-shrink-0">
                                 {formatTime(e.start_at)}
                               </span>
                             )}
                           </div>
                           {/* Subtítulo: entrenador / club+cancha */}
                           {coachName ? (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-[var(--text-muted)]">
                               Clase con <span className="font-semibold">{coachName}</span>
                             </p>
                           ) : e.club_name ? (
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-[var(--text-muted)] truncate">
                               {e.club_name}
                               {e.court_name ? ` · ${e.court_name}` : ""}
                             </p>
                           ) : null}
                           {/* Duración */}
                           {durationMin && (
-                            <p className="text-xs text-gray-400">⏱ {durationMin} min</p>
+                            <p className="text-xs text-[var(--text-faint)]">⏱ {durationMin} min</p>
                           )}
                           {/* Badge tipo + estado */}
                           <div className="flex items-center gap-1.5">
@@ -712,7 +712,7 @@ function DaySheet({
                               {cfg.label}
                             </span>
                             {e.status && (
-                              <span className="text-[10px] text-gray-400">{statusLabel}</span>
+                              <span className="text-[10px] text-[var(--text-faint)]">{statusLabel}</span>
                             )}
                           </div>
                           {/* CTA */}
@@ -720,7 +720,7 @@ function DaySheet({
                             <Link
                               href={link}
                               onClick={onClose}
-                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-brand-azul hover:text-brand-azul/80 transition-colors"
                             >
                               {ctaLabel ?? "Ver detalle"} →
                             </Link>
@@ -728,7 +728,7 @@ function DaySheet({
                           {e.type === "training" && (
                             <button
                               onClick={() => onSelectEvent(e)}
-                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+                              className="inline-flex items-center gap-0.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                             >
                               Ver detalle →
                             </button>
@@ -741,15 +741,15 @@ function DaySheet({
               </ul>
             </div>
           ) : (
-            <p className="px-4 pt-4 pb-2 text-sm text-gray-400">Sin actividad este día.</p>
+            <p className="px-4 pt-4 pb-2 text-sm text-[var(--text-faint)]">Sin actividad este día.</p>
           )}
 
           {/* Section 2: Actions — solo días no pasados */}
           {!isPast && (
             <>
-              {hasEvents && <div className="mx-4 my-2 border-t border-gray-100" />}
+              {hasEvents && <div className="mx-4 my-2 border-t border-[var(--border-soft)]" />}
               <div className="px-4 pb-4 pt-2">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">
+                <p className="text-[11px] font-bold text-[var(--text-faint)] uppercase tracking-wide mb-3">
                   ¿Qué querés hacer el {formatDayLabel(day)}?
                 </p>
                 <div className="flex flex-col gap-2">
@@ -758,7 +758,7 @@ function DaySheet({
                       key={action.key}
                       href={action.href(dateParam)}
                       onClick={onClose}
-                      className="flex items-center gap-3 w-full px-3 py-3 rounded-lg border border-[#E2E8F0] bg-white text-[13px] font-semibold text-[#0F172A] hover:border-blue-500 hover:bg-[#EFF6FF] transition-colors"
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] text-[13px] font-semibold text-[var(--text-primary)] hover:border-brand-azul/40 hover:bg-[var(--pill-blue-bg)] transition-colors"
                     >
                       <span className="text-xl leading-none">{action.icon}</span>
                       {action.label}
@@ -815,11 +815,11 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-sm bg-[var(--bg-card)] rounded-2xl shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Modal header */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-[var(--border-soft)]">
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full ${cfg.dot}`} />
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.badge}`}>
@@ -828,7 +828,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+            className="p-1 rounded-lg hover:bg-[var(--bg-elevated)] text-[var(--text-faint)] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -836,7 +836,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
         {/* Modal body */}
         <div className="px-4 py-4 space-y-2.5">
-          <p className="text-base font-black text-gray-900">{event.title}</p>
+          <p className="text-base font-black text-[var(--text-primary)]">{event.title}</p>
 
           {/* Fixed slot: recurrence info */}
           {isFixed && (
@@ -858,7 +858,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Date/time (no fixed_slot — it shows recurrence instead) */}
           {!isFixed && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[var(--text-muted)]">
               🗓{" "}
               {new Date(event.start_at).toLocaleDateString("es-AR", {
                 weekday: "long",
@@ -876,7 +876,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Club + court (non-fixed) */}
           {!isFixed && event.club_name && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[var(--text-muted)]">
               📍 {event.club_name}
               {event.court_name ? ` · ${event.court_name}` : ""}
             </p>
@@ -884,18 +884,18 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Status */}
           {event.status && event.status !== "confirmed" && (
-            <p className="text-sm text-gray-500 capitalize">
+            <p className="text-sm text-[var(--text-muted)] capitalize">
               Estado: <span className="font-semibold">{event.status}</span>
             </p>
           )}
 
           {/* Coach name (for training) */}
           {typeof meta?.coach_name === "string" && event.type === "training" && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[var(--text-muted)]">
               👤 Entrenador:{" "}
               <span className="font-semibold">{meta.coach_name as string}</span>
               {typeof meta.coach_pasala_index === "number" && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-[var(--text-faint)]">
                   {" · "}PASALA {(meta.coach_pasala_index as number).toFixed(1)}
                 </span>
               )}
@@ -904,21 +904,21 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Duration */}
           {typeof meta?.duration_minutes === "number" && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[var(--text-muted)]">
               ⏱ {meta.duration_minutes as number} min
             </p>
           )}
 
           {/* Tarifa (solo si pública) */}
           {typeof meta?.tarifa_por_hora === "number" && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[var(--text-muted)]">
               💲 ${(meta.tarifa_por_hora as number).toLocaleString("es-AR")} / hora
             </p>
           )}
 
           {/* Notes */}
           {typeof meta?.notes === "string" && meta.notes && (
-            <p className="text-sm text-gray-500 italic">&ldquo;{meta.notes as string}&rdquo;</p>
+            <p className="text-sm text-[var(--text-muted)] italic">&ldquo;{meta.notes as string}&rdquo;</p>
           )}
 
           {/* Training: pending message */}
@@ -930,7 +930,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
 
           {/* Cancel error */}
           {cancelError && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+            <p className="text-sm text-brand-rojo bg-[var(--pill-red-bg)] border border-brand-rojo/20 rounded-xl px-3 py-2">
               {cancelError}
             </p>
           )}
@@ -943,7 +943,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
               <Link
                 href={link}
                 onClick={onClose}
-                className="block w-full text-center px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+                className="block w-full text-center px-4 py-2.5 rounded-xl bg-brand-azul text-white text-sm font-bold hover:bg-brand-azul/90 transition-colors"
               >
                 {typeof meta?.cta_label === "string" ? (meta.cta_label as string) : "Ver detalle"}
               </Link>
@@ -952,7 +952,7 @@ function EventDetailModal({ event, onClose }: { event: CalEvent; onClose: () => 
               <button
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="w-full px-4 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-4 py-2.5 rounded-xl border border-brand-rojo/20 text-brand-rojo text-sm font-bold hover:bg-[var(--pill-red-bg)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isCancelling ? "Cancelando..." : "Cancelar clase"}
               </button>
