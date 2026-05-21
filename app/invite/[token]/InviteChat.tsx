@@ -39,6 +39,18 @@ type InputMode =
 
 type FlowStep = 'chat' | 'done'
 
+// Provincias y ciudades
+const PROVINCIAS_CIUDADES: Record<string, string[]> = {
+  'Río Negro':        ['General Roca', 'Bariloche', 'Cipolletti', 'Allen', 'Viedma', 'Villa Regina', 'Catriel', 'Cinco Saltos', 'El Bolsón', 'Ingeniero Jacobacci'],
+  'Neuquén':          ['Neuquén capital', 'Plottier', 'Centenario', 'San Martín de los Andes', 'Junín de los Andes', 'Zapala', 'Cutral Có', 'Villa La Angostura', 'Rincón de los Sauces', 'Las Lajas'],
+  'Chubut':           ['Comodoro Rivadavia', 'Trelew', 'Puerto Madryn', 'Rawson', 'Esquel', 'Rada Tilly'],
+  'Santa Cruz':       ['Río Gallegos', 'Caleta Olivia', 'El Calafate', 'El Chaltén', 'Puerto Deseado', 'Pico Truncado'],
+  'Tierra del Fuego': ['Ushuaia', 'Río Grande', 'Tolhuin'],
+  'La Pampa':         ['Santa Rosa', 'General Pico', 'Toay'],
+  'Buenos Aires':     ['Buenos Aires', 'Mar del Plata', 'Bahía Blanca', 'La Plata', 'Rosario'],
+  'Otra provincia':   ['Otra ciudad'],
+}
+
 // Level / position maps
 const LEVEL_MAP: Record<string, string> = {
   'Principiante 🌱': 'beginner',
@@ -391,12 +403,37 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
     }
 
     async function askCity(base: Record<string, string>) {
-      await appSay(`¿De qué ciudad jugás?`, 700)
-      setInputMode({ type: 'text', placeholder: 'Tu ciudad...', field: 'city' })
-      waitForText('city', async (city) => {
-        addUserMsg(city)
+      // Paso 3A — Provincia
+      await appSay('¿En qué provincia estás?', 700)
+      setInputMode({ type: 'options', options: Object.keys(PROVINCIAS_CIUDADES) })
+      waitForOption(async (provincia) => {
+        addUserMsg(provincia)
         setInputMode({ type: 'none' })
-        await askLevel({ ...base, city })
+
+        // Paso 3B — Ciudad
+        const ciudades = PROVINCIAS_CIUDADES[provincia] ?? []
+        const opciones = provincia === 'Otra provincia'
+          ? ['Otra ciudad']
+          : [...ciudades, 'Otra ciudad']
+
+        await appSay(`¿Y de qué ciudad de ${provincia}?`, 600)
+        setInputMode({ type: 'options', options: opciones })
+        waitForOption(async (ciudadOpt) => {
+          addUserMsg(ciudadOpt)
+          setInputMode({ type: 'none' })
+
+          if (ciudadOpt === 'Otra ciudad') {
+            await appSay('¿Cómo se llama tu ciudad?', 500)
+            setInputMode({ type: 'text', placeholder: 'Tu ciudad...', field: 'city' })
+            waitForText('city', async (city) => {
+              addUserMsg(city)
+              setInputMode({ type: 'none' })
+              await askLevel({ ...base, provincia, city })
+            })
+          } else {
+            await askLevel({ ...base, provincia, city: ciudadOpt })
+          }
+        })
       })
     }
 
