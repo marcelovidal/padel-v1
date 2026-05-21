@@ -288,15 +288,15 @@ export function InviteChat({
 
   // ── FLUJO 2 — nuevo usuario ────────────────────────────────────────────────
 
-  async function flowNewUser() {
-    await appSay('Sin problema. ¿Cómo te llamás?')
-    setInputMode({ type: 'text', placeholder: 'Tu nombre...', field: 'name' })
-    waitForText('name', async (name) => {
-      addUserMsg(name)
-      setInputMode({ type: 'none' })
-      setUserData((p) => ({ ...p, name }))
+  async function flowNewUser(opts: {
+    prefillName?: string
+    prefillEmail?: string
+    showIntro?: boolean
+  } = {}) {
+    const { prefillName, prefillEmail, showIntro = false } = opts
 
-      await appSay(`Hola ${name}! ¿De qué ciudad jugás?`, 700)
+    async function askCity(name: string) {
+      await appSay(`¿De qué ciudad jugás?`, 700)
       setInputMode({ type: 'text', placeholder: 'Tu ciudad...', field: 'city' })
       waitForText('city', async (city) => {
         addUserMsg(city)
@@ -313,21 +313,44 @@ export function InviteChat({
           setInputMode({ type: 'none' })
           setUserData((p) => ({ ...p, level }))
 
-          await appSay('¿Cuál es tu email?', 700)
-          setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'email' })
-          waitForText('email', async (email) => {
-            addUserMsg(email)
-            setInputMode({ type: 'none' })
-
+          if (prefillEmail) {
             await appSay(`Perfecto ${name}. Todo listo para crear tu cuenta. 🎾`, 700)
             await markUsed()
             redirectTo(
-              `/welcome?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&city=${encodeURIComponent(city)}`
+              `/welcome?name=${encodeURIComponent(name)}&email=${encodeURIComponent(prefillEmail)}&city=${encodeURIComponent(city)}`
             )
-          })
+          } else {
+            await appSay('¿Cuál es tu email?', 700)
+            setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'email' })
+            waitForText('email', async (email) => {
+              addUserMsg(email)
+              setInputMode({ type: 'none' })
+
+              await appSay(`Perfecto ${name}. Todo listo para crear tu cuenta. 🎾`, 700)
+              await markUsed()
+              redirectTo(
+                `/welcome?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&city=${encodeURIComponent(city)}`
+              )
+            })
+          }
         })
       })
-    })
+    }
+
+    if (prefillName) {
+      // Ya sabemos el nombre — no preguntar, ir directo a ciudad
+      await askCity(prefillName)
+    } else {
+      if (showIntro) await appSay('Sin problema. ¿Cómo te llamás?')
+      else await appSay('¿Cómo te llamás?')
+      setInputMode({ type: 'text', placeholder: 'Tu nombre...', field: 'name' })
+      waitForText('name', async (name) => {
+        addUserMsg(name)
+        setInputMode({ type: 'none' })
+        setUserData((p) => ({ ...p, name }))
+        await askCity(name)
+      })
+    }
   }
 
   // ── Callback helpers ───────────────────────────────────────────────────────
@@ -400,7 +423,7 @@ export function InviteChat({
         addUserMsg(opt)
         setInputMode({ type: 'none' })
         if (opt === 'No, soy otra persona') {
-          await flowNewUser()
+          await flowNewUser({ showIntro: true })
         } else {
           const email = targetEmail ?? ''
           if (intent === 'coach') await flowB_coach(email)
@@ -409,13 +432,17 @@ export function InviteChat({
         }
       })
     } else {
-      // Generic link — go straight to new user flow or intent flow
+      // No targetPlayer — pasar name/email pre-cargados si existen
+      const prefill = {
+        prefillName: targetName ?? undefined,
+        prefillEmail: targetEmail ?? undefined,
+      }
       if (intent === 'coach') {
-        await flowNewUser()
+        await flowNewUser(prefill)
       } else if (intent === 'club_owner') {
-        await flowC_club('')
+        await flowC_club(targetEmail ?? '')
       } else {
-        await flowNewUser()
+        await flowNewUser(prefill)
       }
     }
   }
