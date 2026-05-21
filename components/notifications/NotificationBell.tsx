@@ -107,6 +107,10 @@ export function NotificationBell({
       setRefreshing(true);
       try {
         await onRefresh();
+        // Abrir la campana = "visto": marcar todos los bell items como leídos
+        if (totalUnread > 0) {
+          await onMarkAllRead();
+        }
       } finally {
         setRefreshing(false);
       }
