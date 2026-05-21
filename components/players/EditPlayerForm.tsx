@@ -28,7 +28,7 @@ interface Player {
   avatar_url?: string | null;
   phone?: string | null;
   email?: string | null;
-  category?: number | null;
+  category?: string | number | null;
   birth_year?: number | null;
 }
 
