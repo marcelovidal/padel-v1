@@ -21,7 +21,7 @@ import { useNotificationsContext } from "@/contexts/player-notifications.context
 function BottomNavDot({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="absolute -top-0.5 -right-1 h-2 w-2 rounded-full bg-red-500 ring-1 ring-white" />
+    <span className="absolute -top-0.5 -right-1 h-2 w-2 rounded-full bg-red-500 ring-1 ring-[var(--bg-sidebar)]" />
   );
 }
 
@@ -147,23 +147,23 @@ export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottom
         >
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div
-            className="relative w-full rounded-t-[28px] bg-white shadow-2xl"
+            className="relative w-full rounded-t-[28px] bg-[var(--bg-card)] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
           >
-            <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-200" />
+            <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-[var(--bg-pill-soft)]" />
             <div className="flex items-center justify-between px-5 pb-3 pt-4">
-              <p className="text-base font-black text-slate-900">{sheetTitle}</p>
+              <p className="text-base font-black text-[var(--text-primary)]">{sheetTitle}</p>
               <button
                 type="button"
                 onClick={() => setOpenSheet(null)}
-                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-lg p-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
                 aria-label="Cerrar"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="border-t border-slate-100 px-4 pt-3">
+            <div className="border-t border-[var(--border-soft)] px-4 pt-3">
               <div className="space-y-2">
                 {sheetOptions.map(({ href, label, icon: Icon }) => (
                   <button
@@ -173,13 +173,13 @@ export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottom
                       setOpenSheet(null);
                       router.push(href);
                     }}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:border-blue-200 hover:bg-blue-50"
+                    className="flex w-full items-center gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-4 py-3 text-left transition-colors hover:border-brand-azul/30 hover:bg-[var(--pill-blue-bg)]"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-pill-soft)] text-[var(--text-secondary)]">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="flex-1 text-sm font-semibold text-slate-900">{label}</span>
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                    <span className="flex-1 text-sm font-semibold text-[var(--text-primary)]">{label}</span>
+                    <ChevronRight className="h-4 w-4 text-[var(--text-faint)]" />
                   </button>
                 ))}
               </div>
@@ -189,7 +189,7 @@ export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottom
       )}
 
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[var(--bg-sidebar)] border-t border-[var(--border-soft)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex h-16">
@@ -197,7 +197,7 @@ export function PlayerBottomNav({ playerId, isCoach, isClubOwner }: PlayerBottom
             const active = activeFor(pathname);
             const count = badge(sectionCounts);
             const className = `flex flex-1 flex-col items-center justify-center gap-1 transition-colors ${
-              active ? "text-blue-600" : "text-slate-400"
+              active ? "text-[var(--pill-red-text)]" : "text-[var(--text-faint)]"
             }`;
 
             if (sheetKey) {

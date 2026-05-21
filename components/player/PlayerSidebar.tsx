@@ -61,7 +61,7 @@ function NavBadge({ count }: { count: number }) {
 function NavDot({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-1 ring-white" />
+    <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-1 ring-[var(--bg-sidebar)]" />
   );
 }
 
@@ -69,16 +69,16 @@ function NavDot({ count }: { count: number }) {
 
 const L1_BASE =
   "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium w-full transition-colors";
-const L1_INACTIVE = "text-slate-900 hover:bg-slate-100";
-const L1_ACTIVE   = "bg-red-50 text-[#E5352A] font-semibold";
+const L1_INACTIVE = "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]";
+const L1_ACTIVE   = "bg-[var(--pill-red-bg)] text-[var(--pill-red-text)] font-semibold";
 function l1Cls(active: boolean) {
   return `${L1_BASE} ${active ? L1_ACTIVE : L1_INACTIVE}`;
 }
 
 const L2_BASE =
   "flex items-center pl-9 pr-3 py-1.5 rounded-lg text-[13px] font-normal w-full transition-colors";
-const L2_INACTIVE = "text-slate-600 hover:text-[#E5352A]";
-const L2_ACTIVE   = "text-[#E5352A] font-medium";
+const L2_INACTIVE = "text-[var(--text-muted)] hover:text-[var(--pill-red-text)]";
+const L2_ACTIVE   = "text-[var(--pill-red-text)] font-medium";
 function l2Cls(active: boolean) {
   return `${L2_BASE} ${active ? L2_ACTIVE : L2_INACTIVE}`;
 }
@@ -104,8 +104,8 @@ function CollapsedNavItem({
       title={label}
       className={`relative flex h-10 w-full items-center justify-center rounded-xl transition-colors ${
         active
-          ? "bg-red-50 text-[#E5352A]"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          ? "bg-[var(--pill-red-bg)] text-[var(--pill-red-text)]"
+          : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
       }`}
     >
       <Icon className="w-[18px] h-[18px]" />
@@ -115,7 +115,7 @@ function CollapsedNavItem({
 }
 
 function Divider() {
-  return <div className="my-1.5 border-t border-slate-200" />;
+  return <div className="my-1.5 border-t border-[var(--border-soft)]" />;
 }
 
 // ── Acciones contextuales ─────────────────────────────────────────────────────
@@ -230,13 +230,13 @@ export function PlayerSidebar({
 
   return (
     <aside
-      className={`hidden md:flex fixed left-0 top-0 h-screen flex-col border-r border-slate-200 bg-white z-30 overflow-hidden transition-[width] duration-200 ease-in-out ${
+      className={`hidden md:flex fixed left-0 top-0 h-screen flex-col border-r border-[var(--border-soft)] bg-[var(--bg-sidebar)] z-30 overflow-hidden transition-[width] duration-200 ease-in-out ${
         collapsed ? "w-14" : "w-60"
       }`}
     >
       {/* ── Header ── */}
       {collapsed ? (
-        <div className="flex flex-col items-center gap-2.5 py-3 px-1 border-b border-slate-200">
+        <div className="flex flex-col items-center gap-2.5 py-3 px-1 border-b border-[var(--border-soft)]">
           <Link href="/player" title="PASALA — Inicio">
             <PasalaLogo iconOnly size="sm" />
           </Link>
@@ -251,7 +251,7 @@ export function PlayerSidebar({
           />
         </div>
       ) : (
-        <div className="p-4 border-b border-slate-200">
+        <div className="p-4 border-b border-[var(--border-soft)]">
           <div className="flex items-center justify-between mb-3">
             <Link href="/player">
               <PasalaLogo variant="light" size="md" />
@@ -269,9 +269,9 @@ export function PlayerSidebar({
           <div className="flex items-center gap-3">
             <UserAvatar src={avatarSrc || null} initials={avatarInitials} size="sm" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
+              <p className="text-sm font-bold text-[var(--text-primary)] truncate">{displayName}</p>
               {location && (
-                <p className="flex items-center gap-1 text-xs text-slate-500 truncate mt-0.5">
+                <p className="flex items-center gap-1 text-xs text-[var(--text-muted)] truncate mt-0.5">
                   <MapPin className="w-3 h-3 shrink-0" />
                   {location}
                 </p>
@@ -506,7 +506,7 @@ export function PlayerSidebar({
       </div>
 
       {/* ── Footer ── */}
-      <div className="px-2 pb-2 pt-2 border-t border-slate-200 space-y-1.5">
+      <div className="px-2 pb-2 pt-2 border-t border-[var(--border-soft)] space-y-1.5">
         {collapsed ? (
           /* Modo colapsado: solo ícono + */
           <>
@@ -521,7 +521,7 @@ export function PlayerSidebar({
               <button
                 type="submit"
                 title="Cerrar sesión"
-                className="flex h-9 w-full items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                className="flex h-9 w-full items-center justify-center rounded-xl border border-[var(--border-strong)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] transition-colors"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -546,12 +546,12 @@ export function PlayerSidebar({
                   </Link>
                   <Link
                     href="/player/matches/new?mode=direct"
-                    className="flex w-full flex-col items-start rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 transition-colors"
+                    className="flex w-full flex-col items-start rounded-lg border border-[var(--border-soft)] bg-[var(--bg-card)] px-3 py-2 hover:bg-[var(--bg-elevated)] transition-colors"
                   >
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-faint)] leading-none mb-0.5">
                       Sin club
                     </span>
-                    <span className="text-[12px] font-semibold text-slate-900 leading-none">
+                    <span className="text-[12px] font-semibold text-[var(--text-primary)] leading-none">
                       Solo crear partido
                     </span>
                   </Link>
@@ -582,7 +582,7 @@ export function PlayerSidebar({
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-strong)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Cerrar sesión
@@ -595,7 +595,7 @@ export function PlayerSidebar({
         <button
           onClick={onToggle}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}
-          className={`flex w-full items-center rounded-xl px-2 py-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors ${
+          className={`flex w-full items-center rounded-xl px-2 py-1.5 text-[var(--text-faint)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-secondary)] transition-colors ${
             collapsed ? "justify-center" : "gap-1.5"
           }`}
         >

@@ -89,28 +89,28 @@ export function ProximoEvento() {
   // skeleton mientras carga
   if (event === undefined) {
     return (
-      <div className="mx-2 mb-2 rounded-lg border border-slate-100 bg-slate-50 p-3 animate-pulse">
-        <div className="h-2 w-12 rounded bg-slate-200 mb-2" />
-        <div className="h-3 w-24 rounded bg-slate-200 mb-1.5" />
-        <div className="h-2.5 w-16 rounded bg-slate-200" />
+      <div className="mx-2 mb-2 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3 animate-pulse">
+        <div className="h-2 w-12 rounded bg-[var(--bg-pill-soft)] mb-2" />
+        <div className="h-3 w-24 rounded bg-[var(--bg-pill-soft)] mb-1.5" />
+        <div className="h-2.5 w-16 rounded bg-[var(--bg-pill-soft)]" />
       </div>
     );
   }
 
   const containerBase =
-    "mx-2 mb-2 rounded-lg border border-slate-200 p-3 text-left transition-colors";
+    "mx-2 mb-2 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3 text-left transition-colors";
 
   // sin evento
   if (event === null) {
     return (
-      <div className={`${containerBase} bg-slate-50`}>
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+      <div className={containerBase}>
+        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-faint)] mb-1">
           Próximo
         </p>
-        <p className="text-xs text-slate-500">Sin actividad programada</p>
+        <p className="text-xs text-[var(--text-muted)]">Sin actividad programada</p>
         <Link
           href="/player/calendario"
-          className="mt-1.5 inline-block text-[11px] font-semibold text-blue-600 hover:underline"
+          className="mt-1.5 inline-block text-[11px] font-semibold text-brand-azul hover:underline"
         >
           + Reservar cancha
         </Link>
@@ -123,22 +123,22 @@ export function ProximoEvento() {
   return (
     <Link
       href="/player/calendario"
-      className={`${containerBase} bg-slate-50 hover:border-blue-400 hover:bg-blue-50/40 block`}
+      className={`${containerBase} hover:border-brand-azul/40 hover:bg-[var(--pill-blue-bg)] block`}
     >
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+      <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-faint)] mb-1.5">
         Próximo
       </p>
       <div className="flex items-center gap-2">
         <span className={`h-2 w-2 shrink-0 rounded-full ${cfg.dot}`} />
-        <span className="text-[13px] font-semibold text-slate-900 leading-none">
+        <span className="text-[13px] font-semibold text-[var(--text-primary)] leading-none">
           {cfg.label}
         </span>
       </div>
-      <p className="mt-1 text-xs text-slate-500 leading-snug">
+      <p className="mt-1 text-xs text-[var(--text-muted)] leading-snug">
         {formatEventTime(event.start_at)}
       </p>
       {event.club_name && (
-        <p className="text-[11px] text-slate-400 truncate">{event.club_name}</p>
+        <p className="text-[11px] text-[var(--text-faint)] truncate">{event.club_name}</p>
       )}
     </Link>
   );

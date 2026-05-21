@@ -48,10 +48,10 @@ export function UltimoPartido() {
   // skeleton mientras carga
   if (match === undefined) {
     return (
-      <div className="mx-2 mb-2 rounded-lg border border-slate-100 bg-slate-50 p-3 animate-pulse">
-        <div className="h-2 w-16 rounded bg-slate-200 mb-2" />
-        <div className="h-3 w-28 rounded bg-slate-200 mb-1.5" />
-        <div className="h-2.5 w-20 rounded bg-slate-200" />
+      <div className="mx-2 mb-2 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3 animate-pulse">
+        <div className="h-2 w-16 rounded bg-[var(--bg-pill-soft)] mb-2" />
+        <div className="h-3 w-28 rounded bg-[var(--bg-pill-soft)] mb-1.5" />
+        <div className="h-2.5 w-20 rounded bg-[var(--bg-pill-soft)]" />
       </div>
     );
   }
@@ -61,9 +61,9 @@ export function UltimoPartido() {
   return (
     <Link
       href="/player/matches"
-      className="mx-2 mb-2 block rounded-lg border border-slate-200 bg-slate-50 p-3 transition-colors hover:border-blue-400 hover:bg-blue-50/40"
+      className="mx-2 mb-2 block rounded-lg border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3 transition-colors hover:border-brand-azul/40 hover:bg-[var(--pill-blue-bg)]"
     >
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+      <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-faint)] mb-1.5">
         Último partido
       </p>
 
@@ -71,18 +71,18 @@ export function UltimoPartido() {
         <span className="text-base leading-none">{won ? "✅" : "❌"}</span>
         <span
           className={`text-[13px] font-semibold leading-none ${
-            won ? "text-green-600" : "text-red-600"
+            won ? "text-green-600" : "text-brand-rojo"
           }`}
         >
           {won ? "Ganado" : "Perdido"}
         </span>
-        <span className="text-[12px] text-slate-400 leading-none">
+        <span className="text-[12px] text-[var(--text-faint)] leading-none">
           · {formatRelativeDay(match.match_at)}
         </span>
       </div>
 
       {(match.rival_name || match.club_name) && (
-        <p className="mt-1 text-[12px] text-slate-500 truncate">
+        <p className="mt-1 text-[12px] text-[var(--text-muted)] truncate">
           {match.rival_name && <>vs. {match.rival_name}</>}
           {match.rival_name && match.club_name && " · "}
           {match.club_name}

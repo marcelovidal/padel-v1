@@ -70,7 +70,7 @@ function EventCard({ event }: { event: OpenEvent }) {
 
   return (
     <div
-      className={`flex w-60 shrink-0 flex-col gap-3 rounded-[24px] border p-4 shadow-sm transition-shadow hover:shadow-md ${borderClass}`}
+      className={`flex w-60 shrink-0 flex-col gap-3 rounded-[14px] border p-4 shadow-sm transition-shadow hover:shadow-md ${borderClass}`}
     >
       {/* Club avatar + entity type badge */}
       <div className="flex items-center justify-between">

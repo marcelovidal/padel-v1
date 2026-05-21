@@ -71,7 +71,7 @@ export default function MatchCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] shadow-[0_4px_24px_rgba(0,0,0,0.07)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden hover:shadow-md transition-shadow">
       <div className="p-5">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
@@ -79,8 +79,8 @@ export default function MatchCard({
             <div className="text-sm font-medium text-brand-azul mb-1">
               {format(matchAt, "EEEE d 'de' MMMM, HH:mm'hs'", { locale: es })}
             </div>
-            <h3 className="text-lg font-bold text-gray-900">{clubName}</h3>
-            {clubLocation ? <p className="text-xs text-gray-500 mt-1">{clubLocation}</p> : null}
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">{clubName}</h3>
+            {clubLocation ? <p className="text-xs text-[var(--text-muted)] mt-1">{clubLocation}</p> : null}
           </div>
           <div className="flex flex-col items-end gap-2">
             <div
@@ -162,31 +162,31 @@ export default function MatchCard({
 
 
         {/* Footer / Actions */}
-        <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm">
+        <div className="pt-4 border-t border-[var(--border-soft)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm">
           <div className="flex flex-col gap-1">
             {variant === "player" && (
               <div className="flex items-center gap-2">
-                <span className="text-gray-600">Autoevaluación:</span>
+                <span className="text-[var(--text-muted)]">Autoevaluación:</span>
                 {model.hasAssessment ? (
-                  <span className="inline-flex items-center text-green-700 font-bold px-1.5 py-0.5 rounded bg-green-50 text-[10px] border border-green-100">
+                  <span className="inline-flex items-center font-bold px-1.5 py-0.5 rounded text-[10px] bg-[var(--pill-green-bg)] text-[var(--pill-green-text)] border border-[var(--pill-green-bg)]">
                     COMPLETA
                   </span>
                 ) : (
-                  <span className="inline-flex items-center text-gray-400 font-medium px-1.5 py-0.5 rounded bg-gray-50 text-[10px] border border-gray-100">
+                  <span className="inline-flex items-center font-medium px-1.5 py-0.5 rounded text-[10px] bg-[var(--bg-pill-soft)] text-[var(--text-faint)] border border-[var(--border-soft)]">
                     PENDIENTE
                   </span>
                 )}
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-xs">
+              <span className="text-[var(--text-faint)] text-xs">
                 {maxPlayers} jugadores
               </span>
               {variant === "player" && playerTeam && (
                 <>
-                  <span className="text-gray-200">|</span>
-                  <span className="text-gray-500 text-xs">
-                    Tu equipo: <span className="font-bold text-gray-700">{playerTeam}</span>
+                  <span className="text-[var(--border-strong)]">|</span>
+                  <span className="text-[var(--text-muted)] text-xs">
+                    Tu equipo: <span className="font-bold text-[var(--text-primary)]">{playerTeam}</span>
                   </span>
                 </>
               )}

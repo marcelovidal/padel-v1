@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -23,13 +23,23 @@ const config: Config = {
       },
       colors: {
         brand: {
-          rojo:         "#E5352A",
-          "rojo-dark":  "#B82820",
-          azul:         "#1B3CC8",
-          "azul-light": "#5072E0",
-          negro:        "#0C0C0C",
-          crema:        "#F5F2EE",
-          "gris-mid":   "#6B6965",
+          rojo:          "#E5352A",
+          "rojo-dark":   "#B82820",
+          "rojo-light":  "#FF6B5E",
+          "rojo-50":     "#FFECEB",
+          azul:          "#1B3CC8",
+          "azul-light":  "#5072E0",
+          "azul-50":     "#EEF2FF",
+          negro:         "#0C0C0C",
+          grafito:       "#1E1E1E",
+          crema:         "#F5F2EE",
+          "gris-mid":    "#6B6965",
+          "gris-50":     "#F7F5F1",
+          "gris-100":    "#EFECE6",
+          verde:         "#16A34A",
+          "verde-50":    "#DCFCE7",
+          amarillo:      "#F59E0B",
+          "amarillo-50": "#FEF3C7",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

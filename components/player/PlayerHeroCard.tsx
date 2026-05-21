@@ -115,7 +115,7 @@ export function PlayerHeroCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-brand-negro via-[#0f1428] to-brand-negro p-8 text-white shadow-2xl shadow-black/60">
+    <div className="relative overflow-hidden rounded-[14px] bg-brand-negro p-8 text-white shadow-2xl shadow-black/60">
       {/* decorative blobs */}
       <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-azul/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-brand-rojo/10 blur-3xl" />
@@ -139,11 +139,11 @@ export function PlayerHeroCard({
               {panelLabel}
             </p>
             {title ? (
-              <h1 className="text-3xl font-black tracking-tight">{title}</h1>
+              <h1 className="font-display text-[44px] font-black tracking-tight leading-none uppercase">{title}</h1>
             ) : (
-              <h1 className="text-3xl font-black tracking-tight leading-none">
-                <span className="font-light text-white/70">Hola, </span>
-                <span className="text-brand-rojo uppercase">{playerName}</span>
+              <h1 className="leading-none">
+                <em className="font-serif font-normal text-brand-rojo text-[42px] mr-1">Hola,</em>
+                <span className="font-display text-[44px] font-black uppercase tracking-tight">{playerName}</span>
               </h1>
             )}
             {locationLabel ? (
@@ -189,10 +189,10 @@ export function PlayerHeroCard({
             </svg>
             {/* Inner text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-4xl font-black tabular-nums leading-none">
+              <span className="font-display text-[56px] font-black tabular-nums leading-none">
                 {metrics.pasala_index !== null ? displayIndex : "—"}
               </span>
-              <span className="text-xs font-bold text-brand-azul-light">/100</span>
+              <span className="text-[11px] font-bold text-brand-azul-light">/100</span>
               <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-brand-crema/40">
                 PASALA
               </span>
@@ -201,7 +201,7 @@ export function PlayerHeroCard({
 
           {/* Global rank */}
           {globalRank.rank !== null && (
-            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-1.5">
+            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-1.5">
               <Trophy className="h-3.5 w-3.5 text-amber-400" />
               <span className="text-xs font-black text-white">
                 #{globalRank.rank}
@@ -239,14 +239,18 @@ export function PlayerHeroCard({
           {/* Quick stats chips */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: Activity, value: String(metrics.played),  label: "PJ" },
-              { icon: Trophy,   value: String(metrics.wins),    label: "GANADOS" },
-              { icon: Target,   value: `${metrics.win_rate}%`,  label: "WIN RATE" },
-            ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 py-2.5">
-                <Icon className="mb-1 h-3 w-3 text-brand-crema/50" />
-                <span className="text-sm font-black leading-none">{value}</span>
-                <span className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-brand-crema/40">{label}</span>
+              { icon: Activity, value: String(metrics.played),  label: "PJ",       iconBg: "bg-brand-rojo/20",    iconColor: "text-brand-rojo-light" },
+              { icon: Trophy,   value: String(metrics.wins),    label: "GANADOS",  iconBg: "bg-brand-azul/20",    iconColor: "text-brand-azul-light" },
+              { icon: Target,   value: `${metrics.win_rate}%`,  label: "WIN RATE", iconBg: "bg-brand-amarillo/20",iconColor: "text-brand-amarillo" },
+            ].map(({ icon: Icon, value, label, iconBg, iconColor }) => (
+              <div key={label} className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${iconBg}`}>
+                  <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-display text-2xl font-black leading-none tabular-nums">{value}</span>
+                  <span className="block text-[9px] font-bold uppercase tracking-[0.1em] text-brand-crema/40">{label}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -257,14 +261,14 @@ export function PlayerHeroCard({
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link href="/player/matches/new" className="w-full sm:min-w-0 sm:flex-1">
-                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-rojo px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-brand-rojo/30 hover:bg-brand-rojo-dark transition-colors active:scale-95 whitespace-nowrap">
+                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-rojo px-3 py-3 text-[13px] font-black uppercase tracking-[0.06em] text-white shadow-[0_4px_20px_rgba(229,53,42,0.3)] hover:bg-brand-rojo-dark hover:shadow-[0_4px_24px_rgba(229,53,42,0.45)] transition-all active:scale-95 whitespace-nowrap">
                   <PlusCircle className="h-3.5 w-3.5 shrink-0" />
                   Cargar partido
                 </button>
               </Link>
               <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto">
                 <Link href="/player/profile" className="min-w-0">
-                  <button className="w-full rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
+                  <button className="w-full rounded-lg border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
                     Perfil
                   </button>
                 </Link>
@@ -276,7 +280,7 @@ export function PlayerHeroCard({
                     whatsappText={shareProps.whatsappText}
                     downloadName={shareProps.downloadName}
                     label="Compartir"
-                    className="min-w-0 justify-center rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+                    className="min-w-0 justify-center rounded-lg border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
                   />
                 ) : (
                   <div />

@@ -38,7 +38,7 @@ function CustomDot({ cx, cy, payload, peakDate }: CustomDotProps) {
 export function PlayerIndexEvolution({ history }: Props) {
   if (history.length < 2) {
     return (
-      <div className="flex h-full min-h-[180px] items-center justify-center rounded-[28px] border border-gray-100 bg-white p-6">
+      <div className="flex h-full min-h-[180px] items-center justify-center rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6">
         <p className="text-center text-sm text-brand-gris-mid">
           La evolución estará disponible<br />después de tus primeros partidos.
         </p>
@@ -62,12 +62,19 @@ export function PlayerIndexEvolution({ history }: Props) {
   const maxVal = Math.min(100, Math.ceil(Math.max(...chartData.map((d) => d.value))  + 5));
 
   return (
-    <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.07)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
-          Evolución del Índice
-        </h2>
+        <div className="flex items-center gap-2">
+          <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-brand-azul/10">
+            <svg className="h-3 w-3 text-brand-azul" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <polyline points="1,12 5,7 9,9 15,3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-gris-mid">
+            Evolución del Índice
+          </h2>
+        </div>
         <span className="text-[10px] font-black uppercase tracking-widest text-brand-azul">
           Últimos 60 días ↓
         </span>
@@ -75,12 +82,12 @@ export function PlayerIndexEvolution({ history }: Props) {
 
       {/* Current value + delta */}
       <div className="mb-4 flex items-end gap-3">
-        <span className="text-4xl font-black tabular-nums leading-none text-brand-negro">{lastVal}</span>
+        <span className="font-display text-[48px] font-black tabular-nums leading-none text-[var(--text-primary)]">{lastVal}</span>
         <div className="mb-0.5 space-y-0.5">
           <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-black ${delta >= 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-brand-rojo"}`}>
             {delta >= 0 ? "+" : ""}{delta} pts
           </span>
-          <p className="text-[10px] text-brand-gris-mid">
+          <p className="text-[10px] text-[var(--text-muted)]">
             vs. {chartData[0].date} (índice {firstVal}) · {trend}
           </p>
         </div>

@@ -6,6 +6,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { GaPageViewTracker } from "@/components/analytics/GaPageViewTracker";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics/gtag";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -40,8 +41,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        {/* No-flash theme script — runs before React hydration */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('pasala-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();` }} />
+      </head>
       <body className={`${plusJakarta.variable} ${barlowCondensed.variable} ${instrumentSerif.variable} antialiased`}>
+      <ThemeProvider>
         {GA_MEASUREMENT_ID ? (
           <>
             <Script
@@ -64,6 +70,7 @@ export default function RootLayout({
         ) : null}
         {children}
         <Toaster />
+      </ThemeProvider>
       </body>
     </html>
   );

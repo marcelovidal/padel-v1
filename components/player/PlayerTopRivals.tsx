@@ -36,15 +36,15 @@ function getInitials(name: string) {
 export function PlayerTopRivals({ rivals }: Props) {
   if (rivals.length === 0) {
     return (
-      <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.07)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
         <div className="mb-3 flex items-center gap-2">
-        <svg className="h-4 w-4 text-brand-rojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-        </svg>
-      <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
-          Tus Rivales
-        </h2>
-      </div>
+          <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-brand-rojo/10">
+            <svg className="h-3 w-3 text-brand-rojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-gris-mid">Tus Rivales</h2>
+        </div>
         <p className="text-sm text-brand-gris-mid">
           Juega al menos 2 partidos contra el mismo rival para verlos aquí.
         </p>
@@ -53,13 +53,15 @@ export function PlayerTopRivals({ rivals }: Props) {
   }
 
   return (
-    <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-[14px] border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <svg className="h-4 w-4 text-brand-rojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-          </svg>
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">Tus Rivales</h2>
+          <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-brand-rojo/10">
+            <svg className="h-3 w-3 text-brand-rojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-gris-mid">Tus Rivales</h2>
         </div>
         <Link href="/player/players" className="text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80">
           Ver todos →
@@ -78,7 +80,7 @@ export function PlayerTopRivals({ rivals }: Props) {
           return (
             <div
               key={r.rival_id}
-              className="flex items-center gap-3 rounded-2xl border border-gray-100 p-3"
+              className="flex items-center gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] p-3"
             >
               <UserAvatar
                 src={avatarSrc}
@@ -87,14 +89,14 @@ export function PlayerTopRivals({ rivals }: Props) {
                 className={!avatarSrc ? colorClass : ""}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-gray-900">{r.display_name}</p>
-                <p className="text-[10px] text-gray-400">
+                <p className="truncate text-sm font-bold text-[var(--text-primary)]">{r.display_name}</p>
+                <p className="text-[10px] text-[var(--text-faint)]">
                   {r.matches_played} PJ · {r.player_wins}G / {r.rival_wins}P
                 </p>
               </div>
               <div className="text-right">
-                <p className={`text-sm font-black ${winColor}`}>{r.player_winrate}%</p>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">WR</p>
+                <p className={`font-display text-[22px] font-black leading-none tabular-nums ${winColor}`}>{r.player_winrate}%</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--text-faint)]">WR</p>
               </div>
             </div>
           );

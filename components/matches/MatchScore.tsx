@@ -37,7 +37,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     className={`truncate rounded px-1 py-0.5 ${
                         isCurrentPlayer
                             ? "bg-brand-azul/10 text-brand-azul font-semibold ring-1 ring-brand-azul/20"
-                            : ""
+                            : "text-[var(--text-primary)]"
                     }`}
                 >
                     {formatPlayerName(p)}
@@ -63,7 +63,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
     // Case 1: Scheduled - Show only roster
     if (isScheduled) {
         return (
-            <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] p-4">
                 <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
@@ -85,7 +85,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
     if (variant === "result" && !hasResults) {
         return (
             <div className="space-y-4">
-                <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] p-5">
                     <div className="flex justify-between items-center opacity-50 grayscale-[0.5]">
                         <div className="flex flex-col">
                             <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-1 text-left">Equipo A</span>
@@ -97,7 +97,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                         </div>
                     </div>
                 </div>
-                <div className="bg-gray-50 p-4 text-center rounded-xl border border-gray-100 italic text-sm text-gray-500">
+                <div className="bg-[var(--bg-elevated)] p-4 text-center rounded-xl border border-[var(--border-soft)] italic text-sm text-[var(--text-muted)]">
                     Sin resultado (Pendiente de carga)
                 </div>
             </div>
@@ -106,9 +106,9 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
 
     // Case 3: Result mode with results - Show table
     return (
-        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)]">
             <table className="w-full text-sm">
-                <thead className="bg-gray-50/50 text-[10px] text-brand-gris-mid uppercase font-bold tracking-wider">
+                <thead className="bg-[var(--bg-elevated)] text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider">
                     <tr>
                         <th className="px-4 py-3 text-left w-1/2">Equipos</th>
                         {results!.sets.map((_, idx) => (
@@ -116,10 +116,10 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-[var(--border-soft)]">
                     {/* Equipo A */}
                     <tr>
-                        <td className="px-4 py-4 text-gray-900">
+                        <td className="px-4 py-4 text-[var(--text-primary)]">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-brand-azul uppercase font-black tracking-widest mb-0.5">
                                     Equipo A{results!.winnerTeam === "A" ? " · Ganador" : ""}
@@ -139,7 +139,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                     </tr>
                     {/* Equipo B */}
                     <tr>
-                        <td className="px-4 py-4 text-gray-900">
+                        <td className="px-4 py-4 text-[var(--text-primary)]">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-brand-rojo uppercase font-black tracking-widest mb-0.5">
                                     Equipo B{results!.winnerTeam === "B" ? " · Ganador" : ""}
