@@ -22,7 +22,7 @@ export function PlayerTopRivals({ rivals }: Props) {
   if (rivals.length === 0) {
     return (
       <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+        <h2 className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
           Tus Rivales
         </h2>
         <p className="text-sm text-gray-400">
@@ -34,7 +34,7 @@ export function PlayerTopRivals({ rivals }: Props) {
 
   return (
     <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+      <h2 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
         Tus Rivales
       </h2>
       <div className="space-y-3">
@@ -43,8 +43,8 @@ export function PlayerTopRivals({ rivals }: Props) {
             r.player_winrate >= 60
               ? "text-emerald-600"
               : r.player_winrate >= 40
-              ? "text-blue-600"
-              : "text-red-500";
+              ? "text-brand-azul"
+              : "text-brand-rojo";
           const avatarSrc = r.avatar_url?.startsWith("http") ? r.avatar_url : null;
           return (
             <div

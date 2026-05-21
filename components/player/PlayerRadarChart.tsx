@@ -51,9 +51,9 @@ export function PlayerRadarChart({ data }: PlayerRadarChartProps) {
                     <Radar
                         name="Performance"
                         dataKey="value"
-                        stroke="#2563eb"
+                        stroke="#1B3CC8"
                         strokeWidth={3}
-                        fill="#3b82f6"
+                        fill="#5072E0"
                         fillOpacity={0.6}
                     />
                 </RadarChart>

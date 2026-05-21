@@ -40,7 +40,7 @@ export function PlayerIndexEvolution({ history }: Props) {
 
   return (
     <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+      <h2 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
         Evolución del Índice
       </h2>
       <ResponsiveContainer width="100%" height={180}>
@@ -48,13 +48,13 @@ export function PlayerIndexEvolution({ history }: Props) {
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fill: "#94a3b8" }}
+            tick={{ fontSize: 10, fill: "#6B6965" }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
             domain={[minVal, maxVal]}
-            tick={{ fontSize: 10, fill: "#94a3b8" }}
+            tick={{ fontSize: 10, fill: "#6B6965" }}
             tickLine={false}
             axisLine={false}
           />
@@ -70,9 +70,9 @@ export function PlayerIndexEvolution({ history }: Props) {
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#2563eb"
+            stroke="#1B3CC8"
             strokeWidth={2.5}
-            dot={{ r: 3, fill: "#2563eb", strokeWidth: 0 }}
+            dot={{ r: 3, fill: "#1B3CC8", strokeWidth: 0 }}
             activeDot={{ r: 5 }}
           />
         </LineChart>

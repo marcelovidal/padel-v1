@@ -22,6 +22,15 @@ const config: Config = {
         serif:   ["var(--font-serif)"],
       },
       colors: {
+        brand: {
+          rojo:         "#E5352A",
+          "rojo-dark":  "#B82820",
+          azul:         "#1B3CC8",
+          "azul-light": "#5072E0",
+          negro:        "#0C0C0C",
+          crema:        "#F5F2EE",
+          "gris-mid":   "#6B6965",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

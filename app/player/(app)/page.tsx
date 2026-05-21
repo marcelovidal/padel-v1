@@ -47,15 +47,15 @@ export default async function PlayerDashboard() {
         <div className="rounded-[32px] border border-blue-100 bg-white p-8 shadow-xl shadow-blue-900/5">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">Tu juego empieza aca</p>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">Carga tu primer partido</h1>
-              <p className="text-sm leading-relaxed text-slate-600">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-rojo">Tu juego empieza aca</p>
+              <h1 className="text-3xl font-black tracking-tight text-brand-negro">Carga tu primer partido</h1>
+              <p className="text-sm leading-relaxed text-brand-gris-mid">
                 Activa historial, indice PASALA y la opcion de compartir resultados con tu grupo.
               </p>
             </div>
             <div className="flex flex-col gap-3">
               <Link href="/welcome/first-match">
-                <button className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 hover:bg-blue-700">
+                <button className="inline-flex items-center gap-2 rounded-2xl bg-brand-rojo px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-brand-rojo/20 hover:bg-brand-rojo-dark">
                   <PlusCircle className="h-4 w-4" />
                   Cargar mi primer partido
                 </button>
@@ -169,8 +169,8 @@ export default async function PlayerDashboard() {
         <PlayerIndexEvolution history={indexHistory} />
         <section className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Atributos Técnicos</h2>
-            <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">Atributos Técnicos</h2>
+            <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80">
               Ver perfil
             </Link>
           </div>
@@ -190,8 +190,8 @@ export default async function PlayerDashboard() {
       {/* Club rankings */}
       <section className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Ranking por Clubes</h2>
-          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">Ranking por Clubes</h2>
+          <Link href="/player/profile" className="text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80">
             Ver detalle
           </Link>
         </div>
@@ -208,7 +208,7 @@ export default async function PlayerDashboard() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-black text-blue-700">#{item.rank}</p>
+                  <p className="text-xs font-black text-brand-azul">#{item.rank}</p>
                   <p className="text-sm font-black text-gray-900">{item.points} pts</p>
                 </div>
               </div>
@@ -219,18 +219,18 @@ export default async function PlayerDashboard() {
 
       {/* Competitive context */}
       <div className="rounded-[32px] border border-gray-100 bg-white p-8 shadow-sm">
-        <h3 className="mb-6 text-xs font-black uppercase tracking-widest text-gray-400">Contexto Competitivo</h3>
+        <h3 className="mb-6 text-xs font-black uppercase tracking-widest text-brand-gris-mid">Contexto Competitivo</h3>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-50">
-              <Users className="h-6 w-6 text-blue-600" />
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-azul/10">
+              <Users className="h-6 w-6 text-brand-azul-light" />
             </div>
             <div className="space-y-1">
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mejor Compañero</p>
               {compStats?.best_teammate_name ? (
                 <>
                   <p className="text-lg font-bold leading-tight text-gray-900">{compStats.best_teammate_name}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-azul">
                     {compStats.wins_together} victorias — {compStats.winrate_together}% WR
                   </p>
                 </>
@@ -268,8 +268,8 @@ export default async function PlayerDashboard() {
       {/* Recent matches */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Últimos Partidos</h2>
-          <Link href="/player/matches" className="flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">Últimos Partidos</h2>
+          <Link href="/player/matches" className="flex items-center text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80">
             Ver todos <ArrowRight className="ml-1 h-3 w-3" />
           </Link>
         </div>
@@ -277,10 +277,10 @@ export default async function PlayerDashboard() {
           <PlayerMatches matches={enrichedMatches} currentUserId={user.id} currentPlayerId={playerId} />
         </div>
         {!hasMatches && (
-          <div className="mt-4 rounded-[32px] border-2 border-blue-100 bg-blue-50 p-8 text-center space-y-4">
-            <p className="font-bold text-blue-900">¿Listo para debutar?</p>
+          <div className="mt-4 rounded-[32px] border-2 border-brand-rojo/20 bg-brand-rojo/5 p-8 text-center space-y-4">
+            <p className="font-bold text-brand-negro">¿Listo para debutar?</p>
             <Link href="/player/matches/new" className="block">
-              <button className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white hover:bg-blue-700 transition-all">
+              <button className="w-full rounded-2xl bg-brand-rojo py-4 font-bold text-white hover:bg-brand-rojo-dark transition-all">
                 Cargar mi primer partido
               </button>
             </Link>

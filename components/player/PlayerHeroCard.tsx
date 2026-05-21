@@ -40,7 +40,7 @@ const RADIUS = 54;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const FACTORS = [
-  { key: "win_rate_score",    label: "Efectividad",    pct: 35, color: "bg-blue-400" },
+  { key: "win_rate_score",    label: "Efectividad",    pct: 35, color: "bg-brand-azul-light" },
   { key: "rival_level_score", label: "Nivel rivales",  pct: 25, color: "bg-violet-400" },
   { key: "perf_score",        label: "Técnica",        pct: 20, color: "bg-cyan-400" },
   { key: "recent_score",      label: "Forma reciente", pct: 12, color: "bg-emerald-400" },
@@ -48,13 +48,13 @@ const FACTORS = [
 ] as const;
 
 function getLevelInfo(index: number | null): { label: string; color: string } {
-  if (index === null) return { label: "Sin índice", color: "text-blue-300/60" };
+  if (index === null) return { label: "Sin índice", color: "text-brand-crema/40" };
   if (index >= 75) return { label: "Elite", color: "text-amber-400" };
   if (index >= 65) return { label: "Experto", color: "text-violet-400" };
   if (index >= 55) return { label: "Avanzado", color: "text-cyan-400" };
   if (index >= 45) return { label: "Intermedio", color: "text-emerald-400" };
-  if (index >= 30) return { label: "Amateur", color: "text-blue-300" };
-  return { label: "Principiante", color: "text-blue-300/70" };
+  if (index >= 30) return { label: "Amateur", color: "text-brand-azul-light" };
+  return { label: "Principiante", color: "text-brand-azul-light/70" };
 }
 
 function useCountUp(target: number | null, duration = 1200) {
@@ -115,10 +115,10 @@ export function PlayerHeroCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 p-8 text-white shadow-2xl shadow-blue-950/50">
+    <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-brand-negro via-[#0f1428] to-brand-negro p-8 text-white shadow-2xl shadow-black/60">
       {/* decorative blobs */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-700/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-indigo-700/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-azul/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-brand-rojo/10 blur-3xl" />
 
       <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center">
         {/* Left: avatar + greeting */}
@@ -130,12 +130,12 @@ export function PlayerHeroCard({
               size="xl"
               className="ring-4 ring-white/10 shadow-xl"
             />
-            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 shadow-lg ring-2 ring-blue-950">
+            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-brand-rojo shadow-lg ring-2 ring-brand-negro">
               <Star className="h-3.5 w-3.5 fill-white text-white" />
             </div>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-400/80">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-azul-light/80">
               {panelLabel}
             </p>
             <h1 className="text-3xl font-black tracking-tight">
@@ -143,7 +143,7 @@ export function PlayerHeroCard({
             </h1>
             {locationLabel ? (
               <div className="flex items-center gap-1.5 text-blue-200/80">
-                <MapPin className="h-3.5 w-3.5 text-blue-300/70" />
+                <MapPin className="h-3.5 w-3.5 text-brand-crema/60" />
                 <span className="text-xs font-semibold">{locationLabel}</span>
               </div>
             ) : null}
@@ -175,7 +175,7 @@ export function PlayerHeroCard({
               <circle
                 cx="74" cy="74" r={RADIUS}
                 fill="none"
-                stroke="#60a5fa"
+                stroke="#5072E0"
                 strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray={`${strokeDash} ${CIRCUMFERENCE}`}
@@ -187,8 +187,8 @@ export function PlayerHeroCard({
               <span className="font-display text-4xl font-black tabular-nums leading-none">
                 {metrics.pasala_index !== null ? displayIndex : "—"}
               </span>
-              <span className="text-xs font-bold text-blue-400">/100</span>
-              <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-blue-300/60">
+              <span className="text-xs font-bold text-brand-azul-light">/100</span>
+              <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-brand-crema/40">
                 PASALA
               </span>
             </div>
@@ -200,7 +200,7 @@ export function PlayerHeroCard({
               <Trophy className="h-3.5 w-3.5 text-amber-400" />
               <span className="text-xs font-black text-white">
                 #{globalRank.rank}
-                <span className="font-medium text-blue-300/70"> de {globalRank.total}</span>
+                <span className="font-medium text-brand-crema/60"> de {globalRank.total}</span>
               </span>
             </div>
           )}
@@ -214,8 +214,8 @@ export function PlayerHeroCard({
               const val = factorValues[key] ?? 0;
               return (
                 <div key={key}>
-                  <div className="mb-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-blue-300/60">
-                    <span>{label} <span className="normal-case font-medium text-blue-400/40">({pct}%)</span></span>
+                  <div className="mb-1 flex justify-between text-[9px] font-black uppercase tracking-wider text-brand-crema/50">
+                    <span>{label} <span className="normal-case font-medium text-brand-crema/30">({pct}%)</span></span>
                     <span>{val.toFixed(0)}</span>
                   </div>
                   <div className="h-1 overflow-hidden rounded-full bg-white/10">
@@ -238,9 +238,9 @@ export function PlayerHeroCard({
               { icon: Zap,      value: metrics.current_streak, label: "Racha" },
             ].map(({ icon: Icon, value, label }) => (
               <div key={label} className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 py-2.5">
-                <Icon className="mb-1 h-3 w-3 text-blue-300/60" />
+                <Icon className="mb-1 h-3 w-3 text-brand-crema/50" />
                 <span className="text-sm font-black leading-none">{value}</span>
-                <span className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-blue-400/60">{label}</span>
+                <span className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-brand-crema/40">{label}</span>
               </div>
             ))}
           </div>
@@ -251,14 +251,14 @@ export function PlayerHeroCard({
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link href="/player/matches/new" className="w-full sm:min-w-0 sm:flex-1">
-                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-blue-500 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/50 hover:bg-blue-400 transition-colors active:scale-95 whitespace-nowrap">
+                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-rojo px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-brand-rojo/30 hover:bg-brand-rojo-dark transition-colors active:scale-95 whitespace-nowrap">
                   <PlusCircle className="h-3.5 w-3.5 shrink-0" />
                   Cargar partido
                 </button>
               </Link>
               <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto">
                 <Link href="/player/profile" className="min-w-0">
-                  <button className="w-full rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
+                  <button className="w-full rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 whitespace-nowrap">
                     Perfil
                   </button>
                 </Link>
@@ -270,7 +270,7 @@ export function PlayerHeroCard({
                     whatsappText={shareProps.whatsappText}
                     downloadName={shareProps.downloadName}
                     label="Compartir"
-                    className="min-w-0 justify-center rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-blue-200 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
+                    className="min-w-0 justify-center rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-brand-crema/80 hover:bg-white/15 transition-colors active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap"
                   />
                 ) : (
                   <div />

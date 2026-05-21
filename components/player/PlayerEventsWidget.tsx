@@ -82,7 +82,7 @@ function EventCard({ event }: { event: OpenEvent }) {
         <span
           className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest ${
             event.entity_type === "tournament"
-              ? "bg-blue-50 text-blue-600"
+              ? "bg-brand-azul/10 text-brand-azul"
               : "bg-purple-50 text-purple-600"
           }`}
         >
@@ -116,13 +116,13 @@ function EventCard({ event }: { event: OpenEvent }) {
         {hasReg ? (
           <StatusBadge status={event.registration_status} />
         ) : (
-          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+          <span className="text-[10px] font-black uppercase tracking-widest text-brand-azul">
             Abierto
           </span>
         )}
         <Link
           href="/player/events"
-          className="flex items-center gap-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-blue-600"
+          className="flex items-center gap-0.5 text-[10px] font-black uppercase tracking-widest text-brand-gris-mid hover:text-brand-azul"
         >
           Ver <ArrowRight className="h-2.5 w-2.5" />
         </Link>
@@ -151,7 +151,7 @@ export function PlayerEventsWidget({ events }: Props) {
     <section className="space-y-3">
       <div className="flex items-center justify-between px-1">
         <div>
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Eventos</h2>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">Eventos</h2>
           {registered.length > 0 && (
             <p className="mt-0.5 text-[11px] text-gray-500">
               {registered.length} inscripción{registered.length !== 1 ? "es" : ""} activa
@@ -161,7 +161,7 @@ export function PlayerEventsWidget({ events }: Props) {
         </div>
         <Link
           href="/player/events"
-          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700"
+          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-brand-azul hover:text-brand-azul/80"
         >
           Ver todos <ArrowRight className="h-3 w-3" />
         </Link>

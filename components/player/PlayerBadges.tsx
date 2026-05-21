@@ -81,10 +81,10 @@ export function PlayerBadges({ badges }: Props) {
   return (
     <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-brand-gris-mid">
           Logros
         </h2>
-        <span className="text-[10px] font-black text-blue-600">
+        <span className="text-[10px] font-black text-brand-azul">
           {unlockedKeys.size}/{BADGE_CATALOG.length}
         </span>
       </div>
