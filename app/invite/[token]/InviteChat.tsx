@@ -52,11 +52,12 @@ const PROVINCIAS_CIUDADES: Record<string, string[]> = {
 }
 
 // Level / position maps
+// category: 1 (mejor) → 7 (principiante), almacenado como TEXT
 const LEVEL_MAP: Record<string, string> = {
-  'Principiante 🌱': 'beginner',
-  'Intermedio 🎾':   'intermediate',
-  'Avanzado ⚡':     'advanced',
-  'Competitivo 🏆':  'competitive',
+  'Principiante 🌱': '7',
+  'Intermedio 🎾':   '5',
+  'Avanzado ⚡':     '3',
+  'Competitivo 🏆':  '1',
 }
 const POSITION_MAP: Record<string, string> = {
   'Revés 🔵':  'reves',
@@ -250,7 +251,7 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
           first_name: data.first_name ?? '',
           last_name: data.last_name ?? '',
           city: data.city ?? '',
-          category: data.category ?? 'beginner',
+          category: data.category ?? '7',
           position: data.position ?? 'reves',
           email: data.email ?? '',
           intent,
