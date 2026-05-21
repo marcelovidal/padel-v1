@@ -161,10 +161,11 @@ export async function completeInviteRegistrationAction(input: {
 
   // 4. Enviar email de activación via Supabase Auth
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
-  console.log('[invite] inviteUserByEmail →', userData.email, '| redirectTo:', `${appUrl}/player`)
+  const activateUrl = `${appUrl}/auth/callback?next=/invite/activate`
+  console.log('[invite] inviteUserByEmail →', userData.email, '| redirectTo:', activateUrl)
   const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(
     userData.email,
-    { redirectTo: `${appUrl}/player` }
+    { redirectTo: activateUrl }
   )
 
   if (inviteErr) {
@@ -173,7 +174,7 @@ export async function completeInviteRegistrationAction(input: {
       console.log('[invite] usuario existente, enviando OTP magic link')
       const { error: otpErr } = await supabase.auth.signInWithOtp({
         email: userData.email,
-        options: { shouldCreateUser: false, emailRedirectTo: `${appUrl}/player` },
+        options: { shouldCreateUser: false, emailRedirectTo: activateUrl },
       })
       if (otpErr) {
         console.error('[invite] error signInWithOtp:', otpErr)
@@ -190,6 +191,16 @@ export async function completeInviteRegistrationAction(input: {
   console.log('[invite] completado OK')
 
   return { ok: true }
+}
+
+export async function linkPlayerToUserAction(userId: string, email: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('players')
+    .update({ user_id: userId })
+    .eq('email', email)
+    .is('user_id', null)
+  if (error) throw error
 }
 
 export async function createUnclaimedPlayerAction(input: {
