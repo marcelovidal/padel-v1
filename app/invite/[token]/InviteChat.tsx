@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { PasalaLogo } from '@/components/ui/PasalaLogo'
 import { Send } from 'lucide-react'
+import { completeInviteRegistrationAction } from '@/lib/actions/invite-links.actions'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -37,11 +37,30 @@ type InputMode =
   | { type: 'email'; placeholder: string; field: string }
   | { type: 'none' }
 
+type FlowStep = 'chat' | 'done'
+
+// Level / position maps
+const LEVEL_MAP: Record<string, string> = {
+  'Principiante 🌱': 'beginner',
+  'Intermedio 🎾':   'intermediate',
+  'Avanzado ⚡':     'advanced',
+  'Competitivo 🏆':  'competitive',
+}
+const POSITION_MAP: Record<string, string> = {
+  'Revés 🔵':  'reves',
+  'Drive 🔴':  'drive',
+  'Las dos 🟣': 'ambas',
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 let msgId = 0
 const nextId = () => ++msgId
+
+function isValidEmail(v: string) {
+  return v.includes('@') && v.includes('.')
+}
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
 
@@ -52,9 +71,7 @@ function TypingDots() {
         <div
           key={i}
           className="w-2 h-2 rounded-full bg-[#F5F2EE]/40"
-          style={{
-            animation: `inviteBounce 1s ${i * 0.2}s infinite`,
-          }}
+          style={{ animation: `inviteBounce 1s ${i * 0.2}s infinite` }}
         />
       ))}
       <style>{`
@@ -72,19 +89,14 @@ function TypingDots() {
   )
 }
 
-// ── App bubble ────────────────────────────────────────────────────────────────
+// ── Bubbles ───────────────────────────────────────────────────────────────────
 
 function AppBubble({ text }: { text: string }) {
   return (
     <div className="flex items-end gap-3 msg-fadein">
-      {/* Avatar */}
       <div className="w-8 h-8 rounded-full bg-[#1E1E1E] flex items-center justify-center shrink-0">
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none">
-          <path
-            d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"
-            stroke="#E5352A"
-            strokeWidth="2"
-          />
+          <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" stroke="#E5352A" strokeWidth="2" />
           <path d="M8 12l2.5 2.5L16 9" stroke="#E5352A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
@@ -94,8 +106,6 @@ function AppBubble({ text }: { text: string }) {
     </div>
   )
 }
-
-// ── User bubble ───────────────────────────────────────────────────────────────
 
 function UserBubble({ text }: { text: string }) {
   return (
@@ -107,34 +117,71 @@ function UserBubble({ text }: { text: string }) {
   )
 }
 
+// ── Summary card ──────────────────────────────────────────────────────────────
+
+function SummaryCard({ data }: { data: Record<string, string> }) {
+  return (
+    <div className="ml-11 mt-2 msg-fadein">
+      <div className="bg-[#1E1E1E] rounded-2xl p-4 text-sm space-y-1.5 max-w-xs">
+        <p className="text-[#F5F2EE]">👤 {data.first_name} {data.last_name}</p>
+        <p className="text-[#F5F2EE]">📍 {data.city}</p>
+        <p className="text-[#F5F2EE]">🎾 {data.level_label}</p>
+        <p className="text-[#F5F2EE]">🏓 {data.position_label}</p>
+        <p className="text-[#F5F2EE]">✉️ {data.email}</p>
+        {data.club_name && <p className="text-[#F5F2EE]">🏟️ {data.club_name}</p>}
+      </div>
+    </div>
+  )
+}
+
+// ── Success screen ────────────────────────────────────────────────────────────
+
+function SuccessScreen({ email }: { email: string }) {
+  return (
+    <div className="text-center mt-8 px-6 pb-12 msg-fadein">
+      <div className="text-5xl mb-4">🎾</div>
+      <p className="font-black text-4xl text-[#F5F2EE] uppercase leading-none">
+        ¡Ya sos parte
+        <br />de PASALA!
+      </p>
+      <p className="text-[#6B6965] text-sm mt-4">
+        Revisá <span className="text-[#F5F2EE]/70">{email}</span> para activar tu cuenta.
+      </p>
+      <p className="text-[#6B6965] text-xs mt-1">Si no lo ves, revisá la carpeta de spam. 📬</p>
+      <a
+        href="https://wa.me/5492984315287"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 mt-6 bg-emerald-500 text-white text-sm font-semibold px-6 py-3 rounded-full hover:bg-emerald-400 transition-colors"
+      >
+        ¿Tenés dudas? Escribinos →
+      </a>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function InviteChat({
-  token,
-  intent,
-  targetName,
-  targetEmail,
-  targetPlayer,
-  customMessage,
-}: Props) {
-  const router = useRouter()
+export function InviteChat({ token, intent, targetName, targetEmail, targetPlayer, customMessage }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [inputMode, setInputMode] = useState<InputMode>({ type: 'none' })
   const [textInput, setTextInput] = useState('')
   const [userData, setUserData] = useState<Record<string, string>>({})
-  const [done, setDone] = useState(false)
+  const [showSummary, setShowSummary] = useState(false)
+  const [step, setStep] = useState<FlowStep>('chat')
+  const [successEmail, setSuccessEmail] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const flowStarted = useRef(false)
+  const optionCb = useRef<((opt: string) => void) | null>(null)
+  const textCb = useRef<Record<string, (val: string) => void>>({})
 
-  // ── Scroll to bottom ───────────────────────────────────────────────────────
+  // ── Scroll & focus ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isTyping])
-
-  // ── Focus input when it appears ────────────────────────────────────────────
+  }, [messages, isTyping, showSummary])
 
   useEffect(() => {
     if (inputMode.type === 'text' || inputMode.type === 'email') {
@@ -142,16 +189,14 @@ export function InviteChat({
     }
   }, [inputMode])
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Msg helpers ────────────────────────────────────────────────────────────
 
   function addAppMsg(text: string) {
     setMessages((prev) => [...prev, { id: nextId(), role: 'app', text }])
   }
-
   function addUserMsg(text: string) {
     setMessages((prev) => [...prev, { id: nextId(), role: 'user', text }])
   }
-
   async function appSay(text: string, delay = 900) {
     setIsTyping(true)
     await sleep(delay)
@@ -159,213 +204,10 @@ export function InviteChat({
     addAppMsg(text)
   }
 
-  async function markUsed() {
-    try {
-      await fetch(`/api/invite/${token}/use`, { method: 'POST' })
-    } catch {
-      // non-critical
-    }
-  }
-
-  function redirectTo(path: string) {
-    setDone(true)
-    setTimeout(() => router.push(path), 600)
-  }
-
-  // ── FLUJO A — new_player confirmado ────────────────────────────────────────
-
-  async function flowA_newPlayer(email: string) {
-    await appSay('¡Perfecto! Ya tenés un perfil en PASALA.')
-    await appSay('¿Querés completar tu registro y empezar a jugar?', 700)
-    setInputMode({
-      type: 'options',
-      options: ['Sí, quiero registrarme', 'Más información'],
-    })
-    waitForOption(async (opt) => {
-      addUserMsg(opt)
-      setInputMode({ type: 'none' })
-      if (opt === 'Más información') {
-        await appSay('PASALA es la plataforma de pádel de la Patagonia. Podés registrar partidos, ver tu ranking, buscar rivales y más.')
-        await appSay('¿Te animás a crear tu cuenta?', 700)
-        setInputMode({ type: 'options', options: ['Sí, registrarme', 'Más tarde'] })
-        waitForOption(async (opt2) => {
-          addUserMsg(opt2)
-          setInputMode({ type: 'none' })
-          if (opt2 === 'Más tarde') {
-            await appSay('Sin problema. Cuando quieras, el link sigue disponible. 👋')
-          } else {
-            await finishRegistration(email)
-          }
-        })
-      } else {
-        await finishRegistration(email)
-      }
-    })
-  }
-
-  // ── FLUJO B — coach ────────────────────────────────────────────────────────
-
-  async function flowB_coach(email: string) {
-    await appSay('Como entrenador vas a poder gestionar tus alumnos, publicar tus clases y hacer seguimiento de su evolución. 📊')
-    await appSay('¿Querés activar tu perfil de entrenador?', 700)
-    setInputMode({ type: 'options', options: ['Sí, activar mi perfil', 'Contame más'] })
-    waitForOption(async (opt) => {
-      addUserMsg(opt)
-      setInputMode({ type: 'none' })
-      if (opt === 'Contame más') {
-        await appSay('Podés vincular alumnos, asignar desafíos, ver su Índice PASALA y gestionar tu agenda de clases.')
-        await appSay('Todo desde la app, sin papeles ni grupos de WhatsApp.', 700)
-        setInputMode({ type: 'options', options: ['Sí, activar mi perfil', 'Más tarde'] })
-        waitForOption(async (opt2) => {
-          addUserMsg(opt2)
-          setInputMode({ type: 'none' })
-          if (opt2 === 'Más tarde') {
-            await appSay('Cuando quieras, el link sigue disponible. 👋')
-          } else {
-            await finishCoach(email)
-          }
-        })
-      } else {
-        await finishCoach(email)
-      }
-    })
-  }
-
-  async function finishCoach(email: string) {
-    await appSay('¡Genial! Completá tu registro y activamos tu perfil de entrenador.')
-    await markUsed()
-    redirectTo(`/welcome?email=${encodeURIComponent(email)}&role=coach`)
-  }
-
-  // ── FLUJO C — club_owner ───────────────────────────────────────────────────
-
-  async function flowC_club(email: string) {
-    await appSay('Con PASALA podés gestionar reservas, turnos fijos, torneos y ligas desde un solo panel. 🏟️')
-    await appSay('Tus jugadores ya usan la app — solo necesitás registrar tu club.', 700)
-    setInputMode({ type: 'options', options: ['Registrar mi club', 'Ver cómo funciona'] })
-    waitForOption(async (opt) => {
-      addUserMsg(opt)
-      setInputMode({ type: 'none' })
-      if (opt === 'Ver cómo funciona') {
-        await appSay('Agenda semanal por cancha, turnos fijos automáticos, bracket de torneos y métricas en tiempo real.')
-        await appSay('¿Te convenciste? 😄', 700)
-        setInputMode({ type: 'options', options: ['Sí, registrar mi club', 'Tengo dudas'] })
-        waitForOption(async (opt2) => {
-          addUserMsg(opt2)
-          setInputMode({ type: 'none' })
-          if (opt2 === 'Tengo dudas') {
-            await appSay('Sin problema. Podés hablar con nosotros directamente por WhatsApp.')
-            setInputMode({
-              type: 'options',
-              options: ['Escribirnos →'],
-            })
-            waitForOption(async () => {
-              addUserMsg('Escribirnos →')
-              setInputMode({ type: 'none' })
-              window.open('https://wa.me/5492984315287', '_blank')
-            })
-          } else {
-            await finishClub(email)
-          }
-        })
-      } else {
-        await finishClub(email)
-      }
-    })
-  }
-
-  async function finishClub(email: string) {
-    await appSay('Perfecto. Primero necesitamos que crees tu cuenta como jugador.')
-    await markUsed()
-    redirectTo(`/welcome?email=${encodeURIComponent(email)}&role=club_owner`)
-  }
-
-  async function finishRegistration(email: string) {
-    await appSay('¡Genial! Te llevamos al registro ahora.')
-    await markUsed()
-    redirectTo(`/welcome?email=${encodeURIComponent(email)}`)
-  }
-
-  // ── FLUJO 2 — nuevo usuario ────────────────────────────────────────────────
-
-  async function flowNewUser(opts: {
-    prefillName?: string
-    prefillEmail?: string
-    showIntro?: boolean
-  } = {}) {
-    const { prefillName, prefillEmail, showIntro = false } = opts
-
-    async function askCity(name: string) {
-      await appSay(`¿De qué ciudad jugás?`, 700)
-      setInputMode({ type: 'text', placeholder: 'Tu ciudad...', field: 'city' })
-      waitForText('city', async (city) => {
-        addUserMsg(city)
-        setInputMode({ type: 'none' })
-        setUserData((p) => ({ ...p, city }))
-
-        await appSay('¿Cuál es tu nivel aproximado?', 700)
-        setInputMode({
-          type: 'options',
-          options: ['Principiante', 'Intermedio', 'Avanzado', 'Competitivo'],
-        })
-        waitForOption(async (level) => {
-          addUserMsg(level)
-          setInputMode({ type: 'none' })
-          setUserData((p) => ({ ...p, level }))
-
-          if (prefillEmail) {
-            await appSay(`Perfecto ${name}. Todo listo para crear tu cuenta. 🎾`, 700)
-            await markUsed()
-            redirectTo(
-              `/welcome?name=${encodeURIComponent(name)}&email=${encodeURIComponent(prefillEmail)}&city=${encodeURIComponent(city)}`
-            )
-          } else {
-            await appSay('¿Cuál es tu email?', 700)
-            setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'email' })
-            waitForText('email', async (email) => {
-              addUserMsg(email)
-              setInputMode({ type: 'none' })
-
-              await appSay(`Perfecto ${name}. Todo listo para crear tu cuenta. 🎾`, 700)
-              await markUsed()
-              redirectTo(
-                `/welcome?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&city=${encodeURIComponent(city)}`
-              )
-            })
-          }
-        })
-      })
-    }
-
-    if (prefillName) {
-      // Ya sabemos el nombre — no preguntar, ir directo a ciudad
-      await askCity(prefillName)
-    } else {
-      if (showIntro) await appSay('Sin problema. ¿Cómo te llamás?')
-      else await appSay('¿Cómo te llamás?')
-      setInputMode({ type: 'text', placeholder: 'Tu nombre...', field: 'name' })
-      waitForText('name', async (name) => {
-        addUserMsg(name)
-        setInputMode({ type: 'none' })
-        setUserData((p) => ({ ...p, name }))
-        await askCity(name)
-      })
-    }
-  }
-
   // ── Callback helpers ───────────────────────────────────────────────────────
-  // Usamos refs para que los callbacks puedan ser reemplazados sin re-render
 
-  const optionCb = useRef<((opt: string) => void) | null>(null)
-  const textCb = useRef<Record<string, (val: string) => void>>({})
-
-  function waitForOption(cb: (opt: string) => void) {
-    optionCb.current = cb
-  }
-
-  function waitForText(field: string, cb: (val: string) => void) {
-    textCb.current[field] = cb
-  }
+  function waitForOption(cb: (opt: string) => void) { optionCb.current = cb }
+  function waitForText(field: string, cb: (val: string) => void) { textCb.current[field] = cb }
 
   function handleOptionSelect(opt: string) {
     const cb = optionCb.current
@@ -377,9 +219,7 @@ export function InviteChat({
   function handleTextSubmit() {
     const val = textInput.trim()
     if (!val) return
-    const field = inputMode.type === 'text' || inputMode.type === 'email'
-      ? inputMode.field
-      : ''
+    const field = inputMode.type === 'text' || inputMode.type === 'email' ? inputMode.field : ''
     const cb = textCb.current[field]
     delete textCb.current[field]
     setTextInput('')
@@ -387,7 +227,249 @@ export function InviteChat({
     cb?.(val)
   }
 
-  // ── Start flow (once) ──────────────────────────────────────────────────────
+  // ── Complete registration ──────────────────────────────────────────────────
+
+  async function doComplete(data: Record<string, string>, existingPlayerId?: string | null) {
+    setIsTyping(true)
+    try {
+      await completeInviteRegistrationAction({
+        token,
+        userData: {
+          first_name: data.first_name ?? '',
+          last_name: data.last_name ?? '',
+          city: data.city ?? '',
+          category: data.category ?? 'beginner',
+          position: data.position ?? 'reves',
+          email: data.email ?? '',
+          intent,
+          existing_player_id: existingPlayerId ?? null,
+          club_name: data.club_name,
+          club_courts: data.club_courts,
+          club_city: data.club_city,
+        },
+      })
+      setIsTyping(false)
+      addAppMsg('¡Listo! Tu perfil fue creado. 🎉')
+      await sleep(700)
+      addAppMsg(`Te enviamos un link a ${data.email} para activar tu cuenta.`)
+      await sleep(700)
+      addAppMsg('Revisá tu bandeja de entrada — si no lo ves, mirá en spam. 📬')
+      setSuccessEmail(data.email)
+      await sleep(800)
+      setStep('done')
+    } catch {
+      setIsTyping(false)
+      addAppMsg('Hubo un problema al crear tu perfil. ¿Querés intentarlo de nuevo?')
+      setInputMode({ type: 'options', options: ['Intentar de nuevo'] })
+      waitForOption(async () => {
+        addUserMsg('Intentar de nuevo')
+        setInputMode({ type: 'none' })
+        await doComplete(data, existingPlayerId)
+      })
+    }
+  }
+
+  // ── Collect club data (club_owner) ─────────────────────────────────────────
+
+  async function askClubData(base: Record<string, string>, existingPlayerId?: string | null) {
+    await appSay('¿Cómo se llama tu club?', 700)
+    setInputMode({ type: 'text', placeholder: 'Nombre del club...', field: 'club_name' })
+    waitForText('club_name', async (club_name) => {
+      addUserMsg(club_name)
+      setInputMode({ type: 'none' })
+
+      await appSay('¿Cuántas canchas tiene?', 700)
+      setInputMode({ type: 'options', options: ['1', '2', '3', '4', '5 o más'] })
+      waitForOption(async (club_courts) => {
+        addUserMsg(club_courts)
+        setInputMode({ type: 'none' })
+
+        await appSay('¿En qué ciudad está el club?', 700)
+        setInputMode({ type: 'text', placeholder: base.city || 'Ciudad del club...', field: 'club_city' })
+        waitForText('club_city', async (club_city) => {
+          addUserMsg(club_city)
+          setInputMode({ type: 'none' })
+          const final = { ...base, club_name, club_courts, club_city }
+          setUserData(final)
+          await showSummaryAndConfirm(final, existingPlayerId)
+        })
+      })
+    })
+  }
+
+  // ── Summary + confirm ──────────────────────────────────────────────────────
+
+  async function showSummaryAndConfirm(data: Record<string, string>, existingPlayerId?: string | null) {
+    await appSay('Perfecto. Vamos a crear tu perfil con estos datos:', 700)
+    setShowSummary(true)
+    setUserData(data)
+    await sleep(400)
+    setInputMode({ type: 'options', options: ['Confirmar y crear mi perfil ✓', 'Corregir algo ✗'] })
+    waitForOption(async (opt) => {
+      addUserMsg(opt)
+      setInputMode({ type: 'none' })
+      setShowSummary(false)
+      if (opt === 'Corregir algo ✗') {
+        await appSay('Sin problema, empecemos de nuevo.', 500)
+        await flowCollectAll({})
+      } else {
+        await doComplete(data, existingPlayerId)
+      }
+    })
+  }
+
+  // ── Collect all new user data ──────────────────────────────────────────────
+
+  async function flowCollectAll(opts: {
+    prefillFirstName?: string
+    prefillLastName?: string
+    prefillEmail?: string
+    existingPlayerId?: string | null
+    showIntro?: boolean
+  }) {
+    const { prefillFirstName, prefillLastName, prefillEmail, existingPlayerId, showIntro = false } = opts
+
+    async function askLevel(base: Record<string, string>) {
+      await appSay('¿Cuál es tu nivel de juego?', 700)
+      setInputMode({ type: 'options', options: Object.keys(LEVEL_MAP) })
+      waitForOption(async (level_label) => {
+        addUserMsg(level_label)
+        setInputMode({ type: 'none' })
+        const category = LEVEL_MAP[level_label] ?? 'beginner'
+
+        await appSay('¿En qué posición jugás habitualmente?', 700)
+        setInputMode({ type: 'options', options: Object.keys(POSITION_MAP) })
+        waitForOption(async (position_label) => {
+          addUserMsg(position_label)
+          setInputMode({ type: 'none' })
+          const position = POSITION_MAP[position_label] ?? 'reves'
+          const withLevel = { ...base, level_label, category, position_label, position }
+
+          if (prefillEmail) {
+            const final = { ...withLevel, email: prefillEmail }
+            setUserData(final)
+            if (intent === 'club_owner') {
+              await askClubData(final, existingPlayerId)
+            } else {
+              await showSummaryAndConfirm(final, existingPlayerId)
+            }
+          } else {
+            await appSay('¿Cuál es tu email? Te vamos a enviar un link para activar tu cuenta.', 700)
+            setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'email' })
+            waitForText('email', async (emailRaw) => {
+              if (!isValidEmail(emailRaw)) {
+                addUserMsg(emailRaw)
+                setInputMode({ type: 'none' })
+                await appSay('Ese email no parece válido. ¿Lo revisamos?', 500)
+                setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'email' })
+                waitForText('email', async (email) => {
+                  addUserMsg(email)
+                  setInputMode({ type: 'none' })
+                  const final = { ...withLevel, email }
+                  setUserData(final)
+                  if (intent === 'club_owner') {
+                    await askClubData(final, existingPlayerId)
+                  } else {
+                    await showSummaryAndConfirm(final, existingPlayerId)
+                  }
+                })
+              } else {
+                addUserMsg(emailRaw)
+                setInputMode({ type: 'none' })
+                const final = { ...withLevel, email: emailRaw }
+                setUserData(final)
+                if (intent === 'club_owner') {
+                  await askClubData(final, existingPlayerId)
+                } else {
+                  await showSummaryAndConfirm(final, existingPlayerId)
+                }
+              }
+            })
+          }
+        })
+      })
+    }
+
+    async function askCity(base: Record<string, string>) {
+      await appSay(`¿De qué ciudad jugás?`, 700)
+      setInputMode({ type: 'text', placeholder: 'Tu ciudad...', field: 'city' })
+      waitForText('city', async (city) => {
+        addUserMsg(city)
+        setInputMode({ type: 'none' })
+        await askLevel({ ...base, city })
+      })
+    }
+
+    if (prefillFirstName && prefillLastName) {
+      await askCity({ first_name: prefillFirstName, last_name: prefillLastName })
+    } else {
+      if (showIntro) await appSay('Sin problema. ¿Cómo te llamás?')
+      else await appSay('¿Cómo te llamás?')
+      setInputMode({ type: 'text', placeholder: 'Nombre y apellido...', field: 'fullname' })
+      waitForText('fullname', async (fullname) => {
+        addUserMsg(fullname)
+        setInputMode({ type: 'none' })
+        const parts = fullname.trim().split(' ')
+        const first_name = parts[0] ?? fullname
+        const last_name = parts.slice(1).join(' ') || ''
+        await sleep(500)
+        await appSay(`Buenísimo ${first_name}!`, 500)
+        await askCity({ first_name, last_name })
+      })
+    }
+  }
+
+  // ── Confirmed existing player flows ───────────────────────────────────────
+
+  async function flowConfirmedExisting(existingPlayerId: string, existingEmail: string) {
+    if (intent === 'club_owner') {
+      await appSay(`¡Perfecto! Para registrar tu club necesito algunos datos.`)
+      // Still collect level/position for profile completeness then club data
+      const firstName = targetPlayer?.first_name ?? ''
+      const lastName = targetPlayer?.last_name ?? ''
+      const city = targetPlayer?.city ?? ''
+      await flowCollectAll({
+        prefillFirstName: firstName,
+        prefillLastName: lastName,
+        prefillEmail: existingEmail || undefined,
+        existingPlayerId,
+      })
+      return
+    }
+
+    await appSay(`¡Perfecto! Ya tenemos tus datos.`)
+    await appSay(`¿Tu email es ${existingEmail}?`, 700)
+    setInputMode({ type: 'options', options: ['Sí, ese es ✓', 'No, usar otro'] })
+    waitForOption(async (opt) => {
+      addUserMsg(opt)
+      setInputMode({ type: 'none' })
+
+      const useEmail = opt === 'No, usar otro' ? '' : existingEmail
+      const firstName = targetPlayer?.first_name ?? ''
+      const lastName = targetPlayer?.last_name ?? ''
+      const city = targetPlayer?.city ?? ''
+
+      if (opt === 'No, usar otro') {
+        await flowCollectAll({
+          prefillFirstName: firstName || undefined,
+          prefillLastName: lastName || undefined,
+          existingPlayerId,
+        })
+      } else {
+        if (intent === 'coach') {
+          await appSay('¡Genial! Vamos a activar tu perfil de entrenador. Necesito un par de datos más.', 700)
+        }
+        await flowCollectAll({
+          prefillFirstName: firstName || undefined,
+          prefillLastName: lastName || undefined,
+          prefillEmail: useEmail || undefined,
+          existingPlayerId,
+        })
+      }
+    })
+  }
+
+  // ── Start flow ─────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (flowStarted.current) return
@@ -397,7 +479,6 @@ export function InviteChat({
   }, [])
 
   async function startFlow() {
-    // Greeting
     await appSay(`Hola${targetName ? ` ${targetName}` : ''}! 👋`, 600)
     await appSay('Somos PASALA, la plataforma de pádel de la Patagonia.')
 
@@ -412,7 +493,6 @@ export function InviteChat({
       await appSay(intentMsg[intent])
     }
 
-    // Confirm identity if target player is known
     if (targetPlayer) {
       await appSay(
         `¿Sos ${targetPlayer.first_name} ${targetPlayer.last_name}${targetPlayer.city ? ` de ${targetPlayer.city}` : ''}?`,
@@ -423,27 +503,18 @@ export function InviteChat({
         addUserMsg(opt)
         setInputMode({ type: 'none' })
         if (opt === 'No, soy otra persona') {
-          await flowNewUser({ showIntro: true })
+          await flowCollectAll({ showIntro: true })
         } else {
-          const email = targetEmail ?? ''
-          if (intent === 'coach') await flowB_coach(email)
-          else if (intent === 'club_owner') await flowC_club(email)
-          else await flowA_newPlayer(email)
+          await flowConfirmedExisting(targetPlayer.id, targetEmail ?? '')
         }
       })
     } else {
-      // No targetPlayer — pasar name/email pre-cargados si existen
-      const prefill = {
-        prefillName: targetName ?? undefined,
+      const parts = targetName ? targetName.trim().split(' ') : []
+      await flowCollectAll({
+        prefillFirstName: parts[0] || undefined,
+        prefillLastName: parts.slice(1).join(' ') || undefined,
         prefillEmail: targetEmail ?? undefined,
-      }
-      if (intent === 'coach') {
-        await flowNewUser(prefill)
-      } else if (intent === 'club_owner') {
-        await flowC_club(targetEmail ?? '')
-      } else {
-        await flowNewUser(prefill)
-      }
+      })
     }
   }
 
@@ -469,7 +540,10 @@ export function InviteChat({
 
           {isTyping && <TypingDots />}
 
-          {/* Option buttons */}
+          {/* Summary card */}
+          {showSummary && !isTyping && <SummaryCard data={userData} />}
+
+          {/* Options */}
           {!isTyping && inputMode.type === 'options' && (
             <div className="flex flex-wrap gap-2 ml-11 mt-2 msg-fadein">
               {inputMode.options.map((opt) => (
@@ -477,7 +551,7 @@ export function InviteChat({
                   key={opt}
                   type="button"
                   onClick={() => handleOptionSelect(opt)}
-                  className="border border-white/20 text-[#F5F2EE] text-sm px-4 py-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                  className="border border-white/20 text-[#F5F2EE] text-sm px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
                 >
                   {opt}
                 </button>
@@ -485,12 +559,15 @@ export function InviteChat({
             </div>
           )}
 
+          {/* Success screen */}
+          {step === 'done' && <SuccessScreen email={successEmail} />}
+
           <div ref={endRef} />
         </div>
       </div>
 
       {/* Text input */}
-      {!isTyping && (inputMode.type === 'text' || inputMode.type === 'email') && (
+      {step === 'chat' && !isTyping && (inputMode.type === 'text' || inputMode.type === 'email') && (
         <div className="shrink-0 px-4 pb-6 pt-2">
           <div className="mx-auto max-w-lg flex gap-2">
             <input
@@ -510,18 +587,6 @@ export function InviteChat({
             >
               <Send className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Redirect overlay */}
-      {done && (
-        <div className="fixed inset-0 bg-[#0C0C0C] flex items-center justify-center z-50">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[#E5352A]/20 flex items-center justify-center mx-auto">
-              <div className="w-5 h-5 rounded-full bg-[#E5352A] animate-ping" />
-            </div>
-            <p className="text-[#F5F2EE] text-sm">Redirigiendo...</p>
           </div>
         </div>
       )}

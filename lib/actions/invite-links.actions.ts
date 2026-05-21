@@ -6,6 +6,7 @@ import {
   disableInviteLink,
   extendInviteLink,
   validateInviteLink,
+  useInviteLink,
 } from '@/services/invite-links.service'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
@@ -69,6 +70,93 @@ export async function searchPlayersForInviteAction(query: string) {
     .is('deleted_at', null)
     .limit(8)
   return (data ?? []).map((p) => ({ ...p, claimed: !!p.user_id }))
+}
+
+export async function completeInviteRegistrationAction(input: {
+  token: string
+  userData: {
+    first_name: string
+    last_name: string
+    city: string
+    category: string   // 'beginner' | 'intermediate' | 'advanced' | 'competitive'
+    position: string   // 'reves' | 'drive' | 'ambas'
+    email: string
+    intent: string
+    existing_player_id?: string | null
+    club_name?: string
+    club_courts?: string
+    club_city?: string
+  }
+}) {
+  const supabase = createAdminClient()
+
+  // 1. Validar token
+  const link = await validateInviteLink(input.token)
+  if (!link.valid) throw new Error('Link inválido o vencido')
+
+  const { userData } = input
+  const isCoach = userData.intent === 'coach'
+  const isClubOwner = userData.intent === 'club_owner'
+
+  let playerId: string | null = userData.existing_player_id ?? null
+
+  if (playerId) {
+    // 2a. Actualizar jugador existente
+    await supabase
+      .from('players')
+      .update({
+        city: userData.city,
+        category: userData.category as any,
+        position: userData.position as any,
+        ...(isCoach ? { is_coach: true } : {}),
+        ...(isClubOwner ? { is_club_owner: true } : {}),
+      } as any)
+      .eq('id', playerId)
+  } else {
+    // 2b. Crear jugador nuevo
+    const display_name = `${userData.first_name} ${userData.last_name}`.trim()
+    const { data: newPlayer, error: insertErr } = await supabase
+      .from('players')
+      .insert({
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        display_name,
+        city: userData.city,
+        category: userData.category as any,
+        position: userData.position as any,
+        email: userData.email,
+        is_guest: false,
+        is_coach: isCoach,
+        is_club_owner: isClubOwner,
+      } as any)
+      .select('id')
+      .single()
+    if (insertErr) throw insertErr
+    playerId = (newPlayer as any).id
+  }
+
+  // 3. Club owner — crear el club
+  if (isClubOwner && userData.club_name && playerId) {
+    await supabase.from('clubs').insert({
+      name: userData.club_name,
+      city: userData.club_city ?? userData.city,
+      owner_player_id: playerId,
+    } as any)
+  }
+
+  // 4. Enviar magic link via Supabase Auth
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const { error: authErr } = await supabase.auth.admin.generateLink({
+    type: 'magiclink',
+    email: userData.email,
+    options: { redirectTo: `${appUrl}/player` },
+  })
+  if (authErr) throw authErr
+
+  // 5. Marcar uso del link
+  await useInviteLink(input.token)
+
+  return { ok: true }
 }
 
 export async function createUnclaimedPlayerAction(input: {
