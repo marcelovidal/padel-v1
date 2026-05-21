@@ -47,7 +47,7 @@ function pasalaProgress(value: number | null) {
 export default async function PlayersPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; city?: string; activity?: string; sort?: string };
+  searchParams: { q?: string; category?: string; city?: string; activity?: string; sort?: string; rol?: string };
 }) {
   const { user, player: mePlayer } = await requirePlayer();
   const meId = mePlayer.id;
@@ -55,6 +55,7 @@ export default async function PlayersPage({
   const categoryFilter = searchParams.category || "all";
   const cityFilter = searchParams.city || "all";
   const activityFilter = searchParams.activity || "all";
+  const rolFilter = searchParams.rol || "all";
   const sortBy = searchParams.sort || "pasala_desc";
 
   const playerService = new PlayerService();
@@ -94,6 +95,8 @@ export default async function PlayersPage({
     if (categoryFilter !== "all" && String(p.category || "") !== categoryFilter) return false;
     if (cityFilter !== "all" && (p.city_id || "") !== cityFilter) return false;
     if (activityFilter !== "all" && p.activity_level !== activityFilter) return false;
+    if (rolFilter === "coach" && !(p as any).is_coach) return false;
+    if (rolFilter === "club_owner" && !(p as any).is_club_owner) return false;
     return true;
   });
 
@@ -157,6 +160,12 @@ export default async function PlayersPage({
               <option value="ocasional">Ocasional</option>
               <option value="inactivo">Inactivo</option>
               <option value="nuevo">Nuevo</option>
+            </select>
+
+            <select name="rol" defaultValue={rolFilter} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">
+              <option value="all">Rol</option>
+              <option value="coach">Entrenador</option>
+              <option value="club_owner">Dueño de club</option>
             </select>
 
             <select name="sort" defaultValue={sortBy} className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700">

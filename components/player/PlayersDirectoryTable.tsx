@@ -26,6 +26,8 @@ export type DirectoryRow = {
   current_streak: string;
   activity_level: "muy_activo" | "activo" | "ocasional" | "inactivo" | "nuevo";
   is_same_city: boolean;
+  is_coach: boolean;
+  is_club_owner: boolean | null;
   avatarData?: { src: string | null; initials: string };
 };
 
