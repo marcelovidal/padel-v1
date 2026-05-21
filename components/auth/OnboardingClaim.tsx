@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { findSimilarPlayersAction, claimProfileAction } from "@/lib/actions/player.actions";
-import { Player } from "@/types/database";
 
 export function OnboardingClaim() {
     const [query, setQuery] = useState("");

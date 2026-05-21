@@ -185,7 +185,11 @@ export class PlayerService {
       }
     }
 
-    return this.repository.update(id, updates);
+    const { category, ...rest } = updates;
+    return this.repository.update(id, {
+      ...rest,
+      ...(category !== undefined && { category: String(category) }),
+    });
   }
 
   async deactivatePlayer(id: string) {

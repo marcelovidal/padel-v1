@@ -342,7 +342,7 @@ function CreateClubCandidateModal({
       region_name: club.region_name,
       country_code: club.country_code,
       claimed: !!club.claimed,
-      claim_status: club.claim_status,
+      claim_status: club.claim_status as import("@/types/database").ClubClaimStatus,
     });
   }
 
