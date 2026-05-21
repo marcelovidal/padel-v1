@@ -24,10 +24,11 @@ export async function createInviteLinkAction(formData: {
     Date.now() + formData.expires_days * 24 * 60 * 60 * 1000
   ).toISOString()
 
-  const { expires_days, max_uses, ...rest } = formData
+  const { expires_days, max_uses, created_by, ...rest } = formData
   const link = await createNewInviteLink({
     ...rest,
     expires_at,
+    ...(created_by ? { created_by } : {}),
     ...(max_uses !== null ? { max_uses } : {}),
   })
 

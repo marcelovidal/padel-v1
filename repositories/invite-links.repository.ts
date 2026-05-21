@@ -18,7 +18,7 @@ export type InviteLink = {
 }
 
 export type CreateInviteLinkInput = {
-  created_by: string
+  created_by?: string
   target_player_id?: string
   target_name?: string
   target_email?: string
