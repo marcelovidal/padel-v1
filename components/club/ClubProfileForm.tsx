@@ -103,6 +103,7 @@ export function ClubProfileForm({ club, userId, currentAvatarSrc = null }: ClubP
           onChange={(e) => onAvatarChange(e.target.files?.[0] || null)}
         />
         {(avatarPreview || currentAvatarSrc) && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarPreview || currentAvatarSrc || undefined}
             alt="Logo del club"

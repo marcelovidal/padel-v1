@@ -83,6 +83,7 @@ export function GuestPlayerModal({ isOpen, onClose, onSuccess, defaultLocation }
             setLocalidades([]);
             setSelectedLoc(null);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedProv, debouncedLocQuery]); // Note: defaultLocation removed from deps to avoid cycle
 
     useEffect(() => {

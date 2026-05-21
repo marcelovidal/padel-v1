@@ -396,7 +396,10 @@ export default function PlayerSignupWizard({
               }}
               className="w-full rounded-xl border border-gray-300 px-4 py-3"
             />
-            {avatarPreview && <img src={avatarPreview} alt="Preview avatar" className="h-20 w-20 rounded-full border border-gray-200 object-cover" />}
+            {avatarPreview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarPreview} alt="Preview avatar" className="h-20 w-20 rounded-full border border-gray-200 object-cover" />
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

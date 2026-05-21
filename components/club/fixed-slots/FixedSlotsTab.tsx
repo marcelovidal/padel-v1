@@ -129,6 +129,7 @@ function NewFixedSlotModal({
   useEffect(() => {
     if (slotOptions.length > 0) setSelectedTime(slotOptions[0]);
     else setSelectedTime("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourtId]);
 
   useEffect(() => {
@@ -150,7 +151,7 @@ function NewFixedSlotModal({
         onClose();
       }
     }
-  }, [state]);
+  }, [state, isGuestSelected, onClose, router]);
 
   async function handleAddGuest() {
     const displayName = [guestFirstName.trim(), guestLastName.trim()].filter(Boolean).join(" ");

@@ -44,6 +44,7 @@ export default function AvatarUploader({ onUploadComplete, currentAvatarUrl }: A
             <div className="relative group">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-xl flex items-center justify-center relative">
                     {preview ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={preview} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                         <Camera className="w-12 h-12 text-gray-300" />

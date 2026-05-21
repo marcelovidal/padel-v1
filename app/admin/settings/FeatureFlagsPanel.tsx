@@ -67,7 +67,7 @@ export function FeatureFlagsPanel({ bookingsEnabled: initialValue }: FeatureFlag
           <div className="space-y-0.5">
             <p className="text-sm font-bold text-gray-900">Reservas de canchas</p>
             <p className="text-xs text-gray-500">
-              Activa el botón "Reservar y crear partido" en el sidebar y el flujo de selección en{" "}
+              Activa el botón &quot;Reservar y crear partido&quot; en el sidebar y el flujo de selección en{" "}
               <code className="rounded bg-gray-100 px-1 py-0.5 text-[11px]">/player/matches/new</code>.
               Solo visible si además hay canchas activas en la DB.
             </p>

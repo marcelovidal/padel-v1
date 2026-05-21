@@ -33,6 +33,7 @@ export function UserAvatar({ src, initials, size = "md", className, onClick }: U
             )}
         >
             {hasImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                     src={src}
                     alt="User avatar"

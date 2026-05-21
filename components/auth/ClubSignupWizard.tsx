@@ -341,6 +341,7 @@ export default function ClubSignupWizard({
               }}
             />
             {avatarPreview && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarPreview} alt="Preview logo club" className="h-20 w-20 rounded-xl border border-gray-200 object-cover" />
             )}
           </div>

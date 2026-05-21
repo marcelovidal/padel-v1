@@ -189,6 +189,7 @@ export function EditPlayerForm({ player, currentAvatarUrl }: { player: Player; c
       })
       .catch(console.error)
       .finally(() => setLoadingLocs(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProv, debouncedLocQuery, player.city, player.city_id]);
 
   async function handleSubmit(e: React.FormEvent) {
