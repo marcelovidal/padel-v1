@@ -12,7 +12,7 @@ async function requireAdmin() {
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .single<{ role: string }>();
   if (profile?.role !== "admin") redirect("/login");
   return user;
 }
