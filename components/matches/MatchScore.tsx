@@ -36,7 +36,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                 <span
                     className={`truncate rounded px-1 py-0.5 ${
                         isCurrentPlayer
-                            ? "bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-100"
+                            ? "bg-brand-azul/10 text-brand-azul font-semibold ring-1 ring-brand-azul/20"
                             : ""
                     }`}
                 >
@@ -67,12 +67,12 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                 <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-1">Equipo A</span>
+                            <span className="text-[10px] text-brand-azul uppercase font-black tracking-widest mb-1">Equipo A</span>
                             <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.A) : "Pendiente"}</span>
                         </div>
                         <span className="text-xs font-black text-gray-200 uppercase">VS</span>
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-red-600 uppercase font-black tracking-widest mb-1">Equipo B</span>
+                            <span className="text-[10px] text-brand-rojo uppercase font-black tracking-widest mb-1">Equipo B</span>
                             <span className="text-sm font-bold text-gray-900">{playersByTeam ? getTeamList(playersByTeam.B) : "Pendiente"}</span>
                         </div>
                     </div>
@@ -119,7 +119,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                     {/* Equipo A */}
-                    <tr className={results!.winnerTeam === "A" ? "bg-blue-50/30 font-semibold" : ""}>
+                    <tr className={results!.winnerTeam === "A" ? "bg-brand-azul/5 font-semibold" : ""}>
                         <td className="px-4 py-4 text-gray-900">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-0.5">Equipo A</span>
@@ -131,18 +131,18 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                             </div>
                         </td>
                         {results!.sets.map((s, idx) => (
-                            <td key={idx} className={`px-2 py-4 text-center text-lg ${results!.winnerTeam === "A" ? "text-blue-700 font-black" : "text-gray-500"}`}>
+                            <td key={idx} className={`px-2 py-4 text-center text-lg ${results!.winnerTeam === "A" ? "text-brand-azul font-black" : "text-gray-500"}`}>
                                 {s.a ?? "-"}
                             </td>
                         ))}
                         <td className="px-4 py-4 text-right">
                             {results!.winnerTeam === "A" && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-blue-600 text-white animate-pulse tracking-tighter">GANADOR</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-brand-azul text-white animate-pulse tracking-tighter">GANADOR</span>
                             )}
                         </td>
                     </tr>
                     {/* Equipo B */}
-                    <tr className={results!.winnerTeam === "B" ? "bg-blue-50/30 font-semibold" : ""}>
+                    <tr className={results!.winnerTeam === "B" ? "bg-brand-azul/5 font-semibold" : ""}>
                         <td className="px-4 py-4 text-gray-900">
                             <div className="flex flex-col">
                                 <span className="text-[10px] text-red-600 uppercase font-black tracking-widest mb-0.5">Equipo B</span>
@@ -154,13 +154,13 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                             </div>
                         </td>
                         {results!.sets.map((s, idx) => (
-                            <td key={idx} className={`px-2 py-4 text-center text-lg ${results!.winnerTeam === "B" ? "text-blue-700 font-black" : "text-gray-500"}`}>
+                            <td key={idx} className={`px-2 py-4 text-center text-lg ${results!.winnerTeam === "B" ? "text-brand-azul font-black" : "text-gray-500"}`}>
                                 {s.b ?? "-"}
                             </td>
                         ))}
                         <td className="px-4 py-4 text-right">
                             {results!.winnerTeam === "B" && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-blue-600 text-white animate-pulse tracking-tighter">GANADOR</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-brand-azul text-white animate-pulse tracking-tighter">GANADOR</span>
                             )}
                         </td>
                     </tr>

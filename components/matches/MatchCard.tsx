@@ -76,7 +76,7 @@ export default function MatchCard({
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-sm font-medium text-blue-600 mb-1">
+            <div className="text-sm font-medium text-brand-azul mb-1">
               {format(matchAt, "EEEE d 'de' MMMM, HH:mm'hs'", { locale: es })}
             </div>
             <h3 className="text-lg font-bold text-gray-900">{clubName}</h3>
@@ -137,7 +137,7 @@ export default function MatchCard({
               </div>
             ) : null}
             {variant === "player" && model.clubGeneratedPending ? (
-              <div className="px-3 py-1 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 tracking-wider">
+              <div className="px-3 py-1 rounded-full text-[10px] font-black bg-brand-azul/10 text-brand-azul tracking-wider">
                 GENERADO POR CLUB · PENDIENTE
               </div>
             ) : null}
@@ -225,7 +225,7 @@ export default function MatchCard({
               ) : (
                 <Link
                   href={primaryAction.href}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-bold rounded-lg shadow-sm text-white bg-brand-rojo hover:bg-brand-rojo-dark transition-colors"
                 >
                   {primaryAction.label}
                 </Link>
