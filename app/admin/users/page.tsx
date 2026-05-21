@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlayerService } from "@/services/player.service";
+import { PlayerRepository } from "@/repositories/player.repository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ACTIVITY_LABELS: Record<string, string> = {
@@ -32,20 +33,26 @@ export default async function UsersPage({
   const activity = searchParams.activity ?? "";
   const rol      = searchParams.rol      ?? "";
 
+  const playerRepository = new PlayerRepository();
   const playerService = new PlayerService();
-  const { total, players: allPlayers } = await playerService.getPlayersDirectory({
-    query,
-    category,
-    activity: activity || undefined,
-    orderBy: "index_desc",
-    limit: 200,
-  });
 
-  const players = allPlayers.filter((p: any) => {
-    if (rol === "coach"      && !p.is_coach)      return false;
-    if (rol === "club_owner" && !p.is_club_owner) return false;
-    return true;
-  });
+  let players: any[];
+  let total: number;
+
+  if (rol === "coach" || rol === "club_owner") {
+    players = await playerRepository.getPlayersByRole(rol, query || undefined);
+    total = players.length;
+  } else {
+    const result = await playerService.getPlayersDirectory({
+      query,
+      category,
+      activity: activity || undefined,
+      orderBy: "index_desc",
+      limit: 200,
+    });
+    players = result.players;
+    total = result.total;
+  }
 
   const hasFilters = query || category || activity || rol;
 

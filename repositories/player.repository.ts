@@ -126,6 +126,24 @@ export class PlayerRepository {
     return this.update(id, { status: "inactive" });
   }
 
+  async getPlayersByRole(role: "coach" | "club_owner", query?: string): Promise<any[]> {
+    const supabase = await this.getClient();
+    let q = (supabase as any)
+      .from("players")
+      .select("id, display_name, city, city_id, category, avatar_url, user_id, pasala_index, is_coach, is_club_owner")
+      .eq("status", "active")
+      .is("deleted_at", null)
+      .eq("is_guest", false);
+
+    if (role === "coach")      q = q.eq("is_coach", true);
+    if (role === "club_owner") q = q.eq("is_club_owner", true);
+    if (query) q = q.ilike("display_name", `%${query}%`);
+
+    const { data, error } = await q.order("display_name", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
   async softDelete(id: string): Promise<void> {
     const supabase = await this.getClient();
     // TODO: remove `as any` by using a properly typed Supabase client (createServerClient<Database>)
