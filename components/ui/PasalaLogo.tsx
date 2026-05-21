@@ -1,7 +1,7 @@
 'use client'
 
 interface PasalaLogoProps {
-  variant?: 'dark' | 'light' | 'red'
+  variant?: 'dark' | 'light' | 'auto' | 'red'
   size?: 'sm' | 'md' | 'lg'
   iconOnly?: boolean
 }
@@ -11,7 +11,9 @@ export function PasalaLogo({
   size = 'md',
   iconOnly = false,
 }: PasalaLogoProps) {
-  const wordmarkColor = variant === 'light'
+  const wordmarkColor = variant === 'auto'
+    ? 'currentColor'
+    : variant === 'light'
     ? '#0C0C0C'
     : '#F5F2EE'
 

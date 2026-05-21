@@ -11,8 +11,8 @@ export function PlayerMobileHeader() {
 
   return (
     <header className="md:hidden sticky top-0 z-20 bg-[var(--bg-sidebar)] border-b border-[var(--border-soft)] px-4 h-14 flex items-center justify-between shrink-0">
-      <Link href="/player">
-        <PasalaLogo variant="light" size="md" />
+      <Link href="/player" className="text-[var(--text-primary)]">
+        <PasalaLogo variant="auto" size="md" />
       </Link>
       <NotificationBell
         items={bellItems}

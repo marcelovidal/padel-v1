@@ -253,8 +253,8 @@ export function PlayerSidebar({
       ) : (
         <div className="p-4 border-b border-[var(--border-soft)]">
           <div className="flex items-center justify-between mb-3">
-            <Link href="/player">
-              <PasalaLogo variant="light" size="md" />
+            <Link href="/player" className="text-[var(--text-primary)]">
+              <PasalaLogo variant="auto" size="md" />
             </Link>
             <NotificationBell
               items={bellItems}
