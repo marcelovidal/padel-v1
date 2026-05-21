@@ -162,13 +162,27 @@ export async function completeInviteRegistrationAction(input: {
   // 4. Enviar email de activación via Supabase Auth
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
   console.log('[invite] inviteUserByEmail →', userData.email, '| redirectTo:', `${appUrl}/player`)
-  const { error: authErr } = await supabase.auth.admin.inviteUserByEmail(
+  const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(
     userData.email,
     { redirectTo: `${appUrl}/player` }
   )
-  if (authErr) {
-    console.error('[invite] error inviteUserByEmail:', authErr)
-    throw new Error(`[auth_invite] ${authErr.message}`)
+
+  if (inviteErr) {
+    if (inviteErr.code === 'email_exists') {
+      // Usuario ya existe en Auth — enviar magic link en su lugar
+      console.log('[invite] usuario existente, enviando OTP magic link')
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email: userData.email,
+        options: { shouldCreateUser: false, emailRedirectTo: `${appUrl}/player` },
+      })
+      if (otpErr) {
+        console.error('[invite] error signInWithOtp:', otpErr)
+        throw new Error(`[auth_otp] ${otpErr.message}`)
+      }
+    } else {
+      console.error('[invite] error inviteUserByEmail:', inviteErr)
+      throw new Error(`[auth_invite] ${inviteErr.message}`)
+    }
   }
 
   // 5. Marcar uso del link
