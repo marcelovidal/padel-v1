@@ -269,9 +269,11 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
       setSuccessEmail(data.email)
       await sleep(800)
       setStep('done')
-    } catch {
+    } catch (e: unknown) {
       setIsTyping(false)
-      addAppMsg('Hubo un problema al crear tu perfil. ¿Querés intentarlo de nuevo?')
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('[InviteChat] doComplete error:', msg)
+      addAppMsg(`Hubo un problema: ${msg}`)
       setInputMode({ type: 'options', options: ['Intentar de nuevo'] })
       waitForOption(async () => {
         addUserMsg('Intentar de nuevo')

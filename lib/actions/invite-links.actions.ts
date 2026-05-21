@@ -92,9 +92,11 @@ export async function completeInviteRegistrationAction(input: {
 
   // 1. Validar token
   const link = await validateInviteLink(input.token)
-  if (!link.valid) throw new Error('Link inválido o vencido')
+  if (!link.valid) throw new Error(`[token] Link inválido o vencido: ${link.reason}`)
 
   const { userData } = input
+  console.log('[invite] userData recibido:', JSON.stringify(userData))
+
   const isCoach = userData.intent === 'coach'
   const isClubOwner = userData.intent === 'club_owner'
 
@@ -102,7 +104,7 @@ export async function completeInviteRegistrationAction(input: {
 
   if (playerId) {
     // 2a. Actualizar jugador existente
-    await supabase
+    const { error: updateErr } = await supabase
       .from('players')
       .update({
         city: userData.city,
@@ -112,6 +114,11 @@ export async function completeInviteRegistrationAction(input: {
         ...(isClubOwner ? { is_club_owner: true } : {}),
       } as any)
       .eq('id', playerId)
+    if (updateErr) {
+      console.error('[invite] error update player:', updateErr)
+      throw new Error(`[player_update] ${updateErr.message}`)
+    }
+    console.log('[invite] jugador actualizado:', playerId)
   } else {
     // 2b. Crear jugador nuevo
     const display_name = `${userData.first_name} ${userData.last_name}`.trim()
@@ -131,30 +138,42 @@ export async function completeInviteRegistrationAction(input: {
       } as any)
       .select('id')
       .single()
-    if (insertErr) throw insertErr
+    if (insertErr) {
+      console.error('[invite] error insert player:', insertErr)
+      throw new Error(`[player_insert] ${insertErr.message} (code: ${insertErr.code})`)
+    }
     playerId = (newPlayer as any).id
+    console.log('[invite] jugador creado:', playerId)
   }
 
   // 3. Club owner — crear el club
   if (isClubOwner && userData.club_name && playerId) {
-    await supabase.from('clubs').insert({
+    const { error: clubErr } = await supabase.from('clubs').insert({
       name: userData.club_name,
       city: userData.club_city ?? userData.city,
       owner_player_id: playerId,
     } as any)
+    if (clubErr) {
+      console.error('[invite] error insert club:', clubErr)
+      throw new Error(`[club_insert] ${clubErr.message}`)
+    }
   }
 
   // 4. Enviar email de activación via Supabase Auth
-  // inviteUserByEmail crea el usuario auth (si no existe) Y envía el email
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  console.log('[invite] inviteUserByEmail →', userData.email, '| redirectTo:', `${appUrl}/player`)
   const { error: authErr } = await supabase.auth.admin.inviteUserByEmail(
     userData.email,
     { redirectTo: `${appUrl}/player` }
   )
-  if (authErr) throw authErr
+  if (authErr) {
+    console.error('[invite] error inviteUserByEmail:', authErr)
+    throw new Error(`[auth_invite] ${authErr.message}`)
+  }
 
   // 5. Marcar uso del link
   await useInviteLink(input.token)
+  console.log('[invite] completado OK')
 
   return { ok: true }
 }
