@@ -144,13 +144,13 @@ export async function completeInviteRegistrationAction(input: {
     } as any)
   }
 
-  // 4. Enviar magic link via Supabase Auth
+  // 4. Enviar email de activación via Supabase Auth
+  // inviteUserByEmail crea el usuario auth (si no existe) Y envía el email
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''
-  const { error: authErr } = await supabase.auth.admin.generateLink({
-    type: 'magiclink',
-    email: userData.email,
-    options: { redirectTo: `${appUrl}/player` },
-  })
+  const { error: authErr } = await supabase.auth.admin.inviteUserByEmail(
+    userData.email,
+    { redirectTo: `${appUrl}/player` }
+  )
   if (authErr) throw authErr
 
   // 5. Marcar uso del link
