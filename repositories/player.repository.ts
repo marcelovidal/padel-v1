@@ -222,7 +222,7 @@ export class PlayerRepository {
     const ids = ranked.map((r) => r.id);
     const { data: details, error: detailsError } = await (supabase as any)
       .from("players")
-      .select("id, display_name, city, city_id, region_code, region_name, is_guest, position, category, avatar_url, user_id, status, deleted_at")
+      .select("id, display_name, city, city_id, region_code, region_name, is_guest, position, category, avatar_url, user_id, status, deleted_at, is_coach, is_club_owner")
       .in("id", ids)
       .eq("status", "active")
       .is("deleted_at", null);
