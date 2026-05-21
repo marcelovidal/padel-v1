@@ -19,6 +19,7 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Building2,
   LayoutDashboard,
   Dumbbell,
@@ -116,6 +117,48 @@ function CollapsedNavItem({
 
 function Divider() {
   return <div className="my-1.5 border-t border-[var(--border-soft)]" />;
+}
+
+// ── Sección colapsable animada ─────────────────────────────────────────────────
+
+function NavSection({ isOpen, children }: { isOpen: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      className="grid transition-[grid-template-rows] duration-200 ease-in-out"
+      style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+    >
+      <div className="overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+// ── L1 colapsable (botón con chevron) ─────────────────────────────────────────
+
+function L1Toggle({
+  active,
+  isOpen,
+  icon: Icon,
+  label,
+  badge = 0,
+  onClick,
+}: {
+  active: boolean;
+  isOpen: boolean;
+  icon: React.ElementType;
+  label: string;
+  badge?: number;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" onClick={onClick} className={l1Cls(active)}>
+      <Icon className="w-[18px] h-[18px] shrink-0" />
+      <span className="flex-1 text-left">{label}</span>
+      {badge > 0 && <NavBadge count={badge} />}
+      <ChevronDown
+        className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`}
+      />
+    </button>
+  );
 }
 
 // ── Acciones contextuales ─────────────────────────────────────────────────────
@@ -223,6 +266,27 @@ export function PlayerSidebar({
     onCoach ||
     onMiClub ||
     onProfileEdit;
+
+  type SectionKey = "actividad" | "comunidad" | "miclub" | "perfil";
+  const [openSections, setOpenSections] = useState<Record<SectionKey, boolean>>({
+    actividad: onActividad,
+    comunidad: onComunidad,
+    miclub: onMiClub,
+    perfil: onPerfil,
+  });
+
+  function toggleSection(key: SectionKey) {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  useEffect(() => {
+    setOpenSections((prev) => ({
+      actividad: onActividad ? true : prev.actividad,
+      comunidad: onComunidad ? true : prev.comunidad,
+      miclub: onMiClub ? true : prev.miclub,
+      perfil: onPerfil ? true : prev.perfil,
+    }));
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const accion = resolveAccion(pathname);
   const { style: fadeStyle } = useFadeOnChange(accion.label);
@@ -334,7 +398,7 @@ export function PlayerSidebar({
             />
           </>
         ) : (
-          /* ── Modo expandido: íconos + etiquetas + sub-ítems ── */
+          /* ── Modo expandido: íconos + etiquetas + sub-ítems colapsables ── */
           <>
             <Link href="/player" className={l1Cls(pathname === "/player")}>
               <Home className="w-[18px] h-[18px] shrink-0" />
@@ -343,157 +407,135 @@ export function PlayerSidebar({
 
             <Divider />
 
+            {/* Calendario — sin sub-ítems, badge directo */}
             <Link href="/player/calendario" className={l1Cls(onCalendario)}>
               <Calendar className="w-[18px] h-[18px] shrink-0" />
-              Calendario
-            </Link>
-            <Link
-              href="/player/calendario"
-              className={l2Cls(onCalendario && pathname === "/player/calendario")}
-            >
-              <CalendarDays className="w-[15px] h-[15px] shrink-0" />
-              Mis reservas
+              <span className="flex-1">Calendario</span>
               <NavBadge count={sectionCounts.calendario} />
             </Link>
-            <Link href="/player/matches" className={l1Cls(onActividad)}>
-              <Zap className="w-[18px] h-[18px] shrink-0" />
-              Actividad
-            </Link>
-            <Link
-              href="/player/matches"
-              className={l2Cls(pathname.startsWith("/player/matches"))}
-            >
-              <Trophy className="w-3.5 h-3.5 shrink-0" />
-              Partidos
-              <NavBadge count={sectionCounts.partidos} />
-            </Link>
-            <Link
-              href="/player/events"
-              className={l2Cls(pathname.startsWith("/player/events"))}
-            >
-              <Star className="w-3.5 h-3.5 shrink-0" />
-              Eventos
-              <NavBadge count={sectionCounts.eventos} />
-            </Link>
 
-            <Link href="/player/players" className={l1Cls(onComunidad)}>
-              <Users className="w-[18px] h-[18px] shrink-0" />
-              Comunidad
-            </Link>
-            <Link
-              href="/player/players"
-              className={l2Cls(pathname.startsWith("/player/players"))}
-            >
-              <Users className="w-[15px] h-[15px] shrink-0" />
-              Jugadores
-            </Link>
-            <Link
-              href="/player/entrenadores"
-              className={l2Cls(pathname.startsWith("/player/entrenadores"))}
-            >
-              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
-              Entrenadores
-            </Link>
+            {/* Actividad */}
+            <L1Toggle
+              active={onActividad}
+              isOpen={openSections.actividad}
+              icon={Zap}
+              label="Actividad"
+              badge={sectionCounts.partidos + sectionCounts.eventos}
+              onClick={() => toggleSection("actividad")}
+            />
+            <NavSection isOpen={openSections.actividad}>
+              <Link href="/player/matches" className={l2Cls(pathname.startsWith("/player/matches"))}>
+                <Trophy className="w-3.5 h-3.5 shrink-0" />
+                Partidos
+                <NavBadge count={sectionCounts.partidos} />
+              </Link>
+              <Link href="/player/events" className={l2Cls(pathname.startsWith("/player/events"))}>
+                <Star className="w-3.5 h-3.5 shrink-0" />
+                Eventos
+                <NavBadge count={sectionCounts.eventos} />
+              </Link>
+            </NavSection>
+
+            {/* Comunidad */}
+            <L1Toggle
+              active={onComunidad}
+              isOpen={openSections.comunidad}
+              icon={Users}
+              label="Comunidad"
+              onClick={() => toggleSection("comunidad")}
+            />
+            <NavSection isOpen={openSections.comunidad}>
+              <Link href="/player/players" className={l2Cls(pathname.startsWith("/player/players"))}>
+                <Users className="w-[15px] h-[15px] shrink-0" />
+                Jugadores
+              </Link>
+              <Link href="/player/entrenadores" className={l2Cls(pathname.startsWith("/player/entrenadores"))}>
+                <GraduationCap className="w-[15px] h-[15px] shrink-0" />
+                Entrenadores
+              </Link>
+            </NavSection>
 
             <Divider />
 
             {isCoach && (
-              <Link
-                href="/player/coach"
-                className={l1Cls(pathname.startsWith("/player/coach"))}
-              >
+              <Link href="/player/coach" className={l1Cls(pathname.startsWith("/player/coach"))}>
                 <GraduationCap className="w-[18px] h-[18px] shrink-0" />
                 <span className="flex-1">Mi equipo</span>
                 <NavBadge count={sectionCounts.coach} />
               </Link>
             )}
 
+            {/* Mi club */}
             {isClubOwner && (
               <>
-                <Link href="/player/mi-club" className={l1Cls(onMiClub)}>
-                  <Building2 className="w-[18px] h-[18px] shrink-0" />
-                  Mi club
-                </Link>
-                <Link
-                  href="/player/mi-club"
-                  className={l2Cls(onMiClub && pathname === "/player/mi-club")}
-                >
-                  <LayoutDashboard className="w-[15px] h-[15px] shrink-0" />
-                  Dashboard
-                </Link>
-                <Link
-                  href="/player/mi-club/dashboard/bookings"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/bookings"))}
-                >
-                  <Calendar className="w-[15px] h-[15px] shrink-0" />
-                  Reservas
-                </Link>
-                <Link
-                  href="/player/mi-club/dashboard/courts"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/courts"))}
-                >
-                  <Dumbbell className="w-[15px] h-[15px] shrink-0" />
-                  Canchas
-                </Link>
-                <Link
-                  href="/player/mi-club/dashboard/leagues"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/leagues"))}
-                >
-                  <Trophy className="w-[15px] h-[15px] shrink-0" />
-                  Ligas
-                </Link>
-                <Link
-                  href="/player/mi-club/dashboard/tournaments"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/tournaments"))}
-                >
-                  <Star className="w-[15px] h-[15px] shrink-0" />
-                  Torneos
-                </Link>
-                <Link
-                  href="/player/mi-club/jugadores"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/jugadores"))}
-                >
-                  <Users className="w-[15px] h-[15px] shrink-0" />
-                  Jugadores
-                </Link>
-                <Link
-                  href="/player/mi-club/ajustes"
-                  className={l2Cls(pathname.startsWith("/player/mi-club/ajustes"))}
-                >
-                  <Settings className="w-[15px] h-[15px] shrink-0" />
-                  Ajustes
-                </Link>
+                <L1Toggle
+                  active={onMiClub}
+                  isOpen={openSections.miclub}
+                  icon={Building2}
+                  label="Mi club"
+                  onClick={() => toggleSection("miclub")}
+                />
+                <NavSection isOpen={openSections.miclub}>
+                  <Link href="/player/mi-club" className={l2Cls(onMiClub && pathname === "/player/mi-club")}>
+                    <LayoutDashboard className="w-[15px] h-[15px] shrink-0" />
+                    Dashboard
+                  </Link>
+                  <Link href="/player/mi-club/dashboard/bookings" className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/bookings"))}>
+                    <Calendar className="w-[15px] h-[15px] shrink-0" />
+                    Reservas
+                  </Link>
+                  <Link href="/player/mi-club/dashboard/courts" className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/courts"))}>
+                    <Dumbbell className="w-[15px] h-[15px] shrink-0" />
+                    Canchas
+                  </Link>
+                  <Link href="/player/mi-club/dashboard/leagues" className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/leagues"))}>
+                    <Trophy className="w-[15px] h-[15px] shrink-0" />
+                    Ligas
+                  </Link>
+                  <Link href="/player/mi-club/dashboard/tournaments" className={l2Cls(pathname.startsWith("/player/mi-club/dashboard/tournaments"))}>
+                    <Star className="w-[15px] h-[15px] shrink-0" />
+                    Torneos
+                  </Link>
+                  <Link href="/player/mi-club/jugadores" className={l2Cls(pathname.startsWith("/player/mi-club/jugadores"))}>
+                    <Users className="w-[15px] h-[15px] shrink-0" />
+                    Jugadores
+                  </Link>
+                  <Link href="/player/mi-club/ajustes" className={l2Cls(pathname.startsWith("/player/mi-club/ajustes"))}>
+                    <Settings className="w-[15px] h-[15px] shrink-0" />
+                    Ajustes
+                  </Link>
+                </NavSection>
               </>
             )}
 
-            <Link
-              href="/player/profile"
-              className={l1Cls(onPerfil)}
-            >
-              <UserCircle className="w-[18px] h-[18px] shrink-0" />
-              Perfil
-            </Link>
-            <Link
-              href={`/player/players/${playerId}/edit`}
-              className={l2Cls(onProfileEdit)}
-            >
-              <UserCircle className="w-[15px] h-[15px] shrink-0" />
-              Editar perfil
-            </Link>
-            <Link
-              href="/player/coach"
-              className={l2Cls(onCoach)}
-            >
-              <GraduationCap className="w-[15px] h-[15px] shrink-0" />
-              {isCoach ? "Mi equipo" : "Perfil entrenador"}
-            </Link>
-            <Link
-              href={isClubOwner ? "/player/mi-club" : "/player/profile?access=club"}
-              className={l2Cls(isClubOwner ? onMiClub : pathname.startsWith("/player/profile") && !onProfileEdit && !onCoach)}
-            >
-              <Building2 className="w-[15px] h-[15px] shrink-0" />
-              {isClubOwner ? "Mi club" : "Acceso club"}
-            </Link>
+            {/* Perfil */}
+            <L1Toggle
+              active={onPerfil}
+              isOpen={openSections.perfil}
+              icon={UserCircle}
+              label="Perfil"
+              onClick={() => toggleSection("perfil")}
+            />
+            <NavSection isOpen={openSections.perfil}>
+              <Link href="/player/profile" className={l2Cls(pathname.startsWith("/player/profile") && !onProfileEdit)}>
+                <UserCircle className="w-[15px] h-[15px] shrink-0" />
+                Mi perfil
+              </Link>
+              <Link href={`/player/players/${playerId}/edit`} className={l2Cls(onProfileEdit)}>
+                <UserCircle className="w-[15px] h-[15px] shrink-0" />
+                Editar perfil
+              </Link>
+              <Link href="/player/coach" className={l2Cls(onCoach)}>
+                <GraduationCap className="w-[15px] h-[15px] shrink-0" />
+                {isCoach ? "Mi equipo" : "Perfil entrenador"}
+              </Link>
+              {!isClubOwner && (
+                <Link href="/player/profile?access=club" className={l2Cls(false)}>
+                  <Building2 className="w-[15px] h-[15px] shrink-0" />
+                  Acceso club
+                </Link>
+              )}
+            </NavSection>
           </>
         )}
       </nav>
