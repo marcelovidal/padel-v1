@@ -31,7 +31,7 @@ export async function listAllInviteLinks() {
   return getAllInviteLinks()
 }
 
-export async function useInviteLink(token: string) {
+export async function markInviteLinkUsed(token: string) {
   return incrementInviteLinkUse(token)
 }
 

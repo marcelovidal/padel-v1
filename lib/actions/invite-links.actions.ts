@@ -6,7 +6,7 @@ import {
   disableInviteLink,
   extendInviteLink,
   validateInviteLink,
-  useInviteLink,
+  markInviteLinkUsed,
 } from '@/services/invite-links.service'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
@@ -187,7 +187,7 @@ export async function completeInviteRegistrationAction(input: {
   }
 
   // 5. Marcar uso del link
-  await useInviteLink(input.token)
+  await markInviteLinkUsed(input.token)
   console.log('[invite] completado OK')
 
   return { ok: true }
