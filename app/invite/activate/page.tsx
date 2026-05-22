@@ -72,7 +72,7 @@ export default function InviteActivatePage() {
           city: null,
           category: null,
           position: null,
-          email: user.email,
+          email: user.email ?? null,
         })
       }
     })
