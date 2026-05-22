@@ -478,16 +478,34 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
     }
 
     await appSay(`¡Perfecto! Ya tenemos tus datos.`)
+    const firstName = targetPlayer?.first_name ?? ''
+    const lastName = targetPlayer?.last_name ?? ''
+
+    if (!existingEmail) {
+      // Jugador sin email registrado → pedirlo directamente
+      await appSay('No tenemos un email registrado para vos. ¿Cuál es tu email?', 700)
+      setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'no_email' })
+      waitForText('no_email', async (newEmail) => {
+        addUserMsg(newEmail)
+        setInputMode({ type: 'none' })
+        if (intent === 'coach') {
+          await appSay('¡Genial! Vamos a activar tu perfil de entrenador. Necesito un par de datos más.', 700)
+        }
+        await flowCollectAll({
+          prefillFirstName: firstName || undefined,
+          prefillLastName: lastName || undefined,
+          prefillEmail: newEmail,
+          existingPlayerId,
+        })
+      })
+      return
+    }
+
     await appSay(`¿Tu email es ${existingEmail}?`, 700)
     setInputMode({ type: 'options', options: ['Sí, ese es ✓', 'No, usar otro'] })
     waitForOption(async (opt) => {
       addUserMsg(opt)
       setInputMode({ type: 'none' })
-
-      const useEmail = opt === 'No, usar otro' ? '' : existingEmail
-      const firstName = targetPlayer?.first_name ?? ''
-      const lastName = targetPlayer?.last_name ?? ''
-      const city = targetPlayer?.city ?? ''
 
       if (opt === 'No, usar otro') {
         await appSay('¿Cuál es tu email entonces?', 500)
@@ -509,7 +527,7 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
         await flowCollectAll({
           prefillFirstName: firstName || undefined,
           prefillLastName: lastName || undefined,
-          prefillEmail: useEmail || undefined,
+          prefillEmail: existingEmail,
           existingPlayerId,
         })
       }
