@@ -6,6 +6,30 @@ import { createBrowserSupabase } from '@/lib/supabase/client'
 import { PasalaLogo } from '@/components/ui/PasalaLogo'
 import { linkPlayerToUserAction } from '@/lib/actions/invite-links.actions'
 
+const CATEGORY_LABELS: Record<string, string> = {
+  '1': '1ª — Competitivo',
+  '2': '2ª — Avanzado',
+  '3': '3ª — Intermedio Alto',
+  '4': '4ª — Intermedio',
+  '5': '5ª — Intermedio Bajo',
+  '6': '6ª — Amateur',
+  '7': '7ª — Principiante',
+}
+
+const POSITION_LABELS: Record<string, string> = {
+  reves: 'Revés',
+  drive: 'Drive',
+  ambas: 'Las dos',
+}
+
+type PlayerData = {
+  display_name: string
+  city: string | null
+  category: string | null
+  position: string | null
+  email: string | null
+}
+
 export default function InviteActivatePage() {
   const supabase = createBrowserSupabase()
   const router = useRouter()
@@ -13,7 +37,7 @@ export default function InviteActivatePage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
-  const [playerName, setPlayerName] = useState<string | null>(null)
+  const [playerData, setPlayerData] = useState<PlayerData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
@@ -27,19 +51,29 @@ export default function InviteActivatePage() {
         return
       }
       const user = data.session.user
-      const meta = user.user_metadata as Record<string, string> | undefined
-      const name =
-        meta?.full_name ||
-        [meta?.first_name, meta?.last_name].filter(Boolean).join(' ') ||
-        user.email ||
-        null
-      setPlayerName(name)
 
-      // Link the players record to this auth user (non-blocking)
+      // Link the players record to this auth user
       try {
         await linkPlayerToUserAction(user.id, user.email!)
       } catch (e) {
         console.error('[activate] link player:', e)
+      }
+
+      // Fetch player data to display summary
+      const { data: player } = await supabase
+        .from('players')
+        .select('display_name, city, category, position, email')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (mounted) {
+        setPlayerData(player ?? {
+          display_name: user.email ?? 'Jugador',
+          city: null,
+          category: null,
+          position: null,
+          email: user.email,
+        })
       }
     })
     return () => {
@@ -102,12 +136,47 @@ export default function InviteActivatePage() {
           <div className="space-y-6">
             <div className="text-center space-y-1">
               <p className="text-[#F5F2EE] text-xl font-bold">
-                {playerName ? `Hola, ${playerName.split(' ')[0]}` : 'Bienvenido'}
+                {playerData ? `Hola, ${playerData.display_name.split(' ')[0]}` : 'Bienvenido'}
               </p>
               <p className="text-[#999] text-sm">
-                Creá una contraseña para acceder a tu cuenta cuando quieras.
+                Creá una contraseña para acceder a tu cuenta.
               </p>
             </div>
+
+            {/* Resumen de registro */}
+            {playerData && (
+              <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl px-4 py-4 space-y-2 text-sm">
+                <p className="text-[#555] text-xs uppercase tracking-wider mb-3">Tu perfil</p>
+                <div className="flex justify-between">
+                  <span className="text-[#666]">Nombre</span>
+                  <span className="text-[#F5F2EE]">{playerData.display_name}</span>
+                </div>
+                {playerData.city && (
+                  <div className="flex justify-between">
+                    <span className="text-[#666]">Ciudad</span>
+                    <span className="text-[#F5F2EE]">{playerData.city}</span>
+                  </div>
+                )}
+                {playerData.category && (
+                  <div className="flex justify-between">
+                    <span className="text-[#666]">Categoría</span>
+                    <span className="text-[#F5F2EE]">{CATEGORY_LABELS[playerData.category] ?? playerData.category}</span>
+                  </div>
+                )}
+                {playerData.position && (
+                  <div className="flex justify-between">
+                    <span className="text-[#666]">Posición</span>
+                    <span className="text-[#F5F2EE]">{POSITION_LABELS[playerData.position] ?? playerData.position}</span>
+                  </div>
+                )}
+                {playerData.email && (
+                  <div className="flex justify-between">
+                    <span className="text-[#666]">Email</span>
+                    <span className="text-[#F5F2EE] truncate max-w-[180px]">{playerData.email}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3">
               <div>

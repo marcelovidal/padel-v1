@@ -490,10 +490,17 @@ export function InviteChat({ token, intent, targetName, targetEmail, targetPlaye
       const city = targetPlayer?.city ?? ''
 
       if (opt === 'No, usar otro') {
-        await flowCollectAll({
-          prefillFirstName: firstName || undefined,
-          prefillLastName: lastName || undefined,
-          existingPlayerId,
+        await appSay('¿Cuál es tu email entonces?', 500)
+        setInputMode({ type: 'email', placeholder: 'tu@email.com', field: 'alt_email' })
+        waitForText('alt_email', async (newEmail) => {
+          addUserMsg(newEmail)
+          setInputMode({ type: 'none' })
+          await flowCollectAll({
+            prefillFirstName: firstName || undefined,
+            prefillLastName: lastName || undefined,
+            prefillEmail: newEmail,
+            existingPlayerId,
+          })
         })
       } else {
         if (intent === 'coach') {
