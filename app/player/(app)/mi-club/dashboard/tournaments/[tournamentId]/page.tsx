@@ -10,8 +10,8 @@ import { TournamentPlayoffScheduleForm } from "@/components/club/TournamentPlayo
 import { TournamentPlayoffResultForm } from "@/components/club/TournamentPlayoffResultForm";
 import { TournamentRegisterTeamForm } from "@/components/club/TournamentRegisterTeamForm";
 import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
+import { TournamentStatusForm } from "@/components/club/TournamentStatusForm";
 import {
-  updateTournamentStatusAction,
   removeTournamentTeamAction,
   autoCreateTournamentGroupsAction,
   assignTournamentTeamToGroupAction,
@@ -252,22 +252,12 @@ export default async function MiClubTournamentDetailPage({
           </p>
           {tournament.description ? <p className="mt-1 text-sm text-gray-700">{tournament.description}</p> : null}
         </div>
-        {/* Cambio de estado */}
-        <form action={updateTournamentStatusAction} className="flex items-center gap-2">
-          <input type="hidden" name="tournament_id" value={tournament.id} />
-          <select
-            name="next_status"
-            defaultValue={tournament.status}
-            className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
-          >
-            <option value="draft">Borrador</option>
-            <option value="active">Activo</option>
-            <option value="finished">Finalizado</option>
-          </select>
-          <button className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-            Actualizar estado
-          </button>
-        </form>
+        {/* Cambio de estado — pide confirmacion si activar dispara difusion */}
+        <TournamentStatusForm
+          tournamentId={tournament.id}
+          currentStatus={tournament.status}
+          targetCityIds={(tournament as any).target_city_ids ?? []}
+        />
       </div>
 
       {/* Alertas globales */}

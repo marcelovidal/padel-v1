@@ -35,6 +35,25 @@ function errDebug(error: any) {
     .slice(0, 180);
 }
 
+// ── Difusion: alcance ─────────────────────────────────────────────────────────
+
+/**
+ * Cuantos jugadores recibirian la notificacion de difusion con estas ciudades.
+ * Devuelve null si el RPC todavia no esta aplicado en la base o si falla: el
+ * modal de confirmacion debe mostrarse igual, nunca bloquear la activacion.
+ */
+export async function countPlayersInCitiesAction(cityIds: string[]): Promise<number | null> {
+  if (!cityIds || cityIds.length === 0) return 0;
+
+  const service = new RegistrationsService();
+  try {
+    return await service.countPlayersInCities(cityIds);
+  } catch (error: any) {
+    console.error("[diffusion countPlayersInCitiesAction]", error);
+    return null;
+  }
+}
+
 // ── Player actions ────────────────────────────────────────────────────────────
 
 export async function requestTournamentRegistrationAction(formData: FormData) {

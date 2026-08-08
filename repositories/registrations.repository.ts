@@ -35,6 +35,20 @@ export class RegistrationsRepository {
     return await createClient();
   }
 
+  /**
+   * Alcance de la difusion geografica: cuantos jugadores recibirian la
+   * notificacion si el evento se activara con estas ciudades objetivo.
+   * Requiere la migracion 20260808_add_count_players_in_cities.sql.
+   */
+  async countPlayersInCities(cityIds: string[]): Promise<number> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_count_players_in_cities", {
+      p_city_ids: cityIds,
+    });
+    if (error) throw error;
+    return Number(data ?? 0);
+  }
+
   async getOpenEvents(): Promise<OpenEvent[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_get_open_events");
