@@ -72,6 +72,14 @@ export type ClaimedClubListItem = {
   avatar_url: string | null;
 };
 
+export type ClubManagedMatchPlayer = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  display_name: string;
+  avatar_url: string | null;
+};
+
 export type ClubManagedMatchListItem = {
   id: string;
   match_at: string;
@@ -84,8 +92,8 @@ export type ClubManagedMatchListItem = {
   updated_at: string;
   players_count: number;
   playersByTeam: {
-    A: Array<{ id: string; first_name: string; last_name: string; avatar_url: string | null }>;
-    B: Array<{ id: string; first_name: string; last_name: string; avatar_url: string | null }>;
+    A: ClubManagedMatchPlayer[];
+    B: ClubManagedMatchPlayer[];
   };
   match_results: { sets: Array<{ a: number | null; b: number | null }>; winner_team: "A" | "B" } | null;
   league?: {
@@ -432,6 +440,61 @@ export class ClubRepository {
 
     const matchIds = mapped.map((m) => m.id);
     if (matchIds.length === 0) return mapped;
+
+    // El RPC club_list_my_matches devuelve players_by_team como array de UUIDs
+    // (jsonb_agg(player_id)), no como jugadores. Hidratamos con los datos reales
+    // igual que hace MatchRepository.findAllWithPlayersAndResults para /admin/matches.
+    const toPlayerId = (entry: any): string | null => {
+      if (typeof entry === "string") return entry;
+      if (entry && typeof entry === "object" && typeof entry.id === "string") return entry.id;
+      return null;
+    };
+
+    const playerIds = Array.from(
+      new Set(
+        mapped
+          .flatMap((m) => [...m.playersByTeam.A, ...m.playersByTeam.B])
+          .map(toPlayerId)
+          .filter((id): id is string => !!id)
+      )
+    );
+
+    if (playerIds.length > 0) {
+      const { data: playerRows, error: playersErr } = await (supabase as any)
+        .from("players")
+        .select("id,first_name,last_name,display_name,avatar_url")
+        .in("id", playerIds);
+
+      if (!playersErr && Array.isArray(playerRows)) {
+        const byId = new Map<string, ClubManagedMatchPlayer>(
+          (playerRows as any[]).map((p) => [
+            p.id,
+            {
+              id: p.id,
+              first_name: p.first_name ?? "",
+              last_name: p.last_name ?? "",
+              display_name: p.display_name ?? "",
+              avatar_url: p.avatar_url ?? null,
+            },
+          ])
+        );
+
+        const hydrate = (team: any[]): ClubManagedMatchPlayer[] =>
+          team
+            .map((entry) => {
+              const id = toPlayerId(entry);
+              return id ? byId.get(id) ?? null : null;
+            })
+            .filter((p): p is ClubManagedMatchPlayer => !!p);
+
+        for (const m of mapped) {
+          m.playersByTeam = {
+            A: hydrate(m.playersByTeam.A),
+            B: hydrate(m.playersByTeam.B),
+          };
+        }
+      }
+    }
 
     const { data: leagueRows, error: leagueErr } = await (supabase as any)
       .from("league_matches")

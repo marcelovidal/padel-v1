@@ -1,6 +1,7 @@
 import React from "react";
 import { TeamType } from "@/types/database";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { resolvePlayerName, getPlayerInitials } from "@/lib/players/playerName";
 
 interface MatchScoreProps {
     variant?: "scheduled" | "result";
@@ -17,14 +18,9 @@ interface MatchScoreProps {
 }
 
 export function MatchScore({ variant = "result", results, playersByTeam, showPlayers = false, highlightPlayerId }: MatchScoreProps) {
-    const formatPlayerName = (p: any) => {
-        if (!p) return "-";
-        return `${p.first_name?.[0]}. ${p.last_name}`;
-    };
-
     const renderPlayer = (p: any) => {
         if (!p) return <span>-</span>;
-        const initials = `${p.first_name?.[0] || ""}${p.last_name?.[0] || ""}`;
+        const initials = getPlayerInitials(p);
         const isCurrentPlayer = !!highlightPlayerId && p.id === highlightPlayerId;
         return (
             <div className="flex items-center gap-2">
@@ -40,7 +36,7 @@ export function MatchScore({ variant = "result", results, playersByTeam, showPla
                             : "text-[var(--text-primary)]"
                     }`}
                 >
-                    {formatPlayerName(p)}
+                    {resolvePlayerName(p)}
                 </span>
             </div>
         );
