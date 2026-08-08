@@ -56,8 +56,8 @@ function errDebug(error: any) {
     .slice(0, 180);
 }
 
-function detailPath(tournamentId: string) {
-  return `/club/dashboard/tournaments/${tournamentId}`;
+function getTournamentUrlPath(tournamentId: string) {
+  return `/player/mi-club/dashboard/tournaments/${tournamentId}`;
 }
 
 function redirectWithError(
@@ -88,12 +88,12 @@ export async function createTournamentAction(formData: FormData) {
   const description = String(formData.get("description") || "").trim();
 
   if (!clubId || !name || !rawCat) {
-    redirectWithError("/club/dashboard/tournaments", "COMPLETE_REQUIRED_FIELDS");
+    redirectWithError("/player/mi-club/dashboard/tournaments", "COMPLETE_REQUIRED_FIELDS");
   }
 
   const targetCategory = Number(rawCat);
   if (Number.isNaN(targetCategory) || targetCategory < 1) {
-    redirectWithError("/club/dashboard/tournaments", "INVALID_CATEGORY_VALUE");
+    redirectWithError("/player/mi-club/dashboard/tournaments", "INVALID_CATEGORY_VALUE");
   }
 
   try {
@@ -105,12 +105,12 @@ export async function createTournamentAction(formData: FormData) {
       season_label: seasonLabel || undefined,
       description: description || undefined,
     });
-    revalidatePath("/club/dashboard/tournaments");
-    redirectWithOk("/club/dashboard/tournaments", "TOURNAMENT_CREATED", { tournament_id: tournamentId });
+    revalidatePath("/player/mi-club/dashboard/tournaments");
+    redirectWithOk("/player/mi-club/dashboard/tournaments", "TOURNAMENT_CREATED", { tournament_id: tournamentId });
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6.2 createTournamentAction]", error);
-    redirectWithError("/club/dashboard/tournaments", errCode(error), errDebug(error));
+    redirectWithError("/player/mi-club/dashboard/tournaments", errCode(error), errDebug(error));
   }
 }
 
@@ -130,12 +130,12 @@ export async function createTournamentWizardAction(formData: FormData) {
   const targetCityIds = rawCities ? rawCities.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
   if (!clubId || !name || !rawCat) {
-    redirectWithError("/club/dashboard/tournaments", "COMPLETE_REQUIRED_FIELDS");
+    redirectWithError("/player/mi-club/dashboard/tournaments", "COMPLETE_REQUIRED_FIELDS");
   }
 
   const targetCategory = Number(rawCat);
   if (Number.isNaN(targetCategory) || targetCategory < 1) {
-    redirectWithError("/club/dashboard/tournaments", "INVALID_CATEGORY_VALUE");
+    redirectWithError("/player/mi-club/dashboard/tournaments", "INVALID_CATEGORY_VALUE");
   }
 
   try {
@@ -152,12 +152,12 @@ export async function createTournamentWizardAction(formData: FormData) {
       await reg.updateTournamentInfo({ tournament_id: tournamentId, start_date: startDate, end_date: endDate, target_city_ids: targetCityIds });
     }
 
-    revalidatePath("/club/dashboard/tournaments");
-    redirect(detailPath(tournamentId));
+    revalidatePath("/player/mi-club/dashboard/tournaments");
+    redirect(getTournamentUrlPath(tournamentId));
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6.2 createTournamentWizardAction]", error);
-    redirectWithError("/club/dashboard/tournaments", errCode(error), errDebug(error));
+    redirectWithError("/player/mi-club/dashboard/tournaments", errCode(error), errDebug(error));
   }
 }
 
@@ -165,15 +165,15 @@ export async function updateTournamentStatusAction(formData: FormData) {
   const service = new TournamentsService();
   const tournamentId = String(formData.get("tournament_id") || "");
   const nextStatus = String(formData.get("next_status") || "") as "draft" | "active" | "finished";
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
-  if (!tournamentId) redirectWithError("/club/dashboard/tournaments", "TOURNAMENT_NOT_FOUND");
+  if (!tournamentId) redirectWithError("/player/mi-club/dashboard/tournaments", "TOURNAMENT_NOT_FOUND");
   if (!["draft", "active", "finished"].includes(nextStatus)) redirectWithError(path, "INVALID_STATUS");
 
   try {
     await service.updateTournamentStatus(tournamentId, nextStatus);
     revalidatePath(path);
-    revalidatePath("/club/dashboard/tournaments");
+    revalidatePath("/player/mi-club/dashboard/tournaments");
     redirectWithOk(path, "TOURNAMENT_STATUS_UPDATED", { status: nextStatus });
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
@@ -188,7 +188,7 @@ export async function registerTournamentTeamAction(formData: FormData) {
   const playerA = String(formData.get("player_id_a") || "");
   const playerB = String(formData.get("player_id_b") || "");
   const rawEntry = String(formData.get("entry_category_int") || "").trim();
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!tournamentId || !playerA || !playerB) redirectWithError(path, "INVALID_TEAM_PLAYERS");
 
@@ -212,7 +212,7 @@ export async function removeTournamentTeamAction(formData: FormData) {
   const service = new TournamentsService();
   const teamId = String(formData.get("team_id") || "");
   const tournamentId = String(formData.get("tournament_id") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!teamId) redirectWithError(path, "TEAM_NOT_FOUND");
 
@@ -232,7 +232,7 @@ export async function autoCreateTournamentGroupsAction(formData: FormData) {
   const tournamentId = String(formData.get("tournament_id") || "");
   const rawCount = String(formData.get("group_count") || "").trim();
   const rawSize = String(formData.get("target_size") || "").trim();
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!tournamentId) redirectWithError(path, "TOURNAMENT_NOT_FOUND");
 
@@ -257,7 +257,7 @@ export async function assignTournamentTeamToGroupAction(formData: FormData) {
   const groupId = String(formData.get("group_id") || "");
   const tournamentId = String(formData.get("tournament_id") || "");
   const rawSeedOrder = String(formData.get("seed_order") || "").trim();
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!teamId) redirectWithError(path, "TEAM_NOT_FOUND");
   if (!groupId) redirectWithError(path, "GROUP_NOT_FOUND");
@@ -277,7 +277,7 @@ export async function generateTournamentFixtureAction(formData: FormData) {
   const service = new TournamentsService();
   const groupId = String(formData.get("group_id") || "");
   const tournamentId = String(formData.get("tournament_id") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!groupId) redirectWithError(path, "GROUP_NOT_FOUND");
 
@@ -296,7 +296,7 @@ export async function reopenTournamentFixtureForEditAction(formData: FormData) {
   const service = new TournamentsService();
   const tournamentId = String(formData.get("tournament_id") || "");
   const confirmText = String(formData.get("confirm_text") || "").trim().toUpperCase();
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!tournamentId) redirectWithError(path, "TOURNAMENT_NOT_FOUND");
   if (confirmText !== "REABRIR") redirectWithError(path, "REOPEN_CONFIRMATION_REQUIRED");
@@ -323,7 +323,7 @@ export async function scheduleTournamentMatchAction(formData: FormData) {
   const courtId = String(formData.get("court_id") || "");
   const date = String(formData.get("match_date") || "");
   const time = String(formData.get("match_time") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
   const errorExtra = tournamentMatchId ? { tournament_match_id: tournamentMatchId } : undefined;
 
   if (!tournamentMatchId || !courtId || !date || !time) {
@@ -355,7 +355,7 @@ export async function submitTournamentMatchResultAction(formData: FormData) {
   const service = new TournamentsService();
   const tournamentMatchId = String(formData.get("tournament_match_id") || "");
   const tournamentId = String(formData.get("tournament_id") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
   const errorExtra = tournamentMatchId ? { tournament_match_id: tournamentMatchId } : undefined;
 
   const set1a = Number(formData.get("set1_a"));
@@ -399,7 +399,7 @@ export async function submitTournamentMatchResultAction(formData: FormData) {
 export async function generateTournamentPlayoffsAction(formData: FormData) {
   const service = new TournamentsService();
   const tournamentId = String(formData.get("tournament_id") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
 
   if (!tournamentId) redirectWithError(path, "TOURNAMENT_NOT_FOUND");
 
@@ -422,7 +422,7 @@ export async function scheduleTournamentPlayoffMatchAction(formData: FormData) {
   const courtId = String(formData.get("court_id") || "");
   const date = String(formData.get("match_date") || "");
   const time = String(formData.get("match_time") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
   const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
 
   if (!playoffMatchId || !courtId || !date || !time) {
@@ -454,7 +454,7 @@ export async function submitTournamentPlayoffMatchResultAction(formData: FormDat
   const service = new TournamentsService();
   const playoffMatchId = String(formData.get("playoff_match_id") || "");
   const tournamentId = String(formData.get("tournament_id") || "");
-  const path = detailPath(tournamentId);
+  const path = getTournamentUrlPath(tournamentId);
   const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
 
   const set1a = Number(formData.get("set1_a"));
