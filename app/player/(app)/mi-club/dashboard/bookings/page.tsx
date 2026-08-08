@@ -16,6 +16,7 @@ import {
   releaseFixedSlotAction,
 } from "@/lib/actions/fixed-slot.actions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
+import { getEffectiveStatus } from "@/lib/match/matchUtils";
 import { ClubBookingsCalendarPanel } from "@/components/bookings/ClubBookingsCalendarPanel";
 import { AgendaGrid } from "@/components/club/agenda/AgendaGrid";
 import { BookingsViewToggle } from "@/components/bookings/BookingsViewToggle";
@@ -454,7 +455,7 @@ export default async function MiClubBookingsPage({
                             <p className="text-gray-700">
                               Estado:{" "}
                               <span className="font-semibold text-gray-900">
-                                {matchStatusLabel(match.status)}
+                                {matchStatusLabel(getEffectiveStatus(match))}
                               </span>
                             </p>
                             <p className="text-gray-700">

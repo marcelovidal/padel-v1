@@ -4,6 +4,7 @@ import { ClubService } from "@/services/club.service";
 import { BookingService } from "@/services/booking.service";
 import { ClubAnalyticsSection, ClubInsightsSection } from "@/components/club/ClubAnalyticsSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getEffectiveStatus } from "@/lib/match/matchUtils";
 
 function formatMatchDateTime(value: string) {
   return new Intl.DateTimeFormat("es-AR", {
@@ -111,7 +112,7 @@ export default async function MiClubHomePage() {
                       <p className="font-semibold text-gray-900">{formatMatchDateTime(match.match_at)}</p>
                       <p className="text-sm text-gray-600">{match.players_count}/{match.max_players} jugadores</p>
                     </div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600">{statusLabel(match.status)}</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600">{statusLabel(getEffectiveStatus(match))}</span>
                   </div>
                 ))}
               </div>

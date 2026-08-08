@@ -60,6 +60,24 @@ export default function MatchCard({
   const isCompleted = status === "completed";
   const hasPrimaryLoadResult = primaryAction?.href === `/player/matches/${model.id}/result`;
 
+  // Ganado/Perdido solo tiene sentido con resultado cargado Y perspectiva de jugador.
+  // Sin una de las dos cosas se cae al statusLabel: sin esto, `undefined === undefined`
+  // (results null + playerTeam ausente en variant admin) imprimía "Ganado" falsamente.
+  const winnerTeam = model.results?.winnerTeam ?? null;
+  const outcome: "won" | "lost" | null =
+    isCompleted && winnerTeam && playerTeam
+      ? winnerTeam === playerTeam
+        ? "won"
+        : "lost"
+      : null;
+
+  const outcomeLabel = (() => {
+    if (outcome === "won") return "Ganado";
+    if (outcome === "lost") return "Perdido";
+    if (isCompleted && winnerTeam) return `Ganó equipo ${winnerTeam}`;
+    return statusLabel;
+  })();
+
   const formatPlayerName = (p: { first_name: string; last_name: string } | null) => {
     if (!p) return "-";
     return `${p.first_name.charAt(0)}. ${p.last_name}`;
@@ -84,18 +102,16 @@ export default function MatchCard({
           </div>
           <div className="flex flex-col items-end gap-2">
             <div
-              className={`text-xs font-black uppercase tracking-widest ${isCompleted
-                ? model.results?.winnerTeam === model.playerTeam
-                  ? "text-emerald-600"
-                  : "text-brand-rojo"
-                : status === "cancelled"
+              className={`text-xs font-black uppercase tracking-widest ${outcome === "won"
+                ? "text-emerald-600"
+                : outcome === "lost" || status === "cancelled"
                   ? "text-brand-rojo"
-                  : "text-amber-600"
+                  : isCompleted
+                    ? "text-[var(--text-muted)]"
+                    : "text-amber-600"
                 }`}
             >
-              {isCompleted
-                ? model.results?.winnerTeam === model.playerTeam ? "Ganado" : "Perdido"
-                : statusLabel}
+              {outcomeLabel}
             </div>
             {league ? (
               <div className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">
