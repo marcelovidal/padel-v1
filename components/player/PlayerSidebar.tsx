@@ -599,14 +599,26 @@ export function PlayerSidebar({
                   </Link>
                 </>
               ) : (
+                /* El cartel rojo "Sin club" no aplica a un dueño de club:
+                   para él la acción sigue disponible pero sin esa etiqueta. */
                 <Link
                   href="/player/matches/new?mode=direct"
-                  className="flex w-full flex-col items-start rounded-lg bg-[#E5352A] px-3 py-2 hover:bg-[#B82820] transition-colors"
+                  className={`flex w-full flex-col items-start rounded-lg px-3 py-2 transition-colors ${
+                    isClubOwner
+                      ? "border border-[var(--border-soft)] bg-[var(--bg-card)] hover:bg-[var(--bg-elevated)]"
+                      : "bg-[#E5352A] hover:bg-[#B82820]"
+                  }`}
                 >
-                  <span className="text-[10px] font-black uppercase tracking-widest text-red-200 leading-none mb-0.5">
-                    Sin club
-                  </span>
-                  <span className="text-[12px] font-semibold text-white leading-none">
+                  {!isClubOwner && (
+                    <span className="text-[10px] font-black uppercase tracking-widest text-red-200 leading-none mb-0.5">
+                      Sin club
+                    </span>
+                  )}
+                  <span
+                    className={`text-[12px] font-semibold leading-none ${
+                      isClubOwner ? "text-[var(--text-primary)]" : "text-white"
+                    }`}
+                  >
                     Solo crear partido
                   </span>
                 </Link>
