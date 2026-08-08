@@ -20,7 +20,7 @@ export default async function MiClubMatchesPage() {
     <div className="w-full">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Mis Partidos</h1>
+          <h1 className="text-2xl font-bold">Partidos del club</h1>
           <a
             href="/player/mi-club/partidos/nuevo"
             className="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded hover:bg-blue-700 transition-colors"
