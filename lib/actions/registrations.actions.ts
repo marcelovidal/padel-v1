@@ -100,7 +100,7 @@ export async function resolveLeagueRegistrationAction(formData: FormData) {
   const registrationId = String(formData.get("registration_id") || "");
   const status = String(formData.get("status") || "") as "confirmed" | "rejected";
   const leagueId = String(formData.get("league_id") || "");
-  const path = `/club/dashboard/leagues/${leagueId}`;
+  const path = `/player/mi-club/dashboard/leagues/${leagueId}`;
 
   if (!registrationId || !["confirmed", "rejected"].includes(status)) {
     redirect(`${path}?error=INVALID_STATUS`);
@@ -148,8 +148,8 @@ export async function updateTournamentInfoAction(formData: FormData) {
 
 export async function updateLeagueInfoAction(formData: FormData) {
   const leagueId = String(formData.get("league_id") || "");
-  const path = `/club/dashboard/leagues/${leagueId}`;
-  if (!leagueId) redirect("/club/dashboard/leagues?error=LEAGUE_NOT_FOUND");
+  const path = `/player/mi-club/dashboard/leagues/${leagueId}`;
+  if (!leagueId) redirect("/player/mi-club/dashboard/leagues?error=LEAGUE_NOT_FOUND");
 
   const startDate = String(formData.get("start_date") || "").trim() || null;
   const endDate = String(formData.get("end_date") || "").trim() || null;
@@ -167,7 +167,7 @@ export async function updateLeagueInfoAction(formData: FormData) {
       target_city_ids: targetCityIds,
     });
     revalidatePath(path);
-    revalidatePath("/club/dashboard/leagues");
+    revalidatePath("/player/mi-club/dashboard/leagues");
     redirect(`${path}?ok=LEAGUE_INFO_UPDATED`);
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
