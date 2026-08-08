@@ -9,6 +9,10 @@ export class RegistrationsService {
     return this.repo.getOpenEvents();
   }
 
+  async countPlayersInCities(cityIds: string[]): Promise<number> {
+    return this.repo.countPlayersInCities(cityIds);
+  }
+
   async requestTournamentRegistration(tournamentId: string, teammatePlayerId?: string): Promise<string> {
     return this.repo.requestTournamentRegistration(tournamentId, teammatePlayerId);
   }

@@ -16,6 +16,7 @@ import { RegistrationsPanel } from "@/components/club/RegistrationsPanel";
 import { RegistrationsService } from "@/services/registrations.service";
 import { EventDiffusionSection } from "@/components/club/EventDiffusionSection";
 import { LeagueRegisterTeamForm } from "@/components/club/LeagueRegisterTeamForm";
+import { LeaguePublishButton } from "@/components/club/LeaguePublishButton";
 import {
   assignTeamToGroupAction,
   autoCreateGroupsAction,
@@ -354,13 +355,11 @@ export default async function MiClubLeagueDetailPage({
             />
           )}
           {league.status === "draft" ? (
-            <form action={submitUpdateLeagueStatus}>
-              <input type="hidden" name="league_id" value={league.id} />
-              <input type="hidden" name="next_status" value="active" />
-              <button className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100">
-                Publicar liga
-              </button>
-            </form>
+            /* Publicar dispara la difusion: pide confirmacion si hay ciudades */
+            <LeaguePublishButton
+              leagueId={league.id}
+              targetCityIds={(league as any).target_city_ids ?? []}
+            />
           ) : null}
           {league.status === "active" ? (
             <form action={submitUpdateLeagueStatus}>
