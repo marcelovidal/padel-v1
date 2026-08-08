@@ -64,8 +64,8 @@ function errCode(error: any): string {
   return "UNKNOWN";
 }
 
-function detailPath(leagueId: string) {
-  return `/club/dashboard/leagues/${leagueId}`;
+function getLeagueUrlPath(leagueId: string) {
+  return `/player/mi-club/dashboard/leagues/${leagueId}`;
 }
 
 function errDebug(error: any) {
@@ -110,7 +110,7 @@ export async function createLeagueAction(formData: FormData) {
   const status = String(formData.get("status") || "draft") as "draft" | "active" | "finished";
 
   if (!clubId || !name) {
-    redirectWithError("/club/dashboard/leagues", "COMPLETE_REQUIRED_FIELDS");
+    redirectWithError("/player/mi-club/dashboard/leagues", "COMPLETE_REQUIRED_FIELDS");
   }
 
   try {
@@ -121,12 +121,12 @@ export async function createLeagueAction(formData: FormData) {
       description: description || undefined,
       status,
     });
-    revalidatePath("/club/dashboard/leagues");
-    redirectWithOk("/club/dashboard/leagues", "LEAGUE_CREATED", { league_id: leagueId });
+    revalidatePath("/player/mi-club/dashboard/leagues");
+    redirectWithOk("/player/mi-club/dashboard/leagues", "LEAGUE_CREATED", { league_id: leagueId });
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6 createLeagueAction] RPC error", error);
-    redirectWithError("/club/dashboard/leagues", errCode(error), errDebug(error));
+    redirectWithError("/player/mi-club/dashboard/leagues", errCode(error), errDebug(error));
   }
 }
 
@@ -144,7 +144,7 @@ export async function createLeagueWizardAction(formData: FormData) {
   const targetCityIds = rawCities ? rawCities.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
   if (!clubId || !name) {
-    redirectWithError("/club/dashboard/leagues", "COMPLETE_REQUIRED_FIELDS");
+    redirectWithError("/player/mi-club/dashboard/leagues", "COMPLETE_REQUIRED_FIELDS");
   }
 
   try {
@@ -160,12 +160,12 @@ export async function createLeagueWizardAction(formData: FormData) {
       await reg.updateLeagueInfo({ league_id: leagueId, start_date: startDate, end_date: endDate, target_city_ids: targetCityIds });
     }
 
-    revalidatePath("/club/dashboard/leagues");
-    redirect(detailPath(leagueId));
+    revalidatePath("/player/mi-club/dashboard/leagues");
+    redirect(getLeagueUrlPath(leagueId));
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6 createLeagueWizardAction]", error);
-    redirectWithError("/club/dashboard/leagues", errCode(error), errDebug(error));
+    redirectWithError("/player/mi-club/dashboard/leagues", errCode(error), errDebug(error));
   }
 }
 
@@ -176,7 +176,7 @@ export async function createDivisionAction(formData: FormData) {
   const mode = String(formData.get("category_mode") || "OPEN") as "SINGLE" | "SUM" | "OPEN";
   const rawVal = String(formData.get("category_value_int") || "").trim();
   const allowOverride = String(formData.get("allow_override") || "") === "on";
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!leagueId || !name) {
     redirectWithError(path, "COMPLETE_REQUIRED_FIELDS");
@@ -203,10 +203,10 @@ export async function updateLeagueStatusAction(formData: FormData) {
   const service = new LeaguesService();
   const leagueId = String(formData.get("league_id") || "");
   const nextStatus = String(formData.get("next_status") || "") as "draft" | "active" | "finished";
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!leagueId) {
-    redirectWithError("/club/dashboard/leagues", "LEAGUE_NOT_FOUND");
+    redirectWithError("/player/mi-club/dashboard/leagues", "LEAGUE_NOT_FOUND");
   }
 
   if (!["draft", "active", "finished"].includes(nextStatus)) {
@@ -216,7 +216,7 @@ export async function updateLeagueStatusAction(formData: FormData) {
   try {
     await service.updateLeagueStatus(leagueId, nextStatus);
     revalidatePath(path);
-    revalidatePath("/club/dashboard/leagues");
+    revalidatePath("/player/mi-club/dashboard/leagues");
     redirectWithOk(path, "LEAGUE_STATUS_UPDATED", { status: nextStatus });
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
@@ -231,7 +231,7 @@ export async function registerLeagueTeamAction(formData: FormData) {
   const playerA = String(formData.get("player_id_a") || "");
   const playerB = String(formData.get("player_id_b") || "");
   const rawEntry = String(formData.get("entry_category_int") || "").trim();
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!leagueId || !playerA || !playerB) {
     redirectWithError(path, "INVALID_TEAM_PLAYERS");
@@ -260,7 +260,7 @@ export async function autoCreateGroupsAction(formData: FormData) {
   const leagueId = String(formData.get("league_id") || "");
   const rawCount = String(formData.get("group_count") || "").trim();
   const rawSize = String(formData.get("target_size") || "").trim();
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!divisionId) {
     redirectWithError(path, "DIVISION_NOT_FOUND");
@@ -286,7 +286,7 @@ export async function reopenDivisionFixtureForEditAction(formData: FormData) {
   const divisionId = String(formData.get("division_id") || "");
   const leagueId = String(formData.get("league_id") || "");
   const confirmText = String(formData.get("confirm_text") || "").trim().toUpperCase();
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!divisionId) {
     redirectWithError(path, "DIVISION_NOT_FOUND");
@@ -317,7 +317,7 @@ export async function assignTeamToGroupAction(formData: FormData) {
   const groupId = String(formData.get("group_id") || "");
   const leagueId = String(formData.get("league_id") || "");
   const rawSeedOrder = String(formData.get("seed_order") || "").trim();
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!teamId) {
     redirectWithError(path, "TEAM_NOT_FOUND");
@@ -341,7 +341,7 @@ export async function removeLeagueTeamAction(formData: FormData) {
   const service = new LeaguesService();
   const teamId = String(formData.get("team_id") || "");
   const leagueId = String(formData.get("league_id") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!teamId) {
     redirectWithError(path, "TEAM_NOT_FOUND");
@@ -362,7 +362,7 @@ export async function generateFixtureAction(formData: FormData) {
   const service = new LeaguesService();
   const groupId = String(formData.get("group_id") || "");
   const leagueId = String(formData.get("league_id") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!groupId) {
     redirectWithError(path, "GROUP_NOT_FOUND");
@@ -386,7 +386,7 @@ export async function scheduleLeagueMatchAction(formData: FormData) {
   const courtId = String(formData.get("court_id") || "");
   const date = String(formData.get("match_date") || "");
   const time = String(formData.get("match_time") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
   const errorExtra = leagueMatchId ? { league_match_id: leagueMatchId } : undefined;
 
   if (!leagueMatchId || !courtId || !date || !time) {
@@ -419,7 +419,7 @@ export async function generateDivisionPlayoffsAction(formData: FormData) {
   const service = new LeaguesService();
   const divisionId = String(formData.get("division_id") || "");
   const leagueId = String(formData.get("league_id") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
 
   if (!divisionId) {
     redirectWithError(path, "DIVISION_NOT_FOUND");
@@ -442,7 +442,7 @@ export async function submitLeagueMatchResultAction(formData: FormData) {
   const service = new LeaguesService();
   const leagueMatchId = String(formData.get("league_match_id") || "");
   const leagueId = String(formData.get("league_id") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
   const errorExtra = leagueMatchId ? { league_match_id: leagueMatchId } : undefined;
 
   const set1a = Number(formData.get("set1_a"));
@@ -495,7 +495,7 @@ export async function schedulePlayoffMatchAction(formData: FormData) {
   const courtId = String(formData.get("court_id") || "");
   const date = String(formData.get("match_date") || "");
   const time = String(formData.get("match_time") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
   const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
 
   if (!playoffMatchId || !courtId || !date || !time) {
@@ -528,7 +528,7 @@ export async function submitPlayoffMatchResultAction(formData: FormData) {
   const service = new LeaguesService();
   const playoffMatchId = String(formData.get("playoff_match_id") || "");
   const leagueId = String(formData.get("league_id") || "");
-  const path = detailPath(leagueId);
+  const path = getLeagueUrlPath(leagueId);
   const errorExtra = playoffMatchId ? { playoff_match_id: playoffMatchId } : undefined;
 
   const set1a = Number(formData.get("set1_a"));
