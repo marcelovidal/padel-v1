@@ -1,7 +1,18 @@
 -- ============================================================================
--- club_update_profile — unificar autorizacion en q6_can_manage_club
+-- Cierre de la unificacion del guardian de club
 -- ============================================================================
 -- APLICAR MANUALMENTE EN SUPABASE. Este archivo no se ejecuta solo.
+--
+-- Contenido
+-- ---------
+--   1. club_update_profile  — pasa a autorizar con q6_can_manage_club (unico
+--                             cambio de codigo de este archivo).
+--   2. club_register_alias  — REVOKE EXECUTE a PUBLIC/anon/authenticated.
+--   3. club_get_ranking     — COMMENT ON dejando constancia de que la lectura
+--                             publica sin guardian es deliberada.
+--
+-- Solo 1 redefine una funcion. 2 y 3 son permisos y metadatos: no reescriben
+-- ningun cuerpo.
 --
 -- Problema
 -- --------
@@ -134,6 +145,109 @@ BEGIN
 END;
 $function$;
 
+
+-- ----------------------------------------------------------------------------
+-- club_register_alias — revocar EXECUTE a los roles de usuario
+-- ----------------------------------------------------------------------------
+-- Es SECURITY DEFINER, escribe en club_aliases (la tabla que alimenta la
+-- deduplicacion de clubes) y no tiene ningun chequeo de autorizacion. No la
+-- llama nadie: cero call sites en el codigo de la app (solo aparece en
+-- types/database.ts, que es generado desde la base) y cero funciones SQL que
+-- la invoquen. Tampoco existe en supabase/migrations — se creo directo en la
+-- base y nunca se versiono.
+--
+-- Quedo huerfana de la etapa de consolidacion de clubes duplicados del super
+-- admin. Hoy la escritura en club_aliases la hacen las funciones de admin
+-- (admin_attach_alias_to_club, admin_merge_clubs, admin_backfill_match_clubs)
+-- y el matching de nombres del lado del jugador, ninguna a traves de esta.
+--
+-- Sin llamadores, la unica forma de alcanzarla es un RPC directo de cualquier
+-- usuario autenticado, que asi podria inyectar alias arbitrarios y ensuciar la
+-- deduplicacion. No se borra: queda revocada por si el panel de admin la
+-- necesita mas adelante — recuperarla es un GRANT, no reescribir la funcion.
+--
+-- Se revoca tambien a PUBLIC y anon, no solo a authenticated. PostgreSQL
+-- otorga EXECUTE a PUBLIC por defecto al crear una funcion, asi que revocar
+-- solo authenticated dejaria el permiso vivo por herencia de PUBLIC y el
+-- revoke no tendria ningun efecto real.
+--
+-- service_role conserva EXECUTE de forma explicita: es el rol que usa
+-- createAdminClient (lib/supabase/admin.ts), que es por donde entraria el
+-- panel de admin si vuelve a necesitarla.
+--
+-- El bucle resuelve la firma por OID en vez de escribirla a mano. La funcion
+-- no esta en el repo, y el orden de argumentos de types/database.ts esta
+-- alfabetizado por el generador, asi que no es fuente confiable para un
+-- REVOKE posicional. Ademas cubre todas las sobrecargas si hubiera mas de una.
+DO $do$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT p.oid::regprocedure AS sig
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.proname = 'club_register_alias'
+  LOOP
+    EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', r.sig);
+    EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM anon', r.sig);
+    EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM authenticated', r.sig);
+    EXECUTE format('GRANT  EXECUTE ON FUNCTION %s TO service_role', r.sig);
+
+    EXECUTE format(
+      'COMMENT ON FUNCTION %s IS %L',
+      r.sig,
+      'Huerfana: sin call sites en la app ni llamadores SQL. EXECUTE revocado '
+      'a PUBLIC/anon/authenticated en 20260811 porque es SECURITY DEFINER, '
+      'escribe en club_aliases y no valida permisos — por RPC directo permitia '
+      'inyectar alias y ensuciar la deduplicacion de clubes. Se conserva para '
+      'el panel de admin: reactivar es un GRANT a authenticated mas un guardian '
+      'q6_is_admin dentro del cuerpo, no antes.'
+    );
+  END LOOP;
+END
+$do$;
+
+
+-- ----------------------------------------------------------------------------
+-- club_get_ranking — documentar que la lectura publica es deliberada
+-- ----------------------------------------------------------------------------
+-- No lleva q6_can_manage_club a proposito: el ranking del club se muestra en
+-- /clubs/[slug] como parte del perfil publico. Aparecio en el barrido de
+-- funciones SECURITY DEFINER que tocan clubs sin guardian, asi que se deja
+-- constancia para que el proximo barrido no la "arregle" y rompa la pagina.
+--
+-- Se documenta con COMMENT ON y no con un comentario dentro del cuerpo porque
+-- COMMENT ON no reescribe la funcion. Mismo criterio que se aplico a
+-- club_cancel_booking y club_get_agenda_slots, donde los comentarios
+-- desactualizados se corrigieron solo en los archivos del repo: no se
+-- reescriben funciones que andan bien para cambiar texto.
+--
+-- Firma resuelta por OID por la misma razon que arriba.
+DO $do$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT p.oid::regprocedure AS sig
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.proname = 'club_get_ranking'
+  LOOP
+    EXECUTE format(
+      'COMMENT ON FUNCTION %s IS %L',
+      r.sig,
+      'Lectura publica deliberada: sin q6_can_manage_club. El ranking del club '
+      'se muestra en /clubs/[slug] como parte del perfil publico. Proyeccion '
+      'acotada a display_name, category y estadisticas de juego — al ampliarla '
+      'no exponer telefono, email ni ningun dato personal del jugador.'
+    );
+  END LOOP;
+END
+$do$;
+
 COMMIT;
 
 -- ============================================================================
@@ -160,4 +274,32 @@ COMMIT;
 -- 3) Prueba funcional: con la sesion de un administrador de club_admins que
 --    NO sea claimed_by, guardar el perfil desde /player/mi-club/perfil.
 --    Antes: "No tienes permisos para editar este club". Ahora: guarda.
+--
+-- 4) Los grants de club_register_alias quedaron solo en service_role:
+--
+--    select p.oid::regprocedure as firma, p.proacl
+--    from pg_proc p
+--    join pg_namespace n on n.oid = p.pronamespace
+--    where n.nspname = 'public' and p.proname = 'club_register_alias';
+--
+--    Esperado: en proacl no debe aparecer ni authenticated=X ni anon=X ni una
+--    entrada =X sin rol (esa es PUBLIC). Si proacl quedo NULL, el revoke NO
+--    surtio efecto: NULL significa "permisos por defecto", o sea PUBLIC con
+--    EXECUTE. En ese caso revisar que el DO block haya encontrado la funcion.
+--
+-- 5) Los COMMENT ON quedaron escritos:
+--
+--    select p.proname, obj_description(p.oid, 'pg_proc') as comentario
+--    from pg_proc p
+--    join pg_namespace n on n.oid = p.pronamespace
+--    where n.nspname = 'public'
+--      and p.proname in ('club_register_alias', 'club_get_ranking');
+--
+--    Esperado: dos filas, las dos con comentario no nulo.
+--
+-- 6) Que el revoke no rompio nada visible: /clubs/[slug] y
+--    /player/mi-club/dashboard/ranking siguen mostrando el ranking, y el alta
+--    de club (/welcome/claim/club) sigue funcionando. Ninguno de los dos pasa
+--    por club_register_alias, asi que es una verificacion de que la lectura
+--    del barrido fue correcta, no de que el cambio funciono.
 -- ============================================================================
