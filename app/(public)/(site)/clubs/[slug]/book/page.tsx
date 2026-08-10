@@ -4,6 +4,7 @@ import { requirePlayer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import { requestBookingAction } from "@/lib/actions/booking.actions";
+import { findPublicClub } from "@/lib/clubs/publicClub";
 
 function defaultStartLocal() {
   const d = new Date();
@@ -13,9 +14,14 @@ function defaultStartLocal() {
   return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
 }
 
-export default async function BookClubCourtPage({ params }: { params: { id: string } }) {
+export default async function BookClubCourtPage({ params }: { params: { slug: string } }) {
   await requirePlayer();
-  const { id } = params;
+
+  // El segmento puede ser el slug nuevo o un UUID de un link viejo. Se resuelve
+  // a id porque todo lo de abajo — RPC, settings, canchas — trabaja con el id.
+  const resolved = await findPublicClub(params.slug);
+  if (!resolved) notFound();
+  const id = resolved.club.id;
 
   const supabase = await createClient();
   const bookingService = new BookingService();
@@ -107,7 +113,7 @@ export default async function BookClubCourtPage({ params }: { params: { id: stri
             Enviar solicitud
           </button>
           <Link
-            href={`/clubs/${id}`}
+            href={`/clubs/${params.slug}`}
             className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
           >
             Volver

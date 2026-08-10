@@ -4,6 +4,7 @@ import { ClubAdminsService } from "@/services/club-admins.service";
 import { PlayerRepository } from "@/repositories/player.repository";
 import { upsertBookingSettingsAction } from "@/lib/actions/booking.actions";
 import { ClubAdminsSection } from "@/components/club/ClubAdminsSection";
+import { ClubPublicProfileSection } from "@/components/club/ClubPublicProfileSection";
 import type { ClubAdminRow } from "@/repositories/club-admins.repository";
 
 export default async function MiClubAjustesPage() {
@@ -76,6 +77,12 @@ export default async function MiClubAjustesPage() {
           Guardar ajustes
         </button>
       </form>
+
+      <ClubPublicProfileSection
+        clubId={club.id}
+        slug={(club as any).slug ?? null}
+        mapsUrl={(club as any).maps_url ?? null}
+      />
 
       <ClubAdminsSection
         admins={admins}

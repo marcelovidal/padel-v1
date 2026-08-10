@@ -560,6 +560,7 @@ export type Database = {
           has_glass: boolean
           has_synthetic_grass: boolean
           id: string
+          maps_url: string | null
           merged_into: string | null
           merged_into_club_id: string | null
           name: string
@@ -573,6 +574,7 @@ export type Database = {
           responsible_first_name: string | null
           responsible_last_name: string | null
           responsible_phone: string | null
+          slug: string | null
           surface_types: Json
           updated_at: string
         }
@@ -601,6 +603,7 @@ export type Database = {
           has_glass?: boolean
           has_synthetic_grass?: boolean
           id?: string
+          maps_url?: string | null
           merged_into?: string | null
           merged_into_club_id?: string | null
           name: string
@@ -614,6 +617,7 @@ export type Database = {
           responsible_first_name?: string | null
           responsible_last_name?: string | null
           responsible_phone?: string | null
+          slug?: string | null
           surface_types?: Json
           updated_at?: string
         }
@@ -642,6 +646,7 @@ export type Database = {
           has_glass?: boolean
           has_synthetic_grass?: boolean
           id?: string
+          maps_url?: string | null
           merged_into?: string | null
           merged_into_club_id?: string | null
           name?: string
@@ -655,6 +660,7 @@ export type Database = {
           responsible_first_name?: string | null
           responsible_last_name?: string | null
           responsible_phone?: string | null
+          slug?: string | null
           surface_types?: Json
           updated_at?: string
         }

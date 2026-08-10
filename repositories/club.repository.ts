@@ -411,6 +411,27 @@ export class ClubRepository {
     return data as string;
   }
 
+  /**
+   * Escribe los campos del perfil publico que no cubre club_update_profile.
+   * Hoy solo maps_url — avatar_url y contact_phone siguen viajando por
+   * club_update_profile desde /player/mi-club/perfil.
+   *
+   * p_maps_url null deja el valor como esta; cadena vacia lo borra.
+   */
+  async updateClubPublicProfile(input: {
+    club_id: string;
+    maps_url?: string | null;
+  }): Promise<string> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_update_public_profile", {
+      p_club_id: input.club_id,
+      p_maps_url: input.maps_url === undefined ? null : input.maps_url,
+    });
+
+    if (error) throw error;
+    return data as string;
+  }
+
   async listMyClubMatches(clubId: string, limit: number = 100): Promise<ClubManagedMatchListItem[]> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("club_list_my_matches", {
