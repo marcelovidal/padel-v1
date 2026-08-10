@@ -91,7 +91,7 @@ export async function requireClub() {
 }
 
 const CLUB_COLUMNS =
-  "id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id";
+  "id,slug,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,maps_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id";
 
 export async function requireClubOwner() {
   const { user, player } = await requirePlayer();

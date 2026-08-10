@@ -175,7 +175,9 @@ export async function createCourtAction(formData: FormData) {
       slot_interval_minutes: parsed.data.slot_interval_minutes,
     });
     revalidatePath("/club/dashboard/courts");
-    revalidatePath(`/clubs/${parsed.data.club_id}/book`);
+    // Patron de ruta y no path concreto: el segmento pasa a ser el slug del
+    // club, que el club_id no resuelve.
+    revalidatePath("/clubs/[slug]/book", "page");
     return { success: true as const };
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
@@ -279,7 +281,7 @@ export async function requestBookingAction(formData: FormData) {
   }
 
   revalidatePath("/player/bookings");
-  revalidatePath(`/clubs/${parsed.data.club_id}/book`);
+  revalidatePath("/clubs/[slug]/book", "page");
   return { success: true as const, bookingId };
 }
 
