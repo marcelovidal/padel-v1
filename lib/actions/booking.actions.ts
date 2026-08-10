@@ -95,6 +95,40 @@ function errorMessageFor(code: BookingActionErrorCode) {
   }
 }
 
+// Los occupancy_type que devuelve club_get_occupied_slots, redactados para el
+// jugador. Los dos pares grupo/playoff comparten texto a proposito: al que
+// quiere reservar le importa que hay un partido, no en que instancia esta.
+const OVERLAP_REASON_MESSAGES: Record<string, string> = {
+  booking_requested: "Otro jugador ya pidio ese turno.",
+  booking_confirmed: "Ese turno ya tiene una reserva confirmada.",
+  fixed_slot: "Ese horario es un turno fijo del club.",
+  league_match: "Hay un partido de liga programado en ese horario.",
+  league_playoff_match: "Hay un partido de liga programado en ese horario.",
+  tournament_match: "Hay un partido de torneo programado en ese horario.",
+  tournament_playoff_match: "Hay un partido de torneo programado en ese horario.",
+  coach_booking: "Hay una clase con entrenador en ese horario.",
+};
+
+const OVERLAP_FALLBACK_MESSAGE = "Ese horario ya esta ocupado.";
+
+/**
+ * player_request_booking manda el origen del conflicto en el DETAIL de la
+ * excepcion, con la forma "Ocupado por: <occupancy_type>".
+ *
+ * El fallback no es un caso raro: los otros RPCs que levantan BOOKING_OVERLAP
+ * (club_confirm_booking, club_create_confirmed_booking_match) no mandan DETAIL,
+ * y un occupancy_type nuevo en la funcion SQL llegaria aca sin traduccion. En
+ * los dos casos conviene un mensaje generico correcto antes que uno especifico
+ * equivocado.
+ */
+function overlapReasonMessage(error: any): string {
+  const detail = String(error?.details || "");
+  const matched = detail.match(/Ocupado por:\s*([a-z_]+)/i);
+  const reason = matched?.[1]?.toLowerCase();
+  if (!reason) return OVERLAP_FALLBACK_MESSAGE;
+  return OVERLAP_REASON_MESSAGES[reason] || OVERLAP_FALLBACK_MESSAGE;
+}
+
 async function requireUser() {
   const supabase = await createClient();
   const {
@@ -277,7 +311,13 @@ export async function requestBookingAction(formData: FormData) {
     bookingId = await service.requestBooking(parsed.data);
   } catch (error: any) {
     const code = inferBookingErrorCode(error);
-    return { success: false as const, error: errorMessageFor(code), code };
+    // BOOKING_OVERLAP dejo de significar solo "ya hay una reserva confirmada":
+    // desde que player_request_booking valida contra club_get_occupied_slots,
+    // la causa puede ser una solicitud pendiente, un turno fijo, un partido o
+    // una clase. El motivo real viene en el DETAIL.
+    const message =
+      code === "BOOKING_OVERLAP" ? overlapReasonMessage(error) : errorMessageFor(code);
+    return { success: false as const, error: message, code };
   }
 
   revalidatePath("/player/bookings");

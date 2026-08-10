@@ -3,7 +3,12 @@ import {
   BookingStatus,
   CourtSurfaceType,
 } from "@/repositories/booking.repository";
-export type { AgendaSlot, AgendaSlotType } from "@/repositories/booking.repository";
+export type {
+  AgendaSlot,
+  AgendaSlotType,
+  OccupiedSlot,
+  OccupancyType,
+} from "@/repositories/booking.repository";
 
 export class BookingService {
   private repository: BookingRepository;
@@ -110,6 +115,10 @@ export class BookingService {
 
   async getAgendaSlots(clubId: string, from: string, to: string) {
     return this.repository.getAgendaSlots(clubId, from, to);
+  }
+
+  async getOccupiedSlots(clubId: string, from: string, to: string) {
+    return this.repository.getOccupiedSlots(clubId, from, to);
   }
 
   async createClubConfirmedBookingMatch(input: {
