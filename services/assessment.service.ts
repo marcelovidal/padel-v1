@@ -1,6 +1,7 @@
 ﻿import { AssessmentRepository } from "@/repositories/assessment.repository";
 import { MatchRepository } from "@/repositories/match.repository";
 import { Database } from "@/types/database";
+import { isMatchIncomplete, hasMatchResult } from "@/lib/match/matchUtils";
 
 type AssessmentInsert = Database["public"]["Tables"]["player_match_assessments"]["Insert"];
 type Assessment = Database["public"]["Tables"]["player_match_assessments"]["Row"];
@@ -131,14 +132,21 @@ export class AssessmentService {
       (m) => m.status === "completed" || !!m.match_results // status might not be synced if trigger failed, fallback
     );
 
-    if (completedMatches.length === 0) return [];
+    // 3. Jugadores -> resultado -> autoevaluacion. Un partido al que le faltan
+    // jugadores y todavia no tiene resultado no es evaluable, aunque su status
+    // en base diga 'completed': primero hay que completar el equipo.
+    const evaluableMatches = completedMatches.filter(
+      (m) => !isMatchIncomplete(m) || hasMatchResult(m)
+    );
 
-    // 3. Get existing assessments for this player
+    if (evaluableMatches.length === 0) return [];
+
+    // 4. Get existing assessments for this player
     const assessments = await this.repository.findByPlayer(playerId);
     const assessmentMatchIds = new Set(assessments.map((a) => a.match_id));
 
-    // 4. Return matches without assessments
-    return completedMatches.filter((m) => !assessmentMatchIds.has(m.id));
+    // 5. Return matches without assessments
+    return evaluableMatches.filter((m) => !assessmentMatchIds.has(m.id));
   }
 
   async getPlayerAverages(playerId: string) {
