@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ClubService } from "@/services/club.service";
+import { isGoogleMapsUrl } from "@/lib/clubs/mapsUrl";
 
 export async function updateClubProfileAction(formData: FormData) {
   const clubService = new ClubService();
@@ -60,6 +61,50 @@ export async function updateClubProfileAction(formData: FormData) {
     }
     if (raw.includes("INVALID_COURTS_COUNT")) {
       return { success: false as const, error: "Cantidad de canchas invalida." };
+    }
+    return { success: false as const, error: "No pudimos guardar los cambios." };
+  }
+}
+
+/**
+ * Guarda el link de Google Maps del club. El slug no se edita: es fijo desde
+ * que se crea para no romper links ya compartidos.
+ */
+export async function updateClubPublicProfileAction(formData: FormData) {
+  const clubService = new ClubService();
+
+  const club_id = String(formData.get("club_id") || "");
+  const maps_url = String(formData.get("maps_url") || "").trim();
+
+  if (!club_id) {
+    return { success: false as const, error: "Club no identificado." };
+  }
+
+  if (maps_url && !isGoogleMapsUrl(maps_url)) {
+    return {
+      success: false as const,
+      error: "El link tiene que ser de Google Maps y empezar con https://",
+    };
+  }
+
+  try {
+    // Cadena vacia borra el valor; el RPC distingue vacio de null.
+    await clubService.updateClubPublicProfile({ club_id, maps_url });
+
+    revalidatePath("/player/mi-club/ajustes");
+    revalidatePath("/clubs/[slug]", "page");
+
+    return { success: true as const };
+  } catch (error: any) {
+    const raw = String(error?.message || "");
+    if (raw.includes("NOT_ALLOWED")) {
+      return { success: false as const, error: "No tenés permisos para editar este club." };
+    }
+    if (raw.includes("INVALID_MAPS_URL")) {
+      return { success: false as const, error: "El link no parece de Google Maps." };
+    }
+    if (raw.includes("CLUB_NOT_FOUND")) {
+      return { success: false as const, error: "No encontramos el club." };
     }
     return { success: false as const, error: "No pudimos guardar los cambios." };
   }

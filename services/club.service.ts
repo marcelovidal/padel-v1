@@ -105,6 +105,10 @@ export class ClubService {
     return this.repository.updateClubProfile(input);
   }
 
+  async updateClubPublicProfile(input: { club_id: string; maps_url?: string | null }) {
+    return this.repository.updateClubPublicProfile(input);
+  }
+
   async listMyClubMatches(clubId: string, limit: number = 100) {
     return this.repository.listMyClubMatches(clubId, limit);
   }

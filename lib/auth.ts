@@ -90,8 +90,16 @@ export async function requireClub() {
   return { user, club };
 }
 
-const CLUB_COLUMNS =
-  "id,slug,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,maps_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id";
+const CLUB_COLUMNS_BASE =
+  "id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id";
+
+// Columnas de 20260810_club_public_profile.sql. Van aparte porque si esa
+// migracion todavia no se aplico, pedirlas hace fallar el select entero y el
+// panel del club queda inaccesible — requireClubOwner interpreta el error como
+// "sin club" y redirige afuera. Con el fallback, hasta que se aplique la
+// migracion el panel funciona sin slug ni maps_url en vez de no funcionar.
+const CLUB_COLUMNS_PUBLIC_PROFILE = "slug,maps_url";
+const CLUB_COLUMNS = `${CLUB_COLUMNS_BASE},${CLUB_COLUMNS_PUBLIC_PROFILE}`;
 
 export async function requireClubOwner() {
   const { user, player } = await requirePlayer();
@@ -119,11 +127,13 @@ export async function requireClubOwner() {
   if (clubIds.length > 0) {
     // Se filtran acá los clubes borrados: club_admins conserva la fila para no
     // perder el dato si el club se restaura.
-    const { data: rows } = await (sbAdmin as any)
-      .from("clubs")
-      .select(CLUB_COLUMNS)
-      .in("id", clubIds)
-      .is("deleted_at", null);
+    const selectClubs = (columns: string) =>
+      (sbAdmin as any).from("clubs").select(columns).in("id", clubIds).is("deleted_at", null);
+
+    let { data: rows, error: clubsError } = await selectClubs(CLUB_COLUMNS);
+    if (clubsError) {
+      ({ data: rows } = await selectClubs(CLUB_COLUMNS_BASE));
+    }
 
     const byId = new Map(((rows || []) as any[]).map((c) => [c.id, c]));
     club = clubIds.map((id) => byId.get(id)).find(Boolean) ?? null;

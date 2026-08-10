@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClubProfileForm } from "@/components/club/ClubProfileForm";
 
 export default async function MiClubPerfilPage() {
-  const { user, club } = await requireClubOwner();
+  const { club } = await requireClubOwner();
   const avatarData = await resolveAvatarSrc({
     player: {
       avatar_url: club.avatar_url,
@@ -24,7 +24,7 @@ export default async function MiClubPerfilPage() {
           <CardTitle>Datos del Club</CardTitle>
         </CardHeader>
         <CardContent>
-          <ClubProfileForm club={club} userId={user.id} currentAvatarSrc={avatarData.src} />
+          <ClubProfileForm club={club} currentAvatarSrc={avatarData.src} />
         </CardContent>
       </Card>
     </div>

@@ -19,19 +19,53 @@ type ClubProfileFormProps = {
     contact_phone: string | null;
     avatar_url: string | null;
   };
-  userId: string;
   currentAvatarSrc?: string | null;
 };
 
-async function uploadClubAvatar(supabase: ReturnType<typeof createBrowserSupabase>, userId: string, file: File) {
+const LOGO_BUCKET = "club-logos";
+const LOGO_MAX_BYTES = 5 * 1024 * 1024;
+const LOGO_MIME = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+
+/**
+ * Sube el logo al bucket publico `club-logos` y devuelve la URL publica, no el
+ * path.
+ *
+ * El bucket `avatars` que se usaba antes es privado y se sirve con URLs
+ * firmadas de 600s. Eso alcanza para una pagina con sesion, pero no para un
+ * perfil que se comparte: la URL vence, no la puede cachear un CDN y no sirve
+ * como imagen de Open Graph, porque WhatsApp cachea el metadata por dias.
+ *
+ * El path arranca con el club id porque de ahi sale el permiso de escritura:
+ * la policy del bucket lee esa carpeta y la pasa por q6_can_manage_club.
+ *
+ * Los avatares viejos que quedaron apuntando al bucket privado se siguen
+ * resolviendo como hasta ahora — getAvatarInfo discrimina por prefijo http.
+ */
+async function uploadClubLogo(
+  supabase: ReturnType<typeof createBrowserSupabase>,
+  clubId: string,
+  file: File
+) {
+  if (!LOGO_MIME.includes(file.type)) {
+    throw new Error("Formato no soportado. Usá JPG, PNG, WebP o AVIF.");
+  }
+  if (file.size > LOGO_MAX_BYTES) {
+    throw new Error("La imagen supera los 5 MB.");
+  }
+
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from("avatars").upload(path, file);
+  const path = `${clubId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(LOGO_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
   if (error) throw error;
-  return path;
+
+  const { data } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
-export function ClubProfileForm({ club, userId, currentAvatarSrc = null }: ClubProfileFormProps) {
+export function ClubProfileForm({ club, currentAvatarSrc = null }: ClubProfileFormProps) {
   const supabase = createBrowserSupabase();
   const [isPending, startTransition] = useTransition();
 
@@ -54,8 +88,8 @@ export function ClubProfileForm({ club, userId, currentAvatarSrc = null }: ClubP
     if (!file) return;
     setError(null);
     try {
-      const path = await uploadClubAvatar(supabase, userId, file);
-      setAvatarPath(path);
+      const publicUrl = await uploadClubLogo(supabase, club.id, file);
+      setAvatarPath(publicUrl);
       setAvatarPreview(URL.createObjectURL(file));
     } catch (uploadError: any) {
       setError(`No pudimos subir el logo: ${uploadError?.message || "error inesperado"}`);
@@ -98,10 +132,11 @@ export function ClubProfileForm({ club, userId, currentAvatarSrc = null }: ClubP
         <label className="text-xs font-black uppercase tracking-widest text-gray-500">Logo / Avatar</label>
         <input
           type="file"
-          accept="image/*"
+          accept={LOGO_MIME.join(",")}
           className="w-full rounded-xl border border-gray-300 px-4 py-3"
           onChange={(e) => onAvatarChange(e.target.files?.[0] || null)}
         />
+        <p className="text-xs text-gray-500">JPG, PNG, WebP o AVIF. Hasta 5 MB. Se muestra en el perfil publico del club.</p>
         {(avatarPreview || currentAvatarSrc) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img

@@ -7,8 +7,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * proyecta sin inspeccionar produccion. Leyendo la tabla se controla la
  * proyeccion y las columnas nuevas entran sin depender de esa definicion.
  */
-const PUBLIC_CLUB_COLUMNS =
-  "id,slug,name,display_name,avatar_url,city,region_name,country_code,address,description,contact_phone,maps_url,courts_count,has_glass,has_synthetic_grass,access_type";
+const PUBLIC_CLUB_COLUMNS_BASE =
+  "id,name,display_name,avatar_url,city,region_name,country_code,address,description,contact_phone,courts_count,has_glass,has_synthetic_grass,access_type";
+
+// Igual que en lib/auth.ts: slug y maps_url van aparte para que el perfil siga
+// resolviendo por UUID si 20260810_club_public_profile.sql todavia no se aplico.
+const PUBLIC_CLUB_COLUMNS = `${PUBLIC_CLUB_COLUMNS_BASE},slug,maps_url`;
 
 export type PublicClub = {
   id: string;
@@ -55,14 +59,23 @@ export async function findPublicClub(
   const supabase = createAdminClient();
   const matchedBy: "id" | "slug" = isUuid(value) ? "id" : "slug";
 
-  const { data, error } = await (supabase as any)
-    .from("clubs")
-    .select(PUBLIC_CLUB_COLUMNS)
-    .eq(matchedBy === "id" ? "id" : "slug", value)
-    .is("deleted_at", null)
-    .is("archived_at", null)
-    .is("merged_into", null)
-    .maybeSingle();
+  const select = (columns: string) =>
+    (supabase as any)
+      .from("clubs")
+      .select(columns)
+      .eq(matchedBy, value)
+      .is("deleted_at", null)
+      .is("archived_at", null)
+      .is("merged_into", null)
+      .maybeSingle();
+
+  let { data, error } = await select(PUBLIC_CLUB_COLUMNS);
+
+  // Sin la migracion aplicada no existe la columna slug: buscar por slug es
+  // imposible, pero un link por UUID tiene que seguir funcionando.
+  if (error && matchedBy === "id") {
+    ({ data, error } = await select(PUBLIC_CLUB_COLUMNS_BASE));
+  }
 
   if (error || !data) return null;
   return { club: data as PublicClub, matchedBy };
