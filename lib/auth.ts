@@ -129,22 +129,6 @@ export async function requireClubOwner() {
     club = clubIds.map((id) => byId.get(id)).find(Boolean) ?? null;
   }
 
-  // Fallback al modelo viejo mientras la migración de club_admins no esté
-  // aplicada: sin esto, aplicar el código antes que el SQL deja fuera a todos
-  // los dueños actuales.
-  if (!club) {
-    const { data: legacyClub } = await (sbAdmin as any)
-      .from("clubs")
-      .select(CLUB_COLUMNS)
-      .eq("owner_player_id", player.id)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    club = legacyClub ?? null;
-  }
-
   if (!club) {
     redirect("/player/profile?msg=club-no-encontrado");
   }
