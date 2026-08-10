@@ -3,6 +3,7 @@ import { MatchService } from "@/services/match.service";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ResultEntryForm } from "@/components/matches/ResultEntryForm";
+import { isMatchIncomplete } from "@/lib/match/matchUtils";
 
 export default async function MatchResultEntryPage({
     params,
@@ -33,6 +34,11 @@ export default async function MatchResultEntryPage({
     if (hasResults) {
         // Results already exist
         redirect(`/player/matches/${params.id}`);
+    }
+
+    // Jugadores antes que resultado: sin equipo completo no hay marcador posible.
+    if (isMatchIncomplete(match)) {
+        redirect(`/player/matches/${params.id}/complete`);
     }
 
     // Check participation

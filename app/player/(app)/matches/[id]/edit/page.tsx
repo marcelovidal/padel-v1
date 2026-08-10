@@ -3,6 +3,7 @@ import { MatchService } from "@/services/match.service";
 import { notFound, redirect } from "next/navigation";
 import { EditMatchForm } from "@/components/matches/EditMatchForm";
 import { PlayerRepository } from "@/repositories/player.repository";
+import { isMatchIncomplete } from "@/lib/match/matchUtils";
 
 export default async function EditMatchPage({
   params,
@@ -16,6 +17,13 @@ export default async function EditMatchPage({
 
   if (!match) {
     notFound();
+  }
+
+  // Este formulario reemplaza el roster completo y exige ser el creador.
+  // Un partido al que le faltan jugadores se completa por el flujo aditivo,
+  // que funciona con la fecha vencida y para cualquier participante.
+  if (isMatchIncomplete(match)) {
+    redirect(`/player/matches/${params.id}/complete`);
   }
 
   if (match.created_by !== user.id || match.status !== "scheduled") {
