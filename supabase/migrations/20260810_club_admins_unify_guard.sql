@@ -883,7 +883,8 @@ BEGIN
     RAISE EXCEPTION 'NOT_AUTHENTICATED';
   END IF;
 
-  -- Club ownership check (claimed_by OR owner_player_id)
+  -- Club authorization check via q6_can_manage_club (club_admins, claimed_by,
+  -- owner_player_id y super admin)
   PERFORM 1
   FROM public.clubs c
   WHERE c.id           = p_club_id
@@ -1032,7 +1033,8 @@ BEGIN
     RAISE EXCEPTION 'BOOKING_NOT_FOUND';
   END IF;
 
-  -- Verificar que el usuario es dueño del club (claimed_by OR owner_player_id)
+  -- Verificar que el usuario puede administrar el club via q6_can_manage_club
+  -- (club_admins, claimed_by, owner_player_id y super admin)
   PERFORM 1
   FROM public.clubs c
   WHERE c.id           = v_booking.club_id
