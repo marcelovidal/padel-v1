@@ -90,6 +90,9 @@ export async function requireClub() {
   return { user, club };
 }
 
+const CLUB_COLUMNS =
+  "id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id";
+
 export async function requireClubOwner() {
   const { user, player } = await requirePlayer();
 
@@ -97,15 +100,52 @@ export async function requireClubOwner() {
     redirect("/player/profile?msg=solicita-acceso-club");
   }
 
-  // Usar service role para bypassar RLS — el player no tiene política de lectura por owner_player_id
+  // Usar service role para bypassar RLS — el player no tiene política de lectura
+  // sobre clubs, y la de club_admins depende de q6_can_manage_club
   const sbAdmin = createAdminClient();
-  const { data: club, error: clubError } = await (sbAdmin as any)
-    .from("clubs")
-    .select("id,name,city,city_id,region_code,region_name,country_code,claim_status,claimed_by,claimed_at,address,description,access_type,courts_count,has_glass,has_synthetic_grass,contact_first_name,contact_last_name,contact_phone,avatar_url,onboarding_completed,onboarding_completed_at,created_at,updated_at,deleted_at,owner_player_id")
-    .eq("owner_player_id", player.id)
-    .maybeSingle();
 
-  if (clubError || !club) {
+  // TODO: un jugador puede administrar varios clubes; por ahora se toma el más
+  // antiguo en club_admins. Falta un selector de club + club activo en sesión.
+  const { data: memberships } = await (sbAdmin as any)
+    .from("club_admins")
+    .select("club_id, created_at")
+    .eq("player_id", player.id)
+    .order("created_at", { ascending: true });
+
+  const clubIds = ((memberships || []) as any[]).map((m) => m.club_id);
+
+  let club: any = null;
+
+  if (clubIds.length > 0) {
+    // Se filtran acá los clubes borrados: club_admins conserva la fila para no
+    // perder el dato si el club se restaura.
+    const { data: rows } = await (sbAdmin as any)
+      .from("clubs")
+      .select(CLUB_COLUMNS)
+      .in("id", clubIds)
+      .is("deleted_at", null);
+
+    const byId = new Map(((rows || []) as any[]).map((c) => [c.id, c]));
+    club = clubIds.map((id) => byId.get(id)).find(Boolean) ?? null;
+  }
+
+  // Fallback al modelo viejo mientras la migración de club_admins no esté
+  // aplicada: sin esto, aplicar el código antes que el SQL deja fuera a todos
+  // los dueños actuales.
+  if (!club) {
+    const { data: legacyClub } = await (sbAdmin as any)
+      .from("clubs")
+      .select(CLUB_COLUMNS)
+      .eq("owner_player_id", player.id)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    club = legacyClub ?? null;
+  }
+
+  if (!club) {
     redirect("/player/profile?msg=club-no-encontrado");
   }
 

@@ -1,11 +1,32 @@
 import { requireClubOwner } from "@/lib/auth";
 import { BookingService } from "@/services/booking.service";
+import { ClubAdminsService } from "@/services/club-admins.service";
+import { PlayerRepository } from "@/repositories/player.repository";
 import { upsertBookingSettingsAction } from "@/lib/actions/booking.actions";
+import { ClubAdminsSection } from "@/components/club/ClubAdminsSection";
+import type { ClubAdminRow } from "@/repositories/club-admins.repository";
 
 export default async function MiClubAjustesPage() {
   const { club } = await requireClubOwner();
   const bookingService = new BookingService();
-  const settings = await bookingService.getClubBookingSettings(club.id);
+  const clubAdminsService = new ClubAdminsService();
+  const playerRepo = new PlayerRepository();
+
+  // Si la migración de club_admins todavía no está aplicada, el resto de la
+  // página tiene que seguir funcionando.
+  let admins: ClubAdminRow[] = [];
+  let adminsLoadError: string | null = null;
+  try {
+    admins = await clubAdminsService.listAdmins(club.id);
+  } catch {
+    adminsLoadError =
+      "No pudimos cargar los administradores. Puede faltar aplicar la migración de club_admins.";
+  }
+
+  const [settings, players] = await Promise.all([
+    bookingService.getClubBookingSettings(club.id),
+    playerRepo.findAllActive(),
+  ]);
   const submitSettings = async (formData: FormData) => {
     "use server";
     await upsertBookingSettingsAction(formData);
@@ -55,6 +76,12 @@ export default async function MiClubAjustesPage() {
           Guardar ajustes
         </button>
       </form>
+
+      <ClubAdminsSection
+        admins={admins}
+        availablePlayers={players}
+        loadError={adminsLoadError}
+      />
     </div>
   );
 }
