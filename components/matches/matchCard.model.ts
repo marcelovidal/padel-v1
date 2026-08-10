@@ -1,5 +1,10 @@
 import { Database, TeamType } from "@/types/database";
-import { hasMatchResult, getEffectiveStatus } from "@/lib/match/matchUtils";
+import {
+    hasMatchResult,
+    getEffectiveStatus,
+    isMatchIncomplete,
+    getMissingPlayersCount,
+} from "@/lib/match/matchUtils";
 
 export type Match = Database["public"]["Tables"]["matches"]["Row"];
 export type MatchResult = Database["public"]["Tables"]["match_results"]["Row"];
@@ -24,6 +29,8 @@ export interface MatchCardModel {
     playerTeam?: TeamType; // Context for the current player
     hasAssessment?: boolean;
     hasResults?: boolean;
+    isIncomplete?: boolean;
+    missingPlayers?: number;
     clubLocation?: string | null;
     clubUnclaimed?: boolean;
     clubGeneratedPending?: boolean;
@@ -57,11 +64,12 @@ export function toMatchCardModel(
     const calculatedHasResults = hasMatchResult(match);
     const effectiveStatus = getEffectiveStatus(match);
     const playersByTeam = match.playersByTeam || { A: [], B: [] };
-    const rosterCount = (playersByTeam.A?.length || 0) + (playersByTeam.B?.length || 0);
+    const isIncomplete = isMatchIncomplete({ ...match, playersByTeam });
+    const missingPlayers = getMissingPlayersCount({ ...match, playersByTeam });
     const notesText = String(match?.notes || "");
     const clubGeneratedPending =
         effectiveStatus === "scheduled" &&
-        rosterCount < (match.max_players || 4) &&
+        isIncomplete &&
         notesText.toLowerCase().includes("partido generado por club");
 
     const club = Array.isArray(match?.clubs) ? match.clubs[0] : match?.clubs;
@@ -139,6 +147,8 @@ export function toMatchCardModel(
         playerTeam: ctx?.playerTeam,
         hasAssessment: ctx?.hasAssessment ?? match.hasAssessment,
         hasResults: ctx?.hasResults ?? calculatedHasResults,
+        isIncomplete,
+        missingPlayers,
         clubLocation: club
             ? [club.city, club.region_name || club.region_code].filter(Boolean).join(" - ")
             : null,

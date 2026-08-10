@@ -1,6 +1,6 @@
 import MatchCard from "@/components/matches/MatchCard";
 import { toMatchCardModel } from "@/components/matches/matchCard.model";
-import { getEffectiveStatus, hasMatchResult } from "@/lib/match/matchUtils";
+import { getEffectiveStatus, hasMatchResult, isMatchIncomplete } from "@/lib/match/matchUtils";
 
 interface PlayerMatchesProps {
     matches: any[]; // Ideally typed with MatchWithPlayers from service
@@ -29,19 +29,28 @@ export function PlayerMatches({ matches, currentUserId, currentPlayerId, layout 
                 const hasResults = hasMatchResult(match);
                 const isCreator = !!currentUserId && match.created_by === currentUserId;
                 const canEdit = isCreator && effectiveStatus === "scheduled";
-                const canLoadResult = effectiveStatus === "completed" && !hasResults && !!match.team;
+                // Jugadores primero: sin equipo completo no se ofrece cargar resultado.
+                const needsRosterFirst = isMatchIncomplete(match) && !hasResults;
+                const canCompleteRoster = needsRosterFirst && !!match.team;
+                const canLoadResult =
+                    effectiveStatus === "completed" && !hasResults && !!match.team && !needsRosterFirst;
 
-                const primaryAction = canLoadResult
+                const primaryAction = canCompleteRoster
                     ? {
-                        label: "Cargar resultado",
-                        href: `/player/matches/${match.id}/result`,
+                        label: "Completar jugadores",
+                        href: `/player/matches/${match.id}/complete`,
                       }
-                    : {
-                        label: "Ver detalle",
-                        href: `/player/matches/${match.id}`,
-                      };
+                    : canLoadResult
+                      ? {
+                          label: "Cargar resultado",
+                          href: `/player/matches/${match.id}/result`,
+                        }
+                      : {
+                          label: "Ver detalle",
+                          href: `/player/matches/${match.id}`,
+                        };
 
-                const secondaryAction = canLoadResult
+                const secondaryAction = canCompleteRoster || canLoadResult
                     ? {
                         label: "Ver detalle",
                         href: `/player/matches/${match.id}`,

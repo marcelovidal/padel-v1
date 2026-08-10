@@ -59,6 +59,10 @@ export default function MatchCard({
 
   const isCompleted = status === "completed";
   const hasPrimaryLoadResult = primaryAction?.href === `/player/matches/${model.id}/result`;
+  // Mientras falten jugadores no se pide resultado ni autoevaluacion:
+  // el unico pendiente real es completar el equipo.
+  const needsRosterFirst = !!model.isIncomplete && !model.hasResults;
+  const missingPlayers = model.missingPlayers ?? 0;
 
   // Ganado/Perdido solo tiene sentido con resultado cargado Y perspectiva de jugador.
   // Sin una de las dos cosas se cae al statusLabel: sin esto, `undefined === undefined`
@@ -75,6 +79,7 @@ export default function MatchCard({
     if (outcome === "won") return "Ganado";
     if (outcome === "lost") return "Perdido";
     if (isCompleted && winnerTeam) return `Ganó equipo ${winnerTeam}`;
+    if (needsRosterFirst) return "Incompleto";
     return statusLabel;
   })();
 
@@ -106,9 +111,11 @@ export default function MatchCard({
                 ? "text-emerald-600"
                 : outcome === "lost" || status === "cancelled"
                   ? "text-brand-rojo"
-                  : isCompleted
-                    ? "text-[var(--text-muted)]"
-                    : "text-amber-600"
+                  : needsRosterFirst
+                    ? "text-amber-600"
+                    : isCompleted
+                      ? "text-[var(--text-muted)]"
+                      : "text-amber-600"
                 }`}
             >
               {outcomeLabel}
@@ -146,11 +153,15 @@ export default function MatchCard({
                 </span>
               </div>
             ) : null}
-            {isCompleted && !model.hasResults && (
+            {needsRosterFirst ? (
+              <div className="px-3 py-1 rounded-full text-[10px] font-black bg-amber-500 text-white tracking-tighter">
+                {missingPlayers === 1 ? "FALTA 1 JUGADOR" : `FALTAN ${missingPlayers} JUGADORES`}
+              </div>
+            ) : isCompleted && !model.hasResults ? (
               <div className="px-3 py-1 rounded-full text-[10px] font-black bg-red-600 text-white tracking-tighter">
                 SIN RESULTADO
               </div>
-            )}
+            ) : null}
             {clubUnclaimed ? (
               <div className="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 tracking-wider">
                 CLUB SIN RECLAMAR
@@ -180,7 +191,7 @@ export default function MatchCard({
         {/* Footer / Actions */}
         <div className="pt-4 border-t border-[var(--border-soft)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm">
           <div className="flex flex-col gap-1">
-            {variant === "player" && (
+            {variant === "player" && !needsRosterFirst && (
               <div className="flex items-center gap-2">
                 <span className="text-[var(--text-muted)]">Autoevaluación:</span>
                 {model.hasAssessment ? (
@@ -207,7 +218,7 @@ export default function MatchCard({
                 </>
               )}
             </div>
-            {isCompleted && !model.hasResults && playerTeam && !hasPrimaryLoadResult && (
+            {isCompleted && !model.hasResults && playerTeam && !hasPrimaryLoadResult && !needsRosterFirst && (
               <div className="mt-2">
                 <Link
                   href={`/player/matches/${model.id}/result`}
@@ -217,6 +228,19 @@ export default function MatchCard({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Cargar resultado
+                </Link>
+              </div>
+            )}
+            {variant === "player" && needsRosterFirst && playerTeam && (
+              <div className="mt-2">
+                <Link
+                  href={`/player/matches/${model.id}/complete`}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-100 transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Completar jugadores
                 </Link>
               </div>
             )}
@@ -270,8 +294,8 @@ export default function MatchCard({
           </div>
         )}
 
-        {/* Player-only Assessment Panel */}
-        {variant === "player" && (
+        {/* Player-only Assessment Panel — no se pide con el equipo incompleto */}
+        {variant === "player" && !needsRosterFirst && (
           <PlayerMatchAssessmentPanel
             matchId={model.id}
             hasAssessment={!!model.hasAssessment}

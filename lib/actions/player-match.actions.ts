@@ -186,6 +186,74 @@ export async function updateMatchAsPlayer(matchId: string, formData: FormData) {
   redirect(`/player/matches/${matchId}`);
 }
 
+const COMPLETE_ROSTER_ERRORS: Record<string, string> = {
+  NOT_AUTHENTICATED: "No estas autenticado",
+  PLAYER_PROFILE_NOT_FOUND: "Tu usuario no tiene un perfil de jugador vinculado.",
+  MATCH_NOT_FOUND: "No encontramos el partido.",
+  MATCH_CANCELLED: "El partido esta cancelado.",
+  NOT_A_PARTICIPANT: "Solo los jugadores del partido pueden completarlo.",
+  RESULT_ALREADY_RECORDED: "El partido ya tiene resultado cargado.",
+  MATCH_ALREADY_COMPLETE: "El partido ya tiene todos sus jugadores.",
+  NO_PLAYERS_PROVIDED: "Elegi al menos un jugador para agregar.",
+  DUPLICATE_PLAYERS: "No puedes repetir jugadores en el partido.",
+  PLAYER_NOT_FOUND: "Alguno de los jugadores elegidos ya no esta disponible.",
+  TEAM_FULL: "Ese equipo ya tiene sus dos jugadores.",
+  MATCH_FULL: "Estas agregando mas jugadores de los que faltan.",
+};
+
+/**
+ * Completa los jugadores faltantes de un partido incompleto.
+ * A diferencia de updateMatchAsPlayer, es aditivo: no toca fecha, club ni
+ * notas, no reordena a los que ya estaban y lo puede usar cualquier
+ * participante del partido, con la fecha vencida o no.
+ */
+export async function completeMatchRoster(matchId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const collect = (field: string) =>
+    formData
+      .getAll(field)
+      .map((value) => String(value).trim())
+      .filter(Boolean);
+
+  const teamAIds = collect("team_a_id");
+  const teamBIds = collect("team_b_id");
+
+  if (teamAIds.length + teamBIds.length === 0) {
+    return { error: "Elegi al menos un jugador para agregar." };
+  }
+
+  const unique = new Set([...teamAIds, ...teamBIds]);
+  if (unique.size !== teamAIds.length + teamBIds.length) {
+    return { error: "No puedes repetir jugadores en el partido." };
+  }
+
+  try {
+    const { error } = await (supabase as any).rpc("player_complete_match_roster", {
+      p_match_id: matchId,
+      p_team_a_ids: teamAIds,
+      p_team_b_ids: teamBIds,
+    });
+
+    if (error) throw error;
+  } catch (err: any) {
+    const raw = String(err?.message || "");
+    const matched = Object.keys(COMPLETE_ROSTER_ERRORS).find((code) => raw.includes(code));
+    return { error: matched ? COMPLETE_ROSTER_ERRORS[matched] : raw || "Error al completar el partido" };
+  }
+
+  revalidatePath("/player/matches");
+  revalidatePath(`/player/matches/${matchId}`);
+  revalidatePath(`/player/matches/${matchId}/complete`);
+  revalidatePath("/player");
+  redirect(`/player/matches/${matchId}`);
+}
+
 export async function cancelMatchAsPlayer(matchId: string) {
   const supabase = await createClient();
 

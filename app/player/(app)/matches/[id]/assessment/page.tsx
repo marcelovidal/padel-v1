@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AssessmentForm } from "@/components/assessments/AssessmentForm";
 import { format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
-import { normalizeSets } from "@/lib/match/matchUtils";
+import { normalizeSets, isMatchIncomplete } from "@/lib/match/matchUtils";
 
 function formatPlayerName(player: any) {
   const firstName = player?.players?.first_name || "";
@@ -35,6 +35,11 @@ export default async function MatchAssessmentPage({
   const isCompleted = match.status === "completed" || !!match.match_results;
   if (!isCompleted) {
     redirect(`/player/matches/${params.id}`);
+  }
+
+  // El orden es jugadores -> resultado -> autoevaluacion.
+  if (isMatchIncomplete(match) && !match.match_results) {
+    redirect(`/player/matches/${params.id}/complete`);
   }
 
   const teamA = match.match_players.filter((player: any) => player.team === "A");
