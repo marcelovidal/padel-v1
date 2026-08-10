@@ -108,6 +108,63 @@ export function getEffectiveStatus(match: any): "scheduled" | "completed" | "can
 }
 
 /**
+ * Cantidad de jugadores que el partido necesita para estar completo.
+ * Se apoya en max_players (CHECK 2..4 en base); ante cualquier valor
+ * inesperado cae en 4, que es el tamaño real de un partido de padel.
+ */
+export function getExpectedRosterSize(match: any): number {
+    const raw = Number(match?.max_players);
+    if (!Number.isFinite(raw) || raw < 2 || raw > 4) return 4;
+    return raw;
+}
+
+/**
+ * Cuenta los jugadores cargados en un partido.
+ * Tolera las tres formas en que llega un partido según el origen:
+ *  - match_players[] (repository.findById, admin)
+ *  - playersByTeam { A, B } (repository.findByPlayerId, MatchCard)
+ *  - players_count (RPCs agregados, ej. panel del club)
+ */
+export function getMatchRosterCount(match: any): number {
+    if (!match) return 0;
+
+    if (Array.isArray(match.match_players)) {
+        return match.match_players.length;
+    }
+
+    const byTeam = match.playersByTeam;
+    if (byTeam) {
+        return (byTeam.A?.length || 0) + (byTeam.B?.length || 0);
+    }
+
+    if (typeof match.players_count === "number") {
+        return match.players_count;
+    }
+
+    return 0;
+}
+
+/**
+ * Jugadores que faltan cargar para que el partido esté completo.
+ */
+export function getMissingPlayersCount(match: any): number {
+    if (!match) return 0;
+    return Math.max(0, getExpectedRosterSize(match) - getMatchRosterCount(match));
+}
+
+/**
+ * Un partido con menos jugadores de los que necesita está INCOMPLETO,
+ * sin importar la fecha: el orden lógico es jugadores → resultado →
+ * autoevaluación, y los dos últimos no tienen sentido sin el primero.
+ * Los cancelados quedan fuera: no hay nada que completar.
+ */
+export function isMatchIncomplete(match: any): boolean {
+    if (!match) return false;
+    if (match.status === "cancelled") return false;
+    return getMissingPlayersCount(match) > 0;
+}
+
+/**
  * Formats match sets as a string (e.g., "6–4 6–4").
  * Uses en-dash (–) for professional look or hyphen as fallback.
  */

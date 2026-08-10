@@ -10,7 +10,13 @@ import { CancelMatchButton } from "@/components/matches/CancelMatchButton";
 import { MatchScore } from "@/components/matches/MatchScore";
 import { AssessmentInline } from "@/components/assessments/AssessmentInline";
 import { ShareCardButton } from "@/components/share/ShareCardButton";
-import { hasMatchResult, normalizeSets, getEffectiveStatus } from "@/lib/match/matchUtils";
+import {
+    hasMatchResult,
+    normalizeSets,
+    getEffectiveStatus,
+    isMatchIncomplete,
+    getMissingPlayersCount,
+} from "@/lib/match/matchUtils";
 import { getSiteUrl } from "@/lib/utils/url";
 import { buildShareMatchUrl, buildShareMessage, buildOgMatchUrl, buildWhatsAppTextForCard } from "@/lib/share/shareMessage";
 
@@ -80,10 +86,11 @@ export default async function MatchDetailPage({
     // Group players by team for the MatchScore component
     const teamA = match.match_players.filter((p: any) => p.team === "A");
     const teamB = match.match_players.filter((p: any) => p.team === "B");
-    const rosterCount = teamA.length + teamB.length;
+    const isIncomplete = isMatchIncomplete(match);
+    const missingPlayers = getMissingPlayersCount(match);
     const clubGeneratedPending =
         isScheduled &&
-        rosterCount < (match.max_players || 4) &&
+        isIncomplete &&
         String(match.notes || "").toLowerCase().includes("partido generado por club");
 
     const statusColors = {
