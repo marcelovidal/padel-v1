@@ -158,14 +158,15 @@ export default async function PlayerNewBookingPage({
     const dayEnd = new Date(dayStart);
     dayEnd.setDate(dayEnd.getDate() + 1);
 
-    const { data: confirmedRows, error: confirmedError } = await (supabase as any)
-      .from("court_bookings")
-      .select("court_id,start_at,end_at")
-      .eq("club_id", selectedClubId)
-      .eq("status", "confirmed")
-      .lt("start_at", dayEnd.toISOString())
-      .gt("end_at", dayStart.toISOString());
-    if (confirmedError) throw confirmedError;
+    // Fuente unica de disponibilidad. Antes esto era una query directa a
+    // court_bookings filtrada por status = 'confirmed', que ignoraba las
+    // solicitudes pendientes, los turnos fijos, los partidos de liga y torneo
+    // y las clases con entrenador.
+    const occupiedSlots = await bookingService.getOccupiedSlots(
+      selectedClubId,
+      dayStart.toISOString(),
+      dayEnd.toISOString()
+    );
 
     const byTime = new Map<string, { totalCourts: number; availableCourts: string[] }>();
     for (const court of activeCourtsForClub) {
@@ -176,7 +177,10 @@ export default async function PlayerNewBookingPage({
         const start = buildStartAt(selectedDate, slot);
         if (!start) continue;
         const end = new Date(start.getTime() + courtSlotMinutes * 60_000);
-        const blocked = (confirmedRows || []).some((row: any) => {
+        // Mismo criterio de solapamiento semiabierto [inicio, fin) que aplica
+        // club_get_occupied_slots: un turno que termina donde arranca el
+        // siguiente no lo bloquea.
+        const blocked = occupiedSlots.some((row) => {
           if (row.court_id !== court.id) return false;
           const rowStart = new Date(row.start_at);
           const rowEnd = new Date(row.end_at);

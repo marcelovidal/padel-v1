@@ -9,6 +9,29 @@ export type AgendaSlotType =
   | "tournament_match"
   | "fixed_slot";
 
+export type OccupancyType =
+  | "booking_requested"
+  | "booking_confirmed"
+  | "fixed_slot"
+  | "league_match"
+  | "tournament_match"
+  | "league_playoff_match"
+  | "tournament_playoff_match"
+  | "coach_booking";
+
+/**
+ * Fila de club_get_occupied_slots. Deliberadamente sin datos personales:
+ * ver el comentario de la funcion en
+ * supabase/migrations/20260812_club_get_occupied_slots.sql.
+ */
+export type OccupiedSlot = {
+  court_id: string;
+  start_at: string;
+  end_at: string;
+  occupancy_type: OccupancyType;
+  source_id: string;
+};
+
 export type AgendaSlot = {
   slot_id: string;
   slot_type: AgendaSlotType;
@@ -338,6 +361,27 @@ export class BookingRepository {
 
     if (error) throw error;
     return (data || []) as AgendaSlot[];
+  }
+
+  /**
+   * Fuente unica de disponibilidad. A diferencia de getAgendaSlots, no exige
+   * ser administrador del club y no devuelve ningun dato personal: solo el
+   * intervalo, la cancha y el origen de la ocupacion.
+   */
+  async getOccupiedSlots(
+    clubId: string,
+    from: string,
+    to: string
+  ): Promise<OccupiedSlot[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_get_occupied_slots", {
+      p_club_id: clubId,
+      p_from: from,
+      p_to: to,
+    });
+
+    if (error) throw error;
+    return (data || []) as OccupiedSlot[];
   }
 
   async createClubConfirmedBookingMatch(input: {
