@@ -88,16 +88,32 @@ export default async function MatchDetailPage({
     const teamB = match.match_players.filter((p: any) => p.team === "B");
     const isIncomplete = isMatchIncomplete(match);
     const missingPlayers = getMissingPlayersCount(match);
-    const clubGeneratedPending =
-        isScheduled &&
-        isIncomplete &&
-        String(match.notes || "").toLowerCase().includes("partido generado por club");
+    const isParticipant = match.match_players.some((p: any) => p.player_id === playerId);
+    // Completar jugadores es previo a resultado y a autoevaluacion: mientras
+    // falte gente, el partido no puede cerrarse aunque la fecha haya pasado.
+    const needsRosterFirst = isIncomplete && !calculatedHasResults;
+    const canCompleteRoster = isIncomplete && (isParticipant || isCreator);
+    const clubGenerated = String(match.notes || "")
+        .toLowerCase()
+        .includes("partido generado por club");
 
     const statusColors = {
         scheduled: "bg-blue-100 text-blue-800 border-blue-200",
         completed: "bg-green-100 text-green-800 border-green-200",
         cancelled: "bg-red-100 text-red-800 border-red-200",
     };
+    // El estado efectivo dice "Finalizado" al pasar la fecha; con jugadores
+    // faltantes eso desorienta, asi que el badge muestra el bloqueo real.
+    const statusBadgeClass = needsRosterFirst
+        ? "bg-amber-100 text-amber-800 border-amber-200"
+        : statusColors[effectiveStatus];
+    const statusBadgeLabel = needsRosterFirst
+        ? "Incompleto"
+        : effectiveStatus === "scheduled"
+          ? "Programado"
+          : effectiveStatus === "completed"
+            ? "Finalizado"
+            : "Cancelado";
 
     // Normalize sets for UI consumption
     const normalizedSets = match.match_results?.sets
@@ -149,11 +165,9 @@ export default async function MatchDetailPage({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                         <Badge
-                            className={`${statusColors[effectiveStatus]} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
+                            className={`${statusBadgeClass} px-4 py-2 text-xs font-black uppercase tracking-widest shadow-sm border`}
                         >
-                            {effectiveStatus === "scheduled" && "Programado"}
-                            {effectiveStatus === "completed" && "Finalizado"}
-                            {effectiveStatus === "cancelled" && "Cancelado"}
+                            {statusBadgeLabel}
                         </Badge>
                         {leagueBadge ? (
                             <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700">
@@ -190,18 +204,43 @@ export default async function MatchDetailPage({
                     </div>
                 </div>
 
-                {isScheduled && !isCreator && (
+                {isScheduled && !isCreator && !isIncomplete && (
                     <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
                         <p className="text-sm font-medium text-amber-800">
                             Solo quien cargo el partido puede editarlo antes de registrar el resultado.
                         </p>
                     </div>
                 )}
-                {clubGeneratedPending && (
-                    <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3">
-                        <p className="text-sm font-medium text-blue-800">
-                            Partido generado por el club y confirmado. Falta completar jugadores y luego cargar resultado.
+                {isIncomplete && (
+                    <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4">
+                        <p className="text-sm font-black uppercase tracking-widest text-amber-700">
+                            Partido incompleto
                         </p>
+                        <p className="mt-1 text-sm font-medium text-amber-900">
+                            {missingPlayers === 1
+                                ? "Falta 1 jugador para completar el partido."
+                                : `Faltan ${missingPlayers} jugadores para completar el partido.`}
+                            {clubGenerated
+                                ? " El turno lo agendo el club a tu nombre."
+                                : ""}
+                        </p>
+                        <p className="mt-1 text-xs text-amber-700">
+                            {needsRosterFirst
+                                ? "Primero cargá quiénes jugaron; después vas a poder registrar el resultado y tu autoevaluación."
+                                : "El resultado ya está cargado, pero el equipo quedó incompleto."}
+                        </p>
+                        {canCompleteRoster ? (
+                            <Link
+                                href={`/player/matches/${match.id}/complete`}
+                                className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-amber-500 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-amber-200 transition-all hover:bg-amber-600 active:scale-[0.98]"
+                            >
+                                Completar jugadores
+                            </Link>
+                        ) : (
+                            <p className="mt-3 text-xs font-semibold text-amber-700">
+                                Cualquiera de los jugadores del partido puede completarlo.
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -256,7 +295,7 @@ export default async function MatchDetailPage({
                     showPlayers={true}
                 />
 
-                {isCompleted && !calculatedHasResults && match.match_players.some((p: any) => p.player_id === playerId) && (
+                {isCompleted && !calculatedHasResults && isParticipant && !needsRosterFirst && (
                     <div className="mt-8 flex flex-col items-center justify-center p-8 bg-red-50/50 rounded-3xl border border-red-100 border-dashed animate-in fade-in zoom-in duration-500">
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,20 +336,22 @@ export default async function MatchDetailPage({
                 )}
             </div>
 
-            {/* Assessment Section */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-black text-gray-900 tracking-tight flex items-center gap-2">
-                    <span className="w-1 h-6 bg-amber-500 rounded-full"></span>
-                    Mi Desempeño
-                </h3>
+            {/* Assessment Section — sin jugadores completos no hay nada que evaluar */}
+            {!needsRosterFirst && (
+                <div className="space-y-4">
+                    <h3 className="text-lg font-black text-gray-900 tracking-tight flex items-center gap-2">
+                        <span className="w-1 h-6 bg-amber-500 rounded-full"></span>
+                        Mi Desempeño
+                    </h3>
 
-                <AssessmentInline
-                    matchId={match.id}
-                    playerId={playerId}
-                    hasAssessment={hasAssessment}
-                    isCompleted={isCompleted}
-                />
-            </div>
+                    <AssessmentInline
+                        matchId={match.id}
+                        playerId={playerId}
+                        hasAssessment={hasAssessment}
+                        isCompleted={isCompleted}
+                    />
+                </div>
+            )}
         </div>
     );
 }
