@@ -5,6 +5,31 @@ type Player = Database["public"]["Tables"]["players"]["Row"];
 type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
 type PlayerUpdate = Database["public"]["Tables"]["players"]["Update"];
 
+/**
+ * Desenlace de player_link_unclaimed_by_phone. Ninguno es un error: el
+ * onboarding sigue adelante en todos los casos, creando perfil nuevo salvo en
+ * `linked`.
+ */
+export type LinkByPhoneOutcome =
+  /** El telefono no es normalizable; no se busco nada. */
+  | "no_phone"
+  /** Nadie tiene ese numero. Caso normal de un jugador nuevo. */
+  | "no_match"
+  /** Mas de un jugador comparte el numero. No se adivina cual es. */
+  | "ambiguous"
+  /** El unico candidato ya tiene cuenta. */
+  | "already_claimed"
+  /** El usuario ya tenia perfil propio. */
+  | "already_has_profile"
+  /** Exactamente uno y sin reclamar: se vinculo. */
+  | "linked";
+
+export type LinkByPhoneResult = {
+  outcome: LinkByPhoneOutcome;
+  player_id?: string;
+  candidates?: number;
+};
+
 export class PlayerRepository {
   private async getClient() {
     return await createClient();
@@ -202,6 +227,23 @@ export class PlayerRepository {
 
     if (error) throw error;
     return data;
+  }
+
+  /**
+   * Vincula al usuario actual con su perfil sin reclamar, si hay exactamente
+   * uno con ese telefono normalizado. Se llama ANTES de completeOnboarding.
+   *
+   * Nunca falla por no encontrar: devuelve el desenlace y quien la llama sigue
+   * adelante igual. Ver 20260815_onboarding_link_by_phone.sql.
+   */
+  async linkUnclaimedByPhone(phone: string): Promise<LinkByPhoneResult> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("player_link_unclaimed_by_phone", {
+      p_phone: phone,
+    });
+
+    if (error) throw error;
+    return (data || { outcome: "no_match" }) as LinkByPhoneResult;
   }
 
   async claimProfileV2(targetPlayerId: string, matchId?: string): Promise<string> {

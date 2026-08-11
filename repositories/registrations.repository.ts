@@ -30,6 +30,39 @@ export interface RegistrationRow {
   requested_at: string;
 }
 
+/** Candidato del matching por telefono. Sin telefono ni email, a proposito. */
+export interface PhoneCandidate {
+  player_id: string;
+  display_name: string;
+  has_account: boolean;
+  played: number;
+}
+
+/** Que paso con cada jugador al resolverlo desde el formulario publico. */
+export interface PublicPlayerResolution {
+  outcome: "matched" | "created";
+  player_id: string;
+  has_account: boolean;
+}
+
+export interface PublicRegistrationResult {
+  registration_id: string;
+  player_a: PublicPlayerResolution;
+  player_b: PublicPlayerResolution;
+}
+
+/** Los seis campos del formulario, mas el id elegido cuando hubo ambiguedad. */
+export interface PublicRegistrationInput {
+  a_first_name: string;
+  a_last_name: string;
+  a_phone: string;
+  a_player_id?: string | null;
+  b_first_name: string;
+  b_last_name: string;
+  b_phone: string;
+  b_player_id?: string | null;
+}
+
 export class RegistrationsRepository {
   private async getClient() {
     return await createClient();
@@ -47,6 +80,63 @@ export class RegistrationsRepository {
     });
     if (error) throw error;
     return Number(data ?? 0);
+  }
+
+  // ─── Inscripcion publica, sin cuenta ──────────────────────────────────────
+  // Estas tres usan el cliente normal: los GRANT de las funciones incluyen a
+  // `anon`, asi que funcionan sin sesion. NO hace falta admin client, y usarlo
+  // seria darles mas permisos de los que necesitan.
+
+  async findPlayersByPhone(phone: string): Promise<PhoneCandidate[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("public_find_players_by_phone", {
+      p_phone: phone,
+    });
+    if (error) throw error;
+    return (data || []) as PhoneCandidate[];
+  }
+
+  async requestPublicTournamentRegistration(
+    tournamentId: string,
+    input: PublicRegistrationInput
+  ): Promise<PublicRegistrationResult> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc(
+      "public_request_tournament_registration",
+      {
+        p_tournament_id: tournamentId,
+        p_a_first_name: input.a_first_name,
+        p_a_last_name: input.a_last_name,
+        p_a_phone: input.a_phone,
+        p_b_first_name: input.b_first_name,
+        p_b_last_name: input.b_last_name,
+        p_b_phone: input.b_phone,
+        p_a_player_id: input.a_player_id ?? null,
+        p_b_player_id: input.b_player_id ?? null,
+      }
+    );
+    if (error) throw error;
+    return data as PublicRegistrationResult;
+  }
+
+  async requestPublicLeagueRegistration(
+    leagueId: string,
+    input: PublicRegistrationInput
+  ): Promise<PublicRegistrationResult> {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("public_request_league_registration", {
+      p_league_id: leagueId,
+      p_a_first_name: input.a_first_name,
+      p_a_last_name: input.a_last_name,
+      p_a_phone: input.a_phone,
+      p_b_first_name: input.b_first_name,
+      p_b_last_name: input.b_last_name,
+      p_b_phone: input.b_phone,
+      p_a_player_id: input.a_player_id ?? null,
+      p_b_player_id: input.b_player_id ?? null,
+    });
+    if (error) throw error;
+    return data as PublicRegistrationResult;
   }
 
   async getOpenEvents(): Promise<OpenEvent[]> {

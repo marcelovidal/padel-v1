@@ -168,8 +168,13 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
                 setSubmitting(false);
             }
         } else if (result?.success && result.redirect) {
-            // Success! Redirect to the target path or default
-            window.location.href = nextPath;
+            // Si el telefono matcheo con un perfil sin reclamar, la persona
+            // acaba de recuperar su historial sin enterarse. Se avisa en el
+            // destino: el separador depende de si nextPath ya trae query.
+            const destino = result.linked
+                ? `${nextPath}${nextPath.includes("?") ? "&" : "?"}perfil=recuperado`
+                : nextPath;
+            window.location.href = destino;
         }
     }
 
