@@ -14,6 +14,7 @@ import { PublicEventHeader, type EventChip } from "@/components/public/events/Pu
 import { PublicSectionCard } from "@/components/public/events/PublicSectionCard";
 import { EventStandingsTable } from "@/components/public/events/EventStandingsTable";
 import { EventFixtureList } from "@/components/public/events/EventFixtureList";
+import { PublicRegistrationForm } from "@/components/public/events/PublicRegistrationForm";
 import { TournamentBracketView } from "@/components/club/TournamentBracketView";
 
 /**
@@ -116,6 +117,20 @@ export default async function PublicLeaguePage({ params }: { params: Params }) {
         description={league.description}
         chips={chips}
       />
+
+      {league.status === "active" ? (
+        <PublicSectionCard
+          id="inscripcion"
+          title="Inscribirse"
+          subtitle="Anotate con tu compañero. No hace falta tener cuenta."
+        >
+          <PublicRegistrationForm
+            kind="league"
+            eventId={league.id}
+            eventName={league.name}
+          />
+        </PublicSectionCard>
+      ) : null}
 
       {divisions.length === 0 ? (
         <PublicSectionCard title="Posiciones">

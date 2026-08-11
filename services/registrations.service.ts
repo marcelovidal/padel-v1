@@ -1,12 +1,41 @@
-import { RegistrationsRepository, OpenEvent, RegistrationRow } from "@/repositories/registrations.repository";
+import {
+  RegistrationsRepository,
+  OpenEvent,
+  RegistrationRow,
+  PhoneCandidate,
+  PublicRegistrationInput,
+  PublicRegistrationResult,
+} from "@/repositories/registrations.repository";
 
-export type { OpenEvent, RegistrationRow };
+export type {
+  OpenEvent,
+  RegistrationRow,
+  PhoneCandidate,
+  PublicRegistrationInput,
+  PublicRegistrationResult,
+};
 
 export class RegistrationsService {
   private repo = new RegistrationsRepository();
 
   async getOpenEvents(): Promise<OpenEvent[]> {
     return this.repo.getOpenEvents();
+  }
+
+  // ─── Inscripcion publica, sin cuenta ──────────────────────────────────────
+
+  async findPlayersByPhone(phone: string): Promise<PhoneCandidate[]> {
+    return this.repo.findPlayersByPhone(phone);
+  }
+
+  async requestPublicRegistration(
+    kind: "tournament" | "league",
+    eventId: string,
+    input: PublicRegistrationInput
+  ): Promise<PublicRegistrationResult> {
+    return kind === "tournament"
+      ? this.repo.requestPublicTournamentRegistration(eventId, input)
+      : this.repo.requestPublicLeagueRegistration(eventId, input);
   }
 
   async countPlayersInCities(cityIds: string[]): Promise<number> {

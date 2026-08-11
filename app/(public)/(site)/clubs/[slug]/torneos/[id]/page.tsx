@@ -14,6 +14,7 @@ import { PublicEventHeader, type EventChip } from "@/components/public/events/Pu
 import { PublicSectionCard } from "@/components/public/events/PublicSectionCard";
 import { EventStandingsTable } from "@/components/public/events/EventStandingsTable";
 import { EventFixtureList } from "@/components/public/events/EventFixtureList";
+import { PublicRegistrationForm } from "@/components/public/events/PublicRegistrationForm";
 import { TournamentBracketView } from "@/components/club/TournamentBracketView";
 
 /**
@@ -125,6 +126,25 @@ export default async function PublicTournamentPage({ params }: { params: Params 
         description={tournament.description}
         chips={chips}
       />
+
+      {/*
+        Las inscripciones se muestran mientras el torneo esta 'active'. Un
+        torneo finalizado no las muestra, y uno en 'draft' no llega hasta aca:
+        la consulta lo filtra antes.
+      */}
+      {tournament.status === "active" ? (
+        <PublicSectionCard
+          id="inscripcion"
+          title="Inscribirse"
+          subtitle="Anotate con tu compañero. No hace falta tener cuenta."
+        >
+          <PublicRegistrationForm
+            kind="tournament"
+            eventId={tournament.id}
+            eventName={tournament.name}
+          />
+        </PublicSectionCard>
+      ) : null}
 
       {groups.length === 0 ? (
         <PublicSectionCard title="Grupos">
