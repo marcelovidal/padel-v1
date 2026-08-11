@@ -9,6 +9,9 @@ import { BookingService } from "@/services/booking.service";
 import { resolveAvatarSrc } from "@/lib/avatar-server.utils";
 import { getSiteUrl } from "@/lib/utils/url";
 import { findPublicClub, publicClubHref, type PublicClub } from "@/lib/clubs/publicClub";
+import { listPublicClubEvents } from "@/lib/clubs/publicEvent";
+import { PublicSectionCard } from "@/components/public/events/PublicSectionCard";
+import { PublicClubEventsList } from "@/components/public/events/PublicClubEventsList";
 
 function locationLabel(club: PublicClub) {
   return [club.city, club.region_name].filter(Boolean).join(" · ");
@@ -82,12 +85,15 @@ export default async function ClubPublicProfilePage({ params }: { params: { slug
   }
 
   const bookingService = new BookingService();
-  const [courts, avatar] = await Promise.all([
+  const [courts, avatar, events] = await Promise.all([
     bookingService.listActiveClubCourts(club.id),
     // Resuelve tanto una URL publica del bucket club-logos (rama externa) como
     // un path viejo del bucket privado avatars (rama firmada).
     resolveAvatarSrc({ player: { avatar_url: club.avatar_url, display_name: club.name } }),
+    listPublicClubEvents(club.id),
   ]);
+
+  const clubSlugOrId = club.slug || club.id;
 
   const where = locationLabel(club);
   const phone = club.contact_phone?.trim() || null;
@@ -162,6 +168,36 @@ export default async function ClubPublicProfilePage({ params }: { params: { slug
             {club.description.trim()}
           </p>
         </section>
+      ) : null}
+
+      {/*
+        Torneos y ligas. Estas dos secciones usan PublicSectionCard con tokens
+        de brand v2, a diferencia del resto de la pagina, que sigue en
+        slate/stone. Es deuda conocida: se convierte el sitio publico entero en
+        otro bloque, no aca.
+      */}
+      {events.current.length > 0 ? (
+        <div className="mt-4">
+          <PublicSectionCard title="Torneos y ligas en juego">
+            <PublicClubEventsList
+              events={events.current}
+              clubSlugOrId={clubSlugOrId}
+              emptyLabel="No hay eventos en juego."
+            />
+          </PublicSectionCard>
+        </div>
+      ) : null}
+
+      {events.past.length > 0 ? (
+        <div className="mt-4">
+          <PublicSectionCard title="Ediciones anteriores">
+            <PublicClubEventsList
+              events={events.past}
+              clubSlugOrId={clubSlugOrId}
+              emptyLabel="Todavía no hay ediciones terminadas."
+            />
+          </PublicSectionCard>
+        </div>
       ) : null}
 
       {/* Canchas */}
