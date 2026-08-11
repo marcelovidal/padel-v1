@@ -86,6 +86,11 @@ export default async function ClubPublicProfilePage({ params }: { params: { slug
 
   const bookingService = new BookingService();
   const [courts, avatar, events] = await Promise.all([
+    // Unica lectura de la pagina que NO usa admin client: club_courts se lee
+    // con el cliente de sesion y el filtro `active = true` vive en la policy
+    // "club_courts_select_active_anon" (20260818_public_club_read_anon.sql).
+    // Si vuelve vacio para un visitante sin sesion, es esa policy la que falta
+    // — no hace falta mudar esto a service role.
     bookingService.listActiveClubCourts(club.id),
     // Resuelve tanto una URL publica del bucket club-logos (rama externa) como
     // un path viejo del bucket privado avatars (rama firmada).
