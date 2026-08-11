@@ -598,6 +598,10 @@ export class PlayerService {
     return this.repository.completeOnboarding(input);
   }
 
+  async linkUnclaimedByPhone(phone: string) {
+    return this.repository.linkUnclaimedByPhone(phone);
+  }
+
   async findClaimCandidates(input: {
     first_name: string;
     last_name: string;
