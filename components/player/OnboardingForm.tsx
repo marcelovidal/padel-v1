@@ -14,6 +14,7 @@ import { completeOnboardingAction } from "@/app/actions/onboarding.actions";
 import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles, LocateFixed } from "lucide-react";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
 import { cn } from "@/lib/utils";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 const onboardingSchema = z.object({
     first_name: z.string().min(2, "Mínimo 2 letras"),
@@ -146,8 +147,11 @@ export default function OnboardingForm({ initialData }: OnboardingFormProps) {
         setSubmitting(true);
         setError(null);
 
+        // Se valida aca tambien: el server component ya lo filtra para su
+        // propio redirect, pero esto lee la URL del navegador directamente y
+        // termina en un window.location.href, que es un sink por si mismo.
         const searchParams = new URLSearchParams(window.location.search);
-        const nextPath = searchParams.get("next") || "/player";
+        const nextPath = safeNextPath(searchParams.get("next"));
 
         const fData = new FormData();
         Object.entries(data).forEach(([key, value]) => {

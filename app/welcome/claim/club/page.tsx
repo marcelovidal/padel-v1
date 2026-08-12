@@ -1,3 +1,4 @@
+import { safeNextPath } from "@/lib/auth/safe-next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -10,7 +11,7 @@ export default async function ClubClaimPage({
   searchParams: { club_id?: string; next?: string };
 }) {
   const clubId = (searchParams.club_id || "").trim();
-  const nextPath = searchParams.next || "/welcome?portal=club&mode=login";
+  const nextPath = safeNextPath(searchParams.next, "/welcome?portal=club&mode=login");
 
   if (!clubId) {
     return (

@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import OnboardingForm from "@/components/player/OnboardingForm";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 export default async function OnboardingPage({
     searchParams
@@ -10,11 +11,13 @@ export default async function OnboardingPage({
 }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const nextPath = searchParams.next || "/player";
+    // El `next` llega crudo de la URL y termina en un redirect y en el
+    // window.location.href de OnboardingForm — se valida como en /welcome.
+    const nextPath = safeNextPath(searchParams.next, "/player");
 
     if (!user) {
         const loginUrl = searchParams.next
-            ? `/welcome?next=${encodeURIComponent(searchParams.next)}`
+            ? `/welcome?next=${encodeURIComponent(nextPath)}`
             : "/welcome";
         redirect(loginUrl);
     }

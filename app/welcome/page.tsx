@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getOptionalPlayer } from "@/lib/auth";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import WelcomePortalAuth from "@/components/auth/WelcomePortalAuth";
 
 type PortalType = "player" | "club";
@@ -26,7 +27,10 @@ export default async function WelcomePage({
 
   const portal = searchParams.portal === "club" ? "club" : "player";
   const mode = searchParams.mode === "signup" ? "signup" : "login";
-  const next = searchParams.next || (portal === "club" ? "/club" : "/player");
+  // Mismo open redirect que tenia /auth/callback, y esta es la puerta de
+  // entrada: el `next` termina en un `redirect()` de servidor mas abajo y en
+  // los `router.replace(nextPath)` de WelcomePortalAuth.
+  const next = safeNextPath(searchParams.next, portal === "club" ? "/club" : "/player");
 
   const { user, playerId } = await getOptionalPlayer();
 
