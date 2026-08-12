@@ -203,6 +203,87 @@ primero que pide se lo reserva de hecho.
 
 ---
 
+## Unificación visual y de navegación — DECIDIDO
+
+### El problema
+Hay dos sistemas de diseño conviviendo: el panel usa tokens semánticos
+de brand v2, el sitio público usa `slate/blue` de Tailwind (~250 usos).
+Y hay tres perfiles públicos —jugador, club, entrenador— con tres
+implementaciones distintas y cero componentes compartidos.
+
+Es grave para la presentación: la página que el club comparte por
+WhatsApp muestra el PASALA azul viejo en el header, con el contenido en
+brand v2 abajo.
+
+### Lo decidido
+
+**Los perfiles públicos comparten navegación.** Club, jugador y
+entrenador tienen el mismo shell y el mismo lenguaje visual, tomado del
+panel del jugador que ya está trabajado.
+
+**La navegación es adaptada**, no idéntica: quien no tiene cuenta ve una
+cosa, quien está logueado ve otra.
+
+**El panel del jugador logueado NO se toca** en su estructura. Solo se le
+suman las funciones nuevas donde corresponda.
+
+**Conversión de tokens, no rediseño.** Mismo layout, misma estructura,
+brand correcto. El rediseño de la navegación queda para después del
+lanzamiento.
+
+### Alcance concreto
+- Seis archivos concentran el `slate/blue`: `PublicHeader`,
+  `PublicFooter`, `PublicSection`, `FeatureCard`, `StatCard`,
+  `PublicContainer`.
+- `/p/[playerId]` y `/entrenadores/[coachId]` hoy **no tienen shell**
+  (sin header ni footer). La causa es de rutas: los dos viven en
+  `app/p/…` y `app/entrenadores/…`, fuera de `app/(public)/(site)/`, así
+  que no heredan el layout del sitio público — solo el root. Van bajo el
+  mismo shell que el resto.
+- Componentes a compartir: header de entidad, tarjeta de sección,
+  `UserAvatar` generalizado (hoy el club arma un `<img>` crudo), y **una
+  sola función de nivel de jugador**.
+
+### Sobre la función de nivel: son más de dos
+Verificado el 12/08/2026. No hay dos implementaciones sino **ocho**, y
+todas menos una son privadas de su módulo:
+
+| Archivo | Función |
+|---|---|
+| `lib/clubs/publicEventLabels.ts:54` | `categoryLabel` — la única exportada |
+| `components/coach/CoachPlayerSearch.tsx:53,73` | `levelLabel` + `categoryLabel` |
+| `components/player/PlayersDirectoryTable.tsx:36,49` | `categoryLabel` + `levelLabel` |
+| `components/players/ClubPlayerProfileModal.tsx:36,64` | `levelLabel` + `categoryLabel` |
+| `components/players/EditPlayerForm.tsx:51` | `categoryLabel` |
+| `components/player/PlayerHeroCard.tsx:50` | `getLevelInfo` |
+| `components/players/PlayerDirectoryCard.tsx:40` | `getLevelInfo` |
+
+Y son **dos conceptos distintos** mezclados bajo el mismo nombre
+informal de "nivel": `levelLabel` traduce el enum `level` (`ROOKIE` →
+`INICIAL`), mientras que `getLevelInfo` **deriva el nivel del
+`pasala_index`** y además devuelve un color. Unificar los dos en una
+sola función sería un error: son dos funciones, y hay que decidir cuál
+se muestra en cada lugar antes de extraerlas.
+
+Las tres copias de `levelLabel` hoy coinciden en el resultado, así que
+la unificación no cambia nada visible. Es refactor puro, sin riesgo.
+
+### Verificado, sin trabajo pendiente
+`player_get_open_events` ya filtra correctamente: el jugador ve los
+eventos activos sin ciudades objetivo más los que apuntan a su ciudad.
+No ve todos los del país ni está limitado a su club.
+
+Nota: un evento **sin** ciudades objetivo se muestra a TODOS los
+jugadores con cuenta. Hoy son 31 y todos en Patagonia, así que no
+molesta, pero es un criterio que va a envejecer.
+
+Segunda nota, del hallazgo de `city_id` fragmentado más abajo: el filtro
+por ciudad de esta función depende del mismo `players.city_id` que la
+difusión. Los 13 jugadores de General Roca con el `city_id` minoritario
+tampoco ven los eventos dirigidos a su ciudad.
+
+---
+
 ## Administradores de club — DECIDIDO e implementado
 
 Varios administradores por club, **todos con los mismos permisos**. No
