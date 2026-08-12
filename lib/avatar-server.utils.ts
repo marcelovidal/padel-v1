@@ -46,7 +46,7 @@ export async function resolveAvatarSrc(data: {
     }
 
     if (info.type === "external") {
-        return { src: info.url };
+        return { initials: info.initials, src: info.url };
     }
 
     return { initials: info.initials, src: null };
