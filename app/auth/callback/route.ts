@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 type PendingClubOnboarding = {
   name: string;
@@ -129,9 +130,7 @@ async function resumePendingClubOnboarding(supabase: any) {
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("next");
-  const nextPathCandidate = rawNext && rawNext.startsWith("/") ? rawNext : "/player";
-  const nextPath = nextPathCandidate === "/" ? "/player" : nextPathCandidate;
+  const nextPath = safeNextPath(searchParams.get("next"));
 
   let response = NextResponse.redirect(new URL(nextPath, origin));
 
