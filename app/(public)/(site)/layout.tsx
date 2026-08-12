@@ -10,7 +10,7 @@ export default async function PublicSiteLayout({
   const ctaContext = await getPublicCtaContext();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)]">
       <PublicHeader ctaContext={ctaContext} />
       <main>{children}</main>
       <PublicFooter />
