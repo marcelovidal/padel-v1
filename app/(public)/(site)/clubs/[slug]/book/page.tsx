@@ -15,7 +15,10 @@ function defaultStartLocal() {
 }
 
 export default async function BookClubCourtPage({ params }: { params: { slug: string } }) {
-  await requirePlayer();
+  // `next` explicito: esta ruta esta fuera del matcher del middleware, asi que
+  // no llega el header con la URL pedida. Sin esto, quien entra sin sesion
+  // termina en /player despues de loguearse en vez de volver a reservar.
+  await requirePlayer({ next: `/clubs/${params.slug}/book` });
 
   // El segmento puede ser el slug nuevo o un UUID de un link viejo. Se resuelve
   // a id porque todo lo de abajo — RPC, settings, canchas — trabaja con el id.

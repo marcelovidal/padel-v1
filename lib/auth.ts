@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { safeNextPath } from "@/lib/auth/safe-next";
+import { CURRENT_PATH_HEADER } from "@/lib/auth/request-path";
 
 function createAdminClient() {
   return createSupabaseClient(
@@ -35,16 +38,52 @@ export async function requireAdmin() {
   return { user, profile };
 }
 
-export async function requirePlayer() {
+/**
+ * A donde volver despues de loguearse o completar el onboarding.
+ *
+ * Prioridad:
+ * 1. El `next` explicito que pase quien llama. Obligatorio en las paginas
+ *    fuera del `matcher` del middleware — hoy `/clubs/[slug]/book`, que es
+ *    justo la reserva publica.
+ * 2. El header que pone el middleware con la URL pedida. Cubre solo
+ *    `/player/*`, `/welcome/*`, `/admin/*` y `/login`.
+ * 3. Nada: se redirige pelado, como antes.
+ */
+async function resolveNextPath(explicitNext?: string): Promise<string | null> {
+  if (explicitNext) return safeNextPath(explicitNext, "") || null;
+
+  const fromHeader = headers().get(CURRENT_PATH_HEADER);
+  if (!fromHeader) return null;
+  return safeNextPath(fromHeader, "") || null;
+}
+
+function withNext(target: string, next: string | null): string {
+  if (!next) return target;
+  const url = new URL(target, "https://pasala.invalid");
+  url.searchParams.set("next", next);
+  return `${url.pathname}${url.search}`;
+}
+
+export type RequireAuthOptions = {
+  /**
+   * URL a la que volver, con searchParams. Solo hace falta en paginas fuera
+   * del `matcher` del middleware; en el resto se deduce del header.
+   */
+  next?: string;
+};
+
+export async function requirePlayer(options?: RequireAuthOptions) {
   const supabase = await createClient();
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
+  const nextPath = await resolveNextPath(options?.next);
+
   if (authError || !user) {
     // redirect to player login (admins use /login)
-    redirect("/player/login");
+    redirect(withNext("/player/login", nextPath));
   }
 
   const { data: player, error: playerError } = await (supabase
@@ -57,7 +96,7 @@ export async function requirePlayer() {
 
   // Si no hay player o no completó el onboarding, redirigir al flujo de bienvenida
   if (playerError || !player || !player.onboarding_completed) {
-    redirect("/welcome/onboarding");
+    redirect(withNext("/welcome/onboarding", nextPath));
   }
 
   return { user, player };
@@ -101,8 +140,14 @@ const CLUB_COLUMNS_BASE =
 const CLUB_COLUMNS_PUBLIC_PROFILE = "slug,maps_url";
 const CLUB_COLUMNS = `${CLUB_COLUMNS_BASE},${CLUB_COLUMNS_PUBLIC_PROFILE}`;
 
-export async function requireClubOwner() {
-  const { user, player } = await requirePlayer();
+/**
+ * Los redirects propios de esta funcion —"solicita acceso", "club no
+ * encontrado"— son mensajes de estado, no interrupciones de un viaje: nadie
+ * vuelve de ahi a lo que estaba haciendo, asi que no llevan `next`. El
+ * `options` existe solo para reenviarselo a `requirePlayer`, que si lo usa.
+ */
+export async function requireClubOwner(options?: RequireAuthOptions) {
+  const { user, player } = await requirePlayer(options);
 
   if (!(player as any).is_club_owner) {
     redirect("/player/profile?msg=solicita-acceso-club");
