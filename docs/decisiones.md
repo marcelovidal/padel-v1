@@ -3,7 +3,7 @@
 Documento de referencia. Lo que está acá **ya está decidido** y no se
 vuelve a discutir salvo que aparezca información nueva que lo invalide.
 
-Última actualización: 11 de agosto de 2026.
+Última actualización: 12 de agosto de 2026.
 
 ---
 
@@ -107,11 +107,14 @@ búsqueda por `user_id` lo encuentra y toma la rama UPDATE.
 **Se vincula solo con exactamente UN jugador sin reclamar.** Más de
 uno, o uno que ya tiene cuenta → perfil nuevo, como antes.
 
-Producción al decidirlo: 42 jugadores con teléfono, 41 números
-normalizados distintos, un solo grupo repetido (Marcelo y Pablo
-Vidal, misma línea, ambos con cuenta — dos personas, no un perfil
-huérfano). El callejón sin salida todavía no se disparó: **no hay
-limpieza pendiente.**
+Producción al 12/08/2026, medido contra la base: 103 jugadores
+activos, 31 con cuenta, 42 con teléfono cargado. De esos 42,
+`pasala_phone_key()` normaliza 39 y devuelve `NULL` en 3. Los 39
+normalizados dan **38 claves distintas**: un solo grupo repetido
+(Marcelo y Pablo Vidal, misma línea, ambos con cuenta — dos personas,
+no un perfil huérfano). El callejón sin salida todavía no se disparó:
+**no hay limpieza de duplicados pendiente.** Los 3 no normalizables
+están listados con nombre en `docs/estado.md`.
 
 Ante la duda, perfil nuevo: un duplicado se limpia después, una
 fusión equivocada se lleva puesto el historial de alguien.
@@ -144,9 +147,24 @@ Posiciones por grupo, fixture con resultados, bracket de playoffs,
 torneos y ligas vigentes y pasados. **Solo lectura**: sin formularios
 de programación ni carga de resultados.
 
-Los componentes de visualización ya existen en `components/club/` pero
-están acoplados a formularios de edición. Hay que extraer versiones de
-solo lectura o pasarles un flag.
+**Corregido el 12/08/2026:** era falso que los componentes de
+visualización ya existieran. En `components/club/` el único componente
+reutilizable era `TournamentBracketView` —que sí se reutiliza tal cual,
+porque ya era RSC y de solo lectura—. **Posiciones y fixture no existían
+como componentes**: vivían embebidos en el JSX de las páginas del panel,
+mezclados con los formularios de carga de resultados. Se escribieron de
+cero como `EventStandingsTable` y `EventFixtureList` en
+`components/public/events/`, junto con `PublicEventHeader`,
+`PublicSectionCard` y `PublicClubEventsList`.
+
+La lectura de datos no reusa las páginas del panel: `lib/clubs/publicEvent.ts`
+arma la proyección pública con `createAdminClient()` y las RPCs
+`club_get_group_table` / `club_get_tournament_group_table`.
+
+Consecuencia para lo que viene: **no hay una capa de presentación
+compartida entre el panel y lo público**. Cualquier cambio de formato en
+posiciones o fixture hay que hacerlo dos veces. Se asume a propósito —
+extraer la versión compartida es trabajo de después del lanzamiento.
 
 ### Compartir
 `ShareCardButton` y `/api/og/league` ya existen. Falta el OG de torneo.
@@ -220,6 +238,26 @@ verificar por diff que no cambió nada más.
 **Las migraciones se aplican a mano en Supabase**, y el archivo queda
 versionado en el repo. El agente nunca aplica nada.
 
+**Para saber si una migración está viva, sondear producción, no
+preguntar.** Con `SUPABASE_SERVICE_ROLE_KEY` de `.env.local` alcanza
+para resolver la mayoría de los casos sin abrir el SQL Editor, y es
+todo de solo lectura:
+- **¿Existe la función y con qué argumentos?** `GET /rest/v1/` devuelve
+  el OpenAPI de PostgREST con todas las RPC expuestas y sus parámetros.
+  Ahí se ve el nombre exacto de cada argumento, que es donde más se
+  falla.
+- **¿Existe la columna?** Un `select` sobre ella: si no está, PostgREST
+  responde `42703`.
+- **¿La policy `TO anon` quedó puesta?** La misma consulta con
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`: si devuelve filas, quedó.
+- **¿El cambio de comportamiento salió?** Mirar los datos que produjo.
+  El fix de links de notificación se confirmó viendo el `payload->>link`
+  de una notificación reciente, no leyendo la función.
+
+Lo que este método **no** alcanza: el cuerpo de una función y los
+constraints. Para eso sigue haciendo falta `pg_get_functiondef()` y
+`pg_constraint` en el SQL Editor.
+
 ### Flujo de trabajo
 Feature branch → push → revisión del diff → merge manual a main →
 Vercel auto-deploy.
@@ -255,10 +293,29 @@ página; el selector no excluye a los ya inscriptos; los anchors del
 detalle deberían ser pestañas; el botón de playoffs no se deshabilita
 con cantidad inválida de grupos.
 
-**Notificaciones**: `q6_notify_event_open` existe y **nadie la llama**.
-Hoy activar un torneo no avisa a nadie. El modal de confirmación de
-alcance ya está mergeado, así que la protección está puesta antes de
-cablear el disparo.
+**Notificaciones**: resuelto el 11/08/2026. `q6_notify_event_open`
+quedó cableada dentro de las funciones de cambio de estado por
+`20260817_wire_notify_event_open.sql`, aplicada en producción. Activar
+un torneo o una liga con ciudades objetivo **ahora sí** notifica. El
+modal de confirmación de alcance estaba mergeado desde antes, así que la
+protección quedó puesta primero y el disparo después, que era el orden
+buscado. **Todavía no se disparó ninguna difusión real** — ver el
+bloqueante de `city_id` acá abajo antes de hacerlo.
+
+**Difusión geográfica — `city_id` fragmentado. DESCUBIERTO EL 12/08/2026,
+bloqueante de la difusión.** Tanto `club_count_players_in_cities` como
+`q6_notify_event_open` filtran por `players.city_id`, no por el nombre de
+la ciudad. En producción, los 84 jugadores que dicen "General Roca"
+están repartidos en **cuatro** `city_id` distintos: 71 en `6204245002`,
+11 en `62042450`, 1 en `58035070` —que es el id de Neuquén— y 1 en
+`NULL`. Elegir "General Roca" en el modal alcanza **71 de 84**: 13
+jugadores quedan afuera en silencio, y uno recibiría la difusión de
+Neuquén. El modal va a mostrar 71 y va a parecer correcto.
+
+Decisión: **normalizar los `city_id` antes de la primera difusión real**,
+no después. Es un UPDATE acotado sobre una tabla chica y el error es
+invisible desde la interfaz. Esto es la parte concreta y urgente del
+"fix geo — datos estáticos" que ya figuraba como pendiente genérico.
 
 **Turnos fijos invisibles**: `club_get_agenda_slots` no los devuelve,
 aunque `AgendaGrid` los sabe renderizar. El club puede confirmar una
