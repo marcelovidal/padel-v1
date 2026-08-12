@@ -206,6 +206,56 @@ permisos. Hoy no se explota porque las páginas públicas las llaman con
 service role (`lib/clubs/publicEvent.ts`), pero cualquiera con el
 `group_id` las puede llamar.
 
+**Sitio público a medio convertir — dos acentos peleándose.**
+`feature/public-brand-v2` (12/08) convirtió el shell —`PublicHeader`,
+`PublicFooter`, `PublicSection`, `FeatureCard`, `StatCard` y el wrapper
+de `app/(public)/(site)/layout.tsx`— pero los cuerpos de las páginas de
+marketing siguen en `slate/blue`. Medido sobre el HTML servido:
+
+| Página | Literales en el body |
+|---|---|
+| `/clubs` | 45 |
+| `/players` | 28 |
+| `/pricing` | 2 |
+| `/faq`, `/terms`, `/privacy`, `/clubs/[slug]` | 0 |
+
+Consecuencia visible: en `/clubs` y `/players` el CTA del header es
+**rojo** (`bg-brand-rojo`, criterio de brand v2) y los del cuerpo siguen
+**azules** (`bg-blue-600`). Antes eran consistentes en azul; ahora son
+inconsistentes hasta convertir los cuerpos. Se mergeó así a propósito:
+`/clubs/[slug]` es la que se comparte por WhatsApp y quedó en cero
+literales. Las de marketing se convierten en otro bloque.
+
+Corolario: el **dark mode funciona en el shell pero no en el sitio
+completo**. Los `bg-white` y `text-slate-900` de esos cuerpos quedan como
+islas claras. No hay `ThemeToggle` en el sitio público —solo en
+`app/player/(app)/page.tsx`—, pero `localStorage` es por origen, así que
+un jugador que puso dark en su panel y después abre el link del club sí
+las ve.
+
+**`PublicContactModal` fuera de la conversión.** Su trigger sí quedó en
+tokens (Header y Footer le pasan `buttonClassName` explícito), pero el
+cuerpo del modal conserva 13 usos de `slate/blue`: hay salto visual al
+abrirlo. Su default interno sigue siendo `hover:text-blue-700`, hoy
+inalcanzable porque los dos únicos llamadores pasan clase.
+
+**Comentarios que documentan lo que el código no hace — segunda vez.**
+`getAvatarInfo` clasificaba como `storage` cualquier `avatar_url` no
+vacío, sin mirar el prefijo, así que la URL pública del bucket
+`club-logos` se firmaba contra el bucket `avatars`, fallaba siempre y
+caía a las iniciales: el club subía su logo y veía una letra. Mientras
+tanto **dos comentarios daban la rama por implementada** —
+`components/club/ClubProfileForm.tsx:42` y
+`app/(public)/(site)/clubs/[slug]/page.tsx:95` dicen textualmente que
+"getAvatarInfo discrimina por prefijo http". Nunca se había escrito.
+Arreglado en `feature/public-brand-v2`.
+
+Es el mismo patrón que `club_list_my_matches` con `score_a`: el archivo
+del repo describía columnas que la base no tiene. **Un comentario no es
+evidencia de que algo esté implementado — verificar contra el código o
+contra producción antes de descartar una hipótesis por lo que dice un
+comentario.**
+
 **Sin capa de presentación compartida.** Posiciones y fixture existen
 dos veces: embebidos en las páginas del panel y como componentes nuevos
 en `components/public/events/`. Cambiar el formato hay que hacerlo dos
