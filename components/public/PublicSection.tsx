@@ -22,12 +22,18 @@ export function PublicSection({
         {(eyebrow || title || description) && (
           <header className="mb-8 max-w-3xl space-y-2">
             {eyebrow && (
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-rojo">
                 {eyebrow}
               </p>
             )}
-            {title && <h2 className="text-3xl font-black tracking-tight text-slate-900">{title}</h2>}
-            {description && <p className="text-base text-slate-600">{description}</p>}
+            {title && (
+              <h2 className="font-display text-3xl font-black uppercase tracking-tight text-[var(--text-primary)]">
+                {title}
+              </h2>
+            )}
+            {description && (
+              <p className="text-base text-[var(--text-muted)]">{description}</p>
+            )}
           </header>
         )}
         {children}
