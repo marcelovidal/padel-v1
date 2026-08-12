@@ -181,19 +181,52 @@ grilla, misma disponibilidad— con el login o registro **al final**,
 cuando la persona ya eligió su turno.
 
 Bloqueantes conocidos:
-- La grilla son ~90 líneas de JSX inline, no un componente
+- ~~La grilla son ~90 líneas de JSX inline, no un componente~~
+  **Resuelto el 12/08/2026** en `feature/booking-grid-extract`:
+  `components/bookings/CourtAvailabilityGrid.tsx` y
+  `lib/bookings/availability.ts`
 - `requirePlayer()` exige onboarding completo, no solo sesión
-- `requirePlayer()` redirige sin `next` — **ahí, y solo ahí, se
-  pierde la intención**
+- ~~`requirePlayer()` redirige sin `next`~~ **Resuelto**, ver abajo
 - `/clubs/[slug]/book` descarta el error en silencio (línea 43)
 
-**Corregido el 11/08/2026:** `/welcome/onboarding` **sí** propaga
-`next`. `OnboardingForm` lo lee de `searchParams` (línea 150) y lo
-usa en sus dos caminos de salida (líneas 164 y 172). El agujero
-está un paso antes y es uno solo: `requirePlayer()` hace
-`redirect("/welcome/onboarding")` pelado. Si se linkea a mano a
-`/welcome/onboarding?next=...`, la vuelta al origen funciona hoy
-sin tocar nada. El fix es propagar `next` en `requirePlayer()`.
+### Dónde se perdía `next` — verificado el 12/08/2026
+
+La versión anterior de esta sección decía que el agujero era uno
+solo y estaba en `requirePlayer()`. **Era incorrecto: eran tres, y
+el principal estaba en el middleware.**
+
+`middleware.ts` matchea `/player/:path*` y `/welcome/:path*`, así
+que **corre antes** que `requirePlayer()` en 25 de sus 28
+consumidores. Tenía dos redirects pelados:
+
+| Punto | Qué hacía | Consecuencia |
+|---|---|---|
+| `middleware.ts:47` | `redirect("/welcome/onboarding")` sin `next` | **El que rompía el caso del usuario nuevo** |
+| `middleware.ts:42` | `redirect("/player/profile")` si el onboarding ya estaba completo | Descartaba `next` y destino |
+| `lib/auth.ts:47` y `:60` | los dos redirects de `requirePlayer` | Segundo filtro; `:47` solo se alcanza con cookie `sb-` rancia |
+
+Lo que **sí** era correcto y sigue siéndolo: `/welcome/onboarding`
+propaga `next`. La página lo lee de `searchParams` y lo respeta en
+sus dos redirects, y `OnboardingForm` lo lee de
+`window.location.search` (línea 150) y lo usa en sus dos salidas
+(líneas 164 y **177**, no 172). Nunca hubo que tocarlo: le llegaba
+vacío porque el middleware no se lo pasaba.
+
+**Resuelto el 12/08/2026.** `requirePlayer(options?: { next?: string })`:
+sin argumento deduce el destino del header `x-pasala-path` que pone
+el middleware; con `next` explícito para las rutas fuera del
+matcher, que hoy es solo `/clubs/[slug]/book`.
+
+### Open redirect encontrado en el camino
+
+`/auth/callback:133` validaba `rawNext.startsWith("/")`, que acepta
+`//evil.com` — `new URL("//evil.com", origin)` resuelve a
+`https://evil.com`. Se cerró con `lib/auth/safe-next.ts`, aplicado
+sobre todos los sinks: el callback, `/welcome` —que era la puerta
+de entrada—, `OnboardingForm` y las dos páginas de claim. La
+validación no confía en una lista de patrones: resuelve el
+candidato contra un origen de prueba y exige que el origen no
+cambie.
 
 **Ya resuelto (bloque A, mergeado)**: `club_get_occupied_slots` como
 fuente única de disponibilidad con las siete fuentes de ocupación,
