@@ -14,7 +14,7 @@ import { PublicEventHeader, type EventChip } from "@/components/public/events/Pu
 import { PublicSectionCard } from "@/components/public/events/PublicSectionCard";
 import { EventStandingsTable } from "@/components/public/events/EventStandingsTable";
 import { EventFixtureList } from "@/components/public/events/EventFixtureList";
-import { PublicRegistrationForm } from "@/components/public/events/PublicRegistrationForm";
+import { PublicRegistrationSection } from "@/components/public/events/PublicRegistrationSection";
 import { TournamentBracketView } from "@/components/club/TournamentBracketView";
 
 /**
@@ -95,12 +95,18 @@ export default async function PublicTournamentPage({ params }: { params: Params 
   const teamLabel = makeTeamLabeller(teams, playersMap);
   const when = formatDateRange(tournament.start_date, tournament.end_date);
 
+  // Sin la columna —migracion 20260819 sin aplicar— se comporta como antes.
+  const registrationsOpen = tournament.registrations_open ?? true;
+
   const chips: EventChip[] = [];
   if (tournament.status === "active") {
     chips.push({ label: "En juego", tone: "success" });
   } else {
     chips.push({ label: "Finalizado", tone: "neutral" });
   }
+  // Un evento puede estar en juego Y recibiendo inscripciones: son dos chips,
+  // no una sola categoria.
+  if (registrationsOpen) chips.push({ label: "Inscripciones abiertas", tone: "accent" });
   const category = categoryLabel(tournament.target_category_int);
   if (category) {
     chips.push({
@@ -128,23 +134,19 @@ export default async function PublicTournamentPage({ params }: { params: Params 
       />
 
       {/*
-        Las inscripciones se muestran mientras el torneo esta 'active'. Un
-        torneo finalizado no las muestra, y uno en 'draft' no llega hasta aca:
-        la consulta lo filtra antes.
+        Lo que decide es registrations_open, no el status: un torneo activo
+        puede tener el fixture andando y las inscripciones cerradas, y uno
+        finalizado por error puede seguir abierto. Un 'draft' no llega hasta
+        aca: la consulta lo filtra antes.
       */}
-      {tournament.status === "active" ? (
-        <PublicSectionCard
-          id="inscripcion"
-          title="Inscribirse"
-          subtitle="Anotate con tu compañero. No hace falta tener cuenta."
-        >
-          <PublicRegistrationForm
-            kind="tournament"
-            eventId={tournament.id}
-            eventName={tournament.name}
-          />
-        </PublicSectionCard>
-      ) : null}
+      <PublicRegistrationSection
+        kind="tournament"
+        eventId={tournament.id}
+        eventName={tournament.name}
+        registrationsOpen={registrationsOpen}
+        registrationStartDate={tournament.registration_start_date}
+        registrationEndDate={tournament.registration_end_date}
+      />
 
       {groups.length === 0 ? (
         <PublicSectionCard title="Grupos">

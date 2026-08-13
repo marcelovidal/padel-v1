@@ -14,7 +14,7 @@ import { PublicEventHeader, type EventChip } from "@/components/public/events/Pu
 import { PublicSectionCard } from "@/components/public/events/PublicSectionCard";
 import { EventStandingsTable } from "@/components/public/events/EventStandingsTable";
 import { EventFixtureList } from "@/components/public/events/EventFixtureList";
-import { PublicRegistrationForm } from "@/components/public/events/PublicRegistrationForm";
+import { PublicRegistrationSection } from "@/components/public/events/PublicRegistrationSection";
 import { TournamentBracketView } from "@/components/club/TournamentBracketView";
 
 /**
@@ -91,12 +91,18 @@ export default async function PublicLeaguePage({ params }: { params: Params }) {
   const teamLabel = makeTeamLabeller(teams, playersMap);
   const when = formatDateRange(league.start_date, league.end_date);
 
+  // Sin la columna —migracion 20260819 sin aplicar— se comporta como antes.
+  const registrationsOpen = league.registrations_open ?? true;
+
   const chips: EventChip[] = [];
   chips.push(
     league.status === "active"
       ? { label: "En juego", tone: "success" }
       : { label: "Finalizada", tone: "neutral" }
   );
+  // Un evento puede estar en juego Y recibiendo inscripciones: son dos chips,
+  // no una sola categoria.
+  if (registrationsOpen) chips.push({ label: "Inscripciones abiertas", tone: "accent" });
   if (league.season_label) chips.push({ label: league.season_label });
   chips.push({ label: `${teams.length} pareja${teams.length === 1 ? "" : "s"}` });
 
@@ -118,19 +124,14 @@ export default async function PublicLeaguePage({ params }: { params: Params }) {
         chips={chips}
       />
 
-      {league.status === "active" ? (
-        <PublicSectionCard
-          id="inscripcion"
-          title="Inscribirse"
-          subtitle="Anotate con tu compañero. No hace falta tener cuenta."
-        >
-          <PublicRegistrationForm
-            kind="league"
-            eventId={league.id}
-            eventName={league.name}
-          />
-        </PublicSectionCard>
-      ) : null}
+      <PublicRegistrationSection
+        kind="league"
+        eventId={league.id}
+        eventName={league.name}
+        registrationsOpen={registrationsOpen}
+        registrationStartDate={league.registration_start_date}
+        registrationEndDate={league.registration_end_date}
+      />
 
       {divisions.length === 0 ? (
         <PublicSectionCard title="Posiciones">

@@ -51,6 +51,26 @@ function formatLong(date: Date) {
   });
 }
 
+/**
+ * Las fechas de inscripcion contadas al jugador: "Cierran el 31/08/2026".
+ *
+ * Son informativas — quien abre y cierra es el club, a mano. Por eso la frase
+ * nunca promete: dice cuando cierran, no que sigan abiertas hasta ahi. Una
+ * fecha de cierre ya pasada igual se muestra: que el club todavia las tenga
+ * abiertas es informacion, no un error a tapar.
+ */
+export function formatRegistrationWindow(
+  start?: string | null,
+  end?: string | null
+): string | null {
+  const startDate = parseDate(start);
+  const endDate = parseDate(end);
+
+  if (endDate) return `Cierran el ${formatLong(endDate)}`;
+  if (startDate) return `Abrieron el ${formatLong(startDate)}`;
+  return null;
+}
+
 export function categoryLabel(value?: number | null): string | null {
   if (value === null || value === undefined) return null;
   return `Categoría ${value}`;
