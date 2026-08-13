@@ -48,6 +48,56 @@ dejan morir.
 | Migración | Qué rompe mientras tanto |
 |---|---|
 | `20260810_fix_club_list_my_matches_sets.sql` | el listado de partidos de `/player/mi-club` viene vacío con un `42703` silencioso. Rota en producción desde el 15/04 |
+| `20260819_registrations_open.sql` | **bloqueante para el deploy.** El código de `main` ya pide las columnas nuevas por nombre; sin la migración, las páginas de gestión de torneo y liga y las públicas de evento devuelven 404 mudo |
+
+#### `20260819_registrations_open.sql` — orden y verificación
+
+**Aplicar ANTES de desplegar.** `getLeagueById`, `getTournamentById` y
+`lib/clubs/publicEvent.ts` piden `registrations_open`,
+`registration_start_date` y `registration_end_date` por nombre. Sin
+ellas PostgREST responde `42703`, la página lo captura y hace
+`notFound()`: 404 sin error visible, el mismo patrón silencioso que ya
+nos costó días con `q6_can_manage_club`.
+
+Qué deja: las tres columnas en `club_tournaments` y `club_leagues`, los
+RPC `club_set_tournament_registrations_open` /
+`club_set_league_registrations_open` con guardián `q6_can_manage_club`,
+las dos `club_update_*_info` ampliadas a seis parámetros (van DROP +
+CREATE, porque agregar parámetros con DEFAULT crea una sobrecarga y deja
+la llamada vieja ambigua) y el chequeo de `registrations_open` dentro de
+los dos `public_request_*_registration`.
+
+Backfill: cierra las inscripciones de los eventos `finished` y de los
+que ya tienen fixture generado. El resto queda abierto, que es lo que
+hacen hoy. Las fechas nuevas quedan en `NULL` a propósito: las cargadas
+son del evento, no de inscripción.
+
+Después de aplicarla:
+
+```sql
+-- 1. backfill: los dos finished en false, los dos draft en true
+SELECT name, status, registrations_open FROM club_leagues
+UNION ALL
+SELECT name, status, registrations_open FROM club_tournaments;
+
+-- 2. una sola fila por nombre, con pronargs = 6.
+--    Dos filas = el DROP no corrió y toda edición de fechas falla
+--    con "function is not unique"
+SELECT proname, pronargs FROM pg_proc
+WHERE proname IN ('club_update_tournament_info', 'club_update_league_info');
+```
+
+3. Guardar fechas desde "Fechas y difusión": si responde `PGRST202`,
+   forzar el reload del schema de PostgREST.
+4. Abrir y cerrar inscripciones en un evento y ver que la página pública
+   cambie entre formulario y aviso de cerradas.
+5. Con un evento `active` y las inscripciones cerradas, un POST con la
+   anon key a `/rest/v1/rpc/public_request_tournament_registration` tiene
+   que devolver `REGISTRATIONS_CLOSED`. Si devuelve 200, el
+   `CREATE OR REPLACE` de la sección 5 no corrió.
+6. Reabrir la Liga de prueba desde el selector y generar playoffs.
+7. Regenerar `types/database.ts` para sacar los casts `as any` de las
+   tres columnas.
 
 No se pudo confirmar desde afuera: `club_list_my_matches` corta con
 `NOT_AUTHENTICATED` antes de llegar al `SELECT`, así que el guard tapa
