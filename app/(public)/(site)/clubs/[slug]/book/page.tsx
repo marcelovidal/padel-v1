@@ -106,6 +106,16 @@ export default async function BookClubCourtPage({
 
   const canBook = !!effectiveTime && !!effectiveCourtId;
 
+  // Si el usuario volvio del login con un turno especifico en la URL y ese
+  // turno ya no esta disponible, mostramos un aviso en lugar de seleccionar
+  // silenciosamente otro horario.
+  const slotWasTaken =
+    !!selectedTime &&
+    !!selectedCourtId &&
+    !clubSlotStates.some(
+      (s) => s.time === selectedTime && s.availableCourts.includes(selectedCourtId)
+    );
+
   // URL a la que volver despues del login, con el turno ya elegido.
   // El usuario elige el horario, va al login, y vuelve con todo preservado.
   const loginNextUrl = (() => {
@@ -119,6 +129,35 @@ export default async function BookClubCourtPage({
 
   const submitBooking = async (formData: FormData) => {
     "use server";
+
+    // Pre-flight: entre elegir el turno y volver del registro pueden pasar
+    // minutos. Si ya no esta, redirigir a la grilla con el dia (sin time/court_id)
+    // para que el usuario vea el estado actualizado y elija otro horario.
+    // El RPC lo rechazaria de todos modos (BOOKING_OVERLAP), pero este mensaje
+    // es mas claro que un error de solapamiento generico.
+    const { BookingService: BS } = await import("@/services/booking.service");
+    const { computeClubAvailability: checkAvail } = await import("@/lib/bookings/availability");
+    const freshCheck = await checkAvail({
+      bookingService: new BS(),
+      clubId: id,
+      date: selectedDate,
+      selectedTime: effectiveTime,
+      selectedCourtId: effectiveCourtId,
+    });
+    const isStillAvailable = freshCheck.clubSlotStates.some(
+      (s) => s.time === effectiveTime && s.availableCourts.includes(effectiveCourtId)
+    );
+    if (!isStillAvailable) {
+      const unavailableParams = new URLSearchParams();
+      unavailableParams.set("date", selectedDate);
+      unavailableParams.set("cursor", toDateInput(cursorDate));
+      unavailableParams.set(
+        "error",
+        "El turno que elegiste ya no está disponible. Elegí otro horario."
+      );
+      redirect(`${BASE_PATH}?${unavailableParams.toString()}`);
+    }
+
     const result = await requestBookingAction(formData);
     if (!result.success) {
       if (result.code === "NOT_AUTHENTICATED") {
@@ -164,6 +203,10 @@ export default async function BookClubCourtPage({
       {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           {errorMessage}
+        </div>
+      ) : slotWasTaken ? (
+        <div className="rounded-xl border border-brand-amarillo-50 bg-brand-amarillo-50 px-4 py-3 text-sm font-medium text-brand-amarillo">
+          El turno que elegiste ya no está disponible. Elegí otro horario en la grilla.
         </div>
       ) : null}
 
