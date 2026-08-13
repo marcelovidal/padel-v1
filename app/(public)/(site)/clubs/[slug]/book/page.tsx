@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import { requestBookingAction } from "@/lib/actions/booking.actions";
 import { findPublicClub } from "@/lib/clubs/publicClub";
-import { CourtAvailabilityGrid } from "@/components/bookings/CourtAvailabilityGrid";
+import { TimeSlotPicker } from "@/components/bookings/TimeSlotPicker";
 import { computeClubAvailability } from "@/lib/bookings/availability";
 
 function defaultDate() {
@@ -86,7 +86,7 @@ export default async function BookClubCourtPage({
     selectedCourtId,
   });
 
-  const { slotMinutes, activeCourts, clubSlotStates, courtSlotMap, effectiveTime, effectiveCourtId } = availability;
+  const { slotMinutes, activeCourts, clubSlotStates, effectiveTime, effectiveCourtId } = availability;
 
   const BASE_PATH = `/clubs/${slug}/book`;
 
@@ -266,10 +266,10 @@ export default async function BookClubCourtPage({
             Este club no tiene canchas activas configuradas.
           </p>
         ) : (
-          <CourtAvailabilityGrid
-            courts={activeCourts}
-            slotStates={clubSlotStates}
-            courtSlotMap={courtSlotMap}
+          <TimeSlotPicker
+            clubSlotStates={clubSlotStates}
+            activeCourts={activeCourts}
+            slotMinutes={slotMinutes}
             selectedTime={effectiveTime}
             selectedCourtId={effectiveCourtId}
             buildSlotHref={({ time, courtId }) => buildHref({ time, court_id: courtId })}
@@ -299,7 +299,7 @@ export default async function BookClubCourtPage({
             </p>
             <Link
               href={`/player/login?next=${encodeURIComponent(loginNextUrl)}`}
-              className="block w-full rounded-xl bg-brand-azul px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-azul-light"
+              className="block w-full rounded-xl bg-brand-rojo px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-rojo-dark"
             >
               Iniciar sesión y reservar
             </Link>
@@ -341,7 +341,7 @@ export default async function BookClubCourtPage({
               />
             </div>
 
-            <button className="w-full rounded-xl bg-brand-azul px-4 py-3 text-sm font-bold text-white hover:bg-brand-azul-light">
+            <button className="w-full rounded-xl bg-brand-rojo px-4 py-3 text-sm font-bold text-white hover:bg-brand-rojo-dark">
               Reservar
             </button>
           </form>
