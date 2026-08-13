@@ -70,6 +70,15 @@ export type RequireAuthOptions = {
    * del `matcher` del middleware; en el resto se deduce del header.
    */
   next?: string;
+  /**
+   * Si es `true`, solo exige sesion activa y que exista un player registrado.
+   * NO exige `onboarding_completed`. Usar cuando el flujo de registro puede
+   * ocurrir despues de la accion principal (hoy: `/clubs/[slug]/book`).
+   *
+   * Por defecto `false` — los 27 consumidores existentes de `requirePlayer`
+   * no cambian de comportamiento.
+   */
+  sessionOnly?: boolean;
 };
 
 export async function requirePlayer(options?: RequireAuthOptions) {
@@ -94,8 +103,14 @@ export async function requirePlayer(options?: RequireAuthOptions) {
     .eq("user_id", user.id)
     .maybeSingle() as any);
 
-  // Si no hay player o no completó el onboarding, redirigir al flujo de bienvenida
-  if (playerError || !player || !player.onboarding_completed) {
+  // Sin player row no se puede hacer nada — ni reservar ni navegar el panel.
+  if (playerError || !player) {
+    redirect(withNext("/welcome/onboarding", nextPath));
+  }
+
+  // Con sessionOnly=true se omite la verificacion de onboarding_completed.
+  // El onboarding se pide cuando el jugador entre al panel por primera vez.
+  if (!options?.sessionOnly && !player.onboarding_completed) {
     redirect(withNext("/welcome/onboarding", nextPath));
   }
 
