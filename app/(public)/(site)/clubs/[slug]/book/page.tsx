@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { requirePlayer } from "@/lib/auth";
+import { getOptionalPlayer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import { requestBookingAction } from "@/lib/actions/booking.actions";
@@ -43,10 +43,8 @@ export default async function BookClubCourtPage({
   params: { slug: string };
   searchParams?: { date?: string; time?: string; court_id?: string; cursor?: string; error?: string };
 }) {
-  // `next` explicito: esta ruta esta fuera del matcher del middleware, asi que
-  // no llega el header con la URL pedida. Sin esto, quien entra sin sesion
-  // termina en /player despues de loguearse en vez de volver a reservar.
-  await requirePlayer({ next: `/clubs/${params.slug}/book` });
+  // La grilla se muestra a todos. La sesion solo se necesita al confirmar.
+  const { user } = await getOptionalPlayer();
 
   // El segmento puede ser el slug nuevo o un UUID de un link viejo. Se resuelve
   // a id porque todo lo de abajo — RPC, settings, canchas — trabaja con el id.
@@ -108,12 +106,28 @@ export default async function BookClubCourtPage({
 
   const canBook = !!effectiveTime && !!effectiveCourtId;
 
+  // URL a la que volver despues del login, con el turno ya elegido.
+  // El usuario elige el horario, va al login, y vuelve con todo preservado.
+  const loginNextUrl = (() => {
+    const qs = new URLSearchParams();
+    qs.set("date", selectedDate);
+    if (effectiveTime) qs.set("time", effectiveTime);
+    if (effectiveCourtId) qs.set("court_id", effectiveCourtId);
+    qs.set("cursor", toDateInput(cursorDate));
+    return `${BASE_PATH}?${qs.toString()}`;
+  })();
+
   const submitBooking = async (formData: FormData) => {
     "use server";
     const result = await requestBookingAction(formData);
     if (!result.success) {
+      if (result.code === "NOT_AUTHENTICATED") {
+        // Alguien llego a la action sin sesion (race condition, cookie expirada).
+        // Lo mandamos al login con next para que vuelva al turno elegido.
+        redirect(`/player/login?next=${encodeURIComponent(loginNextUrl)}`);
+      }
       // Propagar el error a la grilla con el dia y horario preservados,
-      // igual que en /player/bookings/new. Antes se descartaba en silencio.
+      // igual que en /player/bookings/new.
       const errorParams = new URLSearchParams();
       errorParams.set("date", selectedDate);
       if (effectiveTime) errorParams.set("time", effectiveTime);
@@ -225,7 +239,36 @@ export default async function BookClubCourtPage({
           <p className="text-sm text-[var(--text-muted)]">
             Elegí un horario disponible en la grilla para continuar.
           </p>
+        ) : !user ? (
+          /* Sin sesion: el turno esta elegido, falta logueo. */
+          <div className="space-y-4">
+            <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+              <span className="font-semibold text-[var(--text-primary)]">
+                {selectedDate} · {effectiveTime} hs
+              </span>
+              {" — "}
+              {activeCourts.find((c) => c.id === effectiveCourtId)?.name || "cancha"}
+              {" · "}
+              {slotMinutes} min
+            </div>
+            <p className="text-sm text-[var(--text-muted)]">
+              Para confirmar la reserva necesitas una cuenta. El turno te espera del otro lado.
+            </p>
+            <Link
+              href={`/player/login?next=${encodeURIComponent(loginNextUrl)}`}
+              className="block w-full rounded-xl bg-brand-azul px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-azul-light"
+            >
+              Iniciar sesión y reservar
+            </Link>
+            <Link
+              href={`/welcome?next=${encodeURIComponent(loginNextUrl)}`}
+              className="block w-full rounded-xl border border-[var(--border-soft)] px-4 py-3 text-center text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
+            >
+              Crear cuenta
+            </Link>
+          </div>
         ) : (
+          /* Con sesion (con o sin onboarding): reserva directa. */
           <form action={submitBooking} className="space-y-4">
             <input type="hidden" name="club_id" value={id} />
             <input type="hidden" name="slot_minutes" value={slotMinutes} />
