@@ -180,18 +180,25 @@ dicen "General Roca" tienen **cuatro** `city_id` distintos:
 mostrar 71 como si estuviera bien. Uno de los jugadores recibiría además
 la difusión de Neuquén. **Normalizar antes de la primera difusión real.**
 
-**`requirePlayer()` pierde el `next`.** `lib/auth.ts:47` y `:60` hacen
-`redirect("/player/login")` y `redirect("/welcome/onboarding")` sin
-propagar a dónde quería ir la persona. Todo el resto del sistema sí lo
-propaga —`/welcome`, `/p/[playerId]`, `/m/[id]`, `PlayerLoginForm` lee
-`nextPath`, `OnboardingForm` lo lee de `searchParams`—, así que el
-agujero es este y es uno solo. Impacto: quien toca "Reservar cancha" en
-el perfil público del club termina en `/player` después de loguearse, no
-en la reserva. **Es el bloqueante de la reserva pública.**
+~~**`requirePlayer()` pierde el `next`.**~~ **RESUELTO** en
+`feature/public-booking-page` (13/08). `middleware.ts` ya propagaba
+`next`; `requirePlayer` ahora deduce el destino del header
+`x-pasala-path`. La reserva pública además es pública: no usa
+`requirePlayer` en el render.
 
-**`/clubs/[slug]/book` descarta el error en silencio.** Línea 43:
-`if (!result.success) return;`. Si la reserva falla, no pasa nada en
-pantalla.
+~~**`/clubs/[slug]/book` descarta el error en silencio.**~~ **RESUELTO**
+en `feature/public-booking-page` (13/08). El error redirige con `?error=`
+preservando fecha, horario y cursor.
+
+**`player_request_booking` — `requested_by_player_id` puede ser NULL.**
+Confirmado con `pg_get_functiondef` sobre producción (13/08/2026):
+`v_player_id` se puebla con `SELECT INTO` desde `players` por `auth.uid()`
+pero **nunca se verifica que la fila exista**. Si alguien tiene sesión de
+Supabase sin fila en `players`, la reserva se crea con
+`requested_by_player_id = NULL`. No rompe el flujo visible, pero es un
+dato corrupto. `requirePlayer(sessionOnly: true)` garantiza que hay fila
+antes de mostrar el form — en producción no debería llegar un `NULL` —
+pero el RPC debería hacer el chequeo él mismo. Pendiente corregir en SQL.
 
 **`club_list_my_matches` rota desde abril.** Hasta aplicar
 `20260810_fix_club_list_my_matches_sets.sql`.
