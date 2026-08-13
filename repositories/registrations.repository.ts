@@ -316,18 +316,28 @@ export class RegistrationsRepository {
     if (error) throw error;
   }
 
+  /**
+   * start_date/end_date son las fechas DEL EVENTO;
+   * registration_start_date/registration_end_date, las de inscripcion. Son
+   * cuatro campos distintos: hasta la migracion 20260819 el wizard usaba el
+   * primer par con el rotulo del segundo.
+   */
   async updateTournamentInfo(input: {
     tournament_id: string;
     start_date?: string | null;
     end_date?: string | null;
+    registration_start_date?: string | null;
+    registration_end_date?: string | null;
     target_city_ids?: string[];
   }): Promise<void> {
     const supabase = await this.getClient();
     const { error } = await (supabase as any).rpc("club_update_tournament_info", {
-      p_tournament_id:   input.tournament_id,
-      p_start_date:      input.start_date ?? null,
-      p_end_date:        input.end_date ?? null,
-      p_target_city_ids: input.target_city_ids ?? null,
+      p_tournament_id:           input.tournament_id,
+      p_start_date:              input.start_date ?? null,
+      p_end_date:                input.end_date ?? null,
+      p_target_city_ids:         input.target_city_ids ?? null,
+      p_registration_start_date: input.registration_start_date ?? null,
+      p_registration_end_date:   input.registration_end_date ?? null,
     });
     if (error) throw error;
   }
@@ -336,14 +346,18 @@ export class RegistrationsRepository {
     league_id: string;
     start_date?: string | null;
     end_date?: string | null;
+    registration_start_date?: string | null;
+    registration_end_date?: string | null;
     target_city_ids?: string[];
   }): Promise<void> {
     const supabase = await this.getClient();
     const { error } = await (supabase as any).rpc("club_update_league_info", {
-      p_league_id:       input.league_id,
-      p_start_date:      input.start_date ?? null,
-      p_end_date:        input.end_date ?? null,
-      p_target_city_ids: input.target_city_ids ?? null,
+      p_league_id:               input.league_id,
+      p_start_date:              input.start_date ?? null,
+      p_end_date:                input.end_date ?? null,
+      p_target_city_ids:         input.target_city_ids ?? null,
+      p_registration_start_date: input.registration_start_date ?? null,
+      p_registration_end_date:   input.registration_end_date ?? null,
     });
     if (error) throw error;
   }

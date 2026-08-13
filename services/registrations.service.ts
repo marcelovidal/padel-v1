@@ -70,6 +70,8 @@ export class RegistrationsService {
     tournament_id: string;
     start_date?: string | null;
     end_date?: string | null;
+    registration_start_date?: string | null;
+    registration_end_date?: string | null;
     target_city_ids?: string[];
   }): Promise<void> {
     return this.repo.updateTournamentInfo(input);
@@ -79,6 +81,8 @@ export class RegistrationsService {
     league_id: string;
     start_date?: string | null;
     end_date?: string | null;
+    registration_start_date?: string | null;
+    registration_end_date?: string | null;
     target_city_ids?: string[];
   }): Promise<void> {
     return this.repo.updateLeagueInfo(input);

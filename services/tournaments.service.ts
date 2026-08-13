@@ -51,6 +51,10 @@ export class TournamentsService {
     return this.repository.updateTournamentStatus(tournamentId, status);
   }
 
+  async setRegistrationsOpen(tournamentId: string, open: boolean) {
+    return this.repository.setRegistrationsOpen(tournamentId, open);
+  }
+
   async registerTeam(input: {
     tournament_id: string;
     player_id_a: string;

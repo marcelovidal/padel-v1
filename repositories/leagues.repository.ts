@@ -11,6 +11,9 @@ export type LeagueRow = {
   status: "draft" | "active" | "finished";
   start_date: string | null;
   end_date: string | null;
+  registration_start_date: string | null;
+  registration_end_date: string | null;
+  registrations_open: boolean;
   target_city_ids: string[] | null;
   created_at: string;
   updated_at: string;
@@ -119,7 +122,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,registration_start_date,registration_end_date,registrations_open,target_city_ids,created_at,updated_at")
       .eq("club_id", clubId)
       .order("updated_at", { ascending: false });
     if (error) throw error;
@@ -130,7 +133,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,registration_start_date,registration_end_date,registrations_open,target_city_ids,created_at,updated_at")
       .eq("id", leagueId)
       .maybeSingle();
     if (error) throw error;
@@ -275,6 +278,20 @@ export class LeaguesRepository {
     const { error } = await (supabase as any).rpc("club_update_league_status", {
       p_league_id: leagueId,
       p_status: status,
+    });
+    if (error) throw error;
+  }
+
+  /**
+   * Abrir o cerrar inscripciones. Es independiente del status: una liga puede
+   * estar activa con las inscripciones cerradas y los partidos jugandose, que
+   * es el caso normal una vez generado el fixture.
+   */
+  async setRegistrationsOpen(leagueId: string, open: boolean) {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any).rpc("club_set_league_registrations_open", {
+      p_league_id: leagueId,
+      p_open: open,
     });
     if (error) throw error;
   }
@@ -443,7 +460,7 @@ export class LeaguesRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_leagues")
-      .select("id,club_id,name,season_label,description,status,start_date,end_date,target_city_ids,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,start_date,end_date,registration_start_date,registration_end_date,registrations_open,target_city_ids,created_at,updated_at")
       .eq("club_id", clubId)
       .eq("status", "active")
       .order("updated_at", { ascending: false });

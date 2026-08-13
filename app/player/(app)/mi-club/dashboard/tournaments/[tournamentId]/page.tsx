@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireClubOwner } from "@/lib/auth";
 import { TournamentsService } from "@/services/tournaments.service";
@@ -9,8 +8,10 @@ import { TournamentMatchResultForm } from "@/components/club/TournamentMatchResu
 import { TournamentPlayoffScheduleForm } from "@/components/club/TournamentPlayoffScheduleForm";
 import { TournamentPlayoffResultForm } from "@/components/club/TournamentPlayoffResultForm";
 import { TournamentRegisterTeamForm } from "@/components/club/TournamentRegisterTeamForm";
-import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
-import { TournamentStatusForm } from "@/components/club/TournamentStatusForm";
+import { getEffectiveStatus, hasMatchResult, normalizeSets } from "@/lib/match/matchUtils";
+import { EventInfoCard } from "@/components/club/EventInfoCard";
+import { EventStatusForm } from "@/components/club/EventStatusForm";
+import { EventRegistrationsToggle } from "@/components/club/EventRegistrationsToggle";
 import {
   removeTournamentTeamAction,
   autoCreateTournamentGroupsAction,
@@ -137,7 +138,9 @@ const OK_LABELS: Record<string, string> = {
   MATCH_SCHEDULED: "Partido programado correctamente.",
   MATCH_RESULT_SAVED: "Resultado guardado.",
   PLAYOFFS_CREATED: "Playoffs generados correctamente.",
-  TOURNAMENT_INFO_UPDATED: "Informacion de difusion actualizada.",
+  TOURNAMENT_INFO_UPDATED: "Fechas y difusion actualizadas.",
+  REGISTRATIONS_OPENED: "Inscripciones abiertas. El formulario ya aparece en la pagina publica.",
+  REGISTRATIONS_CLOSED: "Inscripciones cerradas. La pagina publica deja de mostrar el formulario.",
   REGISTRATION_CONFIRMED: "Inscripcion confirmada. Se notifico al jugador.",
   REGISTRATION_REJECTED: "Inscripcion rechazada.",
 };
@@ -209,6 +212,16 @@ export default async function MiClubTournamentDetailPage({
   const hasFixture = allMatches.length > 0;
   const hasPlayoffs = playoffMatches.length > 0;
 
+  // Fallback a `true` mientras la migracion 20260819 no este aplicada: sin la
+  // columna, el torneo se comporta como hasta ahora.
+  const registrationsOpen = (tournament as any).registrations_open ?? true;
+
+  // Partidos generados sin resultado cargado. Solo para advertir al finalizar.
+  // El resultado cuelga de `matches`, no del cruce del torneo.
+  const pendingMatches = [...allMatches, ...playoffMatches].filter(
+    (m: any) => !hasMatchResult(m?.matches)
+  ).length;
+
   const defaultSlotDuration = (bookingSettings as any)?.slot_duration_minutes || 90;
   const courtOptions = courts.map((c: any) => ({
     id: c.id,
@@ -236,29 +249,39 @@ export default async function MiClubTournamentDetailPage({
 
   return (
     <div className="w-full space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link
-            href="/player/mi-club/dashboard/tournaments"
-            className="text-sm text-gray-400 hover:text-gray-700"
-          >
-            ← Torneos del Club
-          </Link>
-          <h1 className="mt-1 text-2xl font-bold">{tournament.name}</h1>
-          <p className="text-sm text-gray-500">
-            {tournament.season_label || "Sin temporada"} - Categoria {tournament.target_category_int}
-            {tournament.allow_lower_category ? " (acepta menores)" : ""} - {statusLabel(tournament.status)}
-          </p>
-          {tournament.description ? <p className="mt-1 text-sm text-gray-700">{tournament.description}</p> : null}
-        </div>
-        {/* Cambio de estado — pide confirmacion si activar dispara difusion */}
-        <TournamentStatusForm
-          tournamentId={tournament.id}
-          currentStatus={tournament.status}
-          targetCityIds={(tournament as any).target_city_ids ?? []}
-        />
-      </div>
+      {/* Informacion del torneo, con el estado y las inscripciones adentro */}
+      <EventInfoCard
+        backHref="/player/mi-club/dashboard/tournaments"
+        backLabel="Torneos del Club"
+        name={tournament.name}
+        meta={`${tournament.season_label || "Sin temporada"} · Categoría ${tournament.target_category_int}${
+          tournament.allow_lower_category ? " (acepta menores)" : ""
+        }`}
+        description={tournament.description}
+        status={tournament.status}
+        statusLabel={statusLabel(tournament.status)}
+        startDate={tournament.start_date}
+        endDate={tournament.end_date}
+        registrationStartDate={(tournament as any).registration_start_date ?? null}
+        registrationEndDate={(tournament as any).registration_end_date ?? null}
+        registrationsOpen={registrationsOpen}
+        statusControl={
+          <EventStatusForm
+            entityType="tournament"
+            entityId={tournament.id}
+            currentStatus={tournament.status}
+            targetCityIds={(tournament as any).target_city_ids ?? []}
+            pendingMatches={pendingMatches}
+          />
+        }
+        registrationsControl={
+          <EventRegistrationsToggle
+            entityType="tournament"
+            entityId={tournament.id}
+            registrationsOpen={registrationsOpen}
+          />
+        }
+      />
 
       {/* Alertas globales */}
       {errorCode ? (
@@ -306,7 +329,7 @@ export default async function MiClubTournamentDetailPage({
       {/* Difusión: fechas y ciudades */}
       <section id="diffusion" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
-          Difusion geografica
+          Fechas y difusion
         </h2>
         <p className="mb-4 text-xs text-gray-500">
           Cuando el torneo esta activo, los jugadores de las ciudades seleccionadas recibiran una notificacion de inscripcion.
@@ -316,6 +339,8 @@ export default async function MiClubTournamentDetailPage({
           entityId={tournament.id}
           startDate={(tournament as any).start_date ?? null}
           endDate={(tournament as any).end_date ?? null}
+          registrationStartDate={(tournament as any).registration_start_date ?? null}
+          registrationEndDate={(tournament as any).registration_end_date ?? null}
           targetCityIds={(tournament as any).target_city_ids ?? []}
         />
       </section>
