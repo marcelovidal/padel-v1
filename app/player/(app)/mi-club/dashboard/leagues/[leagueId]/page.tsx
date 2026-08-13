@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireClubOwner } from "@/lib/auth";
 import { getSiteUrl } from "@/lib/utils/url";
@@ -11,12 +10,14 @@ import { LeagueMatchScheduleForm } from "@/components/club/LeagueMatchScheduleFo
 import { LeagueMatchResultForm } from "@/components/club/LeagueMatchResultForm";
 import { PlayoffMatchScheduleForm } from "@/components/club/PlayoffMatchScheduleForm";
 import { PlayoffMatchResultForm } from "@/components/club/PlayoffMatchResultForm";
-import { getEffectiveStatus, normalizeSets } from "@/lib/match/matchUtils";
+import { getEffectiveStatus, hasMatchResult, normalizeSets } from "@/lib/match/matchUtils";
 import { RegistrationsPanel } from "@/components/club/RegistrationsPanel";
 import { RegistrationsService } from "@/services/registrations.service";
 import { EventDiffusionSection } from "@/components/club/EventDiffusionSection";
 import { LeagueRegisterTeamForm } from "@/components/club/LeagueRegisterTeamForm";
-import { LeaguePublishButton } from "@/components/club/LeaguePublishButton";
+import { EventInfoCard } from "@/components/club/EventInfoCard";
+import { EventStatusForm } from "@/components/club/EventStatusForm";
+import { EventRegistrationsToggle } from "@/components/club/EventRegistrationsToggle";
 import {
   assignTeamToGroupAction,
   autoCreateGroupsAction,
@@ -24,7 +25,6 @@ import {
   generateFixtureAction,
   reopenDivisionFixtureForEditAction,
   removeLeagueTeamAction,
-  updateLeagueStatusAction,
 } from "@/lib/actions/leagues.actions";
 
 function teamLabel(team: any, playersMap: Map<string, string>) {
@@ -179,6 +179,17 @@ export default async function MiClubLeagueDetailPage({
   );
 
   const leagueMatches = await leaguesService.listLeagueMatches(leagueId);
+
+  // Fallback a `true` mientras la migracion 20260819 no este aplicada: sin la
+  // columna, la liga se comporta como hasta ahora.
+  const registrationsOpen = (league as any).registrations_open ?? true;
+
+  // Partidos generados sin resultado cargado — zona y playoffs. Solo para
+  // advertir al finalizar; el resultado cuelga de `matches`, no del cruce.
+  const pendingMatches = [
+    ...leagueMatches,
+    ...divisionData.flatMap((d) => d.playoffMatches),
+  ].filter((m: any) => !hasMatchResult(m?.matches)).length;
   const siteUrl = getSiteUrl();
   const ogLeagueUrl = buildOgLeagueUrl(leagueId, siteUrl);
   const shareLeagueUrl = buildShareLeagueUrl(leagueId, siteUrl);
@@ -198,10 +209,6 @@ export default async function MiClubLeagueDetailPage({
   const submitAssignTeamToGroup = async (formData: FormData) => {
     "use server";
     await assignTeamToGroupAction(formData);
-  };
-  const submitUpdateLeagueStatus = async (formData: FormData) => {
-    "use server";
-    await updateLeagueStatusAction(formData);
   };
   const submitReopenFixtureForEdit = async (formData: FormData) => {
     "use server";
@@ -231,7 +238,9 @@ export default async function MiClubLeagueDetailPage({
     MATCH_RESULT_SAVED: "Resultado cargado correctamente.",
     LEAGUE_STATUS_UPDATED: "Estado de liga actualizado correctamente.",
     FIXTURE_REOPENED_FOR_EDIT: "Fixture reabierto para edicion.",
-    LEAGUE_INFO_UPDATED: "Información de difusión actualizada.",
+    LEAGUE_INFO_UPDATED: "Fechas y difusión actualizadas.",
+    REGISTRATIONS_OPENED: "Inscripciones abiertas. El formulario ya aparece en la página pública.",
+    REGISTRATIONS_CLOSED: "Inscripciones cerradas. La página pública deja de mostrar el formulario.",
     REGISTRATION_CONFIRMED: "Inscripción confirmada. Se notificó al jugador.",
     REGISTRATION_REJECTED: "Inscripción rechazada.",
   };
@@ -330,21 +339,38 @@ export default async function MiClubLeagueDetailPage({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link
-            href="/player/mi-club/dashboard/leagues"
-            className="text-sm text-gray-400 hover:text-gray-700"
-          >
-            ← Ligas del Club
-          </Link>
-          <h1 className="mt-1 text-2xl font-bold">{league.name}</h1>
-          <p className="text-sm text-gray-500">
-            {league.season_label || "Sin temporada"} · Estado: {leagueStatusLabel(league.status)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {league.status !== "draft" && (
+      {/* Informacion de la liga, con el estado y las inscripciones adentro */}
+      <EventInfoCard
+        backHref="/player/mi-club/dashboard/leagues"
+        backLabel="Ligas del Club"
+        name={league.name}
+        meta={league.season_label || "Sin temporada"}
+        description={league.description}
+        status={league.status}
+        statusLabel={leagueStatusLabel(league.status)}
+        startDate={league.start_date}
+        endDate={league.end_date}
+        registrationStartDate={(league as any).registration_start_date ?? null}
+        registrationEndDate={(league as any).registration_end_date ?? null}
+        registrationsOpen={registrationsOpen}
+        statusControl={
+          <EventStatusForm
+            entityType="league"
+            entityId={league.id}
+            currentStatus={league.status}
+            targetCityIds={(league as any).target_city_ids ?? []}
+            pendingMatches={pendingMatches}
+          />
+        }
+        registrationsControl={
+          <EventRegistrationsToggle
+            entityType="league"
+            entityId={league.id}
+            registrationsOpen={registrationsOpen}
+          />
+        }
+        shareControl={
+          league.status !== "draft" ? (
             <ShareCardButton
               type="league"
               shareUrl={shareLeagueUrl}
@@ -353,25 +379,9 @@ export default async function MiClubLeagueDetailPage({
               label="Compartir tabla"
               downloadName={`pasala-liga-${league.name.replace(/\s+/g, "-").toLowerCase()}`}
             />
-          )}
-          {league.status === "draft" ? (
-            /* Publicar dispara la difusion: pide confirmacion si hay ciudades */
-            <LeaguePublishButton
-              leagueId={league.id}
-              targetCityIds={(league as any).target_city_ids ?? []}
-            />
-          ) : null}
-          {league.status === "active" ? (
-            <form action={submitUpdateLeagueStatus}>
-              <input type="hidden" name="league_id" value={league.id} />
-              <input type="hidden" name="next_status" value="finished" />
-              <button className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:bg-amber-100">
-                Finalizar liga
-              </button>
-            </form>
-          ) : null}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* Navegación interna — sin sticky: el header mobile del layout player ya ocupa top-0 z-20 */}
       <nav className="flex gap-1 overflow-x-auto border-b border-gray-100 pb-2">
@@ -398,7 +408,7 @@ export default async function MiClubLeagueDetailPage({
       {/* Difusión: fechas y ciudades */}
       <section id="diffusion" className="scroll-mt-20 rounded-2xl border bg-white p-4">
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-600">
-          Difusión geográfica
+          Fechas y difusión
         </h2>
         <p className="mb-4 text-xs text-gray-500">
           Cuando la liga está activa, los jugadores de las ciudades seleccionadas recibirán una notificación de inscripción.
@@ -408,6 +418,8 @@ export default async function MiClubLeagueDetailPage({
           entityId={league.id}
           startDate={(league as any).start_date ?? null}
           endDate={(league as any).end_date ?? null}
+          registrationStartDate={(league as any).registration_start_date ?? null}
+          registrationEndDate={(league as any).registration_end_date ?? null}
           targetCityIds={(league as any).target_city_ids ?? []}
         />
       </section>

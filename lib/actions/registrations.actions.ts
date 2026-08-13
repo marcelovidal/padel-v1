@@ -143,6 +143,8 @@ export async function updateTournamentInfoAction(formData: FormData) {
 
   const startDate = String(formData.get("start_date") || "").trim() || null;
   const endDate = String(formData.get("end_date") || "").trim() || null;
+  const regStartDate = String(formData.get("registration_start_date") || "").trim() || null;
+  const regEndDate = String(formData.get("registration_end_date") || "").trim() || null;
   const rawCities = String(formData.get("target_city_ids") || "").trim();
   const targetCityIds = rawCities
     ? rawCities.split(",").map((s) => s.trim()).filter(Boolean)
@@ -154,6 +156,8 @@ export async function updateTournamentInfoAction(formData: FormData) {
       tournament_id: tournamentId,
       start_date: startDate,
       end_date: endDate,
+      registration_start_date: regStartDate,
+      registration_end_date: regEndDate,
       target_city_ids: targetCityIds,
     });
     revalidatePath(path);
@@ -172,6 +176,8 @@ export async function updateLeagueInfoAction(formData: FormData) {
 
   const startDate = String(formData.get("start_date") || "").trim() || null;
   const endDate = String(formData.get("end_date") || "").trim() || null;
+  const regStartDate = String(formData.get("registration_start_date") || "").trim() || null;
+  const regEndDate = String(formData.get("registration_end_date") || "").trim() || null;
   const rawCities = String(formData.get("target_city_ids") || "").trim();
   const targetCityIds = rawCities
     ? rawCities.split(",").map((s) => s.trim()).filter(Boolean)
@@ -183,6 +189,8 @@ export async function updateLeagueInfoAction(formData: FormData) {
       league_id: leagueId,
       start_date: startDate,
       end_date: endDate,
+      registration_start_date: regStartDate,
+      registration_end_date: regEndDate,
       target_city_ids: targetCityIds,
     });
     revalidatePath(path);

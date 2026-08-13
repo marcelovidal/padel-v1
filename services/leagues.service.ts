@@ -53,6 +53,10 @@ export class LeaguesService {
     return this.repository.updateLeagueStatus(leagueId, status);
   }
 
+  async setRegistrationsOpen(leagueId: string, open: boolean) {
+    return this.repository.setRegistrationsOpen(leagueId, open);
+  }
+
   async createDivision(input: {
     league_id: string;
     name: string;

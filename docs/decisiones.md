@@ -3,7 +3,7 @@
 Documento de referencia. Lo que está acá **ya está decidido** y no se
 vuelve a discutir salvo que aparezca información nueva que lo invalide.
 
-Última actualización: 12 de agosto de 2026.
+Última actualización: 13 de agosto de 2026.
 
 ---
 
@@ -171,6 +171,89 @@ extraer la versión compartida es trabajo de después del lanzamiento.
 
 El logo del club ya está en un bucket público (`club-logos`), que es lo
 que permite que aparezca en la preview de WhatsApp.
+
+---
+
+## Control de inscripciones — DECIDIDO e implementado 13/08/2026
+
+### El control es manual, del administrador
+
+No se deriva de fechas. En pádel las inscripciones se cierran cuando se
+llena el cupo o cuando el club decide armar los grupos, no cuando llega
+una fecha del calendario.
+
+Es un **toggle reversible**: el club cierra y vuelve a abrir. Poco
+probable, pero posible, y no cuesta nada dejarlo abierto.
+
+Columna `registrations_open boolean NOT NULL DEFAULT true` en
+`club_tournaments` y `club_leagues`. Es **la única condición** que decide
+si la página pública muestra el formulario. El `status` del evento ya no
+decide eso.
+
+### El enum no se tocó
+
+Sigue siendo `draft | active | finished`. La alternativa —agregar un
+estado "inscripciones cerradas, torneo en juego"— obligaba a que el enum
+representara dos ejes independientes, y son eso: independientes. Un
+evento puede estar **en juego Y recibiendo inscripciones** al mismo
+tiempo, y la UI no fuerza una sola categoría: son dos chips.
+
+### Las fechas son dos pares distintos
+
+Esto estaba mal y se corrigió. Había **un solo par** de columnas con dos
+identidades contradictorias:
+
+| Columnas | Qué son | Quién las usa |
+|---|---|---|
+| `start_date` / `end_date` | fechas **del evento** | header de la página pública (`formatDateRange`) y `q6_notify_event_open`, que manda `start_date` como inicio del evento en el mensaje de difusión |
+| `registration_start_date` / `registration_end_date` | fechas **de inscripción** | solo se muestran al jugador |
+
+El wizard y la sección de difusión rotulaban el primer par como
+"inicio/cierre de inscripciones" mientras el resto del sistema lo usaba
+como fechas del evento. Ahora se piden las cuatro por separado.
+
+Las de inscripción son **informativas**: se muestran ("Cierran el
+31/08/2026") pero no habilitan ni bloquean nada. Quien decide es
+`registrations_open`. Una fecha de cierre ya pasada con las
+inscripciones todavía abiertas se muestra igual — que el club las haya
+dejado abiertas es información, no un error a tapar.
+
+`docs/navegacion-club.md` proponía derivar el estado de esas fechas.
+**Se descartó**: es la misma trampa de dejar que el calendario decida por
+el club.
+
+### El corte va en el RPC, no solo en la UI
+
+`public_request_tournament_registration` y
+`public_request_league_registration` los ejecuta `anon`. Esconder el
+formulario no impide un POST directo, así que las dos validan
+`registrations_open` y cortan con `REGISTRATIONS_CLOSED`, que la app
+traduce a "El club cerró las inscripciones para este torneo".
+
+Es el caso real de alguien con el formulario abierto cuando el club
+cierra.
+
+### El selector de estado se unificó
+
+La liga tenía dos botones de una sola dirección —"Publicar liga" solo en
+`draft`, "Finalizar liga" solo en `active`— y **ningún camino de vuelta**.
+Una liga finalizada por error quedaba trabada: sin playoffs
+(`club_generate_division_playoffs` corta con `LEAGUE_ALREADY_FINISHED`) y
+sin forma de reabrirla desde la UI. Le pasó a la Liga de prueba.
+
+Ahora las dos entidades usan el mismo selector de tres estados
+(`EventStatusForm`), y los tres son alcanzables desde cualquiera.
+
+Antes de finalizar, si quedan partidos generados sin resultado, avisa
+cuántos y deja seguir. **No bloquea**: un club tiene derecho a cerrar una
+liga abandonada, pero no en silencio.
+
+### Dónde vive el control
+
+Dentro de una card de información del evento (`EventInfoCard`), junto al
+nombre, la temporada y las cuatro fechas — que es la información con la
+que el club decide si abrir o cerrar. Antes el selector estaba suelto en
+una esquina superior, donde no se veía.
 
 ---
 

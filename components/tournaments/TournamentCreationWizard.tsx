@@ -191,28 +191,66 @@ export function TournamentCreationWizard({ clubId }: Props) {
             />
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-600">
-                Inicio de inscripciones{" "}
-                <span className="font-normal text-gray-400">(opcional)</span>
-              </label>
-              <input
-                type="date"
-                name="start_date"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
+          {/* Cuatro fechas, dos cosas distintas: cuando se juega el torneo y
+              cuando se anota la gente. Antes habia un solo par, rotulado como
+              inscripciones y usado como fechas del evento. */}
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-wider text-gray-500">
+              Fechas del torneo
+            </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-600">
+                  Inicio <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="date"
+                  name="start_date"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-600">
+                  Fin <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="date"
+                  name="end_date"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-600">
-                Cierre de inscripciones{" "}
-                <span className="font-normal text-gray-400">(opcional)</span>
-              </label>
-              <input
-                type="date"
-                name="end_date"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
+          </div>
+
+          <div>
+            <p className="mb-1 text-xs font-black uppercase tracking-wider text-gray-500">
+              Fechas de inscripción
+            </p>
+            <p className="mb-2 text-xs text-gray-500">
+              Informativas: se le muestran al jugador. Abrir y cerrar las inscripciones se hace
+              a mano desde el torneo.
+            </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-600">
+                  Apertura <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="date"
+                  name="registration_start_date"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-600">
+                  Cierre <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="date"
+                  name="registration_end_date"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
             </div>
           </div>
 

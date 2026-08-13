@@ -27,6 +27,11 @@ v0.10.0
   4 acciones (partido en club / sin club / reservar
   cancha / reservar clase); flujo directo sin
   pantalla intermedia desde calendario
+- Control de inscripciones: `registrations_open` manual y
+  reversible por evento, separado del enum de estado; card
+  de info del evento en la gestión con selector de 3 estados
+  unificado torneo/liga; fechas de evento y de inscripción
+  como dos pares distintos
 - Rol dueño de club: jugador solicita acceso desde
   perfil, super admin aprueba/rechaza con notif,
   panel /player/mi-club con 18 páginas (reservas,
@@ -67,6 +72,12 @@ v0.10.0
 - club_owner_requests (con RLS)
 - notifications.type CHECK constraint ampliado con
   club_owner_request_approved/rejected
+
+### Migración escrita SIN APLICAR
+- 20260819_registrations_open.sql — aplicar ANTES de
+  desplegar: el código ya pide las columnas nuevas y sin
+  ellas las páginas de evento dan 404 mudo. Detalle y
+  verificación en docs/estado.md
 
 ### Pendientes próximo sprint
 1. Landing page pública

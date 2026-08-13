@@ -25,7 +25,18 @@ const PLAYER_PUBLIC_COLUMNS = "id,display_name,category";
 
 export type PublicEventStatus = "active" | "finished";
 
-export type PublicTournament = {
+/**
+ * `registrations_open` es lo unico que decide si se muestra el formulario. Las
+ * dos fechas de inscripcion son informativas: se muestran, no deciden. Y son
+ * distintas de start_date/end_date, que son las del evento.
+ */
+type PublicRegistrationFields = {
+  registrations_open: boolean | null;
+  registration_start_date: string | null;
+  registration_end_date: string | null;
+};
+
+export type PublicTournament = PublicRegistrationFields & {
   id: string;
   club_id: string;
   name: string;
@@ -38,7 +49,7 @@ export type PublicTournament = {
   end_date: string | null;
 };
 
-export type PublicLeague = {
+export type PublicLeague = PublicRegistrationFields & {
   id: string;
   club_id: string;
   name: string;
@@ -77,10 +88,13 @@ export type PublicEventSummary = {
   end_date: string | null;
 };
 
+// Si un campo no esta aca, no llega a la pagina. Las tres columnas de
+// inscripcion van explicitas por eso.
+const REGISTRATION_COLUMNS = "registrations_open,registration_start_date,registration_end_date";
 const TOURNAMENT_COLUMNS =
-  "id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date";
+  `id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date,${REGISTRATION_COLUMNS}`;
 const LEAGUE_COLUMNS =
-  "id,club_id,name,season_label,description,status,start_date,end_date";
+  `id,club_id,name,season_label,description,status,start_date,end_date,${REGISTRATION_COLUMNS}`;
 
 /**
  * Mapa id → nombre para las parejas. Se arma con una sola query en vez de un

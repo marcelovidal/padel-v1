@@ -126,6 +126,8 @@ export async function createTournamentWizardAction(formData: FormData) {
   const allowLower = formData.get("allow_lower_category") === "on";
   const startDate = String(formData.get("start_date") || "").trim() || null;
   const endDate = String(formData.get("end_date") || "").trim() || null;
+  const regStartDate = String(formData.get("registration_start_date") || "").trim() || null;
+  const regEndDate = String(formData.get("registration_end_date") || "").trim() || null;
   const rawCities = String(formData.get("target_city_ids") || "").trim();
   const targetCityIds = rawCities ? rawCities.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
@@ -148,8 +150,15 @@ export async function createTournamentWizardAction(formData: FormData) {
       description: description || undefined,
     });
 
-    if (startDate || endDate || targetCityIds.length > 0) {
-      await reg.updateTournamentInfo({ tournament_id: tournamentId, start_date: startDate, end_date: endDate, target_city_ids: targetCityIds });
+    if (startDate || endDate || regStartDate || regEndDate || targetCityIds.length > 0) {
+      await reg.updateTournamentInfo({
+        tournament_id: tournamentId,
+        start_date: startDate,
+        end_date: endDate,
+        registration_start_date: regStartDate,
+        registration_end_date: regEndDate,
+        target_city_ids: targetCityIds,
+      });
     }
 
     revalidatePath("/player/mi-club/dashboard/tournaments");
@@ -178,6 +187,30 @@ export async function updateTournamentStatusAction(formData: FormData) {
   } catch (error: any) {
     if (isNextRedirectError(error)) throw error;
     console.error("[Q6.2 updateTournamentStatusAction]", error);
+    redirectWithError(path, errCode(error), errDebug(error));
+  }
+}
+
+/**
+ * Abre o cierra las inscripciones. Es un toggle: el formulario manda el valor
+ * al que se quiere ir, no el actual.
+ */
+export async function setTournamentRegistrationsOpenAction(formData: FormData) {
+  const service = new TournamentsService();
+  const tournamentId = String(formData.get("tournament_id") || "");
+  const open = String(formData.get("open") || "") === "true";
+  const path = getTournamentUrlPath(tournamentId);
+
+  if (!tournamentId) redirectWithError("/player/mi-club/dashboard/tournaments", "TOURNAMENT_NOT_FOUND");
+
+  try {
+    await service.setRegistrationsOpen(tournamentId, open);
+    revalidatePath(path);
+    revalidatePath("/player/mi-club/dashboard/tournaments");
+    redirectWithOk(path, open ? "REGISTRATIONS_OPENED" : "REGISTRATIONS_CLOSED");
+  } catch (error: any) {
+    if (isNextRedirectError(error)) throw error;
+    console.error("[Q6.2 setTournamentRegistrationsOpenAction]", error);
     redirectWithError(path, errCode(error), errDebug(error));
   }
 }

@@ -11,6 +11,9 @@ export type TournamentRow = {
   allow_lower_category: boolean;
   start_date: string | null;
   end_date: string | null;
+  registration_start_date: string | null;
+  registration_end_date: string | null;
+  registrations_open: boolean;
   target_city_ids: string[] | null;
   created_at: string;
   updated_at: string;
@@ -83,7 +86,7 @@ export class TournamentsRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_tournaments")
-      .select("id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date,target_city_ids,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date,registration_start_date,registration_end_date,registrations_open,target_city_ids,created_at,updated_at")
       .eq("club_id", clubId)
       .order("updated_at", { ascending: false });
     if (error) throw error;
@@ -94,7 +97,7 @@ export class TournamentsRepository {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any)
       .from("club_tournaments")
-      .select("id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date,target_city_ids,created_at,updated_at")
+      .select("id,club_id,name,season_label,description,status,target_category_int,allow_lower_category,start_date,end_date,registration_start_date,registration_end_date,registrations_open,target_city_ids,created_at,updated_at")
       .eq("id", tournamentId)
       .maybeSingle();
     if (error) throw error;
@@ -192,6 +195,20 @@ export class TournamentsRepository {
     const { error } = await (supabase as any).rpc("club_update_tournament_status", {
       p_tournament_id: tournamentId,
       p_status: status,
+    });
+    if (error) throw error;
+  }
+
+  /**
+   * Abrir o cerrar inscripciones. Es independiente del status: un torneo
+   * puede estar activo con las inscripciones cerradas y los partidos
+   * jugandose, que es el caso normal una vez armados los grupos.
+   */
+  async setRegistrationsOpen(tournamentId: string, open: boolean) {
+    const supabase = await this.getClient();
+    const { error } = await (supabase as any).rpc("club_set_tournament_registrations_open", {
+      p_tournament_id: tournamentId,
+      p_open: open,
     });
     if (error) throw error;
   }
