@@ -36,19 +36,19 @@ export function CourtAvailabilityGrid({
   } as const;
 
   return (
-    <div className="rounded-xl border border-gray-100 p-3 space-y-2">
-      <p className="text-xs font-black uppercase tracking-wider text-gray-500">Disponibilidad</p>
+    <div className="rounded-xl border border-[var(--border-soft)] p-3 space-y-2">
+      <p className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">Disponibilidad</p>
       {slotStates.length === 0 ? (
-        <p className="text-sm text-amber-700">No hay horarios configurados para este club.</p>
+        <p className="text-sm text-brand-amarillo">No hay horarios configurados para este club.</p>
       ) : (
         <div className="overflow-x-auto">
           {/* Header */}
           <div style={gridStyle} className="mb-[3px]">
-            <div className="py-1.5 px-2 text-[10px] font-black uppercase text-gray-400">Cancha</div>
+            <div className="py-1.5 px-2 text-[10px] font-black uppercase text-[var(--text-faint)]">Cancha</div>
             {slotStates.map((slot) => (
               <div
                 key={slot.time}
-                className="py-1.5 text-[10px] font-black text-gray-500 text-center"
+                className="py-1.5 text-[10px] font-black text-[var(--text-muted)] text-center"
               >
                 {slot.time}
               </div>
@@ -57,7 +57,7 @@ export function CourtAvailabilityGrid({
           {/* Court rows */}
           {courts.map((court) => (
             <div key={court.id} style={gridStyle} className="mb-[3px]">
-              <div className="flex items-center px-2 py-2 text-xs font-semibold text-gray-700 truncate">
+              <div className="flex items-center px-2 py-2 text-xs font-semibold text-[var(--text-secondary)] truncate">
                 {court.name}
               </div>
               {slotStates.map((slot) => {
@@ -69,7 +69,7 @@ export function CourtAvailabilityGrid({
                   return (
                     <div
                       key={`${court.id}-${slot.time}`}
-                      className="rounded-md bg-gray-50 border border-dashed border-gray-100"
+                      className="rounded-md bg-brand-gris-50 border border-dashed border-brand-gris-100"
                     />
                   );
                 }
@@ -77,7 +77,7 @@ export function CourtAvailabilityGrid({
                   return (
                     <div
                       key={`${court.id}-${slot.time}`}
-                      className="rounded-md bg-gray-200 py-2 text-center text-[10px] font-semibold text-gray-500"
+                      className="rounded-md bg-brand-gris-100 py-2 text-center text-[10px] font-semibold text-brand-gris-mid"
                     >
                       Ocupado
                     </div>
@@ -89,12 +89,12 @@ export function CourtAvailabilityGrid({
                     href={buildSlotHref({ time: slot.time, courtId: court.id })}
                     className={`relative rounded-md py-2 text-center text-[10px] font-bold ${
                       isSelected
-                        ? "border-2 border-blue-600 bg-blue-50 text-blue-600"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                        ? "border-2 border-brand-azul bg-brand-azul-50 text-brand-azul"
+                        : "bg-brand-verde-50 text-brand-verde hover:bg-brand-verde-50/80"
                     }`}
                   >
                     {isSelected && (
-                      <span className="absolute top-0.5 right-1 text-[8px] font-black text-blue-600">
+                      <span className="absolute top-0.5 right-1 text-[8px] font-black text-brand-azul">
                         ✓
                       </span>
                     )}
