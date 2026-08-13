@@ -34,6 +34,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   LEAGUE_NOT_FOUND: "No encontramos la liga.",
   TOURNAMENT_NOT_OPEN: "Las inscripciones a este torneo estan cerradas.",
   LEAGUE_NOT_OPEN: "Las inscripciones a esta liga estan cerradas.",
+  // Se reemplaza por el mensaje con el tipo de evento; queda aca para que
+  // codeFrom lo reconozca y por si algun dia se llama sin `kind`.
+  REGISTRATIONS_CLOSED: "El club cerro las inscripciones.",
   SAME_PLAYER_TWICE: "Los dos jugadores son la misma persona. Revisa los datos.",
   PLAYER_A_ALREADY_REGISTERED: "Ya hay una inscripcion con esos datos.",
   PLAYER_B_ALREADY_REGISTERED: "Tu companero ya figura en otra inscripcion.",
@@ -150,6 +153,18 @@ export async function requestPublicRegistrationAction(
               : "Encontramos mas de un jugador con ese numero. Eligi cual es tu companero.",
         };
       }
+    }
+
+    // Pasa de verdad: el club cierra las inscripciones mientras alguien tiene
+    // el formulario abierto. Se dice quien cerro y sobre que, no el codigo.
+    if (code === "REGISTRATIONS_CLOSED") {
+      return {
+        ok: false,
+        error:
+          kind === "tournament"
+            ? "El club cerro las inscripciones para este torneo."
+            : "El club cerro las inscripciones para esta liga.",
+      };
     }
 
     if (code) return { ok: false, error: ERROR_MESSAGES[code] ?? code };
