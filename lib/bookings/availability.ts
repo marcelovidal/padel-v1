@@ -121,6 +121,13 @@ export async function computeClubAvailability({
     dayEnd.toISOString()
   );
 
+  // Umbral para filtrar turnos ya iniciados: igual que el RPC (now - 10 min).
+  // Solo aplica al dia actual; dias futuros no se tocan.
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const isToday = date === todayStr;
+  const cutoff = new Date(now.getTime() - 10 * 60_000);
+
   const courtSlotMap = new Map<string, Set<string>>();
   const byTime = new Map<string, { totalCourts: number; availableCourts: string[] }>();
 
@@ -147,6 +154,17 @@ export async function computeClubAvailability({
       current.totalCourts += 1;
       if (!blocked) current.availableCourts.push(court.id);
       byTime.set(slot, current);
+    }
+  }
+
+  // Para el dia actual, marcar como no disponibles los turnos cuyo inicio
+  // ya paso (criterio: start <= now - 10 min, igual que player_request_booking).
+  if (isToday) {
+    for (const [time, state] of byTime) {
+      const start = buildStartAt(date, time);
+      if (start && start <= cutoff) {
+        state.availableCourts = [];
+      }
     }
   }
 
