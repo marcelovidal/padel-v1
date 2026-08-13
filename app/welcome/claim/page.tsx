@@ -1,3 +1,4 @@
+import { safeNextPath } from "@/lib/auth/safe-next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { MatchService } from "@/services/match.service";
@@ -14,7 +15,7 @@ export default async function WelcomeClaimPage({
 }) {
   const targetPlayerId = searchParams.claim_player;
   const claimMatchId = searchParams.claim_match;
-  const nextPath = searchParams.next || "/player";
+  const nextPath = safeNextPath(searchParams.next, "/player");
 
   if (!targetPlayerId) {
     return (

@@ -5,6 +5,19 @@ import { createClient } from "@/lib/supabase/server";
 import { BookingService } from "@/services/booking.service";
 import { requestBookingAction } from "@/lib/actions/booking.actions";
 import { ClubAutoSubmit } from "@/components/bookings/ClubAutoSubmit";
+import { CourtAvailabilityGrid } from "@/components/bookings/CourtAvailabilityGrid";
+import {
+  computeClubAvailability,
+  type AvailabilityCourt,
+  type ClubSlotState,
+} from "@/lib/bookings/availability";
+
+/**
+ * Ruta propia de esta pagina. Sale de una constante y no literal en cada href
+ * porque la reserva publica va a repetir este mismo `buildHref` apuntando a su
+ * propia ruta.
+ */
+const BASE_PATH = "/player/bookings/new";
 
 function defaultDate() {
   const d = new Date();
@@ -32,33 +45,6 @@ function startOfWeekMonday(d: Date) {
   copy.setDate(copy.getDate() - day);
   copy.setHours(0, 0, 0, 0);
   return copy;
-}
-
-function buildStartAt(date: string, time: string) {
-  if (!date || !time) return null;
-  const raw = `${date}T${time}:00`;
-  const start = new Date(raw);
-  if (Number.isNaN(start.getTime())) return null;
-  return start;
-}
-
-function buildSlotOptions(openingTime: string, closingTime: string, slotMinutes: number) {
-  const parse = (hhmm: string) => {
-    const [hh, mm] = hhmm.split(":").map(Number);
-    if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
-    return hh * 60 + mm;
-  };
-  const open = parse(openingTime);
-  const close = parse(closingTime);
-  if (open === null || close === null || close <= open || slotMinutes <= 0) return [] as string[];
-
-  const options: string[] = [];
-  for (let cur = open; cur + slotMinutes <= close; cur += slotMinutes) {
-    const hh = String(Math.floor(cur / 60)).padStart(2, "0");
-    const mm = String(cur % 60).padStart(2, "0");
-    options.push(`${hh}:${mm}`);
-  }
-  return options;
 }
 
 export default async function PlayerNewBookingPage({
@@ -116,109 +102,27 @@ export default async function PlayerNewBookingPage({
 
   let slotMinutes = 90;
   let effectiveTime = selectedTime;
-  let activeCourtsForClub: Array<{
-    id: string;
-    name: string;
-    surface_type: string;
-    is_indoor: boolean;
-    opening_time: string;
-    closing_time: string;
-    slot_interval_minutes: number | null;
-  }> = [];
-  let clubSlotStates: Array<{ time: string; totalCourts: number; availableCourts: string[] }> = [];
-  let availableCourts: Array<{
-    id: string;
-    name: string;
-    surface_type: string;
-    is_indoor: boolean;
-    opening_time: string;
-    closing_time: string;
-    slot_interval_minutes: number | null;
-  }> = [];
+  let activeCourtsForClub: AvailabilityCourt[] = [];
+  let clubSlotStates: ClubSlotState[] = [];
+  let availableCourts: AvailabilityCourt[] = [];
   let effectiveCourtId = selectedCourtId;
-  const courtSlotMap = new Map<string, Set<string>>();
+  let courtSlotMap = new Map<string, Set<string>>();
 
   if (selectedClubId) {
-    const settings = await bookingService.getClubBookingSettings(selectedClubId);
-    const fallbackSlotMinutes = settings?.slot_duration_minutes || 90;
-    slotMinutes = fallbackSlotMinutes;
-
-    const courts = await bookingService.listActiveClubCourts(selectedClubId);
-    activeCourtsForClub = courts.map((c) => ({
-      id: c.id,
-      name: c.name,
-      surface_type: c.surface_type,
-      is_indoor: c.is_indoor,
-      opening_time: String(c.opening_time || "09:00").slice(0, 5),
-      closing_time: String(c.closing_time || "23:00").slice(0, 5),
-      slot_interval_minutes: c.slot_interval_minutes,
-    }));
-
-    const dayStart = new Date(`${selectedDate}T00:00:00`);
-    const dayEnd = new Date(dayStart);
-    dayEnd.setDate(dayEnd.getDate() + 1);
-
-    // Fuente unica de disponibilidad. Antes esto era una query directa a
-    // court_bookings filtrada por status = 'confirmed', que ignoraba las
-    // solicitudes pendientes, los turnos fijos, los partidos de liga y torneo
-    // y las clases con entrenador.
-    const occupiedSlots = await bookingService.getOccupiedSlots(
-      selectedClubId,
-      dayStart.toISOString(),
-      dayEnd.toISOString()
-    );
-
-    const byTime = new Map<string, { totalCourts: number; availableCourts: string[] }>();
-    for (const court of activeCourtsForClub) {
-      const courtSlotMinutes = court.slot_interval_minutes || fallbackSlotMinutes;
-      const slots = buildSlotOptions(court.opening_time, court.closing_time, courtSlotMinutes);
-      courtSlotMap.set(court.id, new Set(slots));
-      for (const slot of slots) {
-        const start = buildStartAt(selectedDate, slot);
-        if (!start) continue;
-        const end = new Date(start.getTime() + courtSlotMinutes * 60_000);
-        // Mismo criterio de solapamiento semiabierto [inicio, fin) que aplica
-        // club_get_occupied_slots: un turno que termina donde arranca el
-        // siguiente no lo bloquea.
-        const blocked = occupiedSlots.some((row) => {
-          if (row.court_id !== court.id) return false;
-          const rowStart = new Date(row.start_at);
-          const rowEnd = new Date(row.end_at);
-          return start < rowEnd && end > rowStart;
-        });
-
-        const current = byTime.get(slot) || { totalCourts: 0, availableCourts: [] as string[] };
-        current.totalCourts += 1;
-        if (!blocked) current.availableCourts.push(court.id);
-        byTime.set(slot, current);
-      }
-    }
-
-    clubSlotStates = Array.from(byTime.entries())
-      .map(([time, value]) => ({
-        time,
-        totalCourts: value.totalCourts,
-        availableCourts: value.availableCourts,
-      }))
-      .sort((a, b) => a.time.localeCompare(b.time));
-
-    const selectedState = clubSlotStates.find((state) => state.time === selectedTime && state.availableCourts.length > 0);
-    if (selectedState) {
-      effectiveTime = selectedState.time;
-    } else {
-      effectiveTime = clubSlotStates.find((state) => state.availableCourts.length > 0)?.time || selectedTime;
-    }
-
-    const currentSlotState = clubSlotStates.find((state) => state.time === effectiveTime);
-    const availableCourtIds = new Set(currentSlotState?.availableCourts || []);
-    availableCourts = activeCourtsForClub.filter((court) => availableCourtIds.has(court.id));
-
-    if (effectiveCourtId && !availableCourtIds.has(effectiveCourtId)) {
-      effectiveCourtId = "";
-    }
-    if (!effectiveCourtId && availableCourts.length > 0) {
-      effectiveCourtId = availableCourts[0].id;
-    }
+    const availability = await computeClubAvailability({
+      bookingService,
+      clubId: selectedClubId,
+      date: selectedDate,
+      selectedTime,
+      selectedCourtId,
+    });
+    slotMinutes = availability.slotMinutes;
+    activeCourtsForClub = availability.activeCourts;
+    clubSlotStates = availability.clubSlotStates;
+    courtSlotMap = availability.courtSlotMap;
+    effectiveTime = availability.effectiveTime;
+    effectiveCourtId = availability.effectiveCourtId;
+    availableCourts = availability.availableCourts;
   }
 
   const buildHref = (
@@ -231,7 +135,7 @@ export default async function PlayerNewBookingPage({
     if (overrides.court_id ?? effectiveCourtId) qs.set("court_id", overrides.court_id ?? effectiveCourtId);
     qs.set("view", overrides.view ?? calendarView);
     qs.set("cursor", overrides.cursor ?? toDateInput(cursorDate));
-    return `/player/bookings/new?${qs.toString()}`;
+    return `${BASE_PATH}?${qs.toString()}`;
   };
 
   const prevCursor = new Date(cursorDate);
@@ -253,7 +157,7 @@ export default async function PlayerNewBookingPage({
       params.set("view", calendarView);
       params.set("cursor", toDateInput(cursorDate));
       params.set("error", result.error || "No pudimos enviar la solicitud");
-      redirect(`/player/bookings/new?${params.toString()}`);
+      redirect(`${BASE_PATH}?${params.toString()}`);
     }
     const next = new URLSearchParams();
     next.set("from_booking", "1");
@@ -374,94 +278,14 @@ export default async function PlayerNewBookingPage({
         </div>
 
         {selectedClubId && activeCourtsForClub.length > 0 ? (
-          <div className="rounded-xl border border-gray-100 p-3 space-y-2">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-500">Disponibilidad</p>
-            {clubSlotStates.length === 0 ? (
-              <p className="text-sm text-amber-700">No hay horarios configurados para este club.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                {/* Header */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: `140px repeat(${clubSlotStates.length}, minmax(60px, 1fr))`,
-                    gap: "3px",
-                  }}
-                  className="mb-[3px]"
-                >
-                  <div className="py-1.5 px-2 text-[10px] font-black uppercase text-gray-400">
-                    Cancha
-                  </div>
-                  {clubSlotStates.map((slot) => (
-                    <div
-                      key={slot.time}
-                      className="py-1.5 text-[10px] font-black text-gray-500 text-center"
-                    >
-                      {slot.time}
-                    </div>
-                  ))}
-                </div>
-                {/* Court rows */}
-                {activeCourtsForClub.map((court) => (
-                  <div
-                    key={court.id}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: `140px repeat(${clubSlotStates.length}, minmax(60px, 1fr))`,
-                      gap: "3px",
-                    }}
-                    className="mb-[3px]"
-                  >
-                    <div className="flex items-center px-2 py-2 text-xs font-semibold text-gray-700 truncate">
-                      {court.name}
-                    </div>
-                    {clubSlotStates.map((slot) => {
-                      const isApplicable = courtSlotMap.get(court.id)?.has(slot.time) ?? false;
-                      const isAvailable = isApplicable && slot.availableCourts.includes(court.id);
-                      const isSelected = effectiveTime === slot.time && effectiveCourtId === court.id;
-
-                      if (!isApplicable) {
-                        return (
-                          <div
-                            key={`${court.id}-${slot.time}`}
-                            className="rounded-md bg-gray-50 border border-dashed border-gray-100"
-                          />
-                        );
-                      }
-                      if (!isAvailable) {
-                        return (
-                          <div
-                            key={`${court.id}-${slot.time}`}
-                            className="rounded-md bg-gray-200 py-2 text-center text-[10px] font-semibold text-gray-500"
-                          >
-                            Ocupado
-                          </div>
-                        );
-                      }
-                      return (
-                        <Link
-                          key={`${court.id}-${slot.time}`}
-                          href={buildHref({ time: slot.time, court_id: court.id })}
-                          className={`relative rounded-md py-2 text-center text-[10px] font-bold ${
-                            isSelected
-                              ? "border-2 border-blue-600 bg-blue-50 text-blue-600"
-                              : "bg-green-100 text-green-700 hover:bg-green-200"
-                          }`}
-                        >
-                          {isSelected && (
-                            <span className="absolute top-0.5 right-1 text-[8px] font-black text-blue-600">
-                              ✓
-                            </span>
-                          )}
-                          {slot.time}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <CourtAvailabilityGrid
+            courts={activeCourtsForClub}
+            slotStates={clubSlotStates}
+            courtSlotMap={courtSlotMap}
+            selectedTime={effectiveTime}
+            selectedCourtId={effectiveCourtId}
+            buildSlotHref={({ time, courtId }) => buildHref({ time, court_id: courtId })}
+          />
         ) : selectedClubId && activeCourtsForClub.length === 0 ? (
           <p className="text-sm text-amber-700">Este club no tiene canchas activas configuradas.</p>
         ) : null}
