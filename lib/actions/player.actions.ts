@@ -16,6 +16,8 @@ export async function createGuestPlayerAction(formData: FormData) {
     const region_code = formData.get("region_code") as string || undefined;
     const region_name = formData.get("region_name") as string || undefined;
     const country_code = formData.get("country_code") as string || 'AR';
+    const categoryRaw = formData.get("category") as string || '';
+    const category = categoryRaw ? parseInt(categoryRaw, 10) : undefined;
 
     if (!display_name) {
         return { error: "El nombre a mostrar es obligatorio" };
@@ -32,7 +34,8 @@ export async function createGuestPlayerAction(formData: FormData) {
             city_id,
             region_code,
             region_name,
-            country_code
+            country_code,
+            category,
         });
 
         revalidatePath("/player/matches/new");

@@ -13,9 +13,10 @@ interface GuestPlayerModalProps {
     onClose: () => void;
     onSuccess: (playerId: string, displayName: string) => void;
     defaultLocation?: { city?: string; region_code?: string };
+    showCategory?: boolean;
 }
 
-export function GuestPlayerModal({ isOpen, onClose, onSuccess, defaultLocation }: GuestPlayerModalProps) {
+export function GuestPlayerModal({ isOpen, onClose, onSuccess, defaultLocation, showCategory }: GuestPlayerModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -212,6 +213,23 @@ export function GuestPlayerModal({ isOpen, onClose, onSuccess, defaultLocation }
                             <option value="cualquiera">Cualquiera</option>
                         </select>
                     </div>
+
+                    {showCategory && (
+                        <div className="space-y-2">
+                            <Label htmlFor="category" className="text-[10px] font-black uppercase text-gray-400">Categoría</Label>
+                            <select
+                                id="category"
+                                name="category"
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                                defaultValue=""
+                            >
+                                <option value="">Sin categoría</option>
+                                {[1, 2, 3, 4, 5, 6, 7].map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="pt-4 flex gap-3">
                         <Button

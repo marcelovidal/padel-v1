@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## [v1.17.0] - 2026-08-20
+
+### Inscripción con creación de jugador + Asignación flexible de grupos
+
+#### Crear jugador desde inscripción (Pedido 1)
+- `PlayerSearchSelect` agrega prop opcional `onCreateNew`:
+  cuando la búsqueda no encuentra resultados y se pasa
+  el callback, renderiza botón `+ Crear "nombre" como
+  nuevo jugador` en vez del div muerto anterior
+- `TournamentRegisterTeamForm` y `LeagueRegisterTeamForm`
+  refactorizados: `players` pasa de prop a `useState`;
+  `<form>` extraído a fragmento para que GuestPlayerModal
+  quede como hermano (evita anidamiento HTML inválido);
+  `handleGuestSuccess` inyecta el jugador nuevo en el
+  estado y lo selecciona automáticamente en el campo
+  correspondiente
+- `GuestPlayerModal` agrega prop `showCategory`: select
+  de categoría 1-7 visible solo cuando se pasa; los 4
+  formularios de partidos existentes no lo ven
+- RPC `player_create_guest_player` ampliado con
+  `p_category int DEFAULT NULL`; cadena action → service
+  → repository cableada para pasar la categoría
+
+#### Asignación flexible de parejas a grupos (Pedido 2)
+- RPCs `club_assign_team_to_group` y
+  `club_assign_tournament_team_to_group` ahora ejecutan
+  `DELETE previo` del team_id antes del INSERT, permitiendo
+  mover parejas entre grupos sin errores 23505
+- `club_assign_tournament_team_to_group` portó el guard
+  `FIXTURE_ALREADY_EXISTS` de ligas: bloquea movimientos
+  a grupos con fixture generado
+- Página de torneos: select de asignación filtra parejas
+  ya en un grupo; warning ambar cuando hay parejas sin
+  grupo
+
+#### Migraciones SQL
+- `20260820_guest_player_category.sql`
+- `20260820_fix_group_team_reassign.sql`
+
 ## [v1.16.0] - 2026-05-20
 
 ### Reservas condicionales + Admin reorganizado

@@ -190,6 +190,7 @@ export class PlayerRepository {
     city_id?: string;
     region_code?: string;
     region_name?: string;
+    category?: number;
   }): Promise<string> {
     const supabase = await this.getClient();
     const { data, error } = await (supabase as any).rpc("player_create_guest_player", {
@@ -202,7 +203,8 @@ export class PlayerRepository {
       p_city_id: input.city_id,
       p_region_code: input.region_code,
       p_region_name: input.region_name,
-      p_country_code: 'AR'
+      p_country_code: 'AR',
+      p_category: input.category ?? null,
     });
 
     if (error) throw error;

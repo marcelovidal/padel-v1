@@ -46,6 +46,7 @@ export function PlayerSearchSelect({
   players,
   selectedId,
   onSelectId,
+  onCreateNew,
 }: {
   placeholder: string;
   required?: boolean;
@@ -53,6 +54,7 @@ export function PlayerSearchSelect({
   players: PlayerOption[];
   selectedId: string;
   onSelectId: (id: string) => void;
+  onCreateNew?: (query: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -115,7 +117,17 @@ export function PlayerSearchSelect({
         <>
           <div className="absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-gray-100 bg-white shadow-lg">
             {filteredPlayers.length === 0 ? (
-              <div className="px-3 py-2 text-xs text-gray-500">No se encontraron jugadores</div>
+              onCreateNew && query.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => onCreateNew(query.trim())}
+                  className="w-full px-3 py-2 text-left text-xs text-blue-600 hover:bg-blue-50 font-semibold"
+                >
+                  + Crear &quot;{query.trim()}&quot; como nuevo jugador
+                </button>
+              ) : (
+                <div className="px-3 py-2 text-xs text-gray-500">No se encontraron jugadores</div>
+              )
             ) : (
               filteredPlayers.map((player) => (
                 <button

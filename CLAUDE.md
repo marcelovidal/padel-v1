@@ -1,7 +1,7 @@
 # PASALA — Claude Code Context
 
 ### Versión actual
-v0.10.0
+v0.11.0
 
 ### Features completos
 - Q1–Q4: Core — partidos, reservas, resultados,
@@ -38,6 +38,17 @@ v0.10.0
   canchas, ligas, torneos, ranking, jugadores,
   entrenadores, perfil, ajustes), sidebar condicional
   is_club_owner; /club → redirect a /player/mi-club
+- Inscripción con creación de jugador: GuestPlayerModal
+  integrado en TournamentRegisterTeamForm y
+  LeagueRegisterTeamForm — crear jugador nuevo desde
+  el dropdown de búsqueda sin salir de la pantalla;
+  PlayerSearchSelect con prop `onCreateNew` para
+  trigger; categoría opcional (select 1-7) en modal
+- Asignación flexible de parejas a grupos: mover entre
+  grupos sin errores 23505 (DELETE previo en RPCs);
+  select filtra parejas ya asignadas; warning de
+  parejas sin grupo; guard de fixture en torneos
+  (portado de ligas)
 
 ### Arquitectura de navegación
 - Desktop (md+): sidebar fijo colapsable 
@@ -72,6 +83,12 @@ v0.10.0
 - club_owner_requests (con RLS)
 - notifications.type CHECK constraint ampliado con
   club_owner_request_approved/rejected
+- 20260820_guest_player_category.sql — p_category
+  en player_create_guest_player
+- 20260820_fix_group_team_reassign.sql — DELETE
+  previo en club_assign_team_to_group y
+  club_assign_tournament_team_to_group + guard
+  FIXTURE_ALREADY_EXISTS en torneos
 
 ### Migración escrita SIN APLICAR
 - 20260819_registrations_open.sql — aplicar ANTES de

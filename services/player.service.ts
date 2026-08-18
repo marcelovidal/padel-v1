@@ -207,6 +207,7 @@ export class PlayerService {
     region_code?: string;
     region_name?: string;
     country_code?: string;
+    category?: number;
   }) {
     return this.repository.createGuestPlayer(input);
   }

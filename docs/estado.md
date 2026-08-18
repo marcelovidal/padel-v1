@@ -1,4 +1,4 @@
-# PASALA — Estado al cierre del 12 de agosto de 2026
+# PASALA — Estado al cierre del 20 de agosto de 2026
 
 Documento de arranque. Si estás retomando desde otra máquina, leé esto
 primero y seguí el orden de la sección 7.
@@ -34,6 +34,8 @@ Que el archivo esté en el repo no significa que esté vivo en la base.
 | `20260816_public_event_registration.sql` | RPCs de inscripción pública (`TO anon`) | expuestas |
 | `20260817_wire_notify_event_open.sql` | cablea `q6_notify_event_open` al activar evento | `q6_notify_event_open(p_city_ids…)` expuesta |
 | `20260818_public_club_read_anon.sql` | policies SELECT `TO anon` en `club_courts` y `club_booking_settings` | **con la anon key se leen las canchas** |
+| `20260820_guest_player_category.sql` | `p_category int DEFAULT NULL` en `player_create_guest_player` | expuesta, verificada |
+| `20260820_fix_group_team_reassign.sql` | DELETE previo en `club_assign_team_to_group` y `club_assign_tournament_team_to_group` + guard `FIXTURE_ALREADY_EXISTS` en torneos | expuesta, verificada |
 
 **Corrección respecto de lo que decía este archivo ayer:** las dos
 `20260808` —conteo de jugadores y fix de links— figuraban como

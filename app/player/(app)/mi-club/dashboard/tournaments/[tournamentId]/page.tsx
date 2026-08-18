@@ -212,6 +212,14 @@ export default async function MiClubTournamentDetailPage({
   const hasFixture = allMatches.length > 0;
   const hasPlayoffs = playoffMatches.length > 0;
 
+  const assignedTeamIds = new Set<string>();
+  for (const g of groupsWithData) {
+    for (const gt of g.groupTeams as any[]) {
+      if (gt.team_id) assignedTeamIds.add(gt.team_id);
+    }
+  }
+  const hasUnassignedTeams = teams.length > 0 && assignedTeamIds.size < teams.length;
+
   // Fallback a `true` mientras la migracion 20260819 no este aplicada: sin la
   // columna, el torneo se comporta como hasta ahora.
   const registrationsOpen = (tournament as any).registrations_open ?? true;
@@ -473,6 +481,12 @@ export default async function MiClubTournamentDetailPage({
             </div>
           ) : null}
 
+          {!hasFixture && hasGroups && hasUnassignedTeams ? (
+            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+              Hay {teams.length - assignedTeamIds.size} pareja(s) sin grupo. Asignalos antes de generar fixture.
+            </div>
+          ) : null}
+
           {hasGroups ? (
             <div className="mt-4 space-y-4">
               {groupsWithData.map(({ group, groupTeams, groupMatches }) => {
@@ -523,7 +537,7 @@ export default async function MiClubTournamentDetailPage({
                         <input type="hidden" name="group_id" value={group.id} />
                         <select name="team_id" className="flex-1 rounded-lg border border-gray-200 px-2 py-1 text-xs">
                           <option value="">Asignar pareja</option>
-                          {teams.map((t) => (
+                          {teams.filter((t) => !assignedTeamIds.has(t.id)).map((t) => (
                             <option key={t.id} value={t.id}>
                               {(t.player_a as any)?.display_name || t.player_id_a} /{" "}
                               {(t.player_b as any)?.display_name || t.player_id_b}
