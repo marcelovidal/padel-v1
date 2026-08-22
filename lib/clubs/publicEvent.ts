@@ -166,7 +166,7 @@ export async function findPublicTournament(clubId: string, tournamentId: string)
     ? await (supabase as any)
         .from("tournament_matches")
         .select(
-          "id,group_id,round_index,team_a_id,team_b_id,scheduled_at,matches(id,match_at,status,match_results(match_id,sets,winner_team)),court:club_courts(id,name)"
+          "id,group_id,round_index,team_a_id,team_b_id,scheduled_at,matches(id,match_at,status,match_results(match_id,sets,winner_team)),court:club_courts(id,name,slot_interval_minutes)"
         )
         .in("group_id", groupIds)
         .order("round_index", { ascending: true })
@@ -265,7 +265,7 @@ export async function findPublicLeague(clubId: string, leagueId: string) {
     ? await (supabase as any)
         .from("league_matches")
         .select(
-          "id,group_id,round_index,team_a_id,team_b_id,scheduled_at,matches(id,match_at,status,match_results(match_id,sets,winner_team)),court:club_courts(id,name)"
+          "id,group_id,round_index,team_a_id,team_b_id,scheduled_at,matches(id,match_at,status,match_results(match_id,sets,winner_team)),court:club_courts(id,name,slot_interval_minutes)"
         )
         .in("group_id", groupIds)
         .order("round_index", { ascending: true })

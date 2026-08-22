@@ -196,6 +196,7 @@ export default async function PublicTournamentPage({ params }: { params: Params 
             playoffMatches={playoffMatches}
             teams={teams}
             playersMap={playersMap}
+            vocabulary="public"
           />
         </PublicSectionCard>
       ) : hasFixture ? (

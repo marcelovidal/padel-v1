@@ -2,6 +2,10 @@
 // RSC-compatible — no "use client".
 
 import { getEffectiveStatus } from "@/lib/match/matchUtils";
+import {
+  formatMatchSlot,
+  resolvePublicMatchState,
+} from "@/lib/clubs/publicMatchStatus";
 
 const MATCH_H = 80; // height of each compact match card in px
 const SLOT_H = 112; // vertical space per first-round slot (match + gap)
@@ -52,9 +56,18 @@ interface CardProps {
   stageIndex: number; // 0 = first stage (QF), 1 = SF, 2 = Final
   matchIndex: number; // position within its round (0-based)
   isChampionMatch: boolean;
+  vocabulary: "public" | "management";
 }
 
-function BracketCard({ pm, teams, playersMap, stageIndex, matchIndex, isChampionMatch }: CardProps) {
+function BracketCard({
+  pm,
+  teams,
+  playersMap,
+  stageIndex,
+  matchIndex,
+  isChampionMatch,
+  vocabulary,
+}: CardProps) {
   const match = pm.matches;
 
   // match_results can come as array or single object depending on join shape
@@ -81,6 +94,58 @@ function BracketCard({ pm, teams, playersMap, stageIndex, matchIndex, isChampion
   const isPending = !pm.team_a_id || !pm.team_b_id;
   const isScheduled = Boolean(pm.scheduled_at);
 
+  // Dos vocabularios para el mismo dato: el publico le habla al jugador que
+  // mira como viene el torneo; el de gestion le habla al club, para quien
+  // "sin resultado" es una tarea pendiente.
+  let badgeText: string;
+  let badgeClass: string;
+  if (vocabulary === "public") {
+    const state = resolvePublicMatchState(
+      {
+        scheduled_at: pm.scheduled_at,
+        match_at: match?.match_at,
+        match_results: match?.match_results,
+      },
+      { slotIntervalMinutes: pm.court?.slot_interval_minutes }
+    );
+    if (isPending) {
+      badgeText = "En espera";
+      badgeClass = "text-gray-400";
+    } else if (state === "with_result") {
+      badgeText = "Terminado";
+      badgeClass = "text-emerald-600";
+    } else if (state === "pending_result") {
+      badgeText = "Resultado pendiente";
+      badgeClass = "text-orange-500";
+    } else if (state === "live") {
+      badgeText = "Jugando ahora";
+      badgeClass = "text-brand-rojo font-black";
+    } else if (state === "upcoming") {
+      badgeText = formatMatchSlot(pm.scheduled_at) ?? "Programado";
+      badgeClass = "text-blue-500 normal-case tracking-normal font-semibold tabular-nums";
+    } else {
+      badgeText = "A programar";
+      badgeClass = "text-amber-600";
+    }
+  } else {
+    if (hasResult) {
+      badgeText = "Finalizado";
+      badgeClass = "text-emerald-600";
+    } else if (isEffectivelyDone) {
+      badgeText = "Sin resultado";
+      badgeClass = "text-orange-500";
+    } else if (isScheduled && !isPending) {
+      badgeText = "Programado";
+      badgeClass = "text-blue-500";
+    } else if (isPending) {
+      badgeText = "En espera";
+      badgeClass = "text-gray-400";
+    } else {
+      badgeText = "Sin programar";
+      badgeClass = "text-amber-600";
+    }
+  }
+
   // champion = winner of the Final match
   const champion =
     isChampionMatch && hasResult
@@ -96,6 +161,8 @@ function BracketCard({ pm, teams, playersMap, stageIndex, matchIndex, isChampion
   let borderClass = "border-gray-200";
   if (hasResult) borderClass = "border-emerald-300";
   else if (isEffectivelyDone) borderClass = "border-orange-200"; // done but no result loaded yet
+  else if (vocabulary === "public" && !isPending && badgeText === "Jugando ahora")
+    borderClass = "border-red-200";
   else if (!isPending && isScheduled) borderClass = "border-blue-200";
   else if (isPending) borderClass = "border-dashed border-gray-200";
 
@@ -128,17 +195,11 @@ function BracketCard({ pm, teams, playersMap, stageIndex, matchIndex, isChampion
           <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
             {stageShort(stage, pm.match_order)}
           </span>
-          {hasResult ? (
-            <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wide">Finalizado</span>
-          ) : isEffectivelyDone ? (
-            <span className="text-[9px] font-bold text-orange-500 uppercase tracking-wide">Sin resultado</span>
-          ) : isScheduled ? (
-            <span className="text-[9px] font-bold text-blue-500 uppercase tracking-wide">Programado</span>
-          ) : isPending ? (
-            <span className="text-[9px] text-gray-400 uppercase tracking-wide">En espera</span>
-          ) : (
-            <span className="text-[9px] text-amber-600 uppercase tracking-wide">Sin programar</span>
-          )}
+          <span
+            className={`text-[9px] font-bold uppercase tracking-wide ${badgeClass}`}
+          >
+            {badgeText}
+          </span>
         </div>
 
         {/* Team A row */}
@@ -277,9 +338,20 @@ interface Props {
   playoffMatches: any[];
   teams: any[];
   playersMap: Map<string, string>;
+  /**
+   * Vocabulario de los badges de estado. En publico los cinco estados hablan
+   * del partido; en gestion mantienen el tono de tarea pendiente. Requerido
+   * a proposito: cada pagina decide, nadie hereda el default de otro.
+   */
+  vocabulary: "public" | "management";
 }
 
-export function TournamentBracketView({ playoffMatches, teams, playersMap }: Props) {
+export function TournamentBracketView({
+  playoffMatches,
+  teams,
+  playersMap,
+  vocabulary,
+}: Props) {
   // Group and sort by stage + match_order
   const matchesByStage: Partial<Record<Stage, any[]>> = {};
   for (const pm of playoffMatches) {
@@ -345,6 +417,7 @@ export function TournamentBracketView({ playoffMatches, teams, playersMap }: Pro
                     stageIndex={stageIdx}
                     matchIndex={matchIdx}
                     isChampionMatch={stage === lastStage && matches.length === 1}
+                    vocabulary={vocabulary}
                   />
                 ))}
               </div>

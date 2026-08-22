@@ -728,6 +728,7 @@ export default async function MiClubTournamentDetailPage({
             playoffMatches={playoffMatches}
             teams={teams}
             playersMap={playersMap}
+            vocabulary="management"
           />
 
           <p className="text-xs text-gray-400">
