@@ -18,8 +18,12 @@ interface Props {
    * Chip uniforme para toda la lista: el grupo ya decide el estado, no hace
    * falta derivarlo evento por evento. Sin este prop se cae al comportamiento
    * previo, que leia el status de cada fila.
+   *
+   * `className` permite subir la jerarquia visual de una seccion: las
+   * inscripciones abiertas son un llamado a la accion y van en brand-rojo,
+   * no en un pill informativo.
    */
-  badge?: { label: string };
+  badge?: { label: string; className?: string };
 }
 
 export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel, badge }: Props) {
@@ -32,6 +36,11 @@ export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel, badge }
       {events.map((event) => {
         const when = formatDateRange(event.start_date, event.end_date);
         const badgeLabel = badge?.label ?? (event.status === "active" ? "En juego" : "Finalizado");
+        const badgeClass =
+          badge?.className ??
+          (badgeLabel === "Finalizado"
+            ? "bg-[var(--bg-pill-soft)] text-[var(--text-muted)]"
+            : "bg-[var(--pill-green-bg)] text-[var(--pill-green-text)]");
 
         return (
           <li key={`${event.kind}-${event.id}`}>
@@ -51,11 +60,7 @@ export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel, badge }
               </div>
 
               <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${
-                  badgeLabel === "Finalizado"
-                    ? "bg-[var(--bg-pill-soft)] text-[var(--text-muted)]"
-                    : "bg-[var(--pill-green-bg)] text-[var(--pill-green-text)]"
-                }`}
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${badgeClass}`}
               >
                 {badgeLabel}
               </span>

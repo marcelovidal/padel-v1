@@ -291,7 +291,10 @@ export default async function ClubPublicProfilePage({
             events={events.open}
             clubSlugOrId={clubSlugOrId}
             emptyLabel="No hay inscripciones abiertas."
-            badge={{ label: "Inscripciones abiertas" }}
+            badge={{
+              label: "Inscripciones abiertas",
+              className: "bg-brand-rojo text-white",
+            }}
           />
         </PublicSectionCard>
       ) : null}
