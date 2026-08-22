@@ -14,9 +14,19 @@ interface Props {
   events: PublicEventSummary[];
   clubSlugOrId: string;
   emptyLabel: string;
+  /**
+   * Chip uniforme para toda la lista: el grupo ya decide el estado, no hace
+   * falta derivarlo evento por evento. Sin este prop se cae al comportamiento
+   * previo, que leia el status de cada fila.
+   *
+   * `className` permite subir la jerarquia visual de una seccion: las
+   * inscripciones abiertas son un llamado a la accion y van en brand-rojo,
+   * no en un pill informativo.
+   */
+  badge?: { label: string; className?: string };
 }
 
-export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel }: Props) {
+export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel, badge }: Props) {
   if (events.length === 0) {
     return <p className="text-sm text-[var(--text-muted)]">{emptyLabel}</p>;
   }
@@ -25,6 +35,12 @@ export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel }: Props
     <ul className="space-y-2">
       {events.map((event) => {
         const when = formatDateRange(event.start_date, event.end_date);
+        const badgeLabel = badge?.label ?? (event.status === "active" ? "En juego" : "Finalizado");
+        const badgeClass =
+          badge?.className ??
+          (badgeLabel === "Finalizado"
+            ? "bg-[var(--bg-pill-soft)] text-[var(--text-muted)]"
+            : "bg-[var(--pill-green-bg)] text-[var(--pill-green-text)]");
 
         return (
           <li key={`${event.kind}-${event.id}`}>
@@ -44,13 +60,9 @@ export function PublicClubEventsList({ events, clubSlugOrId, emptyLabel }: Props
               </div>
 
               <span
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${
-                  event.status === "active"
-                    ? "bg-[var(--pill-green-bg)] text-[var(--pill-green-text)]"
-                    : "bg-[var(--bg-pill-soft)] text-[var(--text-muted)]"
-                }`}
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${badgeClass}`}
               >
-                {event.status === "active" ? "En juego" : "Finalizado"}
+                {badgeLabel}
               </span>
             </Link>
           </li>

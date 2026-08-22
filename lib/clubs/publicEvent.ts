@@ -84,6 +84,7 @@ export type PublicEventSummary = {
   name: string;
   season_label: string | null;
   status: PublicEventStatus;
+  registrations_open: boolean | null;
   start_date: string | null;
   end_date: string | null;
 };
@@ -314,11 +315,17 @@ export async function findPublicLeague(clubId: string, leagueId: string) {
 // ─── Listado para el perfil del club ─────────────────────────────────────────
 
 /**
- * Torneos y ligas visibles del club, ya separados en vigentes y pasados.
+ * Torneos y ligas visibles del club, separados en los tres grupos que muestra
+ * el perfil: abiertos a inscripcion, en juego y ediciones anteriores.
  *
- * "Vigente" es `status = 'active'`, no una comparacion de fechas: un torneo
- * activo cuya `end_date` ya paso sigue siendo el que la gente quiere mirar, y
- * `start_date` puede estar sin cargar.
+ * El status manda: un evento finished va a `past` aunque el club haya dejado
+ * `registrations_open` en true — la UI no contradice lo que ya cerro. Entre
+ * activos decide el flag, con el mismo fallback `?? true` del resto de las
+ * paginas publicas: sin la columna —migracion 20260819 sin aplicar— todo
+ * activo cuenta como recibiendo inscripciones.
+ *
+ * Un evento puede estar abierto Y jugando a la vez; en ese caso aparece solo
+ * en `open` porque la inscripcion es lo accionable para el jugador.
  */
 export async function listPublicClubEvents(clubId: string) {
   const supabase = createAdminClient();
@@ -326,14 +333,14 @@ export async function listPublicClubEvents(clubId: string) {
   const [{ data: tournaments }, { data: leagues }] = await Promise.all([
     (supabase as any)
       .from("club_tournaments")
-      .select("id,name,season_label,status,start_date,end_date")
+      .select("id,name,season_label,status,registrations_open,start_date,end_date")
       .eq("club_id", clubId)
       .neq("status", "draft")
       .order("start_date", { ascending: false, nullsFirst: false })
       .order("updated_at", { ascending: false }),
     (supabase as any)
       .from("club_leagues")
-      .select("id,name,season_label,status,start_date,end_date")
+      .select("id,name,season_label,status,registrations_open,start_date,end_date")
       .eq("club_id", clubId)
       .neq("status", "draft")
       .order("start_date", { ascending: false, nullsFirst: false })
@@ -346,7 +353,8 @@ export async function listPublicClubEvents(clubId: string) {
   ].filter((e) => isPublicStatus(e.status));
 
   return {
-    current: all.filter((e) => e.status === "active"),
+    open: all.filter((e) => e.status === "active" && (e.registrations_open ?? true)),
+    inPlay: all.filter((e) => e.status === "active" && !(e.registrations_open ?? true)),
     past: all.filter((e) => e.status === "finished"),
   };
 }

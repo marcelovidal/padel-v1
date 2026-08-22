@@ -95,14 +95,17 @@ export default async function PublicLeaguePage({ params }: { params: Params }) {
   const registrationsOpen = league.registrations_open ?? true;
 
   const chips: EventChip[] = [];
+  // La inscripcion es lo accionable: si esta abierta, el chip va primero y en
+  // rojo. Solo para eventos activos — un finished con el flag en true no puede
+  // seguir anunciando inscripciones.
+  if (league.status === "active" && registrationsOpen) {
+    chips.push({ label: "Inscripciones abiertas", tone: "cta" });
+  }
   chips.push(
     league.status === "active"
       ? { label: "En juego", tone: "success" }
       : { label: "Finalizada", tone: "neutral" }
   );
-  // Un evento puede estar en juego Y recibiendo inscripciones: son dos chips,
-  // no una sola categoria.
-  if (registrationsOpen) chips.push({ label: "Inscripciones abiertas", tone: "accent" });
   if (league.season_label) chips.push({ label: league.season_label });
   chips.push({ label: `${teams.length} pareja${teams.length === 1 ? "" : "s"}` });
 

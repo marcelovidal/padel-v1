@@ -284,18 +284,34 @@ export default async function ClubPublicProfilePage({
         </Link>
       </section>
 
-      {/* 3. Torneos y ligas en juego */}
-      {events.current.length > 0 ? (
-        <PublicSectionCard title="Torneos y ligas en juego">
+      {/* 3. Torneos y ligas abiertos a inscripcion — lo accionable primero */}
+      {events.open.length > 0 ? (
+        <PublicSectionCard title="Abiertos a inscripción">
           <PublicClubEventsList
-            events={events.current}
+            events={events.open}
             clubSlugOrId={clubSlugOrId}
-            emptyLabel="No hay eventos en juego."
+            emptyLabel="No hay inscripciones abiertas."
+            badge={{
+              label: "Inscripciones abiertas",
+              className: "bg-brand-rojo text-white",
+            }}
           />
         </PublicSectionCard>
       ) : null}
 
-      {/* 4. Ediciones anteriores */}
+      {/* 4. Torneos y ligas en juego */}
+      {events.inPlay.length > 0 ? (
+        <PublicSectionCard title="Torneos y ligas en juego">
+          <PublicClubEventsList
+            events={events.inPlay}
+            clubSlugOrId={clubSlugOrId}
+            emptyLabel="No hay eventos en juego."
+            badge={{ label: "En juego" }}
+          />
+        </PublicSectionCard>
+      ) : null}
+
+      {/* 5. Ediciones anteriores */}
       {events.past.length > 0 ? (
         <PublicSectionCard title="Ediciones anteriores">
           <PublicClubEventsList
