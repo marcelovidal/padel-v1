@@ -15,7 +15,7 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export type EventChip = {
   label: string;
-  tone?: "neutral" | "accent" | "success" | "warning";
+  tone?: "neutral" | "accent" | "success" | "warning" | "cta";
 };
 
 const CHIP_TONES: Record<NonNullable<EventChip["tone"]>, string> = {
@@ -23,6 +23,9 @@ const CHIP_TONES: Record<NonNullable<EventChip["tone"]>, string> = {
   accent: "bg-[var(--pill-blue-bg)] text-[var(--pill-blue-text)]",
   success: "bg-[var(--pill-green-bg)] text-[var(--pill-green-text)]",
   warning: "bg-[var(--pill-amber-bg)] text-[var(--pill-amber-text)]",
+  // Llamado a la accion: inscripciones abiertas. Solido en brand-rojo, no un
+  // pill suave — tiene que ganarle la mirada al resto de los chips.
+  cta: "bg-brand-rojo text-white",
 };
 
 interface Props {

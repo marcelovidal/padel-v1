@@ -99,14 +99,17 @@ export default async function PublicTournamentPage({ params }: { params: Params 
   const registrationsOpen = tournament.registrations_open ?? true;
 
   const chips: EventChip[] = [];
+  // La inscripcion es lo accionable: si esta abierta, el chip va primero y en
+  // rojo. Solo para eventos activos — un finished con el flag en true no puede
+  // seguir anunciando inscripciones.
+  if (tournament.status === "active" && registrationsOpen) {
+    chips.push({ label: "Inscripciones abiertas", tone: "cta" });
+  }
   if (tournament.status === "active") {
     chips.push({ label: "En juego", tone: "success" });
   } else {
     chips.push({ label: "Finalizado", tone: "neutral" });
   }
-  // Un evento puede estar en juego Y recibiendo inscripciones: son dos chips,
-  // no una sola categoria.
-  if (registrationsOpen) chips.push({ label: "Inscripciones abiertas", tone: "accent" });
   const category = categoryLabel(tournament.target_category_int);
   if (category) {
     chips.push({
