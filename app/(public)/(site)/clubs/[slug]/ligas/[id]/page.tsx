@@ -203,6 +203,7 @@ export default async function PublicLeaguePage({ params }: { params: Params }) {
                     playoffMatches={division.playoffMatches}
                     teams={teams}
                     playersMap={playersMap}
+                    vocabulary="public"
                   />
                 </PublicSectionCard>
               ) : null}
