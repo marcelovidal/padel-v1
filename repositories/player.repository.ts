@@ -570,6 +570,234 @@ export class PlayerRepository {
     return Object.fromEntries(byPlayer.entries());
   }
 
+  /**
+   * Categoría vigente asignada por UN club a cada jugador listado.
+   * Map<player_id, category>.
+   */
+  async getClubAssignedCategories(clubId: string, playerIds: string[]) {
+    const map: Record<string, number> = {};
+    if (!clubId || playerIds.length === 0) return map;
+
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any)
+      .from("player_club_categories")
+      .select("player_id,category")
+      .eq("club_id", clubId)
+      .in("player_id", playerIds);
+    if (error) throw error;
+
+    for (const row of (data || []) as any[]) {
+      map[row.player_id] = row.category;
+    }
+    return map;
+  }
+
+  /**
+   * Todas las categorías asignadas por cualquier club para los jugadores
+   * dados, con nombre del club. Map<player_id, {club_id, club_name, category}[]>.
+   * Las divergencias se exponen con su origen; no se arbitra entre ellas.
+   */
+  async listAssignedCategoriesWithClubs(playerIds: string[]) {
+    const map: Record<string, { club_id: string; club_name: string; category: number }[]> = {};
+    if (playerIds.length === 0) return map;
+
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any)
+      .from("player_club_categories")
+      .select("club_id, player_id, category, clubs(name)")
+      .in("player_id", playerIds);
+    if (error) throw error;
+
+    for (const row of (data || []) as any[]) {
+      const entry = {
+        club_id: row.club_id as string,
+        club_name: (row.clubs?.name as string) || "Club",
+        category: row.category as number,
+      };
+      if (!map[row.player_id]) map[row.player_id] = [];
+      map[row.player_id].push(entry);
+    }
+    return map;
+  }
+
+  /**
+   * Membresía derivada, versión batch para el directorio: de los player_ids
+   * dados, cuáles tienen CUALQUIER relación con el club. Espeja la validación
+   * de club_assign_player_category.
+   */
+  async filterClubMembers(clubId: string, playerIds: string[]): Promise<Set<string>> {
+    const members = new Set<string>();
+    if (!clubId || playerIds.length === 0) return members;
+    const supabase = await this.getClient();
+
+    // 1. Creado por el dueño o un admin del club
+    const { data: creatorRows, error: creatorError } = await (supabase as any)
+      .from("players")
+      .select("id,created_by")
+      .in("id", playerIds);
+    if (creatorError) throw creatorError;
+
+    const createdByUsers = Array.from(
+      new Set(
+        ((creatorRows || []) as any[])
+          .map((r) => r.created_by as string | null)
+          .filter((v): v is string => Boolean(v))
+      )
+    );
+
+    if (createdByUsers.length > 0) {
+      const [ownerClubRes, adminsRes] = await Promise.all([
+        (supabase as any).from("clubs").select("owner_player_id").eq("id", clubId).maybeSingle(),
+        (supabase as any)
+          .from("club_admins")
+          .select("user_id")
+          .eq("club_id", clubId)
+          .in("user_id", createdByUsers),
+      ]);
+      if (ownerClubRes.error) throw ownerClubRes.error;
+      if (adminsRes.error) throw adminsRes.error;
+
+      let ownerUserId: string | null = null;
+      if (ownerClubRes.data?.owner_player_id) {
+        const { data: ownerPlayer, error: ownerPlayerError } = await (supabase as any)
+          .from("players")
+          .select("user_id")
+          .eq("id", ownerClubRes.data.owner_player_id)
+          .maybeSingle();
+        if (ownerPlayerError) throw ownerPlayerError;
+        ownerUserId = ownerPlayer?.user_id ?? null;
+      }
+
+      const adminUserIds = new Set(((adminsRes.data || []) as any[]).map((a) => a.user_id));
+      for (const r of (creatorRows || []) as any[]) {
+        if (!r.created_by) continue;
+        if (r.created_by === ownerUserId || adminUserIds.has(r.created_by)) {
+          members.add(r.id);
+        }
+      }
+    }
+
+    // 2. Reservó un turno
+    const { data: bookingRows, error: bookingError } = await (supabase as any)
+      .from("court_bookings")
+      .select("requested_by_player_id")
+      .eq("club_id", clubId)
+      .in("requested_by_player_id", playerIds);
+    if (bookingError) throw bookingError;
+    for (const b of (bookingRows || []) as any[]) {
+      if (b.requested_by_player_id) members.add(b.requested_by_player_id);
+    }
+
+    // Torneos y ligas del club (para fuentes de inscripción)
+    const [tournamentsRes, leaguesRes] = await Promise.all([
+      (supabase as any).from("club_tournaments").select("id").eq("club_id", clubId),
+      (supabase as any).from("club_leagues").select("id").eq("club_id", clubId),
+    ]);
+    if (tournamentsRes.error) throw tournamentsRes.error;
+    if (leaguesRes.error) throw leaguesRes.error;
+    const tournamentIds = ((tournamentsRes.data || []) as any[]).map((r) => r.id);
+    const leagueIds = ((leaguesRes.data || []) as any[]).map((r) => r.id);
+
+    // 3a. Inscripto: solicitudes o equipos de torneo
+    if (tournamentIds.length > 0) {
+      const { data: regRows, error: regError } = await (supabase as any)
+        .from("tournament_registrations")
+        .select("player_id,teammate_player_id")
+        .in("tournament_id", tournamentIds)
+        .or(`player_id.in.(${playerIds.join(",")}),teammate_player_id.in.(${playerIds.join(",")})`);
+      if (regError) throw regError;
+      for (const r of (regRows || []) as any[]) {
+        if (r.player_id) members.add(r.player_id);
+        if (r.teammate_player_id) members.add(r.teammate_player_id);
+      }
+
+      const { data: teamRows, error: teamError } = await (supabase as any)
+        .from("tournament_teams")
+        .select("player_id_a,player_id_b")
+        .in("tournament_id", tournamentIds)
+        .or(`player_id_a.in.(${playerIds.join(",")}),player_id_b.in.(${playerIds.join(",")})`);
+      if (teamError) throw teamError;
+      for (const t of (teamRows || []) as any[]) {
+        if (t.player_id_a) members.add(t.player_id_a);
+        if (t.player_id_b) members.add(t.player_id_b);
+      }
+    }
+
+    // 3b. Inscripto: solicitudes o equipos de liga (vía divisiones)
+    if (leagueIds.length > 0) {
+      const { data: leagueRegRows, error: leagueRegError } = await (supabase as any)
+        .from("league_registrations")
+        .select("player_id,teammate_player_id")
+        .in("league_id", leagueIds)
+        .or(`player_id.in.(${playerIds.join(",")}),teammate_player_id.in.(${playerIds.join(",")})`);
+      if (leagueRegError) throw leagueRegError;
+      for (const r of (leagueRegRows || []) as any[]) {
+        if (r.player_id) members.add(r.player_id);
+        if (r.teammate_player_id) members.add(r.teammate_player_id);
+      }
+
+      const { data: divisions, error: divisionsError } = await (supabase as any)
+        .from("league_divisions")
+        .select("id")
+        .in("league_id", leagueIds);
+      if (divisionsError) throw divisionsError;
+      const divisionIds = ((divisions || []) as any[]).map((d) => d.id);
+
+      if (divisionIds.length > 0) {
+        const { data: leagueTeams, error: leagueTeamsError } = await (supabase as any)
+          .from("league_teams")
+          .select("player_id_a,player_id_b")
+          .in("division_id", divisionIds)
+          .or(`player_id_a.in.(${playerIds.join(",")}),player_id_b.in.(${playerIds.join(",")})`);
+        if (leagueTeamsError) throw leagueTeamsError;
+        for (const t of (leagueTeams || []) as any[]) {
+          if (t.player_id_a) members.add(t.player_id_a);
+          if (t.player_id_b) members.add(t.player_id_b);
+        }
+      }
+    }
+
+    // 4. Jugó un partido ahí
+    const { data: matchPlayerRows, error: matchPlayerError } = await (supabase as any)
+      .from("match_players")
+      .select("player_id,matches!inner(club_id)")
+      .eq("matches.club_id", clubId)
+      .in("player_id", playerIds);
+    if (matchPlayerError) throw matchPlayerError;
+    for (const mp of (matchPlayerRows || []) as any[]) {
+      if (mp.player_id) members.add(mp.player_id);
+    }
+
+    return members;
+  }
+
+  /**
+   * Asigna o cambia la categoría del club vía RPC (guardián + membresía).
+   */
+  async assignClubCategory(clubId: string, playerId: string, category: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_assign_player_category", {
+      p_club_id: clubId,
+      p_player_id: playerId,
+      p_category: category,
+    });
+    if (error) throw error;
+    return data as { success: boolean; error?: string };
+  }
+
+  /**
+   * Quita la categoría del club vía RPC.
+   */
+  async removeClubCategory(clubId: string, playerId: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await (supabase as any).rpc("club_remove_player_category", {
+      p_club_id: clubId,
+      p_player_id: playerId,
+    });
+    if (error) throw error;
+    return data as { success: boolean; error?: string };
+  }
+
   async getPublicPlayerData(playerId: string): Promise<any | null> {
     const supabase = await this.getServiceClient();
     const { data, error } = await supabase

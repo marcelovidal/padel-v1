@@ -216,6 +216,14 @@ export class PlayerService {
     return this.repository.findSimilarPlayers(query);
   }
 
+  async assignClubCategory(clubId: string, playerId: string, category: number) {
+    return this.repository.assignClubCategory(clubId, playerId, category);
+  }
+
+  async removeClubCategory(clubId: string, playerId: string) {
+    return this.repository.removeClubCategory(clubId, playerId);
+  }
+
   async claimProfile(playerId: string) {
     return this.repository.claimProfile(playerId);
   }
@@ -450,6 +458,13 @@ export class PlayerService {
     const playerIds = baseRows.map((row: any) => row.id);
     const clubSignals = await this.repository.getClubPlayerSignals(params.clubId, playerIds);
 
+    // Categorías por origen + membresía derivada (batch)
+    const [clubCategoryByPlayer, allCategoriesByPlayer, memberSet] = await Promise.all([
+      this.repository.getClubAssignedCategories(params.clubId, playerIds),
+      this.repository.listAssignedCategoriesWithClubs(playerIds),
+      this.repository.filterClubMembers(params.clubId, playerIds),
+    ]);
+
     const enrichedRows = baseRows.map((row: any) => {
       const signal = clubSignals[row.id] ?? {
         club_matches_played: 0,
@@ -464,6 +479,11 @@ export class PlayerService {
       return {
         ...row,
         ...signal,
+        club_category: clubCategoryByPlayer[row.id] ?? null,
+        other_club_categories: (allCategoriesByPlayer[row.id] || []).filter(
+          (c) => c.club_id !== params.clubId
+        ),
+        has_membership: memberSet.has(row.id),
       };
     });
 

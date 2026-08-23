@@ -10,6 +10,7 @@ import { buildPlayerInviteMessage } from "@/lib/share/shareMessage";
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
 import { ClubPlayerProfileModal } from "@/components/players/ClubPlayerProfileModal";
 import { AddPlayerButton } from "@/components/club/AddPlayerButton";
+import { PlayerCategoryCell } from "@/components/club/PlayerCategoryCell";
 import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,9 @@ type ClubDirectoryRow = {
   region_code: string | null;
   region_name: string | null;
   category: number | null;
+  club_category: number | null;
+  other_club_categories: { club_name: string; category: number }[];
+  has_membership: boolean;
   position: "drive" | "reves" | "cualquiera" | null;
   user_id: string | null;
   pasala_index: number | null;
@@ -39,11 +43,6 @@ type ClubDirectoryRow = {
   avatarData?: { src: string | null; initials: string };
   inviteMessage?: string;
 };
-
-function categoryLabel(value?: number | null) {
-  if (!value) return "-";
-  return `${value}ta`;
-}
 
 function levelClass(level: ClubDirectoryRow["level"]) {
   if (level === "ELITE") return "bg-amber-50 text-amber-700 border border-amber-200";
@@ -300,9 +299,15 @@ export default async function MiClubPlayersPage({
                         <span className="block truncate">{locationLabel}</span>
                       </td>
                       <td className="px-2.5 py-2">
-                        <Badge className="border border-gray-200 bg-gray-100 text-gray-700">
-                          Cat. {categoryLabel(player.category)}
-                        </Badge>
+                        <PlayerCategoryCell
+                          clubId={club.id}
+                          playerId={player.id}
+                          displayName={player.display_name}
+                          clubCategory={player.club_category}
+                          selfCategory={player.category}
+                          otherCategories={player.other_club_categories}
+                          hasMembership={player.has_membership}
+                        />
                       </td>
                       <td className="px-2.5 py-2">
                         <div className="w-full max-w-[120px]">
