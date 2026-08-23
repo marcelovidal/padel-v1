@@ -9,6 +9,7 @@ import { getSiteUrl } from "@/lib/utils/url";
 import { buildPlayerInviteMessage } from "@/lib/share/shareMessage";
 import { InviteWhatsAppButton } from "@/components/players/InviteWhatsAppButton";
 import { ClubPlayerProfileModal } from "@/components/players/ClubPlayerProfileModal";
+import { AddPlayerButton } from "@/components/club/AddPlayerButton";
 import { formatCityWithProvinceAbbr } from "@/lib/utils/location";
 
 export const dynamic = "force-dynamic";
@@ -164,11 +165,14 @@ export default async function MiClubPlayersPage({
   return (
     <div className="w-full">
       <div className="mb-6 space-y-3">
-        <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900">Directorio</h1>
-          <p className="text-sm font-medium text-gray-500">
-            {total} jugadores · vista club con métricas internas
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900">Directorio</h1>
+            <p className="text-sm font-medium text-gray-500">
+              {total} jugadores · vista club con métricas internas
+            </p>
+          </div>
+          <AddPlayerButton />
         </div>
 
         <form className="space-y-3">
