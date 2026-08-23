@@ -91,8 +91,13 @@ BEGIN
     -- creado por un admin del club
     OR EXISTS (
       SELECT 1 FROM players p
-      JOIN club_admins ca ON ca.user_id = p.created_by
-      WHERE ca.club_id = p_club_id AND p.id = p_player_id
+      WHERE p.id = p_player_id
+        AND p.created_by IN (
+          SELECT ap.user_id
+          FROM club_admins ca
+          JOIN players ap ON ap.id = ca.player_id
+          WHERE ca.club_id = p_club_id
+        )
     )
     -- reservó un turno
     OR EXISTS (

@@ -646,15 +646,17 @@ export class PlayerRepository {
     );
 
     if (createdByUsers.length > 0) {
-      const [ownerClubRes, adminsRes] = await Promise.all([
-        (supabase as any).from("clubs").select("owner_player_id").eq("id", clubId).maybeSingle(),
-        (supabase as any)
-          .from("club_admins")
-          .select("user_id")
-          .eq("club_id", clubId)
-          .in("user_id", createdByUsers),
-      ]);
+      const ownerClubRes = await (supabase as any)
+        .from("clubs")
+        .select("owner_player_id")
+        .eq("id", clubId)
+        .maybeSingle();
       if (ownerClubRes.error) throw ownerClubRes.error;
+
+      const adminsRes = await (supabase as any)
+        .from("club_admins")
+        .select("player_id")
+        .eq("club_id", clubId);
       if (adminsRes.error) throw adminsRes.error;
 
       let ownerUserId: string | null = null;
@@ -668,7 +670,22 @@ export class PlayerRepository {
         ownerUserId = ownerPlayer?.user_id ?? null;
       }
 
-      const adminUserIds = new Set(((adminsRes.data || []) as any[]).map((a) => a.user_id));
+      const adminPlayerIds = ((adminsRes.data || []) as any[])
+        .map((a) => a.player_id as string)
+        .filter(Boolean);
+
+      const adminUserIdList: string[] = [];
+      if (adminPlayerIds.length > 0) {
+        const { data: adminPlayers, error: adminPlayersError } = await (supabase as any)
+          .from("players")
+          .select("user_id")
+          .in("id", adminPlayerIds);
+        if (adminPlayersError) throw adminPlayersError;
+        for (const ap of (adminPlayers || []) as any[]) {
+          if (ap.user_id) adminUserIdList.push(ap.user_id);
+        }
+      }
+      const adminUserIds = new Set(adminUserIdList);
       for (const r of (creatorRows || []) as any[]) {
         if (!r.created_by) continue;
         if (r.created_by === ownerUserId || adminUserIds.has(r.created_by)) {
