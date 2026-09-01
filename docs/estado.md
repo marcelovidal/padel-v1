@@ -69,6 +69,16 @@ CREATE, porque agregar parámetros con DEFAULT crea una sobrecarga y deja
 la llamada vieja ambigua) y el chequeo de `registrations_open` dentro de
 los dos `public_request_*_registration`.
 
+**Patrón aprendido (nos pasó dos veces):** en Postgres, `CREATE OR
+REPLACE FUNCTION` con parámetros nuevos (aunque lleven `DEFAULT`) crea
+una **sobrecarga**, no reemplaza. Quedan dos funciones y PostgREST puede
+fallar con "Could not choose the best candidate function". Pasó con
+`club_update_*_info` y con `player_create_guest_player` (la de 10 params
+sin `p_category` quedó viva junto a la de 11; se dropeó el 01/09 con
+`20260901_drop_guest_player_overload.sql`). Si se agrega un parámetro a
+un RPC existente: `DROP` explícito de la firma vieja + `CREATE`, nunca
+`CREATE OR REPLACE` a secas.
+
 Backfill: cierra las inscripciones de los eventos `finished` y de los
 que ya tienen fixture generado. El resto queda abierto, que es lo que
 hacen hoy. Las fechas nuevas quedan en `NULL` a propósito: las cargadas
