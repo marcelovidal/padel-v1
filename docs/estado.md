@@ -176,6 +176,14 @@ Hay **6 stashes** viejos (`feature/stage-q6-leagues`, `stage-p1-claim`,
 `stage-k`, `player-auth-v2`, `player-portal-v2`). No se revisaron; son
 de etapas cerradas.
 
+### Excepción a la convención de --no-ff: `fix/keepalive-write`
+Mergeado el 01/09 vía **fast-forward** (`9f420a0..368ea7d`) por error:
+los 3 commits (`dece3d2`, `3df9200`, `368ea7d`) quedaron lineales sobre
+`main` sin commit de merge, a diferencia del resto de los bloques que
+mergen con `--no-ff`. No se corrigió con force-push: main está conectado
+a producción y reescribir historia por algo cosmético no vale el riesgo.
+Queda como excepción documentada; el código está completo y funcionando.
+
 ---
 
 ## 3. Qué se verificó y qué falta
