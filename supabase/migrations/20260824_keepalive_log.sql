@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS keepalive_log (
   id         bigserial PRIMARY KEY,
   status     text NOT NULL CHECK (status IN ('ok', 'error')),
+  source     text NOT NULL DEFAULT 'cron' CHECK (source IN ('cron', 'manual')),
   message    text,
   duration_ms integer,
   ts         timestamptz NOT NULL DEFAULT now()
