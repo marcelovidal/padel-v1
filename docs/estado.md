@@ -315,6 +315,15 @@ evidencia de que algo esté implementado — verificar contra el código o
 contra producción antes de descartar una hipótesis por lo que dice un
 comentario.**
 
+**`bookings_enabled = false` oculta reservas desde el panel del jugador.**
+La flag está en `false` desde la migración `20260520_app_settings.sql`.
+`/player/bookings/new` funciona si se llega directo, pero la entrada
+desde "crear partido" (`/player/matches/new`) redirige a `mode=direct`.
+La reserva pública del club (`/clubs/[slug]/book`) no está afectada porque
+vive fuera del layout del jugador. Hoy un jugador solo puede reservar
+entrando por el link del club, no desde su panel. **Decidir con el
+cliente si se enciende.**
+
 **Sin capa de presentación compartida.** Posiciones y fixture existen
 dos veces: embebidos en las páginas del panel y como componentes nuevos
 en `components/public/events/`. Cambiar el formato hay que hacerlo dos
